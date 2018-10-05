@@ -9,11 +9,13 @@ public class HrormException extends RuntimeException {
     private final Optional<String> sql;
 
     public HrormException(SQLException sqlException){
+        super(sqlException);
         this.sqlException = sqlException;
         this.sql = Optional.empty();
     }
 
     public HrormException(SQLException sqlException, String sql){
+        super(sqlException);
         this.sqlException = sqlException;
         this.sql = Optional.of(sql);
     }
@@ -25,4 +27,6 @@ public class HrormException extends RuntimeException {
     public Optional<String> getSql(){
         return sql;
     }
+
+
 }

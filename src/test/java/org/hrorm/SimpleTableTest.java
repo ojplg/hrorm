@@ -1,6 +1,6 @@
 package org.hrorm;
 
-import lombok.Data;
+import org.hrorm.examples.Simple;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -17,7 +17,7 @@ import java.util.List;
 public class SimpleTableTest {
 
     public static final String H2ConnectionUrlPrefix = "jdbc:h2:./db/";
-    public static final String TestDbName = "simple_table";
+    public static final String TestDbName = "simple";
 
     public static final String TestSchema =
             "create sequence simple_seq;"
@@ -66,24 +66,18 @@ public class SimpleTableTest {
         }
     }
 
-    @Data
-    static class SimpleClass {
-        private Long id;
-        private String field;
-    }
-
-    private DaoBuilder<SimpleClass> daoBuilder(){
-        return new DaoBuilder<>("simple", SimpleClass::new)
-                .withPrimaryKey("id", "simple_seq", SimpleClass::getId, SimpleClass::setId)
-                .withStringColumn("field", SimpleClass::getField, SimpleClass::setField);
+    private DaoBuilder<Simple> daoBuilder(){
+        return new DaoBuilder<>("simple", Simple::new)
+                .withPrimaryKey("id", "simple_seq", Simple::getId, Simple::setId)
+                .withStringColumn("field", Simple::getField, Simple::setField);
     }
 
     @Test
     public void testInsertSetsPrimaryKey(){
         Connection connection = connect();
-        Dao<SimpleClass> dao = daoBuilder().buildDao(connection);
+        Dao<Simple> dao = daoBuilder().buildDao(connection);
 
-        SimpleClass simple = new SimpleClass();
+        Simple simple = new Simple();
         simple.setField("PrimaryKeyTest");
 
         dao.insert(simple);
@@ -94,14 +88,14 @@ public class SimpleTableTest {
     @Test
     public void testInsertAndSelect(){
         Connection connection = connect();
-        Dao<SimpleClass> dao = daoBuilder().buildDao(connection);
+        Dao<Simple> dao = daoBuilder().buildDao(connection);
 
-        SimpleClass simple = new SimpleClass();
+        Simple simple = new Simple();
         simple.setField("InsertSelectTest");
 
         dao.insert(simple);
 
-        SimpleClass dbInstance = dao.select(simple.getId());
+        Simple dbInstance = dao.select(simple.getId());
 
         Assert.assertEquals("InsertSelectTest", dbInstance.getField());
     }
@@ -109,14 +103,14 @@ public class SimpleTableTest {
     @Test
     public void testUpdates(){
         Connection connection = connect();
-        Dao<SimpleClass> dao = daoBuilder().buildDao(connection);
+        Dao<Simple> dao = daoBuilder().buildDao(connection);
 
-        SimpleClass simple = new SimpleClass();
+        Simple simple = new Simple();
         simple.setField("UpdateTest");
 
         dao.insert(simple);
 
-        SimpleClass dbInstance = dao.select(simple.getId());
+        Simple dbInstance = dao.select(simple.getId());
         Assert.assertEquals("UpdateTest", dbInstance.getField());
 
         simple.setField("UpdateTest New Value");
@@ -129,57 +123,57 @@ public class SimpleTableTest {
     @Test
     public void testSelectByColumn(){
         Connection connection = connect();
-        Dao<SimpleClass> dao = daoBuilder().buildDao(connection);
+        Dao<Simple> dao = daoBuilder().buildDao(connection);
 
-        SimpleClass simple = new SimpleClass();
+        Simple simple = new Simple();
         simple.setField("Select By Column Test");
 
         dao.insert(simple);
 
-        SimpleClass template = new SimpleClass();
+        Simple template = new Simple();
         template.setField("Select By Column Test");
 
-        SimpleClass dbInstance = dao.selectByColumns(template, "field");
+        Simple dbInstance = dao.selectByColumns(template, "field");
         Assert.assertEquals(simple.getId(), dbInstance.getId());
     }
 
     @Test
     public void testDelete(){
         Connection connection = connect();
-        Dao<SimpleClass> dao = daoBuilder().buildDao(connection);
+        Dao<Simple> dao = daoBuilder().buildDao(connection);
 
-        SimpleClass simple = new SimpleClass();
+        Simple simple = new Simple();
         simple.setField("Delete Test");
 
         dao.insert(simple);
 
-        SimpleClass fromDb = dao.select(simple.getId());
+        Simple fromDb = dao.select(simple.getId());
         Assert.assertNotNull(fromDb);
 
         dao.delete(simple);
 
-        SimpleClass fromDbAfterDelete = dao.select(simple.getId());
+        Simple fromDbAfterDelete = dao.select(simple.getId());
         Assert.assertNull(fromDbAfterDelete);
     }
 
     @Test
     public void testSelectAll(){
         Connection connection = connect();
-        Dao<SimpleClass> dao = daoBuilder().buildDao(connection);
+        Dao<Simple> dao = daoBuilder().buildDao(connection);
 
-        SimpleClass red = new SimpleClass();
+        Simple red = new Simple();
         red.setField("Red");
         dao.insert(red);
 
-        SimpleClass blue = new SimpleClass();
+        Simple blue = new Simple();
         blue.setField("Blue");
         dao.insert(blue);
 
-        SimpleClass green = new SimpleClass();
+        Simple green = new Simple();
         green.setField("Green");
         dao.insert(green);
 
-        List<SimpleClass> items = dao.selectAll();
+        List<Simple> items = dao.selectAll();
 
         Assert.assertEquals(3, items.size());
     }
