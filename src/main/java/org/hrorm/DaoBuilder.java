@@ -113,7 +113,7 @@ public class DaoBuilder<T> implements DaoDescriptor<T> {
     /**
      * Set data about the primary key of the table for this type. Hrorm demands that primary keys be
      * sequence numbers from the database. GUIDs and other constructions are not allowed. All
-     * Daos much have a primary key.
+     * Daos must have a primary key.
      *
      * @param columnName The name of the column in the table that holds the primary key.
      * @param sequenceName The name of the sequence that will provide new keys.
