@@ -8,6 +8,12 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+/**
+ * A DaoBuilder provides mechanisms for describing the relationship between
+ * a Java type and the table(s) that will persist the data held in the class.
+ *
+ * @param <T> The class that the Dao will support.
+ */
 public class DaoBuilder<T> implements DaoDescriptor<T> {
 
     private final String tableName;
@@ -19,6 +25,12 @@ public class DaoBuilder<T> implements DaoDescriptor<T> {
     private int prefixIndex = 0;
     private String[] prefixes = new String[] {"a","b","c","d","e","f","g","h","i","j","k","l"};
 
+    /**
+     * Create a new DaoBuilder instance.
+     *
+     * @param tableName The name of the table in the database.
+     * @param supplier A mechanism (generally a constructor) for creating a new instance.
+     */
     public DaoBuilder(String tableName, Supplier<T> supplier){
         this.tableName = tableName;
         this.supplier = supplier;
@@ -98,6 +110,17 @@ public class DaoBuilder<T> implements DaoDescriptor<T> {
         return this;
     }
 
+    /**
+     * Set data about the primary key of the table for this type. Hrorm demands that primary keys be
+     * sequence numbers from the database. GUIDs and other constructions are not allowed. All
+     * Daos much have a primary key.
+     *
+     * @param columnName The name of the column in the table that holds the primary key.
+     * @param sequenceName The name of the sequence that will provide new keys.
+     * @param getter The function to call to get the primary key value from an object instance.
+     * @param setter The function to call to set the primary key value to an object instance.
+     * @return This instance.
+     */
     public DaoBuilder<T> withPrimaryKey(String columnName, String sequenceName, Function<T, Long> getter, BiConsumer<T, Long> setter){
         this.primaryKey = new PrimaryKeyImpl<>(columnName, "a", getter, setter, sequenceName);
         columns.add(primaryKey);

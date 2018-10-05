@@ -2,6 +2,12 @@ package org.hrorm;
 
 import java.util.List;
 
+/**
+ * A Dao is an interface that allows basic CRUD operations to be performed.
+ * Using a Dao, you can insert, select, update, and delete records.
+ *
+ * @param <T> The type of the data to be persisted.
+ */
 public interface Dao<T> {
 
     /**
