@@ -1,15 +1,29 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.hrorm</groupId>
   <artifactId>hrorm</artifactId>
   <packaging>jar</packaging>
   <version>0.1</version>
   <name>hrorm</name>
-  <url>http://maven.apache.org</url>
+  <url>http://hrorm.org</url>
+
+  <licenses>
+    <license>
+      <name>GNU LESSER GENERAL PUBLIC LICENSE, Version 3</name>
+      <url>https://www.gnu.org/copyleft/lesser.html</url>
+    </license>
+  </licenses>
+
+  <scm>
+    <url>https://github.com/ojplg/hrorm</url>
+  </scm>
+
   <build>
     <plugins>
       <plugin>
+        <version>2.4</version>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
         <configuration>
@@ -19,6 +33,7 @@
       </plugin>
     </plugins>
   </build>
+
   <dependencies>
     <dependency>
       <groupId>org.projectlombok</groupId>
@@ -46,4 +61,5 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
+
 </project>
