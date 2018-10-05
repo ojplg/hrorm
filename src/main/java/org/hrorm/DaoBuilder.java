@@ -63,10 +63,25 @@ public class DaoBuilder<T> implements DaoDescriptor<T> {
 
     public List<JoinColumn<T,?>> joinColumns() { return joinColumns; }
 
+    /**
+     * Creates a {@link Dao} for performing CRUD operations of type <code>T</code>.
+     *
+     * @param connection The SQL connection this <code>Dao</code> will use
+     *                   for its operations.
+     * @return The newly created <code>Dao</code>.
+     */
     public Dao<T> buildDao(Connection connection){
         return new DaoImpl<>(connection, tableName, supplier, primaryKey, columns, joinColumns, childrenDescriptors);
     }
 
+    /**
+     * Describes a text or string data element.
+     *
+     * @param columnName The name of the column that holds the data element.
+     * @param getter The function on <code>T</code> that returns the data element.
+     * @param setter The function on <code>T</code> that consumes the data element.
+     * @return This instance.
+     */
     public DaoBuilder<T> withStringColumn(String columnName, Function<T, String> getter, BiConsumer<T, String> setter){
         TypedColumn<T> column = new StringColumn<>(columnName, "a", getter, setter);
         columns.add(column);
