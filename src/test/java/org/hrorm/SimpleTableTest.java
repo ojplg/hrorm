@@ -1,69 +1,27 @@
 package org.hrorm;
 
 import org.hrorm.examples.Simple;
+import org.hrorm.h2.H2Helper;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.Statement;
 import java.util.List;
 
 public class SimpleTableTest {
 
-    public static final String H2ConnectionUrlPrefix = "jdbc:h2:./db/";
-    public static final String TestDbName = "simple";
+    private static H2Helper helper = new H2Helper("simple");
 
-    public static final String TestSchema =
-            "create sequence simple_seq;"
-            + "create table simple ("
-            + " id integer PRIMARY KEY,"
-            + " field text );";
-
-    private static boolean initialized;
-
-    private Connection connect() {
-        try {
-            Class.forName("org.h2.Driver");
-            return DriverManager.getConnection(H2ConnectionUrlPrefix + TestDbName);
-        } catch (Exception ex){
-            throw new RuntimeException(ex);
-        }
+    @Before
+    public void setUpDb(){
+        helper.initializeSchema();
     }
 
     @After
     public void cleanUpDb(){
-        try {
-            Connection connection = connect();
-            Statement statement = connection.createStatement();
-            statement.execute("delete from simple");
-
-            Path path = Paths.get("./db/" + TestDbName + ".mv.db");
-            Files.deleteIfExists(path);
-            path = Paths.get("./db/" + TestDbName + ".trace.db");
-            Files.deleteIfExists(path);
-        } catch (Exception ex){
-            throw new RuntimeException(ex);
-        }
-    }
-
-    @Before
-    public void setUpDb(){
-        if ( ! initialized ) {
-            try {
-                Connection connection = connect();
-                Statement statement = connection.createStatement();
-                statement.execute(TestSchema);
-                initialized = true;
-            } catch (Exception ex) {
-                throw new RuntimeException(ex);
-            }
-        }
+        helper.dropSchema();
     }
 
     private DaoBuilder<Simple> daoBuilder(){
@@ -74,7 +32,7 @@ public class SimpleTableTest {
 
     @Test
     public void testInsertSetsPrimaryKey(){
-        Connection connection = connect();
+        Connection connection = helper.connect();
         Dao<Simple> dao = daoBuilder().buildDao(connection);
 
         Simple simple = new Simple();
@@ -87,7 +45,7 @@ public class SimpleTableTest {
 
     @Test
     public void testInsertAndSelect(){
-        Connection connection = connect();
+        Connection connection = helper.connect();
         Dao<Simple> dao = daoBuilder().buildDao(connection);
 
         Simple simple = new Simple();
@@ -102,7 +60,7 @@ public class SimpleTableTest {
 
     @Test
     public void testUpdates(){
-        Connection connection = connect();
+        Connection connection = helper.connect();
         Dao<Simple> dao = daoBuilder().buildDao(connection);
 
         Simple simple = new Simple();
@@ -122,7 +80,7 @@ public class SimpleTableTest {
 
     @Test
     public void testSelectByColumn(){
-        Connection connection = connect();
+        Connection connection = helper.connect();
         Dao<Simple> dao = daoBuilder().buildDao(connection);
 
         Simple simple = new Simple();
@@ -139,7 +97,7 @@ public class SimpleTableTest {
 
     @Test
     public void testDelete(){
-        Connection connection = connect();
+        Connection connection = helper.connect();
         Dao<Simple> dao = daoBuilder().buildDao(connection);
 
         Simple simple = new Simple();
@@ -158,7 +116,7 @@ public class SimpleTableTest {
 
     @Test
     public void testSelectAll(){
-        Connection connection = connect();
+        Connection connection = helper.connect();
         Dao<Simple> dao = daoBuilder().buildDao(connection);
 
         Simple red = new Simple();
