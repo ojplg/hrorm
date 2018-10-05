@@ -17,5 +17,17 @@
     the Java object to be persisted and the underlying schema that supports it.
 </p>
 
+<p>
+    While almost all the classes and methods in this package are public, there is little need to
+    use them directly. Other than the <code>DaoBuilder</code>, <code>Dao</code>, and <code>HrormException</code>
+    clients should not have to reference anything in this package.
+</p>
+
+<p>
+    Hrorm intentionally converts all checked <code>SQLException</code> instances that arise to
+    <code>HrormException</code> objects, which extend <code>RuntimeException</code>. Do not be
+    fooled, Hrorm is not magical and exceptions can happen.
+</p>
+
 </body>
 </html>
