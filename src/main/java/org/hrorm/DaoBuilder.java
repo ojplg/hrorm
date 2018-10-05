@@ -88,28 +88,80 @@ public class DaoBuilder<T> implements DaoDescriptor<T> {
         return this;
     }
 
+    /**
+     * Describes a numeric data element with no decimal or fractional part.
+     *
+     * @param columnName The name of the column that holds the data element.
+     * @param getter The function on <code>T</code> that returns the data element.
+     * @param setter The function on <code>T</code> that consumes the data element.
+     * @return This instance.
+     */
     public DaoBuilder<T> withIntegerColumn(String columnName, Function<T, Long> getter, BiConsumer<T, Long> setter){
         TypedColumn<T> column = new LongColumn<>(columnName, "a", getter, setter);
         columns.add(column);
         return this;
     }
 
+    /**
+     * Describes a data element with a particular type (like an enumeration) that
+     * is persisted using a <code>String</code> representation.
+     *
+     * @param columnName The name of the column that holds the data element.
+     * @param getter The function on <code>T</code> that returns the data element.
+     * @param setter The function on <code>T</code> that consumes the data element.
+     * @param converter A mechanism for converting between a <code>String</code> and
+     *                  the type <code>E</code> that the object contains.
+     * @return This instance.
+     */
     public <E> DaoBuilder<T> withConvertingStringColumn(String columnName, Function<T, E> getter, BiConsumer<T, E> setter, Converter<E, String> converter){
         TypedColumn<T> column = new StringConverterColumn<>(columnName, "a", getter, setter, converter);
         columns.add(column);
         return this;
     }
 
+    /**
+     * Describes a data element that represents a time stamp.
+     *
+     * @param columnName The name of the column that holds the data element.
+     * @param getter The function on <code>T</code> that returns the data element.
+     * @param setter The function on <code>T</code> that consumes the data element.
+     * @return This instance.
+     */
     public DaoBuilder<T> withLocalDateTimeColumn(String columnName, Function<T, LocalDateTime> getter, BiConsumer<T, LocalDateTime> setter){
         columns.add(new LocalDateTimeColumn<>(columnName, "a", getter, setter));
         return this;
     }
 
+    /**
+     * Describes a data element that represents a true/false value. Boolean
+     * elements are persisted to a text column with the single character
+     * "T" or "F".
+     *
+     * @param columnName The name of the column that holds the data element.
+     * @param getter The function on <code>T</code> that returns the data element.
+     * @param setter The function on <code>T</code> that consumes the data element.
+     * @return This instance.
+     */
     public DaoBuilder<T> withBooleanColumn(String columnName, Function<T, Boolean> getter, BiConsumer<T, Boolean> setter){
         columns.add(new StringConverterColumn<>(columnName, "a", getter, setter, BooleanConverter.INSTANCE));
         return this;
     }
 
+    /**
+     * Describes a data element that is represented by an <code>Object</code> of some
+     * other type <code>U</code> with its own table for persistence.
+     *
+     * @param columnName The name of the column with the foreign key to the other table.
+     *                   This column must be an integer type and must reference the primary
+     *                   key of the other table.
+     * @param getter The function on <code>T</code> that returns the data element.
+     * @param setter The function on <code>T</code> that consumes the data element.
+     * @param daoDescriptor The description of how the mapping for the subordinate element
+     *                      is persisted. Both <code>Dao</code> and <code>DaoBuilder</code>
+     *                      objects implement the <code>DaoDescriptor</code> interface.
+     * @param <U> The type of the data element.
+     * @return This instance.
+     */
     public <U> DaoBuilder<T> withJoinColumn(String columnName, Function<T, U> getter, BiConsumer<T,U> setter, DaoDescriptor<U> daoDescriptor){
         prefixIndex += 1;
         JoinColumn<T,U> joinColumn = new JoinColumn<>(columnName, prefixes[prefixIndex], getter, setter, daoDescriptor);
