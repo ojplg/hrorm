@@ -49,10 +49,6 @@ public class H2Helper {
 
     public void dropSchema(){
         try {
-            Connection connection = connect();
-            Statement statement = connection.createStatement();
-            statement.execute("delete from simple");
-
             Path path = Paths.get("./db/" + schemaName + ".mv.db");
             Files.deleteIfExists(path);
             path = Paths.get("./db/" + schemaName + ".trace.db");

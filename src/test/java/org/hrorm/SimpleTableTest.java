@@ -2,25 +2,26 @@ package org.hrorm;
 
 import org.hrorm.examples.Simple;
 import org.hrorm.h2.H2Helper;
-import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.sql.Connection;
+import java.sql.Statement;
 import java.util.List;
 
 public class SimpleTableTest {
 
     private static H2Helper helper = new H2Helper("simple");
 
-    @Before
-    public void setUpDb(){
+    @BeforeClass
+    public static void setUpDb(){
         helper.initializeSchema();
     }
 
-    @After
-    public void cleanUpDb(){
+    @AfterClass
+    public static void cleanUpDb(){
         helper.dropSchema();
     }
 
@@ -28,6 +29,16 @@ public class SimpleTableTest {
         return new DaoBuilder<>("simple", Simple::new)
                 .withPrimaryKey("id", "simple_seq", Simple::getId, Simple::setId)
                 .withStringColumn("field", Simple::getField, Simple::setField);
+    }
+
+    private void deleteAll(){
+        try {
+            Connection connection = helper.connect();
+            Statement statement = connection.createStatement();
+            statement.execute("delete from simple");
+        } catch (Exception ex){
+            throw new RuntimeException(ex);
+        }
     }
 
     @Test
@@ -116,7 +127,11 @@ public class SimpleTableTest {
 
     @Test
     public void testSelectAll(){
+
+        deleteAll();
+
         Connection connection = helper.connect();
+
         Dao<Simple> dao = daoBuilder().buildDao(connection);
 
         Simple red = new Simple();
