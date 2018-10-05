@@ -169,6 +169,26 @@ public class DaoBuilder<T> implements DaoDescriptor<T> {
         return this;
     }
 
+    /**
+     * Describes a relationship between the object <code>T</code> and its several
+     * child objects of type <code>U</code>.
+     *
+     * When hrorm inserts or updates objects with children it will attempt to
+     * create, update, or delete child elements as necessary.
+     *
+     * @param parentChildColumnName The name on of the column <em>on the child table</em> that defines
+     *                              the persisted link between the children objects of type <code>U</code>
+     *                              and the parent object of type <code>T</code>.
+     * @param parentSetter The function that allows the primary key of object <code>T</code> onto
+     *                     the child object <code>U</code>.
+     * @param getter The function on <code>T</code> that returns the children.
+     * @param setter The function on <code>T</code> that consumes the children.
+     * @param daoDescriptor The description of how the mapping for the subordinate elements
+     *                      are persisted. Both <code>Dao</code> and <code>DaoBuilder</code>
+     *                      objects implement the <code>DaoDescriptor</code> interface.
+     * @param <U> The type of the child data elements.
+     * @return This instance.
+     */
     public <U> DaoBuilder<T> withChildren(String parentChildColumnName, BiConsumer<U,Long> parentSetter,
                                           Function<T, List<U>> getter, BiConsumer<T, List<U>> setter, DaoDescriptor<U> daoDescriptor){
         childrenDescriptors.add(
