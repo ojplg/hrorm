@@ -114,6 +114,7 @@ public class DaoBuilder<T> implements DaoDescriptor<T> {
      * @param setter The function on <code>T</code> that consumes the data element.
      * @param converter A mechanism for converting between a <code>String</code> and
      *                  the type <code>E</code> that the object contains.
+     * @param <E> The type being converted for persistence.
      * @return This instance.
      */
     public <E> DaoBuilder<T> withConvertingStringColumn(String columnName, Function<T, E> getter, BiConsumer<T, E> setter, Converter<E, String> converter){
