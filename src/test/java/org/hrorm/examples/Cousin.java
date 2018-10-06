@@ -6,4 +6,5 @@ import lombok.Data;
 public class Cousin {
     private Long id;
     private EnumeratedColor color;
+    private SecondCousin secondCousin;
 }

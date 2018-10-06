@@ -1,5 +1,7 @@
 package org.hrorm;
 
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -33,27 +35,31 @@ public class JoinColumn<T, J> implements TypedColumn<T> {
         this.supplier = daoDescriptor.supplier();
         this.dataColumns = daoDescriptor.dataColumns().stream().map(c -> c.withPrefix(prefix)).collect(Collectors.toList());
         this.primaryKey = daoDescriptor.primaryKey();
-        List<JoinColumn<J,?>> transitiveJoins = new ArrayList<>();
-        for(JoinColumn<J,?> transitiveColumn : daoDescriptor.joinColumns()){
-            JoinColumn<J,?> betterPrefix = transitiveColumn.withPrefixes(prefixer.nextPrefix(), this.prefix);
-            transitiveJoins.add(betterPrefix);
-        }
-        this.transitiveJoins = transitiveJoins;
+        this.transitiveJoins = resetColumnPrefixes(prefixer,prefix, daoDescriptor.joinColumns());
     }
 
-    private JoinColumn(String name, String prefix, String joinedTablePrefix, String table, Function<T, J> getter,
+    private JoinColumn(String name, Prefixer prefixer, String joinedTablePrefix, String table, Function<T, J> getter,
                        BiConsumer<T, J> setter, Supplier<J> supplier, PrimaryKey<J> primaryKey,
                        List<TypedColumn<J>> dataColumns, List<JoinColumn<J,?>> transitiveJoins) {
         this.name = name;
         this.table = table;
         this.joinedTablePrefix = joinedTablePrefix;
-        this.prefix = prefix;
+        this.prefix = prefixer.nextPrefix();
         this.getter = getter;
         this.setter = setter;
         this.supplier = supplier;
         this.primaryKey = primaryKey;
         this.dataColumns = dataColumns.stream().map(c -> c.withPrefix(prefix) ).collect(Collectors.toList());
-        this.transitiveJoins = transitiveJoins;
+        this.transitiveJoins = resetColumnPrefixes(prefixer, prefix, transitiveJoins);
+    }
+
+    private List<JoinColumn<J,?>> resetColumnPrefixes(Prefixer prefixer, String joinedTablePrefix, List<JoinColumn<J,?>> joinColumns){
+        List<JoinColumn<J,?>> tmp = new ArrayList<>();
+        for(JoinColumn<J,?> column : joinColumns){
+            JoinColumn<J,?> resetColumn = column.withPrefixes(prefixer, joinedTablePrefix);
+            tmp.add(resetColumn);
+        }
+        return tmp;
     }
 
     public List<JoinColumn<J,?>> getTransitiveJoins(){
@@ -100,13 +106,19 @@ public class JoinColumn<T, J> implements TypedColumn<T> {
         preparedStatement.setLong(index, id);
     }
 
-    public JoinColumn<T,J> withPrefixes(String prefix, String joinedTablePrefix) {
-        return new JoinColumn<>(name, prefix, joinedTablePrefix, table, getter, setter, supplier, primaryKey, dataColumns, transitiveJoins);
+    public JoinColumn<T,J> withPrefixes(Prefixer prefixer, String joinedTablePrefix) {
+//        List<JoinColumn<J,?>> transitiveJoins = new ArrayList<>();
+//        for(JoinColumn<J,?> transitiveColumn : this.getTransitiveJoins()){
+//            JoinColumn<J,?> resetColumn = transitiveColumn.withPrefixes(prefixer, this.prefix);
+//            transitiveJoins.add(resetColumn);
+//        }
+        return new JoinColumn<>(name, prefixer, joinedTablePrefix, table, getter, setter, supplier, primaryKey, dataColumns, transitiveJoins);
     }
 
     @Override
     public TypedColumn<T> withPrefix(String prefix) {
-        return new JoinColumn<>(name, prefix, joinedTablePrefix, table, getter, setter, supplier, primaryKey, dataColumns, transitiveJoins);
+        throw new NotImplementedException();
+//        return new JoinColumn<>(name, prefix, joinedTablePrefix, table, getter, setter, supplier, primaryKey, dataColumns, transitiveJoins);
     }
 
     public List<TypedColumn<J>> getDataColumns(){

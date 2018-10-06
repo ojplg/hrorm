@@ -75,10 +75,15 @@ public class SqlBuilder<T> {
         List<JoinColumn> flatJoinColumnList = new ArrayList<>();
         // FIXME: This needs to be fully recursive!!!
         for(JoinColumn joinColumn : joinColumns){
-            flatJoinColumnList.add(joinColumn);
-            flatJoinColumnList.addAll(joinColumn.getTransitiveJoins());
+            appendColumnsRecursively(flatJoinColumnList, joinColumn);
         }
         return flatJoinColumnList;
+    }
+
+    private void appendColumnsRecursively(List<JoinColumn> listToBuild, JoinColumn columnToAdd){
+        List<JoinColumn> listToAppend = columnToAdd.getTransitiveJoins();
+        listToAppend.forEach(c -> appendColumnsRecursively(listToBuild, c));
+        listToBuild.add(columnToAdd);
     }
 
     public String selectByColumns(String ... columnNames){

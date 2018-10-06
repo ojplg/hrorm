@@ -18,5 +18,13 @@ create sequence cousin_seq;
 
 create table cousins (
     id integer primary key,
-    color text
+    color text,
+    second_cousin_id integer
+);
+
+create sequence second_cousin_seq;
+
+create table second_cousins (
+    id integer primary key,
+    datetime timestamp
 );

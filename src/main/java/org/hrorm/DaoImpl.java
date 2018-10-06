@@ -94,9 +94,6 @@ public class DaoImpl<T> implements Dao<T>, DaoDescriptor<T> {
     public T select(long id) {
         String sql = sqlBuilder.select();
         sql = sql + " and a." + primaryKey.getName() + " = " + id;
-
-        System.out.println("sql " + sql);
-
         List<T> items = sqlRunner.select(sql, supplier, childrenDescriptors);
         return fromSingletonList(items);
     }
