@@ -38,7 +38,7 @@ public class SqlBuilder<T> {
         StringBuilder buf = new StringBuilder();
         buf.append("select ");
         buf.append(columnsAsString("a", true, dataColumns));
-        for(JoinColumn<?, ?> joinColumn : joinColumns) {
+        for(JoinColumn<?, ?> joinColumn : flattenedJoinColumns()) {
             buf.append(", ");
             buf.append(columnsAsString(
                     joinColumn.getPrefix(),

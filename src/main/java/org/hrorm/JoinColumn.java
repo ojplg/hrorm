@@ -84,7 +84,9 @@ public class JoinColumn<T, J> implements TypedColumn<T> {
         for (TypedColumn<J> column: dataColumns) {
             column.populate(joined, resultSet);
         }
-
+        for(JoinColumn<J,?> joinColumn : transitiveJoins){
+            joinColumn.populate(joined, resultSet);
+        }
         setter.accept(item, joined);
     }
 
