@@ -9,6 +9,12 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.function.Supplier;
 
+/**
+ * Implementers of this interface completely describe all the information
+ * necessary to persisting objects of type <code>T</code>.
+ *
+ * @param <T> The object representing the enitity being persisted.
+ */
 public interface DaoDescriptor<T> {
 
     String tableName();

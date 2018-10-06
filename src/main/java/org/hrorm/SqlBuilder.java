@@ -5,6 +5,12 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+/**
+ * This class generates SQL strings suitable to be used in
+ * {@link java.sql.PreparedStatement}s.
+ *
+ * @param <T> The type of the entity being persisted.
+ */
 public class SqlBuilder<T> {
 
     private final String table;

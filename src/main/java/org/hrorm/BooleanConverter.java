@@ -1,5 +1,9 @@
 package org.hrorm;
 
+/**
+ * This {@link Converter} translates true values to "T" and false
+ * values to "F".
+ */
 public class BooleanConverter implements Converter<Boolean, String> {
 
     public static final BooleanConverter INSTANCE = new BooleanConverter();
