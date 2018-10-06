@@ -8,6 +8,7 @@
   <version>0.1.0</version>
   <name>hrorm</name>
   <url>http://hrorm.org</url>
+  <description>Hrorm is a simple, declarative ORM library.</description>
 
   <licenses>
     <license>
@@ -16,7 +17,16 @@
     </license>
   </licenses>
 
+  <developers>
+    <developer>
+      <name>Oliver Gugenheim</name>
+      <email>lees@ripco.com</email>
+    </developer>
+  </developers>
+
   <scm>
+    <connection>scm:git:ssh://github.com:ojplg/hrorm.git</connection>
+    <developerConnection>scm:git:ssh://github.com:ojplg/hrorm.git</developerConnection>
     <url>https://github.com/ojplg/hrorm</url>
   </scm>
 
