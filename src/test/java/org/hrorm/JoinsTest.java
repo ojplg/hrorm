@@ -44,6 +44,8 @@ public class JoinsTest {
                     .withStringColumn("name", Thing::getName, Thing::setName)
                     .withJoinColumn("sibling_id", Thing::getSibling, Thing::setSibling, SiblingDaoBuilder);
 
+
+
     @Test
     public void testSelectLoadsSiblingAndCousin(){
         Connection connection = helper.connect();
@@ -72,7 +74,7 @@ public class JoinsTest {
         Thing readFromDb = thingDao.select(thing.getId());
 
         Assert.assertEquals(44L, (long) readFromDb.getSibling().getNumber());
-//        Assert.assertEquals(EnumeratedColor.Green, readFromDb.getSibling().getCousin().getColor());
+        Assert.assertEquals(EnumeratedColor.Green, readFromDb.getSibling().getCousin().getColor());
     }
 
 }

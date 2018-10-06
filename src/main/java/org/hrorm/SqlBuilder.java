@@ -1,5 +1,6 @@
 package org.hrorm;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -11,7 +12,9 @@ public class SqlBuilder<T> {
     private final List<JoinColumn<T, ?>> joinColumns;
     private final PrimaryKey<T> primaryKey;
 
-    public SqlBuilder(String table, List<TypedColumn<T>> dataColumns, List<JoinColumn<T, ?>> joinColumns, PrimaryKey<T> primaryKey) {
+    public SqlBuilder(String table, List<TypedColumn<T>> dataColumns,
+                      List<JoinColumn<T, ?>> joinColumns,
+                      PrimaryKey<T> primaryKey) {
         this.table = table;
         this.dataColumns = dataColumns;
         this.joinColumns = joinColumns;
@@ -35,28 +38,30 @@ public class SqlBuilder<T> {
         StringBuilder buf = new StringBuilder();
         buf.append("select ");
         buf.append(columnsAsString("a", true, dataColumns));
-        for(JoinColumn<T, ?> joinColumn : joinColumns) {
+        for(JoinColumn<?, ?> joinColumn : joinColumns) {
             buf.append(", ");
             buf.append(columnsAsString(
                     joinColumn.getPrefix(),
                     true,
-                    joinColumn.getColumnList()
+                    joinColumn.getDataColumns()
             ));
         }
         buf.append(" from ");
         buf.append(table);
         buf.append(" a");
-        for(JoinColumn joinColumn : joinColumns) {
+        List<JoinColumn> flattenedJoinColumns = flattenedJoinColumns();
+        for(JoinColumn joinColumn : flattenedJoinColumns) {
             buf.append(", ");
             buf.append(joinColumn.getTable());
             buf.append(" ");
             buf.append(joinColumn.getPrefix());
         }
         buf.append(" where 1=1 ");
-        for( int idx=0; idx<joinColumns.size(); idx++ ){
-            JoinColumn joinColumn = joinColumns.get(idx);
+        for( int idx=0; idx<flattenedJoinColumns.size(); idx++ ){
+            JoinColumn joinColumn = flattenedJoinColumns.get(idx);
             buf.append(" and ");
-            buf.append("a.");
+            buf.append(joinColumn.getJoinedTablePrefix());
+            buf.append(".");
             buf.append(joinColumn.getName());
             buf.append("=");
             buf.append(joinColumn.getPrefix());
@@ -64,6 +69,16 @@ public class SqlBuilder<T> {
         }
 
         return buf.toString();
+    }
+
+    private List<JoinColumn> flattenedJoinColumns(){
+        List<JoinColumn> flatJoinColumnList = new ArrayList<>();
+        // FIXME: This needs to be fully recursive!!!
+        for(JoinColumn joinColumn : joinColumns){
+            flatJoinColumnList.add(joinColumn);
+            flatJoinColumnList.addAll(joinColumn.getTransitiveJoins());
+        }
+        return flatJoinColumnList;
     }
 
     public String selectByColumns(String ... columnNames){
