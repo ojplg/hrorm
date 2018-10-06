@@ -107,18 +107,12 @@ public class JoinColumn<T, J> implements TypedColumn<T> {
     }
 
     public JoinColumn<T,J> withPrefixes(Prefixer prefixer, String joinedTablePrefix) {
-//        List<JoinColumn<J,?>> transitiveJoins = new ArrayList<>();
-//        for(JoinColumn<J,?> transitiveColumn : this.getTransitiveJoins()){
-//            JoinColumn<J,?> resetColumn = transitiveColumn.withPrefixes(prefixer, this.prefix);
-//            transitiveJoins.add(resetColumn);
-//        }
         return new JoinColumn<>(name, prefixer, joinedTablePrefix, table, getter, setter, supplier, primaryKey, dataColumns, transitiveJoins);
     }
 
     @Override
     public TypedColumn<T> withPrefix(String prefix) {
         throw new NotImplementedException();
-//        return new JoinColumn<>(name, prefix, joinedTablePrefix, table, getter, setter, supplier, primaryKey, dataColumns, transitiveJoins);
     }
 
     public List<TypedColumn<J>> getDataColumns(){
