@@ -1,7 +1,5 @@
 package org.hrorm;
 
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
-
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -112,7 +110,7 @@ public class JoinColumn<T, J> implements TypedColumn<T> {
 
     @Override
     public TypedColumn<T> withPrefix(String prefix) {
-        throw new NotImplementedException();
+        throw new UnsupportedOperationException();
     }
 
     public List<TypedColumn<J>> getDataColumns(){
