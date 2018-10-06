@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>hrorm</title>
+    <style>
+    body {
+        width: 65em;
+        margin: 0 auto;
+        font-family: Tahoma, Verdana, Arial, sans-serif;
+    }
+    div.java {
+        font-family: monospace;
+        background-color: LightBlue;
+        font-size: 105%;
+    }
+    div.disclaimer {
+        color: DarkGrey;
+        font-size: 75;
+    }
+    table.gridtable {
+        color:#333333;
+        border-width: 1px;
+        border-color: #666666;
+        border-collapse: collapse;
+    }
+    table.gridtable th {
+        border-width: 1px;
+        padding: 8px;
+        border-style: solid;
+        border-color: #666666;
+        background-color: #dedede;
+    }
+    table.gridtable td {
+        border-width: 1px;
+        padding: 8px;
+        border-style: solid;
+        border-color: #666666;
+        background-color: #ffffff;
+    }
+
+</style>
+</head>
+<body>
+<h1>hrorm</h1>
+
+<p>Hrorm is the Hand Rolled Object Relational Mapper.</p>
+
+<p><a href="https://github.com/ojplg/hrorm">Code</a> - <a href="/javadocs/site/apidocs/index.html">Javadocs</a> </p>
+
+<p>Hrorm is a Java library.</p>
+
+<h2>Basics</h2>
+
+<p>Suppose you are working on a program for managing recipes that has a domain model that looks like this.</p>
+
+<pre>
+<div class="java">
+    class Author {
+        Long id;
+        String name;
+    }
+
+    class Recipe {
+        Long id;
+        String name;
+        Author author;
+        List&lt;Ingredient&gt; ingredients;
+    }
+
+    class Ingredient {
+        Long id;
+        long recipeId;
+        String name;
+        long amount;
+    }
+
+</div>
+</pre>
+
+<p>You might ask yourself: how will I persist such a rich, complex model? And you might think ... I know,
+    I'll put everything into a <code>List</code> and call <code>serialize()</code> and write that to a file on disk.
+    How many recipes and simultaneous users are we expecting to support anyway?
+</p>
+
+<p>But instead, you come up with the following relational schema.</p>
+
+<img src="recipe_schema.png">
+
+<p>Because you are the absolute Empress of Overkill.</p>
+
+<p>Now you would think to use <a href="http://hibernate.org/">Hibernate</a> or
+    <a href="http://www.mybatis.org/mybatis-3/">Mybatis</a> or something, but no, you
+    are a real glutton for punishment, so you decide to use hrorm.</p>
+
+<p>To use hrorm you would write some code like this.</p>
+
+<div class="disclaimer">Disclaimer: Yeah, I assume that your schema has some sequences that are not in the picture above.
+    Also, you should have created getters and setters for all of the fields on your object model or
+    used <a href="https://projectlombok.org/">Lombok</a> or something.</div>
+
+<pre>
+<div class="java">
+    DaoBuilder&lt;Author&gt; authorDaoBuilder = new DaoBuilder&lt;&gt;("AUTHOR", Author::new)
+            .withPrimaryKey("ID", "AUTHOR_SEQUENCE", Author::getId, Author::setId)
+            .withStringColumn("NAME", Author::getName, Author::setName);
+
+    DaoBuilder&lt;Ingredient&gt; ingredientDaoBuilder = new DaoBuilder&lt;&gt;("INGREDIENT", Ingredient::new)
+            .withPrimaryKey("ID", "INGREDIENT_SEQUENCE", Ingredient::getId, Ingredient::setId)
+            .withIntegerColumn("RECIPE_ID", Ingredient::getRecipeId, Ingredient::setRecipeId)
+            .withStringColumn("NAME", Ingredient::getName, Ingredient::setName);
+
+    DaoBuilder&lt;Recipe&gt; recipeDaoBuilder = new DaoBuilder&lt;&gt;("RECIPE", Recipe::new)
+            .withPrimaryKey("ID", "RECIPE_SEQUENCE", Recipe::getId, Recipe::setId)
+            .withStringColumn("NAME", Recipe::getName, Recipe::setName)
+            .withJoinColumn("AUTHOR_ID", Recipe::getAuthor, Recipe::setAuthor, authorDaoBuilder)
+            .withChildren("RECIPE_ID", Ingredient::setRecipeId, Recipe::getIngredients, Recipe::setIngredients, ingredientDaoBuilder);
+
+</div>,
+</pre>
+
+<p>
+    That's pretty painful. Thank God for autocompletion. Once that's done, and assuming you have some way to make
+    a <code>java.sql.Connection</code> object now you can actually make a <code>Dao</code>. Then you can
+    write some code like this.
+</p>
+
+<pre>
+<div class="java">
+    Connection connection = // somehow this happened
+
+    Dao&lt;Author&gt; authorDao = authorDaoBuilder.buildDao(connection);
+
+    Author juliaChild = new Author();
+    juliaChild.setName("Julia Child");
+
+    authorDao.insert(juliaChild);
+
+    Ingredient carrots = new Ingredient();
+    carrots.setName("Carrots");
+    carrots.setAmount(4L);
+    Ingredient onions = new Ingredient();
+    onions.setName("Onions");
+    onions.setAmount(2L);
+    Ingredient beef = new Ingredient();
+    beef.setName("Cow");
+    beef.setAmount(1L);
+
+    Recipe beefStew = new Recipe():
+    beefStew.setName("Beef Stew");
+    beefStew.setAuthor(juliaChild);
+    beefStew.setIngredients(Arrays.asList(carrots, onions, beef));
+
+    Dao<Recipe> recipeDao = recipeDaoBuilder.buildDao(connection);
+    recipeDao.insert(beefStew);
+
+</div>
+</pre>
+
+<p>Of course, <code>Dao</code>s can do more than just <code>insert</code>. They can also do
+<code>update</code>, <code>delete</code>, and various forms of <code>select</code>.</p>
+
+<p>And really, that's all there is to hrorm.</p>
+
+<h2>Comparison with Other ORM Tools</h2>
+
+<table class="gridtable">
+    <thead>
+        <tr>
+            <th></th>
+            <th>Hibernate</th>
+            <th>Mybatis</th>
+            <th>hrorm</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        <tr>
+            <td>Fully-featured</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>No</td>
+        </tr>
+        <tr>
+            <td>Wide community support</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>No</td>
+        </tr>
+        <tr>
+            <td>Rich documentation</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>No</td>
+        </tr>
+        <tr>
+            <td>Battle tested in major enterprise deployments</td>
+            <td>Yes</td>
+            <td>Yes</td>
+            <td>No</td>
+        </tr>
+        <tr>
+            <td>Supports your schema and object model without constraints</td>
+            <td>Maybe</td>
+            <td>Somewhat</td>
+            <td>Absolutely not</td>
+        </tr>
+    </tbody>
+
+</table>
+
+</body>
+</html>
