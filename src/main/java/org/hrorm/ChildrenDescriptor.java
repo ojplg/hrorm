@@ -3,7 +3,9 @@ package org.hrorm;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.SortedMap;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -68,53 +70,65 @@ public class ChildrenDescriptor<PARENT,CHILD> {
         if( children == null ){
             children = Collections.emptyList();
         }
-        List<Long> goodChildrenIds = new ArrayList<>();
         Long parentId = primaryKey.getKey(item);
 
+        Set<Long> existingIds = findExistingChildrenIds(connection, parentId);
         for(CHILD child : children){
             parentSetter.accept(child, parentId);
-            if( daoDescriptor.primaryKey().getKey(child) == null ) {
+            Long childId = daoDescriptor.primaryKey().getKey(child);
+            if( childId == null ) {
                 long id = DaoHelper.getNextSequenceValue(connection, daoDescriptor.primaryKey().getSequenceName());
                 daoDescriptor.primaryKey().setKey(child, id);
                 String sql = sqlBuilder.insert();
                 sqlRunner.insert(sql, child);
-                goodChildrenIds.add(id);
             } else {
+                existingIds.remove(childId);
                 String sql = sqlBuilder.update(child);
                 sqlRunner.update(sql, child);
-                goodChildrenIds.add(daoDescriptor.primaryKey().getKey(child));
             }
             for(ChildrenDescriptor<CHILD,?> grandchildrenDescriptor : grandChildrenDescriptors){
                 grandchildrenDescriptor.saveChildren(connection, child);
             }
         }
-        deleteOrphans(connection, item, goodChildrenIds);
+        deleteOrphans(connection, existingIds);
     }
 
-    private void deleteOrphans(Connection connection, PARENT item, List<Long> goodChildrenIds) {
-
+    public Set<Long> findExistingChildrenIds(Connection connection, Long parentId){
         StringBuilder buf = new StringBuilder();
-        buf.append("delete from ");
+        buf.append("select " );
+        buf.append(daoDescriptor.primaryKey().getName());
+        buf.append(" from ");
         buf.append(daoDescriptor.tableName());
         buf.append(" where ");
         buf.append(parentChildColumnName);
         buf.append(" = ");
-        buf.append(primaryKey.getKey(item));
-
-        if( goodChildrenIds.size() > 0 ) {
-            List<String> goodChildrenIdStrings = goodChildrenIds.stream().map(Object::toString).collect(Collectors.toList());
-
-            buf.append(" and ");
-            buf.append(daoDescriptor.primaryKey().getName());
-            buf.append(" not in ");
-            buf.append("(");
-            buf.append(String.join(", ", goodChildrenIdStrings));
-            buf.append(")");
-        }
+        buf.append(parentId);
 
         String sql = buf.toString();
 
-        DaoHelper.runDelete(connection, sql);
+        List<Long> ids = DaoHelper.readLongs(connection, sql);
+        Set<Long> idSet = new HashSet<>();
+        idSet.addAll(ids);
+        return idSet;
+    }
+
+    private void deleteOrphans(Connection connection, Set<Long> badChildrenIds) {
+        StringBuilder buf = new StringBuilder();
+        buf.append("delete from ");
+        buf.append(daoDescriptor.tableName());
+        buf.append(" where ");
+        buf.append(daoDescriptor.primaryKey().getName());
+        buf.append(" = ?");
+
+        String preparedSql = buf.toString();
+
+        for(Long badId : badChildrenIds) {
+            for( ChildrenDescriptor<CHILD,?> grandChildDescriptor : grandChildrenDescriptors){
+                Set<Long> badGranchildIds = grandChildDescriptor.findExistingChildrenIds(connection, badId);
+                grandChildDescriptor.deleteOrphans(connection, badGranchildIds);
+            }
+            DaoHelper.runPreparedDelete(connection, preparedSql, badId);
+        }
     }
 
 }

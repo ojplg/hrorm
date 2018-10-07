@@ -12,8 +12,10 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.sql.Connection;
+import java.sql.Statement;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 public class ParentsTest {
 
@@ -28,6 +30,19 @@ public class ParentsTest {
     public static void cleanUpDb(){
         helper.dropSchema();
     }
+
+    private void deleteAll(){
+        try {
+            Connection connection = helper.connect();
+            Statement statement = connection.createStatement();
+            statement.execute("delete from grandchild_table");
+            statement.execute("delete from child_table");
+            statement.execute("delete from parent_table");
+        } catch (Exception ex){
+            throw new RuntimeException(ex);
+        }
+    }
+
 
     private static DaoBuilder<Grandchild> GrandchildDaoBuilder =
             new DaoBuilder<>("grandchild_table", Grandchild::new)
@@ -193,5 +208,50 @@ public class ParentsTest {
 
     }
 
+    @Test
+    public void deletionOfChildrenDoesNotOrphanGrandchildRecords(){
+        deleteAll();
+
+        Grandchild grandchild = new Grandchild();
+        grandchild.setColor(EnumeratedColor.Green);
+
+        Child child = new Child();
+        child.setNumber(123L);
+        child.setGrandchildList(Arrays.asList(grandchild));
+
+        Parent parent = new Parent();
+        parent.setName("delete orphan grandchildren test");
+        parent.setChildList(Arrays.asList(child));
+
+        Connection connection = helper.connect();
+
+        Dao<Parent> parentDao = ParentDaoBuilder.buildDao(connection);
+
+        parentDao.insert(parent);
+
+        long parentId = parent.getId();
+
+        Parent readItem = parentDao.select(parentId);
+
+        Assert.assertEquals(1, readItem.getChildList().get(0).getGrandchildList().size());
+        Assert.assertEquals(EnumeratedColor.Green,  readItem.getChildList().get(0).getGrandchildList().get(0).getColor());
+
+        Dao<Grandchild> grandchildDao = GrandchildDaoBuilder.buildDao(connection);
+        List<Grandchild> allGrandchildren = grandchildDao.selectAll();
+
+        Assert.assertEquals(1, allGrandchildren.size());
+
+        readItem.setChildList(Collections.emptyList());
+
+        parentDao.update(readItem);
+
+        Parent secondReadItem = parentDao.select(parentId);
+
+        Assert.assertEquals(0, secondReadItem.getChildList().size());
+
+        allGrandchildren = grandchildDao.selectAll();
+        Assert.assertEquals(0, allGrandchildren.size());
+
+    }
 
 }
