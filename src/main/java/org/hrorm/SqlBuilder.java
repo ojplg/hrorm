@@ -9,6 +9,10 @@ import java.util.stream.Collectors;
  * This class generates SQL strings suitable to be used in
  * {@link java.sql.PreparedStatement}s.
  *
+ * <p>
+ *
+ * Most users of hrorm will have no need to directly use this.
+ *
  * @param <T> The type of the entity being persisted.
  */
 public class SqlBuilder<T> {

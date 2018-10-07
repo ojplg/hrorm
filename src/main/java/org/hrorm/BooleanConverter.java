@@ -3,6 +3,10 @@ package org.hrorm;
 /**
  * This {@link Converter} translates true values to "T" and false
  * values to "F".
+ *
+ * <p>
+ *
+ * Most users of hrorm will have no need to directly use this.
  */
 public class BooleanConverter implements Converter<Boolean, String> {
 

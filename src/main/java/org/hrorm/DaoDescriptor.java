@@ -21,13 +21,54 @@ import java.util.function.Supplier;
  */
 public interface DaoDescriptor<T> {
 
+    /**
+     * The name of the table that is used to persist type <code>T</code>
+     *
+     * @return the table name
+     */
     String tableName();
+
+    /**
+     * The mechanism to use to instantiate a new instance of type <code>T</code>,
+     * generally a no-argument constructor of the class.
+     *
+     * @return A function pointer to the instantiation mechanism
+     */
     Supplier<T> supplier();
+
+    /**
+     * The columns that contain the data that make up the object
+     *
+     * @return all the data columns supported
+     */
     List<TypedColumn<T>> dataColumns();
+
+    /**
+     * The columns that contain references to foreign keys to other objects
+     *
+     * @return all the reference columns supported
+     */
     List<JoinColumn<T,?>> joinColumns();
+
+    /**
+     * The primary key for objects of type <code>T</code>
+     *
+     * @return the primary key
+     */
     PrimaryKey<T> primaryKey();
+
+    /**
+     * The definitions of any entities that are owned by type <code>T</code>
+     *
+     * @return all the owned entities
+     */
     List<ChildrenDescriptor<T, ?>> childrenDescriptors();
 
+    /**
+     * All the columns of the underlying table, both data type and join type.
+     *
+     * @return all the columns
+     */
     default List<TypedColumn<T>> allColumns(){
         List<TypedColumn<T>> allColumns = new ArrayList<>();
         allColumns.addAll(dataColumns());

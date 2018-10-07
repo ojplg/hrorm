@@ -6,6 +6,23 @@ import java.sql.SQLException;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
+/**
+ * Describes a column with a text value that can be mapped
+ * to a <code>String</code> and then converted to type <code>E</code>
+ *
+ * <p>
+ *
+ * The primary intention of this column type is to support object
+ * models that contain either enumerated types or thing wrappers
+ * around <code>String</code>s
+ *
+ * <p>
+ *
+ * Most users of hrorm will have no need to directly use this.
+ *
+ * @param <T> The entity type this column belongs to
+ * @param <E> The type that this column is mapped to
+ */
 public class StringConverterColumn<T, E> implements TypedColumn<T> {
 
     private final String name;

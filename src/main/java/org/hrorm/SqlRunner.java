@@ -10,6 +10,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
+/**
+ * This class does the heavy lifting of creating <code>Statement</code>s,
+ * executing SQL, and parsing <code>ResultSet</code>s.
+ *
+ * <p>
+ *
+ * Most users of hrorm will have no need to directly use this.
+ *
+ * @param <T> the type of object this runner supports
+ */
 public class SqlRunner<T> {
 
     private final Connection connection;

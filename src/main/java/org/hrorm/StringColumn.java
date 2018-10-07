@@ -6,6 +6,16 @@ import java.sql.SQLException;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
+/**
+ * Describes a column with a text value that can be mapped
+ * to a <code>String</code>
+ *
+ * <p>
+ *
+ * Most users of hrorm will have no need to directly use this.
+ *
+ * @param <T> The entity type this column belongs to
+ */
 public class StringColumn<T> implements TypedColumn<T> {
 
     private final String name;
