@@ -45,11 +45,27 @@
 
 <p>Hrorm is the Hand Rolled Object Relational Mapper.</p>
 
-<p><a href="https://github.com/ojplg/hrorm">Code</a> - <a href="/javadocs/site/apidocs/index.html">Javadocs</a> </p>
-
 <p>Hrorm is a Java library.</p>
 
+<p><a href="https://github.com/ojplg/hrorm">Code</a> - <a href="/javadocs/site/apidocs/index.html">Javadocs</a> </p>
+
+<p>
+Maven:
+    <pre>
+    &lt;dependency>
+        &lt;groupId&gt;org.hrorm&lt;/groupId&gt;
+        &lt;artifactId&gt;hrorm&lt;/artifactId&gt;
+        &lt;version&gt;0.1.0-rc2&lt;/version&gt;
+    &lt;/dependency>
+</pre>
+</p>
+
 <h2>Basics</h2>
+
+<p>Hrorm provides a concise, declarative, somewhat type-checked interface for creating Data Access Objects
+(DAOs).</p>
+
+<h2>Quick Start</h2>
 
 <p>Suppose you are working on a program for managing recipes that has a domain model that looks like this.</p>
 
@@ -88,9 +104,9 @@
 
 <p>Because you are the absolute Empress of Overkill.</p>
 
-<p>Now you would think to use <a href="http://hibernate.org/">Hibernate</a> or
-    <a href="http://www.mybatis.org/mybatis-3/">Mybatis</a> or something, but no, you
-    are a real glutton for punishment, so you decide to use hrorm.</p>
+<p>Now some might think to use <a href="http://hibernate.org/">Hibernate</a> or
+<a href="http://www.mybatis.org/mybatis-3/">Mybatis</a> or something, but no, you
+are a real glutton for punishment, so you decide to use hrorm.</p>
 
 <p>To use hrorm you would write some code like this.</p>
 
@@ -264,7 +280,7 @@ At the moment Hrorm supports a limited number of datatypes: integral, strings, b
 easy to add more types, but it is not done yet. Check the javadocs.
 </p>
 
-<h2>How Hrorm handles Relations</h2>
+<h2>How hrorm <Ha></Ha>ndles Relations</h2>
 
 <p>One point of a relational database is to preserve the structure of relations between entities.
 Hrorm supports two kinds of relationships: a parent-child relation where one object contains a list
