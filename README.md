@@ -1,4 +1,3 @@
-# hrorm
-A simple Java ORM tool.
+# <a href="http://hrorm.org">hrorm</a>
 
-More information coming soon!
+A primitive ORM tool for Java.
