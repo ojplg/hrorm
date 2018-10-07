@@ -6,7 +6,7 @@ import java.util.Optional;
 /**
  * A {@link RuntimeException} that wraps {@link SQLException}.
  *
- * <br/><br/>
+ * <p>
  *
  * Hrorm does not declare checked exceptions in any methods
  * or interfaces that are intended to be used by clients.

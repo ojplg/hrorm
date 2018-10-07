@@ -12,7 +12,7 @@ import java.util.function.Function;
 /**
  * Complete definition of how a child entity is related to its parent entity.
  *
- * <br/>
+ * <p>
  *
  * Most users of hrorm will have no need to directly use this.
 */

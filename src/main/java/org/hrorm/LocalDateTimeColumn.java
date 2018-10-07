@@ -12,7 +12,7 @@ import java.util.function.Function;
  * Describes a column with an date/time value that can be mapped
  * to a <code>LocalDateTime</code>
  *
- * <br/><br/>
+ * <p>
  *
  * Most users of hrorm will have no need to directly use this.
  *

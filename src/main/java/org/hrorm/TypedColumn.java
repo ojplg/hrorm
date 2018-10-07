@@ -8,7 +8,7 @@ import java.sql.SQLException;
  * Representation of a single column in the table that is used
  * for persisting instances of type <code>T</code>.
  *
- * <br/><br/>
+ * <p>
  *
  * Most users of hrorm will have no need to directly use this
  *

@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
  * Represents a column that links to a foreign key of some
  * other entity.
  *
- * <br/><br/>
+ * <p>
  *
  * Most users of hrorm will have no need to directly use this.
  *

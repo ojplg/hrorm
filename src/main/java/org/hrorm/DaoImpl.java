@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 /**
  * The {@link Dao} implementation.
  *
- * <br/><br/>
+ * <p>
  *
  * There is no good reason to directly construct this class yourself.
  * Use a {@link DaoBuilder}.
