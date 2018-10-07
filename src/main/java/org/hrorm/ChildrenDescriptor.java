@@ -18,6 +18,8 @@ public class ChildrenDescriptor<PARENT,CHILD> {
     private final PrimaryKey<PARENT> primaryKey;
     private final BiConsumer<CHILD, Long> parentSetter;
 
+    private final List<ChildrenDescriptor<CHILD,?>> grandChildrenDescriptors;
+
     private final SqlBuilder<CHILD> sqlBuilder;
 
     public ChildrenDescriptor(String parentChildColumnName,
@@ -32,6 +34,7 @@ public class ChildrenDescriptor<PARENT,CHILD> {
         this.daoDescriptor = daoDescriptor;
         this.primaryKey = primaryKey;
         this.parentSetter = parentSetter;
+        this.grandChildrenDescriptors = daoDescriptor.childrenDescriptors();
 
         this.sqlBuilder = new SqlBuilder<>(daoDescriptor.tableName(),
                 daoDescriptor.dataColumns(),
@@ -48,6 +51,13 @@ public class ChildrenDescriptor<PARENT,CHILD> {
         SqlRunner<CHILD> sqlRunner = new SqlRunner<>(connection, daoDescriptor.dataColumns(), daoDescriptor.joinColumns());
         List<CHILD> children = sqlRunner.selectByColumns(sql, daoDescriptor.supplier(),
                 Collections.singletonList(parentChildColumnName), columnNameMap, daoDescriptor.childrenDescriptors(), key);
+
+        for( CHILD child : children ){
+            for( ChildrenDescriptor<CHILD,?> grandChildDescriptor : grandChildrenDescriptors ){
+                grandChildDescriptor.populateChildren(connection, child);
+            }
+        }
+
         setter.accept(item, children);
     }
 
@@ -55,6 +65,9 @@ public class ChildrenDescriptor<PARENT,CHILD> {
         SqlRunner<CHILD> sqlRunner = new SqlRunner<>(connection, daoDescriptor.dataColumns(), daoDescriptor.joinColumns());
 
         List<CHILD> children = getter.apply(item);
+        if( children == null ){
+            children = Collections.emptyList();
+        }
         List<Long> goodChildrenIds = new ArrayList<>();
         Long parentId = primaryKey.getKey(item);
 
@@ -70,6 +83,9 @@ public class ChildrenDescriptor<PARENT,CHILD> {
                 String sql = sqlBuilder.update(child);
                 sqlRunner.update(sql, child);
                 goodChildrenIds.add(daoDescriptor.primaryKey().getKey(child));
+            }
+            for(ChildrenDescriptor<CHILD,?> grandchildrenDescriptor : grandChildrenDescriptors){
+                grandchildrenDescriptor.saveChildren(connection, child);
             }
         }
         deleteOrphans(connection, item, goodChildrenIds);
