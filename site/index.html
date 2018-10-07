@@ -293,8 +293,11 @@ work a particular way. If this does not work for you, than neither will hrorm.</
 </ul>
 
 <p>
-At the moment Hrorm supports a limited number of datatypes: integers, strings, booleans, and dates. It should be
-easy to add more types, but it is not done yet. Check the javadocs.
+At the moment Hrorm supports a limited number of (Java) datatypes:
+    <code>Long</code>s, <code>BigDecimal</code>s, <code>String</code>s, <code>Boolean</code>s,
+    and <code>LocalDateTime</code>s. Additionally, hrorm supports a mechanism
+    for persisting values that can be converted to and from <code>String</code>s,
+    which is intended primarily for enumerated types.
 </p>
 
 <a name="how_hrorm_handles_relations"></a>
