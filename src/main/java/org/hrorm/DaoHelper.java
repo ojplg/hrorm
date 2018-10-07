@@ -8,6 +8,13 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Some small utilities used internally by hrorm.
+ *
+ * <br/>
+ *
+ * Most users of hrorm will have no need to directly use this.
+ */
 public class DaoHelper {
 
     public static void runDelete(Connection connection, String sql) {

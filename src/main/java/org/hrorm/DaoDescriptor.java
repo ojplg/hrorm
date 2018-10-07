@@ -13,6 +13,10 @@ import java.util.function.Supplier;
  * Implementers of this interface completely describe all the information
  * necessary to persisting objects of type <code>T</code>.
  *
+ * <br/>
+ *
+ * Most users of hrorm will have no need to directly use this.
+ *
  * @param <T> The object representing the enitity being persisted.
  */
 public interface DaoDescriptor<T> {

@@ -1,7 +1,6 @@
 package org.hrorm;
 
 import java.sql.Connection;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -9,8 +8,14 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
+/**
+ * Complete definition of how a child entity is related to its parent entity.
+ *
+ * <br/>
+ *
+ * Most users of hrorm will have no need to directly use this.
+*/
 public class ChildrenDescriptor<PARENT,CHILD> {
 
     private final String parentChildColumnName;
