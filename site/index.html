@@ -116,9 +116,7 @@ for performing CRUD operations.</p>
 
 <p>Now some might think to use <a href="http://hibernate.org/">Hibernate</a> or
 <a href="http://www.mybatis.org/mybatis-3/">Mybatis</a> or something, but no, you
-are a real glutton for punishment, so you decide to use hrorm.</p>
-
-<p>To use hrorm you would write some code like this.</p>
+are a real glutton for punishment, so you decide to use hrorm and write some code like this.</p>
 
 <div class="disclaimer"><p><small>Disclaimer: Yeah, I assume that your schema has some sequences that are not in the picture above.
     Also, you should have created getters and setters for all of the fields on your object model or
@@ -219,7 +217,7 @@ are a real glutton for punishment, so you decide to use hrorm.</p>
             <td>No</td>
         </tr>
         <tr>
-            <td>Supports your schema and object model without constraints</td>
+            <td>Supports your schema and object model how <em>you</em> want it</td>
             <td>Maybe</td>
             <td>Somewhat</td>
             <td>Absolutely not</td>
@@ -232,6 +230,13 @@ are a real glutton for punishment, so you decide to use hrorm.</p>
 <a name="things_hrorm_does_not_do"></a>
 <h2>Things hrorm Does Not Do</h2>
 
+<p>Hrorm is not an all-singing, all-dancing, all-cooking-a-five-course-meal framework. It's a small
+library for reducing the amount of time you spend writing <code>select FOO, BAR from BAZ</code>
+and <code>ResultSet rs = statement.execute()</code>. It does not even attempt to go into territory
+that many other ORM tools do.</p>
+
+<p>This is only a partial list of all the things hrorm will not do.</p>
+
 <ul>
     <li>Any kind of caching.</li>
     <li>Attempt to minimize database chatter by lazy-loading or object change tracking. Hrorm assumes that if
@@ -241,6 +246,7 @@ are a real glutton for punishment, so you decide to use hrorm.</p>
     <li>Involve itself with any XML or other configuration. Hrorm thinks Java is a better language than XML.</li>
     <li>Take over your application with background threads or expect some kind of container to exist. Hrorm is a library,
     if you do not call the methods, nothing happens.</li>
+    <li>Connection pooling.</li>
     <li>Reflection.</li>
     <li>Invent its own query language.</li>
     <li>Expect you to write SQL yourself.</li>
