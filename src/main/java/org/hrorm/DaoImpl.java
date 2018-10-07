@@ -8,6 +8,16 @@ import java.util.List;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+/**
+ * The {@link Dao} implementation.
+ *
+ * <br/><br/>
+ *
+ * There is no good reason to directly construct this class yourself.
+ * Use a {@link DaoBuilder}.
+ *
+ * @param <T> The item whose persistence is managed by this <code>Dao</code>
+ */
 public class DaoImpl<T> implements Dao<T>, DaoDescriptor<T> {
 
     private final Connection connection;

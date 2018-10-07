@@ -11,7 +11,7 @@ import java.util.function.Function;
  * Describes a column with a decimal value that can be mapped
  * to a <code>BigDecimal</code>
  *
- * <br/>
+ * <br/><br/>
  *
  * Most users of hrorm will have no need to directly use this.
  *

@@ -10,6 +10,17 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+/**
+ * Represents a column that links to a foreign key of some
+ * other entity.
+ *
+ * <br/><br/>
+ *
+ * Most users of hrorm will have no need to directly use this.
+ *
+ * @param <T> the entity this column belongs to
+ * @param <J> the entity being joined
+ */
 public class JoinColumn<T, J> implements TypedColumn<T> {
 
     private final String name;
