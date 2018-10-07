@@ -21,12 +21,12 @@ public class DaoBuilderTest {
     @Test
     public void cannotResetPrimaryKey(){
         try {
-            DaoBuilder<Object> builder = new DaoBuilder<>("long", Object::new);
+            DaoBuilder<Object> builder = new DaoBuilder<>("", Object::new);
             builder.withPrimaryKey("foo", "sequence",
                     DaoBuilderTest::testGetter, DaoBuilderTest::testSetter);
             builder.withPrimaryKey("bar", "sequence",
                     DaoBuilderTest::testGetter, DaoBuilderTest::testSetter);
-            Assert.fail("Should not all set primary key to be set twice");
+            Assert.fail("Should not allow primary key to be set twice");
         } catch (HrormException expected){
         }
     }
