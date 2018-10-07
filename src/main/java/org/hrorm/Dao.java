@@ -81,4 +81,40 @@ public interface Dao<T> {
      */
     List<T> selectManyByColumns(T item, String... columnNames);
 
+
+    /**
+     * Insert a record into the database within a transaction that is
+     * managed within the Dao. The Dao will either commit or rollback
+     * the transaction and <b>close the underlying <code>Connection</code></b>
+     * when complete.
+     *
+     * @param item The instance to be inserted.
+     * @return The newly issued primary key of the record.
+     */
+    long atomicInsert(T item);
+
+    /**
+     * Run an update statement to change the values in the database associated
+     * with an existing record. Updates are applied by primary key.
+     * The update will occur within a transaction that is
+     * managed within the Dao. The Dao will either commit or rollback
+     * the transaction and <b>close the underlying <code>Connection</code></b>
+     * when complete.
+     *
+     * @param item An instance of the class with a populated primary key field
+     *             and updated field values.
+     */
+    void atomicUpdate(T item);
+
+    /**
+     * Run a delete statement in the database. Deletion is done by primary key.
+     * The delete will occur within a transaction that is
+     * managed within the Dao. The Dao will either commit or rollback
+     * the transaction and <b>close the underlying <code>Connection</code></b>
+     * when complete.
+     *
+     * @param item An instance of type T with a populated primary key.
+     */
+    void atomicDelete(T item);
+
 }

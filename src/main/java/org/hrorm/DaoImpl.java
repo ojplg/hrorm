@@ -74,6 +74,30 @@ public class DaoImpl<T> implements Dao<T>, DaoDescriptor<T> {
     }
 
     @Override
+    public long atomicInsert(T item) {
+        Transactor transactor = new Transactor(connection);
+        return transactor.runAndCommit(
+               con -> { return insert(item); }
+        );
+    }
+
+    @Override
+    public void atomicUpdate(T item) {
+        Transactor transactor = new Transactor(connection);
+        transactor.runAndCommit(
+                con -> { update(item); }
+        );
+    }
+
+    @Override
+    public void atomicDelete(T item) {
+        Transactor transactor = new Transactor(connection);
+        transactor.runAndCommit(
+                con -> { delete(item); }
+        );
+    }
+
+    @Override
     public long insert(T item) {
         String sql = sqlBuilder.insert();
         long id = DaoHelper.getNextSequenceValue(connection, primaryKey.getSequenceName());
