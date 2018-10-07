@@ -9,6 +9,10 @@
             position: fixed;
             overflow: auto;
         }
+        div.disclaimer {
+            background-color: LightGrey;
+            color: DarkBlue;
+        }
     </style>
 </head>
 <body>
@@ -116,9 +120,9 @@ are a real glutton for punishment, so you decide to use hrorm.</p>
 
 <p>To use hrorm you would write some code like this.</p>
 
-<div class="disclaimer">Disclaimer: Yeah, I assume that your schema has some sequences that are not in the picture above.
+<div class="disclaimer"><p><small>Disclaimer: Yeah, I assume that your schema has some sequences that are not in the picture above.
     Also, you should have created getters and setters for all of the fields on your object model or
-    used <a href="https://projectlombok.org/">Lombok</a> or something.</div>
+    used <a href="https://projectlombok.org/">Lombok</a> or something.</small></p></div>
 
 <pre>
     DaoBuilder&lt;Author&gt; authorDaoBuilder = new DaoBuilder&lt;&gt;("AUTHOR", Author::new)
@@ -137,8 +141,7 @@ are a real glutton for punishment, so you decide to use hrorm.</p>
             .withChildren("RECIPE_ID", Ingredient::setRecipeId, Recipe::getIngredients, Recipe::setIngredients, ingredientDaoBuilder);
 </pre>
 
-<p>
-    That's pretty painful. Thank God for autocompletion. Once that's done, and assuming you have some way to make
+<p>That's pretty painful. Thank God for autocompletion. Once that's done, and assuming you have some way to make
     a <code>java.sql.Connection</code> object now you can actually make a <code>Dao</code>. Then you can
     write some code like this.
 </p>
@@ -224,6 +227,7 @@ are a real glutton for punishment, so you decide to use hrorm.</p>
     </tbody>
 
 </table>
+
 
 <a name="things_hrorm_does_not_do"></a>
 <h2>Things hrorm Does Not Do</h2>
