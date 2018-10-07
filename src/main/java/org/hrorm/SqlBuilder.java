@@ -79,7 +79,6 @@ public class SqlBuilder<T> {
 
     private List<JoinColumn> flattenedJoinColumns(){
         List<JoinColumn> flatJoinColumnList = new ArrayList<>();
-        // FIXME: This needs to be fully recursive!!!
         for(JoinColumn joinColumn : joinColumns){
             appendColumnsRecursively(flatJoinColumnList, joinColumn);
         }
