@@ -7,6 +7,16 @@ import java.sql.SQLException;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
+/**
+ * Describes a column with a decimal value that can be mapped
+ * to a <code>BigDecimal</code>
+ *
+ * <br/>
+ *
+ * Most users of hrorm will have no need to directly use this.
+ *
+ * @param <T> The entity type this column belongs to
+ */
 public class BigDecimalColumn<T> implements TypedColumn<T> {
 
     private final String name;
