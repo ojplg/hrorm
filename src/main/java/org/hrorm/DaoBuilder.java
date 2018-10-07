@@ -1,5 +1,6 @@
 package org.hrorm;
 
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -100,6 +101,20 @@ public class DaoBuilder<T> implements DaoDescriptor<T> {
      */
     public DaoBuilder<T> withIntegerColumn(String columnName, Function<T, Long> getter, BiConsumer<T, Long> setter){
         TypedColumn<T> column = new LongColumn<>(columnName, myPrefix, getter, setter);
+        columns.add(column);
+        return this;
+    }
+
+    /**
+     * Describes a numeric data element with a decimal part.
+     *
+     * @param columnName The name of the column that holds the data element.
+     * @param getter The function on <code>T</code> that returns the data element.
+     * @param setter The function on <code>T</code> that consumes the data element.
+     * @return This instance.
+     */
+    public DaoBuilder<T> withBigDecimalColumn(String columnName, Function<T, BigDecimal> getter, BiConsumer<T, BigDecimal> setter){
+        TypedColumn<T> column = new BigDecimalColumn<>(columnName, myPrefix, getter, setter);
         columns.add(column);
         return this;
     }

@@ -9,6 +9,7 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -32,6 +33,7 @@ public class ColumnsTest {
                 .withPrimaryKey("id", "columns_seq", Columns::getId, Columns::setId)
                 .withStringColumn("string_column", Columns::getStringThing, Columns::setStringThing)
                 .withIntegerColumn("integer_column", Columns::getIntegerThing, Columns::setIntegerThing)
+                .withBigDecimalColumn("decimal_column", Columns::getDecimalThing, Columns::setDecimalThing)
                 .withBooleanColumn("boolean_column", Columns::getBooleanThing, Columns::setBooleanThing)
                 .withLocalDateTimeColumn("timestamp_column", Columns::getTimeStampThing, Columns::setTimeStampThing)
                 .withConvertingStringColumn("color_column", Columns::getColorThing, Columns::setColorThing, new EnumeratedColorConverter());
@@ -48,6 +50,7 @@ public class ColumnsTest {
         columns.setStringThing("InsertSelectTest");
         columns.setIntegerThing(762L);
         columns.setBooleanThing(true);
+        columns.setDecimalThing(new BigDecimal("4.567"));
         columns.setTimeStampThing(time);
         columns.setColorThing(EnumeratedColor.Red);
 

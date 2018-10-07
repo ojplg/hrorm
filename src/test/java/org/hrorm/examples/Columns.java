@@ -3,6 +3,7 @@ package org.hrorm.examples;
 import lombok.Data;
 import org.hrorm.ColumnsTest;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
@@ -13,4 +14,5 @@ public class Columns {
     private Boolean booleanThing;
     private LocalDateTime timeStampThing;
     private EnumeratedColor colorThing;
+    private BigDecimal decimalThing;
 }
