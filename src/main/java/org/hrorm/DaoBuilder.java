@@ -74,6 +74,9 @@ public class DaoBuilder<T> implements DaoDescriptor<T> {
      * @return The newly created <code>Dao</code>.
      */
     public Dao<T> buildDao(Connection connection){
+        if( primaryKey == null ){
+            throw new HrormException("Cannot create a Dao without a primary key.");
+        }
         return new DaoImpl<>(connection, tableName, supplier, primaryKey, columns, joinColumns, childrenDescriptors);
     }
 
@@ -247,6 +250,9 @@ public class DaoBuilder<T> implements DaoDescriptor<T> {
      * @return This instance.
      */
     public DaoBuilder<T> withPrimaryKey(String columnName, String sequenceName, Function<T, Long> getter, BiConsumer<T, Long> setter){
+        if ( this.primaryKey != null ){
+            throw new HrormException("Attempt to set a second primary key");
+        }
         this.primaryKey = new PrimaryKeyImpl<>(columnName, myPrefix, getter, setter, sequenceName);
         columns.add(primaryKey);
         return this;

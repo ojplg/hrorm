@@ -15,22 +15,28 @@ import java.util.Optional;
  */
 public class HrormException extends RuntimeException {
 
-    private final SQLException sqlException;
+    private final Optional<SQLException> sqlException;
     private final Optional<String> sql;
+
+    public HrormException(String message){
+        super(message);
+        this.sqlException = Optional.empty();
+        this.sql = Optional.empty();
+    }
 
     public HrormException(SQLException sqlException){
         super(sqlException);
-        this.sqlException = sqlException;
+        this.sqlException = Optional.of(sqlException);
         this.sql = Optional.empty();
     }
 
     public HrormException(SQLException sqlException, String sql){
         super(sqlException);
-        this.sqlException = sqlException;
+        this.sqlException = Optional.of(sqlException);
         this.sql = Optional.of(sql);
     }
 
-    public SQLException getSqlException(){
+    public Optional<SQLException> getSqlException(){
         return sqlException;
     }
 
