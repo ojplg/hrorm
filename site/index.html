@@ -365,9 +365,10 @@ you have three choices:</p>
 
 <ol>
     <li>Have <code>SQLException</code> declared in most methods all over your application.</li>
-    <li>Try to handle <code>SQLException</code> somehow when doing interactions with <code>Connection</code>s,
-    <code>Statement</code>s, and <code>ResultSet</code>s. How, I do not know.</li>
-    <li>Convert <code>SQLException</code> to some other type, preferably of type <code>RuntimeException</code>.</li>
+    <li>Try to handle <code>SQLException</code> somehow when doing interactions with <code>Connection</code>,
+    <code>Statement</code>, and <code>ResultSet</code> objects, defeating the purpose of
+    exception handling being centralized and removed from normal application flow.</li>
+    <li>Convert <code>SQLException</code> to some other type, descended from <code>RuntimeException</code>.</li>
 </ol>
 
 <p>
@@ -389,22 +390,24 @@ You can pull the underlying exception from it.
 
     <p>If nested transactions were supported natively by every database provider,
         it would probably be correct to wrap database mutations in an internally nested transaction
-        and commit or rollback on completion.</p>
+        and commit or rollback on completion. This is not possible for every provider,
+    and mechanisms for how to accomplish this are not identical even for databases that
+    do provide for transaction nesting.</p>
 
-    <p>Hrorm does give a minimal amount of support to alleviate these issues. Hrorm provides
+    <p>Hrorm does give a minimal amount of support to attempt to alleviate these issues. Hrorm provides
         a <a href="/javadocs/site/apidocs/org/hrorm/Transactor.html"><code>Transactor</code></a> class
-        with a couple of static methods to elminate the boilerplate <code>try { ... } catch ... finally</code>
+        with a couple of methods to elminate the boilerplate <code>try ... catch ... finally</code>
         blocks necessary for doing transactions. In keeping with the hrorm ethos, these methods
         do not declare any checked exceptions. Keep in mind that a <code>Transactor</code> will
-        <b>automatically close its connection</b> when it completes, either with a rollback
-        or commit.</p>
+        <b>automatically close its connection</b> whether or not it completes with a commit or a rollback.</p>
 
     <p>In addition, the <code>Dao</code> interface provides cognate methods for <code>insert</code>,
         <code>update</code>, and <code>delete</code> named <code>atomicInsert</code>,
         <code>atomicUpdate</code>, and <code>atomicDelete</code>. These methods provide
         a no-fuss way to do mutations of parent-child relations. However, these methods
-        must be used with care! In addition to an unexpected early commit, as above, these methods
-        will also close the connection they use when complete.</p>
+        must be used with care! In addition to a possibly unexpected early commit if these methods
+        are accidentally used in a larger transaction, remember that, as above, these methods
+        will also <b>close the connection</b> they use when complete.</p>
 
     <p>There is no one-size-fits-all solution to how to marry the problem of database
         to object mapping with the problems of transactions and atomicity. For this reason,
