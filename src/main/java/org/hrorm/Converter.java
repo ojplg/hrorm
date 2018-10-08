@@ -9,7 +9,20 @@ package org.hrorm;
  */
 public interface Converter<CLASS,CODE> {
 
+    /**
+     * Convert from the item to its encoded form
+     *
+     * @param item the object to encode
+     * @return the encoded value
+     */
     CODE from(CLASS item);
+
+    /**
+     * Instantiates an instance of the desired class from its encoding
+     *
+     * @param code the encoded value
+     * @return an instance of the class matching the encoding
+     */
     CLASS to(CODE code);
 
 }
