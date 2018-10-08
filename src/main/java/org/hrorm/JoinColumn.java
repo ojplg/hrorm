@@ -44,7 +44,7 @@ public class JoinColumn<T, J> implements TypedColumn<T> {
         this.supplier = daoDescriptor.supplier();
         this.dataColumns = daoDescriptor.dataColumns().stream().map(c -> c.withPrefix(prefix)).collect(Collectors.toList());
         this.primaryKey = daoDescriptor.primaryKey();
-        this.transitiveJoins = resetColumnPrefixes(prefixer,prefix, daoDescriptor.joinColumns());
+        this.transitiveJoins = resetColumnPrefixes(prefixer, prefix, daoDescriptor.joinColumns());
     }
 
     private JoinColumn(String name, Prefixer prefixer, String joinedTablePrefix, String table, Function<T, J> getter,

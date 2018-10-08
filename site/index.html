@@ -43,6 +43,7 @@
         <a href="#parent_child_relations" class="sublink-1">Parent-Child Relations</a>
         <a href="#sibling_relations" class="sublink-1">Sibling Relations</a>
         <a href="#hrorm_and_exceptions">Hrorm and Exceptions</a>
+        <a href="#hrorm_visibility">Hrorm Visibility</a>
     </nav>
 </div>
 
@@ -78,6 +79,9 @@ manage persistence of Java objects to a relational (SQL) data store.</p>
 provides methods to describe the relationship between an object and its backing table. Once your <code>DaoBuilder</code>
 objects are defined, you can create <a href="/javadocs/site/apidocs/org/hrorm/Dao.html"><code>Dao</code></a> objects
 for performing CRUD operations.</p>
+
+<p>Hrorm is enormously opinionated about how Java object models and SQL schemas should work. It will not play
+well with many schemas and object models. If you want freedom, look elsewhere.</p>
 
 <a name="quick_start"></a>
 <h2>Quick Start</h2>
@@ -247,12 +251,12 @@ that many other ORM tools do.</p>
     <li>Pollute your code with vexing annotations.</li>
     <li>Involve itself with any XML or other configuration. Hrorm thinks Java is a better language than XML.</li>
     <li>Take over your application with background threads or expect some kind of container to exist. Hrorm is a library,
-    if you do not call the methods, nothing happens.</li>
+    if you do not call the methods, hrorm won't do anything.</li>
     <li>Connection pooling.</li>
     <li>Reflection.</li>
     <li>Invent its own query language.</li>
     <li>Expect you to write SQL yourself.</li>
-    <li>Manage validity constraints to your schema or object model.</li>
+    <li>Manage integrity constraints to your schema or object model.</li>
     <li>Declare checked exceptions in its client facing interfaces.</li>
     <li>Have left pad as a dependency.</li>
     <li>Mine cryptocurrencies.</li>
@@ -372,6 +376,22 @@ Hrorm opts for method 3.
 <p>Hrorm will throw a <code>HrormException</code> when it has a problem, generally wrapping <code>SQLException</code>.
 You can pull the underlying exception from it.
 </p>
+
+<a name="hrorm_visibility"></a>
+<h2>Hrorm Visibility</h2>
+
+<p>Hrorm is designed to have a small surface area for clients. Most of the time, clients should only
+need to interact with three hrorm types: <code>DaoBuilder</code>, <code>Dao</code>, and
+<code>HrormException</code>. Clients might also be expected to create a few instances of
+<code>Converter</code> objects and perhaps to use a <code>Transactor</code>. After that,
+there is nothing in Hrorm that is designed to be used in client code.</p>
+
+<p>In spite of this, almost all the classes in hrorm are public and contain public constructors
+and methods. If you feel like instantiating a <code>StringColumn</code> object, hrorm feels
+no need to try to stop you.</p>
+
+<p>Most of the time, Hrorm will point out in the Javadocs where classes are not
+intended for clients to use directly.</p>
 
 </div>
 </div>
