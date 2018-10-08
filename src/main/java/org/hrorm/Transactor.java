@@ -12,7 +12,7 @@ import java.util.function.Supplier;
  * <p>
  *
  * Transactors save the trouble of writing blocks like
- * <code>
+ *     <pre>{@code
  *     Connection connection = null;
  *     try {
  *          connection = getConnection();
@@ -27,8 +27,7 @@ import java.util.function.Supplier;
  *         if (connection != null){
  *             connection.close();
  *         }
- *     }
- * </code>
+ *     }}</pre>
  *
  * Instead, you just write the part in the middle where you do
  * something with the connection and the other parts are done for you.
