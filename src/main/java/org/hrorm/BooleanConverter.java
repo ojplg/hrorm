@@ -28,7 +28,7 @@ public class BooleanConverter implements Converter<Boolean, String> {
         switch (s) {
             case "T" : return Boolean.TRUE;
             case "F" : return Boolean.FALSE;
-            default : throw new RuntimeException("Unsupported string: " + s);
+            default : throw new HrormException("Unsupported string: " + s);
         }
     }
 }

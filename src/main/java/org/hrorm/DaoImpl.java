@@ -166,6 +166,6 @@ public class DaoImpl<T> implements Dao<T>, DaoDescriptor<T> {
         if (items.size() == 1) {
             return items.get(0);
         }
-        throw new RuntimeException("Found " + items.size() + " items.");
+        throw new HrormException("Found " + items.size() + " items.");
     }
 }
