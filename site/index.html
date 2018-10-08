@@ -13,6 +13,8 @@
             background-color: LightGrey;
             color: DarkBlue;
         }
+
+
     </style>
 </head>
 <body>
@@ -28,68 +30,86 @@
 </div>
 
 <div class="container">
-<div class="row">
+    <div class="row">
 
-<div class="col-sm-3">
-    <nav id="navigation">
-        <a href="#basics">Basics</a>
-        <a href="#quick_start">Quick Start</a>
-        <a href="#orm_comparison">ORM Comparison</a>
-        <a href="#things_hrorm_does_not_do">Things hrorm does not do</a>
-        <a href="#designing_for_hrorm">Designing for hrorm</a>
-        <a href="#java_objects" class="sublink-1">Java Objects</a>
-        <a href="#sql_schema" class="sublink-1">SQL Schema</a>
-        <a href="#how_hrorm_handles_relations">How hrorm Handles Relations</a>
-        <a href="#parent_child_relations" class="sublink-1">Parent-Child Relations</a>
-        <a href="#sibling_relations" class="sublink-1">Sibling Relations</a>
-        <a href="#hrorm_and_exceptions">Hrorm and Exceptions</a>
-        <a href="hrorm_and_transactions">Horm and Transactions</a>
-        <a href="#hrorm_visibility">Hrorm Visibility</a>
-    </nav>
-</div>
+        <div class="col-sm-3">
+            <nav id="navigation">
+                <a href="#basics">Basics</a>
+                <a href="#quick_start">Quick Start</a>
+                <a href="#orm_comparison">ORM Comparison</a>
+                <a href="#things_hrorm_does_not_do">Things hrorm does not do</a>
+                <a href="#designing_for_hrorm">Designing for hrorm</a>
+                <a href="#java_objects" class="sublink-1">Java Objects</a>
+                <a href="#sql_schema" class="sublink-1">SQL Schema</a>
+                <a href="#how_hrorm_handles_relations">How hrorm Handles Relations</a>
+                <a href="#parent_child_relations" class="sublink-1">Parent-Child Relations</a>
+                <a href="#sibling_relations" class="sublink-1">Sibling Relations</a>
+                <a href="#hrorm_and_exceptions">Hrorm and Exceptions</a>
+                <a href="#hrorm_and_transactions">Horm and Transactions</a>
+                <a href="#hrorm_visibility">Hrorm Visibility</a>
+                <a href="#falling_off_a_cliff">Falling Off a Cliff</a>
+            </nav>
+        </div>
 
-<div class="col-sm-9">
-<h4>Hrorm is Java's Hand Rolled Object Relational Mapper.</h4>
+        <div class="col-sm-9">
 
-<h5><a href="https://github.com/ojplg/hrorm">Code</a> -
-    <a href="https://github.com/ojplg/hrorm/releases">Download</a> -
-    <a href="/javadocs/site/apidocs/index.html">Javadocs</a> </h5>
+            <h4>Hrorm is Java's Hand Rolled Object Relational Mapper.</h4>
 
-<p>
-Maven:
-</p>
-<pre>
-    &lt;dependency&gt;
-        &lt;groupId&gt;org.hrorm&lt;/groupId&gt;
-        &lt;artifactId&gt;hrorm&lt;/artifactId&gt;
-        &lt;version&gt;0.2.0&lt;/version&gt;
-    &lt;/dependency&gt;
-</pre>
+            <h5><a href="https://github.com/ojplg/hrorm">Code</a> -
+                <a href="https://github.com/ojplg/hrorm/releases">Download</a> -
+                <a href="/javadocs/site/apidocs/index.html">Javadocs</a></h5>
 
+            <p>
+                Maven:
+            </p>
+            <div class="card">
+            <pre>
+&lt;dependency&gt;
+    &lt;groupId&gt;org.hrorm&lt;/groupId&gt;
+    &lt;artifactId&gt;hrorm&lt;/artifactId&gt;
+    &lt;version&gt;0.2.0&lt;/version&gt;
+&lt;/dependency&gt;</pre>
+            </div>
 
-<a name="basics"></a>
-<h2>Basics</h2>
+            <a name="basics"></a>
+            <div class="card fluid">
 
-<p>Hrorm provides a concise, declarative, somewhat type-checked interface for creating Data Access Objects
-(DAOs).</p>
+                <h2>Basics</h2>
 
-<p>Hrorm exists to reduce the amount of boilerplate code (in both Java and SQL) you have to write to
-manage persistence of Java objects to a relational (SQL) data store.</p>
+                <hr>
 
-<p>The hrorm <a href="/javadocs/site/apidocs/org/hrorm/DaoBuilder.html"><code>DaoBuilder</code></a> class
-provides methods to describe the relationship between an object and its backing table. Once your <code>DaoBuilder</code>
-objects are defined, you can create <a href="/javadocs/site/apidocs/org/hrorm/Dao.html"><code>Dao</code></a> objects
-for performing CRUD operations.</p>
+                <p>Hrorm provides a concise, declarative, somewhat type-checked interface for creating Data Access
+                    Objects
+                    (DAOs).</p>
 
-<p>Hrorm is enormously opinionated about how Java object models and SQL schemas should work. It will not play
-well with many schemas and object models. If you want freedom, look elsewhere.</p>
+                <p>Hrorm exists to reduce the amount of boilerplate code (in both Java and SQL) you have to write to
+                    manage persistence of Java objects to a relational (SQL) data store.</p>
 
-<a name="quick_start"></a>
-<h2>Quick Start</h2>
+                <p>The hrorm <a href="/javadocs/site/apidocs/org/hrorm/DaoBuilder.html"><code>DaoBuilder</code></a>
+                    class
+                    provides methods to describe the relationship between an object and its backing table. Once your
+                    <code>DaoBuilder</code>
+                    objects are defined and you have a database <code>Connection</code>, you can create <a
+                            href="/javadocs/site/apidocs/org/hrorm/Dao.html"><code>Dao</code></a>
+                    objects
+                    for performing CRUD operations.</p>
 
-<p>Suppose you are working on a program for managing recipes that has a domain model that looks like this.</p>
+                <p>Hrorm is enormously opinionated about how Java object models and SQL schemas should work. It will
+                    not play
+                    well with many schemas and object models. If you want freedom, look elsewhere.</p>
+            </div>
 
-<pre>
+            <div class="card fluid">
+
+                <a name="quick_start"></a>
+                <h2>Quick Start</h2>
+
+                <hr>
+
+                <p>Suppose you are working on a program for managing recipes that has a domain model that looks like
+                    this.</p>
+
+                <pre>
     class Author {
         Long id;
         String name;
@@ -110,26 +130,35 @@ well with many schemas and object models. If you want freedom, look elsewhere.</
     }
 </pre>
 
-<p>You might ask yourself: how will I persist such a rich, complex model? And you might think ... I know,
-    I'll put everything into a <code>List</code> and call <code>serialize()</code> and write that to a file on disk.
-    How many recipes and simultaneous users are we expecting to support anyway?
-</p>
+                <p>You might ask yourself: how will I persist such a rich, complex model? And you might think ... I
+                    know,
+                    I'll put everything into a <code>List</code> and call <code>serialize()</code> and write that to a
+                    file on disk.
+                    How many recipes and simultaneous users are we expecting to support anyway?
+                </p>
 
-<p>But instead, you come up with the following relational schema.</p>
+                <p>But instead, you come up with the following relational schema.</p>
 
-<img src="recipe_schema.png">
+                <img src="recipe_schema.png" height="384" width="576">
 
-<p>Because you are the absolute Empress of Overkill.</p>
+                <p>Because you are the absolute Empress of Overkill.</p>
 
-<p>Now some might think to use <a href="http://hibernate.org/">Hibernate</a> or
-<a href="http://www.mybatis.org/mybatis-3/">Mybatis</a> or something, but no, you
-are a real glutton for punishment, so you decide to use hrorm and write some code like this.</p>
+                <p>Now some might think to use <a href="http://hibernate.org/">Hibernate</a> or
+                    <a href="http://www.mybatis.org/mybatis-3/">Mybatis</a> or something, but no, you
+                    are a real glutton for punishment, so you decide to use hrorm and write some code like this.</p>
 
-<div class="disclaimer"><p><small>Disclaimer: Yeah, I assume that your schema has some sequences that are not in the picture above.
-    Also, you should have created getters and setters for all of the fields on your object model or
-    used <a href="https://projectlombok.org/">Lombok</a> or something.</small></p></div>
+                <div class="disclaimer" style="width: 80%; margin: 0 auto;">
+                    <p>
+                        <small>Disclaimer: Yeah, I assume that your schema has some sequences that are not in the
+                            picture above.
+                            Also, you should have created getters and setters for all of the fields on your object model
+                            or
+                            used <a href="https://projectlombok.org/">Lombok</a> or something.
+                        </small>
+                    </p>
+                </div>
 
-<pre>
+                <pre>
     DaoBuilder&lt;Author&gt; authorDaoBuilder = new DaoBuilder&lt;&gt;("AUTHOR", Author::new)
             .withPrimaryKey("ID", "AUTHOR_SEQUENCE", Author::getId, Author::setId)
             .withStringColumn("NAME", Author::getName, Author::setName);
@@ -146,12 +175,13 @@ are a real glutton for punishment, so you decide to use hrorm and write some cod
             .withChildren("RECIPE_ID", Ingredient::setRecipeId, Recipe::getIngredients, Recipe::setIngredients, ingredientDaoBuilder);
 </pre>
 
-<p>That's pretty painful. Thank God for autocompletion. Once that's done, and assuming you have some way to make
-    a <code>java.sql.Connection</code> object now you can actually make a <code>Dao</code>. Then you can
-    write some code like this.
-</p>
+                <p>That's pretty painful. Thank God for autocompletion. Once that's done, and assuming you have some way
+                    to make
+                    a <code>java.sql.Connection</code> object now you can actually make a <code>Dao</code>. Then you can
+                    write some code like this.
+                </p>
 
-<pre>
+                <pre>
     Connection connection = // somehow this happened
 
     Dao&lt;Author&gt; authorDao = authorDaoBuilder.buildDao(connection);
@@ -180,259 +210,368 @@ are a real glutton for punishment, so you decide to use hrorm and write some cod
     recipeDao.insert(beefStew);
 </pre>
 
-<p>Of course, <code>Dao</code>s can do more than just <code>insert</code>. They can also do
-<code>update</code>, <code>delete</code>, and various forms of <code>select</code>.</p>
+                <p>Of course, a <code>Dao</code> can do more than just <code>insert</code>. A <code>Dao</code> can also
+                    <code>update</code>, <code>delete</code>, and various forms of <code>select</code>.</p>
 
-<p>And really, that's all there is to hrorm.</p>
+                <p>And really, that's all there is to hrorm.</p>
 
-<a name="orm_comparison"></a>
-<h2>ORM Comparison</h2>
+            </div>
 
-<table>
-    <thead>
-        <tr>
-            <th></th>
-            <th>Hibernate</th>
-            <th>Mybatis</th>
-            <th>hrorm</th>
-        </tr>
-    </thead>
-
-    <tbody>
-        <tr>
-            <td>Fully-featured</td>
-            <td>Yes</td>
-            <td>Yes</td>
-            <td>No</td>
-        </tr>
-        <tr>
-            <td>Wide community support</td>
-            <td>Yes</td>
-            <td>Yes</td>
-            <td>No</td>
-        </tr>
-        <tr>
-            <td>Rich documentation</td>
-            <td>Yes</td>
-            <td>Yes</td>
-            <td>No</td>
-        </tr>
-        <tr>
-            <td>Battle tested in major enterprise deployments</td>
-            <td>Yes</td>
-            <td>Yes</td>
-            <td>No</td>
-        </tr>
-        <tr>
-            <td>Supports your schema and object model how <em>you</em> want it</td>
-            <td>Maybe</td>
-            <td>Somewhat</td>
-            <td>Absolutely not</td>
-        </tr>
-    </tbody>
-
-</table>
+            <div class="card fluid">
 
 
-<a name="things_hrorm_does_not_do"></a>
-<h2>Things hrorm Does Not Do</h2>
+                <a name="orm_comparison"></a>
+                <h2>ORM Comparison</h2>
 
-<p>Hrorm is not an all-singing, all-dancing, all-cooking-a-five-course-meal framework. It's a small
-library for reducing the amount of time you spend writing <code>select FOO, BAR from BAZ</code>
-and <code>ResultSet rs = statement.execute()</code>. It does not even attempt to go into territory
-that many other ORM tools do.</p>
+                <table  style="max-height: 100%;">
+                    <thead>
+                    <tr>
+                        <th></th>
+                        <th>Hibernate</th>
+                        <th>Mybatis</th>
+                        <th>hrorm</th>
+                    </tr>
+                    </thead>
 
-<p>This is only a partial list of all the things hrorm will not do.</p>
+                    <tbody>
+                    <tr>
+                        <td>Fully-featured</td>
+                        <td>Yes</td>
+                        <td>Yes</td>
+                        <td>No</td>
+                    </tr>
+                    <tr>
+                        <td>Wide community support</td>
+                        <td>Yes</td>
+                        <td>Yes</td>
+                        <td>No</td>
+                    </tr>
+                    <tr>
+                        <td>Rich documentation</td>
+                        <td>Yes</td>
+                        <td>Yes</td>
+                        <td>No</td>
+                    </tr>
+                    <tr>
+                        <td>Battle tested in major enterprise deployments</td>
+                        <td>Yes</td>
+                        <td>Yes</td>
+                        <td>No</td>
+                    </tr>
+                    <tr>
+                        <td>Has a sweet icon and other branding</td>
+                        <td>Yes</td>
+                        <td>Yes</td>
+                        <td>No</td>
+                    </tr>
+                    <tr>
+                        <td>Supports your schema and object model how <em>you</em> want it</td>
+                        <td>Maybe</td>
+                        <td>Somewhat</td>
+                        <td>Absolutely not</td>
+                    </tr>
+                    </tbody>
 
-<ul>
-    <li>Any kind of caching.</li>
-    <li>Attempt to minimize database chatter by lazy-loading or object change tracking. Hrorm assumes that if
-    you make a call to a <code>Dao</code> it's because you want to read or write something in the database.</li>
-    <li>Transaction management. Transactions are for applications, not for hrorm.</li>
-    <li>Pollute your code with vexing annotations.</li>
-    <li>Involve itself with any XML or other configuration. Hrorm thinks Java is a better language than XML.</li>
-    <li>Take over your application with background threads or expect some kind of container to exist. Hrorm is a library,
-    if you do not call the methods, hrorm won't do anything.</li>
-    <li>Connection pooling.</li>
-    <li>Reflection.</li>
-    <li>Invent its own query language.</li>
-    <li>Expect you to write SQL yourself.</li>
-    <li>Manage integrity constraints to your schema or object model.</li>
-    <li>Declare checked exceptions in its client facing interfaces.</li>
-    <li>Have left pad as a dependency.</li>
-    <li>Mine cryptocurrencies.</li>
-</ul>
+                </table>
 
-<a name="designing_for_hrorm"></a>
-<h2>Designing for hrorm</h2>
+            </div>
 
-<p>Hrorm only works on a restricted entity model. It expects your Java object model and your SQL schema to
-work a particular way. If this does not work for you, than neither will hrorm.</p>
-
-<a name="java_objects"></a>
-<h4>Java Objects</h4>
-
-<ul>
-    <li>Every entity class should have a <code>Long</code> identifier field that will be used as a primary key.
-    Hrorm expects that this is a nullable field and that null means unpersisted. (Though really, this is not
-    completely necessary.) Hrorm will populate this field from a sequence (see restrictions on schema below) and will use
-    it when issuing updates.</li>
-    <li>Hrorm mostly expects to work with Javabean like entities with public getters and setters. I suppose
-        you could have hrorm work with builder objects and then have immutable entities, but then you would
-        have to write some glue code to link it all together.
-    </li>
-    <li>Hrorm expects child objects owned by other objects (in a parent-child style relationship) to hold a reference
-    to the parent's ID, but not a reference to the parent objects themselves. Hrorm is unsophisticated in dealing
-    with circular references.</li>
-    <li>Hrorm expects child relationships to be modeled as <code>List</code> types exclusively. No sets or arrays or
-    other collections.</li>
-</ul>
-
-<a name="sql_schema"></a>
-<h4>SQL Schema</h4>
-
-<ul>
-    <li>Hrorm expects every table to have a numeric primary key. No string keys or multiple column keys.
-    Hrorm is not really appropriate for a time-series database.</li>
-    <li>Hrorm will populate the primary keys on inserts with values it pulls from a sequence. You can
-    create a separate sequence for each table, or just have one overall sequence if you want. Hrorm does not
-    care, but it wants a sequence for inserts.</li>
-</ul>
-
-<p>
-At the moment Hrorm supports a limited number of (Java) datatypes:
-    <code>Long</code>s, <code>BigDecimal</code>s, <code>String</code>s, <code>Boolean</code>s,
-    and <code>LocalDateTime</code>s. Additionally, hrorm supports a mechanism
-    for persisting values that can be converted to and from <code>String</code>s,
-    which is intended primarily for enumerated types.
-</p>
-
-<a name="how_hrorm_handles_relations"></a>
-<h2>How hrorm Handles Relations</h2>
-
-<p>One point of a relational database is to preserve the structure of relations between entities.
-Hrorm supports two kinds of relationships: a parent-child relation where one object contains a list
-of children, and a sibling relationship, where one object expresses a connection with another entity.</p>
-
-<a name="parent_child_relations"></a>
-<h4>Parent-Child Relations</h4>
-
-<p>These relations are defined by using the <code>DaoBuilder.withChildren()</code> method.</p>
-
-<p>In a parent-child relationship, the child is assumed to be completely dependent on the parent, so
-that its very existence depends on the existence of the parent.</p>
-
-<p>Think of the recipe example above. If a recipe is deleted, it makes no sense to preserve the
-ingredient rows. So, if a call is made on the recipe <code>Dao.delete()</code> method, all
-the ingredients will be deleted too. Likewise, on an update hrorm will make the necessary inserts,
-updates, and deletes to the ingredients table to synchronize the object state.</p>
-
-<p>In fact, you would rarely want to instantiate an ingredients <code>Dao</code> directly.
-Hrorm will do the work for you.</p>
-
-<p>One tricky thing about these relationships is the reversal in how ownership is expressed between
-the database schema and the object model. In the object model, the Hand object has Finger objects. In
-the database, the FINGER table has foreign key references to the HAND table. The call to the
-<code>DaoBuilder.withChildren()</code> is somewhat tricky as a result. Most of the time, a
-<code>DaoBuilder</code> is concerned only with columns on its own table, not so for children objects.</p>
-
-<a name="sibling_relations"></a>
-<h4>Sibling Relations</h4>
-
-<p>These relations are defined by using the <code>DaoBuilder.withJoinColumn()</code> method.</p>
-
-<p>These are relations between two objects where one object refers in a dependent, but not
-controlling, way.</p>
-
-<p>In the example above, the relationship between an Author and a Recipe is of this type.
-A Recipe requires and Author, but neither owns the other.
-</p>
-
-<p>Hrorm requires that sibling objects be persisted first, and will not handle transitive persistence
-automatically. Likewise, deleting a Recipe will not cause a cascading delete of an Author record.</p>
-
-<p>Note well: Hrorm will do nothing to prevent a dependent sibling from being deleted. The application
-code, or database schema constraints, (or both!) must be in place to prevent orphaned records of that type.</p>
-
-<p>If hrorm encounters a place where a dependent record does not exist that is expected, it will throw
-an exeption.</p>
-
-<a name="hrorm_and_exceptions"></a>
-<h2>Hrorm and Exceptions</h2>
-
-<p>Hrorm thinks that checked exceptions are a mistake. In an application with a database dependency,
-you have three choices:</p>
-
-<ol>
-    <li>Have <code>SQLException</code> declared in most methods all over your application.</li>
-    <li>Try to handle <code>SQLException</code> somehow when doing interactions with <code>Connection</code>,
-    <code>Statement</code>, and <code>ResultSet</code> objects, defeating the purpose of
-    exception handling being centralized and removed from normal application flow.</li>
-    <li>Convert <code>SQLException</code> to some other type, descended from <code>RuntimeException</code>.</li>
-</ol>
-
-<p>
-Hrorm opts for method 3.
-</p>
-
-<p>Hrorm will throw a <code>HrormException</code> when it has a problem, generally wrapping <code>SQLException</code>.
-You can pull the underlying exception from it.
-</p>
-
-    <a name="hrorm_and_transactions"></a>
-    <h2>Hrorm and Transactions</h2>
-
-    <p>For the most part, hrorm tries to stay out of the transaction handling business.
-        Applications know what changes must be transactions, hrorm does not. However, hrorm's
-        commands to insert, update, and delete records can lead to multiple SQL statements
-        being run, due to the handling of parent-child relationships. This means in the case
-        of an error, the database is at risk of coming to an illegal state.</p>
-
-    <p>If nested transactions were supported natively by every database provider,
-        it would probably be correct to wrap database mutations in an internally nested transaction
-        and commit or rollback on completion. This is not possible for every provider,
-    and mechanisms for how to accomplish this are not identical even for databases that
-    do provide for transaction nesting.</p>
-
-    <p>Hrorm does give a minimal amount of support to attempt to alleviate these issues. Hrorm provides
-        a <a href="/javadocs/site/apidocs/org/hrorm/Transactor.html"><code>Transactor</code></a> class
-        with a couple of methods to elminate the boilerplate <code>try ... catch ... finally</code>
-        blocks necessary for doing transactions. In keeping with the hrorm ethos, these methods
-        do not declare any checked exceptions. Keep in mind that a <code>Transactor</code> will
-        <b>automatically close its connection</b> whether or not it completes with a commit or a rollback.</p>
-
-    <p>In addition, the <code>Dao</code> interface provides cognate methods for <code>insert</code>,
-        <code>update</code>, and <code>delete</code> named <code>atomicInsert</code>,
-        <code>atomicUpdate</code>, and <code>atomicDelete</code>. These methods provide
-        a no-fuss way to do mutations of parent-child relations. However, these methods
-        must be used with care! In addition to a possibly unexpected early commit if these methods
-        are accidentally used in a larger transaction, remember that, as above, these methods
-        will also <b>close the connection</b> they use when complete.</p>
-
-    <p>There is no one-size-fits-all solution to how to marry the problem of database
-        to object mapping with the problems of transactions and atomicity. For this reason,
-        hrorm mostly just tries to stay out of the way.</p>
+            <div class="card fluid">
 
 
-    <a name="hrorm_visibility"></a>
-<h2>Hrorm Visibility</h2>
+                <a name="things_hrorm_does_not_do"></a>
+                <h2>Things hrorm Does Not Do</h2>
 
-<p>Hrorm is designed to have a small surface area for clients. Most of the time, clients should only
-need to interact with three hrorm types: <code>DaoBuilder</code>, <code>Dao</code>, and
-<code>HrormException</code>. Clients might also be expected to create a few instances of
-<code>Converter</code> objects and perhaps to use a <code>Transactor</code>. After that,
-there is nothing in Hrorm that is designed to be used in client code.</p>
+                <hr>
 
-<p>In spite of this, almost all the classes in hrorm are public and contain public constructors
-and methods. If you feel like instantiating a <code>StringColumn</code> object, hrorm feels
-no need to try to stop you.</p>
+                <p>Hrorm is not an all-singing, all-dancing, all-cooking-a-five-course-meal framework. It's a small
+                    library for reducing the amount of time you spend writing <code>select FOO, BAR from BAZ</code>
+                    and <code>ResultSet rs = statement.execute()</code>. It does not even attempt to go into territory
+                    that many other ORM tools do.</p>
 
-<p>Most of the time, Hrorm will point out in the Javadocs where classes are not
-intended for clients to use directly.</p>
+                <p>This is only a partial list of all the things hrorm will not do.</p>
 
+                <ul>
+                    <li>Any kind of caching.</li>
+                    <li>Attempt to minimize database chatter by lazy-loading or object change tracking. Hrorm assumes
+                        that if
+                        you make a call to a <code>Dao</code> it's because you want to read or write something in the
+                        database.
+                    </li>
+                    <li>Transaction management. Transactions are for applications, not for hrorm.</li>
+                    <li>Pollute your code with vexing annotations.</li>
+                    <li>Involve itself with any XML or other configuration. Hrorm thinks Java is a better language than
+                        XML.
+                    </li>
+                    <li>Take over your application with background threads or expect some kind of container to exist.
+                        Hrorm is a library,
+                        if you do not call the methods, hrorm won't do anything.
+                    </li>
+                    <li>Connection pooling.</li>
+                    <li>Reflection.</li>
+                    <li>Invent its own query language.</li>
+                    <li>Expect you to write SQL yourself.</li>
+                    <li>Manage integrity constraints to your schema or object model.</li>
+                    <li>Declare checked exceptions in its client facing interfaces.</li>
+                    <li>Have left pad as a dependency.</li>
+                    <li>Mine cryptocurrencies.</li>
+                </ul>
 
-</div>
-</div>
+            </div>
+
+            <div class="card fluid">
+
+                <a name="designing_for_hrorm"></a>
+                <h2>Designing for hrorm</h2>
+
+                <hr>
+
+                <p>Hrorm only works on a restricted entity model. It expects your Java object model and your SQL schema
+                    to
+                    work a particular way. If this does not work for you, than neither will hrorm.</p>
+
+                <a name="java_objects"></a>
+                <h4>Java Objects</h4>
+
+                <ul>
+                    <li>Every entity class should have a <code>Long</code> identifier field that will be used as a
+                        primary key.
+                        Hrorm expects that this is a nullable field and that null means unpersisted. (Though really,
+                        this is not
+                        completely necessary.) Hrorm will populate this field from a sequence (see restrictions on
+                        schema below) and will use
+                        it when issuing updates.
+                    </li>
+                    <li>Hrorm mostly expects to work with Javabean like entities with public getters and setters. I
+                        suppose
+                        you could have hrorm work with builder objects and then have immutable entities, but then you
+                        would
+                        have to write some glue code to link it all together.
+                    </li>
+                    <li>Hrorm expects child objects owned by other objects (in a parent-child style relationship) to
+                        hold a reference
+                        to the parent's ID, but not a reference to the parent objects themselves. Hrorm is
+                        unsophisticated in dealing
+                        with circular references.
+                    </li>
+                    <li>Hrorm expects child relationships to be modeled as <code>List</code> types exclusively. No sets
+                        or arrays or
+                        other collections.
+                    </li>
+                </ul>
+
+                <a name="sql_schema"></a>
+                <h4>SQL Schema</h4>
+
+                <ul>
+                    <li>Hrorm expects every table to have a numeric primary key. No string keys or multiple column keys.
+                        Hrorm is not really appropriate for a time-series database.
+                    </li>
+                    <li>Hrorm will populate the primary keys on inserts with values it pulls from a sequence. You can
+                        create a separate sequence for each table, or just have one overall sequence if you want. Hrorm
+                        does not
+                        care, but it wants a sequence for inserts.
+                    </li>
+                </ul>
+
+                <p>
+                    At the moment Hrorm supports a limited number of (Java) datatypes:
+                    <code>Long</code>, <code>BigDecimal</code>, <code>String</code>, <code>Boolean</code>,
+                    and <code>LocalDateTime</code>. Additionally, hrorm supports a mechanism
+                    for persisting values that can be converted to and from <code>String</code>s,
+                    which is intended primarily for enumerated types. Adding supports for new datatypes
+                    that are supported by the <code>ResultSet</code> interface shouldnot be particularly
+                    difficult if you're a hacker. And if you are using hrorm, you better be.
+                </p>
+
+            </div>
+
+            <div class="card fluid">
+
+                <a name="how_hrorm_handles_relations"></a>
+                <h2>How hrorm Handles Relations</h2>
+
+                <hr>
+
+                <p>One point of a relational database is to preserve the structure of relations between entities.
+                    Hrorm supports two kinds of relationships: a parent-child relation where one object contains a list
+                    of children, and a sibling relationship, where one object expresses a connection with another
+                    entity.</p>
+
+                <a name="parent_child_relations"></a>
+                <h4>Parent-Child Relations</h4>
+
+                <p>These relations are defined by using the <code>DaoBuilder.withChildren()</code> method.</p>
+
+                <p>In a parent-child relationship, the child is assumed to be completely dependent on the parent, so
+                    that its very existence depends on the existence of the parent.</p>
+
+                <p>Think of the recipe example above. If a recipe is deleted, it makes no sense to preserve the
+                    ingredient rows. So, if a call is made on the recipe <code>Dao.delete()</code> method, all
+                    the ingredients will be deleted too. Likewise, on an update hrorm will make the necessary inserts,
+                    updates, and deletes to the ingredients table to synchronize the object state.</p>
+
+                <p>In fact, you would rarely want to instantiate an ingredients <code>Dao</code> directly.
+                    Hrorm will do the work for you.</p>
+
+                <p>One tricky thing about these relationships is the reversal in how ownership is expressed between
+                    the database schema and the object model. In the object model, the Hand object has Finger objects.
+                    In
+                    the database, the FINGER table has foreign key references to the HAND table. The call to the
+                    <code>DaoBuilder.withChildren()</code> is somewhat tricky as a result. Most of the time, a
+                    <code>DaoBuilder</code> is concerned only with columns on its own table, not so for children
+                    objects.</p>
+
+                <a name="sibling_relations"></a>
+                <h4>Sibling Relations</h4>
+
+                <p>These relations are defined by using the <code>DaoBuilder.withJoinColumn()</code> method.</p>
+
+                <p>These are relations between two objects where one object refers in a dependent, but not
+                    controlling, way.</p>
+
+                <p>In the example above, the relationship between an Author and a Recipe is of this type.
+                    A Recipe requires and Author, but neither owns the other.
+                </p>
+
+                <p>Hrorm requires that sibling objects be persisted first, and will not handle transitive persistence
+                    automatically. Likewise, deleting a Recipe will not cause a cascading delete of an Author
+                    record.</p>
+
+                <p>Note well: Hrorm will do nothing to prevent a dependent sibling from being deleted. The application
+                    code, or database schema constraints, (or both!) must be in place to prevent orphaned records of
+                    that type.</p>
+
+                <p>If hrorm encounters a place where a dependent record does not exist that is expected, it will throw
+                    an exeption.</p>
+
+            </div>
+
+            <div class="card fluid">
+
+                <a name="hrorm_and_exceptions"></a>
+                <h2>Hrorm and Exceptions</h2>
+
+                <hr>
+
+                <p>Hrorm thinks that checked exceptions are a mistake. In an application with a database dependency,
+                    you have three choices:</p>
+
+                <ol>
+                    <li>Have <code>SQLException</code> declared in most methods all over your application.</li>
+                    <li>Try to handle <code>SQLException</code> somehow when doing interactions with
+                        <code>Connection</code>,
+                        <code>Statement</code>, and <code>ResultSet</code> objects, defeating the purpose of
+                        exception handling being centralized and removed from normal application flow.
+                    </li>
+                    <li>Convert <code>SQLException</code> to some other type, descended from
+                        <code>RuntimeException</code>.
+                    </li>
+                </ol>
+
+                <p>
+                    Hrorm opts for method 3.
+                </p>
+
+                <p>Hrorm will throw a <code>HrormException</code> when it has a problem, generally wrapping <code>SQLException</code>.
+                    You can pull the underlying exception from it.
+                </p>
+
+            </div>
+
+            <div class="card fluid">
+
+                <a name="hrorm_and_transactions"></a>
+                <h2>Hrorm and Transactions</h2>
+
+                <hr>
+
+                <p>For the most part, hrorm tries to stay out of the transaction handling business.
+                    Applications know what changes must be transactions, hrorm does not. However, hrorm's
+                    commands to insert, update, and delete records can lead to multiple SQL statements
+                    being run, due to the handling of parent-child relationships. This means in the case
+                    of an error, the database is at risk of coming to an illegal state.</p>
+
+                <p>If nested transactions were supported natively by every database provider,
+                    it would probably be correct to wrap database mutations in an internally nested transaction
+                    and commit or rollback on completion. This is not possible for every provider,
+                    and mechanisms for how to accomplish this are not identical even for databases that
+                    do provide for transaction nesting.</p>
+
+                <p>Hrorm does give a minimal amount of support to attempt to alleviate these issues. Hrorm provides
+                    a <a href="/javadocs/site/apidocs/org/hrorm/Transactor.html"><code>Transactor</code></a> class
+                    with a couple of methods to elminate the boilerplate <code>try ... catch ... finally</code>
+                    blocks necessary for doing transactions. In keeping with the hrorm ethos, these methods
+                    do not declare any checked exceptions. Keep in mind that a <code>Transactor</code> will
+                    <b>automatically close its connection</b> whether or not it completes with a commit or a rollback.
+                </p>
+
+                <p>In addition, the <code>Dao</code> interface provides cognate methods for <code>insert</code>,
+                    <code>update</code>, and <code>delete</code> named <code>atomicInsert</code>,
+                    <code>atomicUpdate</code>, and <code>atomicDelete</code>. These methods provide
+                    a no-fuss way to do mutations of parent-child relations. However, these methods
+                    must be used with care! In addition to a possibly unexpected early commit if these methods
+                    are accidentally used in a larger transaction, remember that, as above, these methods
+                    will also <b>close the connection</b> they use when complete.</p>
+
+                <p>There is no one-size-fits-all solution to how to marry the problem of database
+                    to object mapping with the problems of transactions and atomicity. For this reason,
+                    hrorm mostly just tries to stay out of the way.</p>
+
+            </div>
+
+            <div class="card fluid">
+
+                <a name="hrorm_visibility"></a>
+                <h2>Hrorm Visibility</h2>
+
+                <hr>
+
+                <p>Hrorm is designed to have a small surface area for clients. Most of the time, clients should only
+                    need to interact with three hrorm types: <code>DaoBuilder</code>, <code>Dao</code>, and
+                    <code>HrormException</code>. Clients might also be expected to create a few instances of
+                    <code>Converter</code> objects and perhaps to use a <code>Transactor</code>. After that,
+                    there is nothing in Hrorm that is designed to be used in client code.</p>
+
+                <p>In spite of this, almost all the classes in hrorm are public and contain public constructors
+                    and methods. If you feel like instantiating a <code>StringColumn</code> object, hrorm feels
+                    no need to try to stop you.</p>
+
+                <p>Most of the time, hrorm will point out in the Javadocs where classes are not
+                    intended for clients to use directly.</p>
+
+            </div>
+
+            <div class="card fluid">
+
+                <a name="falling_off_a_cliff"></a>
+                <h2>Falling Off a Cliff</h2>
+
+                <hr>
+
+                <p>Sometimes when using an ORM tool, development can go swimmingly until you fall off a cliff. The
+                    ORM tool takes care of many details about state tracking, caching, SQL generation, transactions,
+                    etc, and it's all great. But then you need to do something that your ORM tool does not support.
+                    Perhaps not a large thing, but just optimize one particular query or other. And you find, you
+                    cannot do it. Yes, you can optimize the query, but there's no way to inject that logic into
+                    the framework. And if you just have that query outside the framework, then you cannot integrate it
+                    with all the caching, state-tracking, transaction managing stuff your framework provides you.
+                </p>
+
+                <p>You just fell off the cliff.</p>
+
+                <p>It's like the old joke about the traveller asking the farmer how to get to some village in
+                the area and receiving the reply: "You can't get there from here."</p>
+
+                <p>Hrorm is a minimal library, not a maximal framework. It should be possible to integrate custom features you
+                need in your application easily. To make <code>Dao</code> objects, all you need is a vanilla
+                <code>java.sql.Connection</code>. You can freely mix calls to hrorm objects with custom logic
+                for managing transactions or querying the database or anything else as you see fit.</p>
+
+            </div>
+
+        </div>
+    </div>
 </div>
 
 </body>
