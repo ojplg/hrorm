@@ -316,15 +316,16 @@
             <a name="daos"></a>
             <h2>Daos</h2>
 
+            <p>To create a <code>Dao</code> from a <code>DaoBuilder</code>, just pass it a <code>java.sql.Connection</code>:</p>
+
+            <pre>
+    Dao&lt;Person&gt; dao = daoBuilder.buildDao(connection);</pre>
+            
             <a name="insert"></a>
             <div class="card fluid">
             <h3>Insert</h3>
                 <hr>
 
-                <p>To get a <code>Dao</code> from a <code>DaoBuilder</code>, just pass it a connection:</p>
-
-                <pre>
-    Dao&lt;Person&gt; dao = daoBuilder.buildDao(connection);</pre>
 
                 <p>The first thing to do is insert a new record into the database.</p>
 
