@@ -48,13 +48,14 @@ public class LocalDateTimeColumn<T> implements TypedColumn<T> {
     }
 
     @Override
-    public void populate(T item, ResultSet resultSet) throws SQLException {
+    public PopulateResult populate(T item, ResultSet resultSet) throws SQLException {
         Timestamp sqlTime = resultSet.getTimestamp(prefix + name);
         LocalDateTime value = null;
         if ( sqlTime != null ) {
             value = sqlTime.toLocalDateTime();
         }
         setter.accept(item, value);
+        return PopulateResult.Ignore;
     }
 
     @Override

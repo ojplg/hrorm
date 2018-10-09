@@ -55,13 +55,14 @@ public class StringConverterColumn<T, E> implements TypedColumn<T> {
     }
 
     @Override
-    public void populate(T item, ResultSet resultSet) throws SQLException {
+    public PopulateResult populate(T item, ResultSet resultSet) throws SQLException {
         String code = resultSet.getString(prefix + name);
         E value = null;
         if (code != null ) {
             value = converter.to(code);
         }
         setter.accept(item, value);
+        return PopulateResult.Ignore;
     }
 
     @Override

@@ -61,15 +61,11 @@ public class SqlBuilder<T> {
         buf.append(" a");
         List<JoinColumn> flattenedJoinColumns = flattenedJoinColumns();
         for(JoinColumn joinColumn : flattenedJoinColumns) {
-            buf.append(", ");
+            buf.append(" LEFT JOIN ");
             buf.append(joinColumn.getTable());
             buf.append(" ");
             buf.append(joinColumn.getPrefix());
-        }
-        buf.append(" where 1=1 ");
-        for( int idx=0; idx<flattenedJoinColumns.size(); idx++ ){
-            JoinColumn joinColumn = flattenedJoinColumns.get(idx);
-            buf.append(" and ");
+            buf.append(" ON ");
             buf.append(joinColumn.getJoinedTablePrefix());
             buf.append(".");
             buf.append(joinColumn.getName());
@@ -77,6 +73,7 @@ public class SqlBuilder<T> {
             buf.append(joinColumn.getPrefix());
             buf.append(".id");
         }
+        buf.append(" where 1=1 ");
 
         return buf.toString();
     }
@@ -84,15 +81,15 @@ public class SqlBuilder<T> {
     private List<JoinColumn> flattenedJoinColumns(){
         List<JoinColumn> flatJoinColumnList = new ArrayList<>();
         for(JoinColumn joinColumn : joinColumns){
-            appendColumnsRecursively(flatJoinColumnList, joinColumn);
+            prependColumnsRecursively(flatJoinColumnList, joinColumn);
         }
         return flatJoinColumnList;
     }
 
-    private void appendColumnsRecursively(List<JoinColumn> listToBuild, JoinColumn columnToAdd){
+    private void prependColumnsRecursively(List<JoinColumn> listToBuild, JoinColumn columnToAdd){
         List<JoinColumn> listToAppend = columnToAdd.getTransitiveJoins();
-        listToAppend.forEach(c -> appendColumnsRecursively(listToBuild, c));
-        listToBuild.add(columnToAdd);
+        listToAppend.forEach(c -> prependColumnsRecursively(listToBuild, c));
+        listToBuild.add(0, columnToAdd);
     }
 
     public String selectByColumns(String ... columnNames){

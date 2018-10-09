@@ -46,9 +46,10 @@ public class LongColumn<T> implements TypedColumn<T> {
     }
 
     @Override
-    public void populate(T item, ResultSet resultSet) throws SQLException {
+    public PopulateResult populate(T item, ResultSet resultSet) throws SQLException {
         Long value = resultSet.getLong(prefix  + name);
         setter.accept(item, value);
+        return PopulateResult.Ignore;
     }
 
     @Override

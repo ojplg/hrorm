@@ -47,9 +47,10 @@ public class BigDecimalColumn<T> implements TypedColumn<T> {
     }
 
     @Override
-    public void populate(T item, ResultSet resultSet) throws SQLException {
+    public PopulateResult populate(T item, ResultSet resultSet) throws SQLException {
         BigDecimal value = resultSet.getBigDecimal(prefix  + name);
         setter.accept(item, value);
+        return PopulateResult.Ignore;
     }
 
     @Override

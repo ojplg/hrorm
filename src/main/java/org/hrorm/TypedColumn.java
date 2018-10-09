@@ -33,7 +33,7 @@ public interface TypedColumn<T> {
      * @param resultSet The result said being read
      * @throws SQLException allowed for <code>ResultSet</code> operations
      */
-    void populate(T item, ResultSet resultSet) throws SQLException;
+    PopulateResult populate(T item, ResultSet resultSet) throws SQLException;
 
     /**
      * Sets a value onto the prepared statement based on the state of the object passed.

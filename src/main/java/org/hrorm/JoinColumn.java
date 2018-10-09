@@ -3,6 +3,7 @@ package org.hrorm;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
@@ -94,25 +95,30 @@ public class JoinColumn<T, J> implements TypedColumn<T> {
     }
 
     @Override
-    public void populate(T item, ResultSet resultSet) throws SQLException {
+    public PopulateResult populate(T item, ResultSet resultSet) throws SQLException {
         J joined  = supplier.get();
         for (TypedColumn<J> column: dataColumns) {
-            column.populate(joined, resultSet);
+            PopulateResult result = column.populate(joined, resultSet);
+            if ( result == PopulateResult.NoPrimaryKey ){
+                return PopulateResult.Ignore;
+            }
         }
         for(JoinColumn<J,?> joinColumn : transitiveJoins){
             joinColumn.populate(joined, resultSet);
         }
         setter.accept(item, joined);
+        return PopulateResult.Ignore;
     }
 
     @Override
     public void setValue(T item, int index, PreparedStatement preparedStatement) throws SQLException {
         J value = getter.apply(item);
         if( value == null){
-            throw new HrormException("Cannot find join column value for " + item + " for " + name);
+            preparedStatement.setNull(index, Types.INTEGER);
+        } else {
+            Long id = primaryKey.getKey(value);
+            preparedStatement.setLong(index, id);
         }
-        Long id = primaryKey.getKey(value);
-        preparedStatement.setLong(index, id);
     }
 
     public JoinColumn<T,J> withPrefixes(Prefixer prefixer, String joinedTablePrefix) {

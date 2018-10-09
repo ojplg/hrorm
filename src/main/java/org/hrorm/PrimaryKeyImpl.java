@@ -51,8 +51,13 @@ public class PrimaryKeyImpl<T> implements PrimaryKey<T> {
     }
 
     @Override
-    public void populate(T item, ResultSet resultSet) throws SQLException {
+    public PopulateResult populate(T item, ResultSet resultSet) throws SQLException {
         longColumn.populate(item, resultSet);
+        Long primaryKeyValue = getter.apply(item);
+        if (primaryKeyValue == null || primaryKeyValue == 0 ){
+            return PopulateResult.NoPrimaryKey;
+        }
+        return PopulateResult.PrimaryKey;
     }
 
     @Override
