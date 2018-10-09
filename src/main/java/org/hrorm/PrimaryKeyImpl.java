@@ -12,13 +12,12 @@ public class PrimaryKeyImpl<T> implements PrimaryKey<T> {
     private final Function<T, Long> getter;
     private final BiConsumer<T, Long> setter;
     private final String sequenceName;
-    private boolean nullable = true;
 
     public PrimaryKeyImpl(String name, String prefix, Function<T, Long> getter, BiConsumer<T, Long> setter, String sequenceName) {
         this.getter = getter;
         this.setter = setter;
         this.sequenceName = sequenceName;
-        this.longColumn = new LongColumn<>(name, prefix, getter, setter);
+        this.longColumn = new LongColumn<>(name, prefix, getter, setter, false);
     }
 
     @Override
@@ -73,7 +72,7 @@ public class PrimaryKeyImpl<T> implements PrimaryKey<T> {
 
     @Override
     public void notNull() {
-        nullable = false;
+        // nullability is never allowed, this does nothing
     }
 
 }
