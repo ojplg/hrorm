@@ -174,5 +174,16 @@ public class ColumnsTest {
         Assert.assertEquals(3, dbInstanceList.size());
     }
 
+    @Test
+    public void handlesNullElements(){
+        Connection connection = helper.connect();
+        Dao<Columns> dao = daoBuilder().buildDao(connection);
+
+        Columns columns = new Columns();
+
+        dao.insert(columns);
+
+        Assert.assertNotNull(columns.getId());
+    }
 
 }

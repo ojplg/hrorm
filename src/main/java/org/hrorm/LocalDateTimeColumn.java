@@ -50,14 +50,20 @@ public class LocalDateTimeColumn<T> implements TypedColumn<T> {
     @Override
     public void populate(T item, ResultSet resultSet) throws SQLException {
         Timestamp sqlTime = resultSet.getTimestamp(prefix + name);
-        LocalDateTime value = sqlTime.toLocalDateTime();
+        LocalDateTime value = null;
+        if ( sqlTime != null ) {
+            value = sqlTime.toLocalDateTime();
+        }
         setter.accept(item, value);
     }
 
     @Override
     public void setValue(T item, int index, PreparedStatement preparedStatement) throws SQLException {
         LocalDateTime value = getter.apply(item);
-        Timestamp sqlTime = Timestamp.valueOf(value);
+        Timestamp sqlTime = null;
+        if ( value != null) {
+            sqlTime = Timestamp.valueOf(value);
+        }
         preparedStatement.setTimestamp(index, sqlTime);
     }
 

@@ -57,14 +57,20 @@ public class StringConverterColumn<T, E> implements TypedColumn<T> {
     @Override
     public void populate(T item, ResultSet resultSet) throws SQLException {
         String code = resultSet.getString(prefix + name);
-        E value = converter.to(code);
+        E value = null;
+        if (code != null ) {
+            value = converter.to(code);
+        }
         setter.accept(item, value);
     }
 
     @Override
     public void setValue(T item, int index, PreparedStatement preparedStatement) throws SQLException {
         E value = getter.apply(item);
-        String code = converter.from(value);
+        String code = null;
+        if (value != null ) {
+            code = converter.from(value);
+        }
         preparedStatement.setString(index, code);
     }
 
