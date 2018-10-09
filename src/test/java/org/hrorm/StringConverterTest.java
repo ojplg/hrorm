@@ -3,6 +3,7 @@ package org.hrorm;
 import org.hrorm.examples.Columns;
 import org.hrorm.examples.EnumeratedColor;
 import org.hrorm.examples.EnumeratedColorConverter;
+import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -44,5 +45,23 @@ public class StringConverterTest {
         Mockito.verifyNoMoreInteractions(resultSet);
     }
 
+    @Test
+    public void testPreventsNullsWhenSet() throws SQLException {
+        StringConverterColumn<Columns, EnumeratedColor> column = new StringConverterColumn<>(
+                "COLOR", "A", Columns::getColorThing, Columns::setColorThing, new EnumeratedColorConverter());
+        column.notNull();
+
+        Columns columns = new Columns();
+
+        PreparedStatement preparedStatement = Mockito.mock(PreparedStatement.class);
+
+        try {
+            column.setValue(columns, 1, preparedStatement);
+            Assert.fail("Should not allow null value");
+        } catch (HrormException expected){
+
+        }
+        Mockito.verifyZeroInteractions(preparedStatement);
+    }
 
 }

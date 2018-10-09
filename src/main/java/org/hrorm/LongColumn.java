@@ -22,6 +22,7 @@ public class LongColumn<T> implements TypedColumn<T> {
     private final String prefix;
     private final BiConsumer<T, Long> setter;
     private final Function<T, Long> getter;
+    private boolean nullable = true;
 
     public LongColumn(String name, String prefix, Function<T, Long> getter, BiConsumer<T, Long> setter) {
         this.name = name;
@@ -61,5 +62,9 @@ public class LongColumn<T> implements TypedColumn<T> {
     @Override
     public boolean isPrimaryKey() {
         return false;
+    }
+
+    public void notNull(){
+        nullable=false;
     }
 }

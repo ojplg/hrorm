@@ -23,6 +23,7 @@ public class BigDecimalColumn<T> implements TypedColumn<T> {
     private final String prefix;
     private final BiConsumer<T, BigDecimal> setter;
     private final Function<T, BigDecimal> getter;
+    private boolean nullable = true;
 
     public BigDecimalColumn(String name, String prefix, Function<T, BigDecimal> getter, BiConsumer<T, BigDecimal> setter) {
         this.name = name;
@@ -63,4 +64,10 @@ public class BigDecimalColumn<T> implements TypedColumn<T> {
     public boolean isPrimaryKey() {
         return false;
     }
+
+    @Override
+    public void notNull() {
+        nullable = false;
+    }
+
 }

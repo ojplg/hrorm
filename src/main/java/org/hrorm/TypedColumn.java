@@ -58,4 +58,9 @@ public interface TypedColumn<T> {
      * @return true if this column represents the primary key of the table
      */
     boolean isPrimaryKey();
+
+    /**
+     * Calling this method will enforce a not-null constraint on this column.
+     */
+    void notNull();
 }

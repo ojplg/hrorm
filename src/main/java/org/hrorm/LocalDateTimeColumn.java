@@ -24,6 +24,7 @@ public class LocalDateTimeColumn<T> implements TypedColumn<T> {
     private final String prefix;
     private final BiConsumer<T, LocalDateTime> setter;
     private final Function<T, LocalDateTime> getter;
+    private boolean nullable = true;
 
     public LocalDateTimeColumn(String name, String prefix, Function<T, LocalDateTime> getter, BiConsumer<T, LocalDateTime> setter) {
         this.name = name;
@@ -34,7 +35,11 @@ public class LocalDateTimeColumn<T> implements TypedColumn<T> {
 
     @Override
     public TypedColumn<T> withPrefix(String prefix) {
-        return new LocalDateTimeColumn<>(name, prefix, getter, setter);
+        LocalDateTimeColumn column = new LocalDateTimeColumn<>(name, prefix, getter, setter);
+        if ( ! nullable ){
+            column.notNull();
+        }
+        return column;
     }
 
     @Override
@@ -62,7 +67,11 @@ public class LocalDateTimeColumn<T> implements TypedColumn<T> {
     public void setValue(T item, int index, PreparedStatement preparedStatement) throws SQLException {
         LocalDateTime value = getter.apply(item);
         Timestamp sqlTime = null;
-        if ( value != null) {
+        if ( value == null) {
+            if ( ! nullable ){
+                throw new HrormException("Tried to set a null value for " + prefix + "." + name + " which was set not nullable.");
+            }
+        } else {
             sqlTime = Timestamp.valueOf(value);
         }
         preparedStatement.setTimestamp(index, sqlTime);
@@ -71,6 +80,11 @@ public class LocalDateTimeColumn<T> implements TypedColumn<T> {
     @Override
     public boolean isPrimaryKey() {
         return false;
+    }
+
+    @Override
+    public void notNull() {
+        nullable = false;
     }
 }
 

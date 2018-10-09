@@ -22,6 +22,7 @@ public class StringColumn<T> implements TypedColumn<T> {
     private final String prefix;
     private final BiConsumer<T, String> setter;
     private final Function<T, String> getter;
+    private boolean nullable = true;
 
     public StringColumn(String name, String prefix, Function<T, String> getter, BiConsumer<T, String> setter) {
         this.name = name;
@@ -63,4 +64,8 @@ public class StringColumn<T> implements TypedColumn<T> {
         return false;
     }
 
+    @Override
+    public void notNull() {
+        nullable = false;
+    }
 }

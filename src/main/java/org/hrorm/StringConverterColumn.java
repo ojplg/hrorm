@@ -30,6 +30,7 @@ public class StringConverterColumn<T, E> implements TypedColumn<T> {
     private final BiConsumer<T, E> setter;
     private final Function<T, E> getter;
     private final Converter<E, String> converter;
+    private boolean nullable = true;
 
     public StringConverterColumn(String name, String prefix, Function<T, E> getter, BiConsumer<T, E> setter, Converter<E, String> converter) {
         this.name = name;
@@ -41,7 +42,11 @@ public class StringConverterColumn<T, E> implements TypedColumn<T> {
 
     @Override
     public TypedColumn<T> withPrefix(String prefix) {
-        return new StringConverterColumn<>(name, prefix, getter, setter, converter);
+        StringConverterColumn<T,E> newColumn = new StringConverterColumn<>(name, prefix, getter, setter, converter);
+        if ( ! nullable ){
+            newColumn.notNull();
+        }
+        return newColumn;
     }
 
     @Override
@@ -69,7 +74,11 @@ public class StringConverterColumn<T, E> implements TypedColumn<T> {
     public void setValue(T item, int index, PreparedStatement preparedStatement) throws SQLException {
         E value = getter.apply(item);
         String code = null;
-        if (value != null ) {
+        if (value == null) {
+            if ( ! nullable ){
+                throw new HrormException("Tried to set a null value for " + prefix + "." + name + " which was set not nullable.");
+            }
+        } else {
             code = converter.from(value);
         }
         preparedStatement.setString(index, code);
@@ -78,6 +87,11 @@ public class StringConverterColumn<T, E> implements TypedColumn<T> {
     @Override
     public boolean isPrimaryKey() {
         return false;
+    }
+
+    @Override
+    public void notNull() {
+        nullable = false;
     }
 
 }

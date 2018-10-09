@@ -34,6 +34,7 @@ public class JoinColumn<T, J> implements TypedColumn<T> {
     private final List<TypedColumn<J>> dataColumns;
     private final PrimaryKey<J> primaryKey;
     private final List<JoinColumn<J,?>> transitiveJoins;
+    private boolean nullable = true;
 
     public JoinColumn(String name, String joinedTablePrefix, Prefixer prefixer, Function<T, J> getter, BiConsumer<T,J> setter, DaoDescriptor<J> daoDescriptor){
         this.name = name;
@@ -137,5 +138,10 @@ public class JoinColumn<T, J> implements TypedColumn<T> {
     @Override
     public boolean isPrimaryKey() {
         return false;
+    }
+
+    @Override
+    public void notNull() {
+        nullable = false;
     }
 }
