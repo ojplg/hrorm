@@ -13,14 +13,48 @@
 
         <div class="col-sm-3">
             <nav id="navigation">
-                <a href="#one_table">One Table</a>
+                <a href="#introduction">Introduction</a>
+                <a href="#daobuilders">DaoBuilders</a>
+                <a href="#one_table" class="sublink-1">One Table</a>
+                <a href="#daos">Daos</a>
+                <a href="#insert" class="sublink-1">Insert</a>
+                <a href="#select" class="sublink-1">Select</a>
+                <a href="#update" class="sublink-1">Update</a>
+                <a href="#delete" class="sublink-1">Delete</a>
             </nav>
         </div>
 
         <div class="col-sm-9">
+
+            <a name="introduction"></a>
+            <h2>Introduction</h2>
+
+            <p>Interactions with hrorm have two major points: building <code>Dao</code> objects and then using them.</p>
+
+            <p><code>Dao</code> building is accomplished with the aptly named <code>DaoBuilder</code> class.
+                <code>DaoBuilder</code> objects are part of the one-time (static, singleton) initiation of
+                your application. There is little point in having more than one builder of any entity type.
+                Of course, some care must be taken: by their nature, <code>DaoBuilder</code> objects are
+                mutable, so if you directly expose them to the rest of your application during start up,
+                it's possible that you can do something stupid.
+            </p>
+
+            <p><code>Dao</code> objects themselves are what perform the actual tasks of persisting and
+            instantiating entity objects. To make a <code>Dao</code> requires a <code>Connection</code>
+            object. Since a <code>Dao</code> keeps a stateful <code>Connection</code> to the underlying
+            data store, it is dangerous to share instances across threads. Generally, the idea is to
+            instantiate a <code>Dao</code> when you need it, and then allow it to be garbage collected.
+            It is up the application itself to deal with reaping the <code>Connection</code>, with some exceptions
+            noted below.</p>
+
+            <p>Also take a look at the <a href="/#quick_start">Quick Start</a> and <a href="/javadocs/latest">Javadocs</a>.</p>
+
+            <a name="daobuilders"></a>
+            <h2>Dao Builders</h2>
+
             <a name="one_table"></a>
             <div class="card fluid">
-                <h2>One Table</h2>
+                <h3>One Table</h3>
                 <hr>
                 <p>The easiest case for any ORM tool is persisting a single object backed by a single table.
                 Let's work on persisting a model for a person that includes the following elements:</p>
@@ -175,6 +209,14 @@
 
                 <p>In just 8 lines of code, we have taught hrorm everything it needs to know to CRUD <code>Person</code>
                 objects.</p>
+            </div>
+
+            <a name="daos"></a>
+            <h2>Daos</h2>
+
+            <a name="insert"></a>
+            <div class="card fluid">
+            <h3>Insert</h3>
 
                 <p>To get a <code>Dao</code> from a <code>DaoBuilder</code>, just pass it a connection:</p>
 
@@ -196,13 +238,25 @@
     Assert.assertNotNull(person.getId());
     Assert.assertTrue(id == person.getId());</pre>
 
-                <p>After making changes to the state of the object, we can call</p>
+            </div>
+
+            <a name="update"></a>
+            <div class="card fluid">
+                <h3>Update</h3>
+
+                    <p>After making changes to the state of the object, we can call</p>
 
                 <pre>
     dao.update(person);
     connection.commit();</pre>
 
                 <p>This will issue an update in the database based on the primary key (<code>id</code>) field.</p>
+
+            </div>
+
+            <a name="delete"></a>
+            <div class="card fluid">
+                <h3>Delete</h3>
 
                 <p>When we are done with this person, we can issue</p>
 
@@ -211,7 +265,6 @@
     connection.commit();</pre>
 
                 <p>To remove the record from the database, using the primary key, as with an update.</p>
-
 
             </div>
 
