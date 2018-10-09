@@ -3,6 +3,7 @@ package org.hrorm;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
@@ -22,18 +23,23 @@ public class LongColumn<T> implements TypedColumn<T> {
     private final String prefix;
     private final BiConsumer<T, Long> setter;
     private final Function<T, Long> getter;
-    private boolean nullable = true;
+    private boolean nullable;
 
     public LongColumn(String name, String prefix, Function<T, Long> getter, BiConsumer<T, Long> setter) {
+        this(name, prefix, getter, setter, true);
+    }
+
+    public LongColumn(String name, String prefix, Function<T, Long> getter, BiConsumer<T, Long> setter, boolean nullable) {
         this.name = name;
         this.prefix = prefix;
         this.getter = getter;
         this.setter = setter;
+        this.nullable = nullable;
     }
 
     @Override
     public TypedColumn<T> withPrefix(String prefix) {
-        return new LongColumn<>(name, prefix, getter, setter);
+        return new LongColumn<>(name, prefix, getter, setter, nullable);
     }
 
     @Override
@@ -56,7 +62,15 @@ public class LongColumn<T> implements TypedColumn<T> {
     @Override
     public void setValue(T item, int index, PreparedStatement preparedStatement) throws SQLException {
         Long value = getter.apply(item);
-        preparedStatement.setLong(index, value);
+        if ( value == null ){
+            if ( nullable ){
+                preparedStatement.setNull(index, Types.INTEGER);
+            } else {
+                throw new HrormException("Tried to set a null value for " + prefix + "." + name + " which was set not nullable.");
+            }
+        } else {
+            preparedStatement.setLong(index, value);
+        }
     }
 
     @Override

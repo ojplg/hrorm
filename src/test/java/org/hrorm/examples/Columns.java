@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 public class Columns {
     private Long id;
     private String stringThing;
-    private long integerThing;
+    private Long integerThing;
     private Boolean booleanThing;
     private LocalDateTime timeStampThing;
     private EnumeratedColor colorThing;

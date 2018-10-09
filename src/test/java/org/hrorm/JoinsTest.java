@@ -207,8 +207,6 @@ public class JoinsTest {
 
         long id = thingDao.insert(thing);
 
-        System.out.println("id " + id);
-
         Thing readThing = thingDao.select(id);
 
         Assert.assertEquals("only child", readThing.getName());
