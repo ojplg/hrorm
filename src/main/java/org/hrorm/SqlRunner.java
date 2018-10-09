@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
+import java.util.logging.Logger;
 
 /**
  * This class does the heavy lifting of creating <code>Statement</code>s,
@@ -21,6 +22,8 @@ import java.util.function.Supplier;
  * @param <T> the type of object this runner supports
  */
 public class SqlRunner<T> {
+
+    private static final Logger logger = Logger.getLogger("org.hrorm");
 
     private final Connection connection;
     private final List<TypedColumn<T>> allColumns;
@@ -49,6 +52,7 @@ public class SqlRunner<T> {
                 idx++;
             }
 
+            logger.info(sql);
             resultSet = statement.executeQuery();
 
             List<T> results = new ArrayList<>();
@@ -101,6 +105,7 @@ public class SqlRunner<T> {
                 }
             }
 
+            logger.info(sql);
             preparedStatement.execute();
 
         } catch (SQLException se){

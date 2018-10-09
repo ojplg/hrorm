@@ -31,6 +31,8 @@ public interface TypedColumn<T> {
      *
      * @param item The object being populated
      * @param resultSet The result said being read
+     * @return A coded value indicating information about what happened
+     * during population
      * @throws SQLException allowed for <code>ResultSet</code> operations
      */
     PopulateResult populate(T item, ResultSet resultSet) throws SQLException;
