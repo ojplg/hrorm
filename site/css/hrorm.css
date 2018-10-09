@@ -1,0 +1,10 @@
+#navigation {
+    background-color: LightGreen;
+    position: fixed;
+    overflow: auto;
+}
+
+div.disclaimer {
+    background-color: LightGrey;
+    color: DarkBlue;
+}

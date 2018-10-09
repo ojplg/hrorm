@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>hrorm - Documentation</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/mini.css/3.0.0/mini-default.min.css">
+    <link rel="stylesheet" href="/css/hrorm.css">
+</head>
+<body>
+
+
+<div class="container">
+    <div class="row">
+
+        <div class="col-sm-3">
+            <nav id="navigation">
+                <a href="#one_table">One Table</a>
+            </nav>
+        </div>
+
+        <div class="col-sm-9">
+            <a name="one_table"></a>
+            <div class="card fluid">
+                <h2>One Table</h2>
+                <hr>
+                <p>The easiest case for any ORM tool is persisting a single object backed by a single table.
+                Let's work on persisting a model for a person that includes the following elements:</p>
+                <ul>
+                    <li>Name (a string or text)</li>
+                    <li>Birthday (a date)</li>
+                    <li>Weight in kilograms (an integer)</li>
+                    <li>Height in meters (a decimal)</li>
+                    <li>High school graduate? (a boolean)</li>
+                    <li>Hair color (an enumerated type)</li>
+                </ul>
+
+                <p>To model the person entity, we write a Java Person object.</p>
+
+                <pre>
+    class Person {
+        Long id;
+        String name;
+        long weight;
+        BigDecimal height;
+        LocalDateTime birthday;
+        boolean isHighSchoolGraduate;
+        HairColor hairColor;
+    }</pre>
+
+                <p>A few small points.</p>
+
+                <ul>
+                    <li>Use your imagination to fill in getters, setters, equals, hashCode, etc.</li>
+                    <li>We have one extra field that we did not have in our logical model: an id field that is to be used
+                        for persistence.</li>
+                    <li>Assume that their is an enumerated type for hairColor, HairColor.Black, HairColor.Brown, etc.</li>
+                </ul>
+
+                <p>In the database we will create two structures for persisting this class: a table to store the data
+                and a sequence to issue the IDs.</p>
+
+                <pre>
+    CREATE SEQUENCE PERSON_SEQUENCE;
+
+    CREATE TABLE PERSON_TABLE (
+        ID INTEGER PRIMARY KEY,
+        NAME TEXT,
+        WEIGHT INTEGER,
+        WEIGHT DECIMAL,
+        BIRTHDAY TIMESTAMP,
+        IS_HIGH_SCHOOL_GRADUATE TEXT,
+        HAIR_COLOR TEXT
+    );</pre>
+
+                <p>To translate between the database reprentation and the Java representation, we plan to use
+                a <code>Dao</code> object. We could construct that directly, but hrorm provides a DaoBuilder
+                class that makes things much easier. In hrorm, both <code>Dao</code> objects and their builders
+                are parameterized on the type of thing they persist. We start off by simply calling the
+                <code>DaoBuilder</code> constructor.</p>
+
+                <pre>
+    DaoBuilder&lt;Person&gt; daoBuilder = new DaoBuilder&lt;&gt;("PERSON_TABLE", Person::new);</pre>
+
+                <p>The constructor takes two arguments: the name of the table and a no-argument method for
+                creating a new instance of the parameterized type.</p>
+
+                <p>Next, we need to define the primary key for this entity.</p>
+
+                <pre>
+    daoBuilder.withPrimaryKey("ID","PERSON_SEQUENCE", Person::getId, Person::setId);</pre>
+
+                <p>The primary key is defined with four elements:</p>
+
+                <ol>
+                    <li>The name of the primary key column in the table ("ID")</li>
+                    <li>The name of the sequence that populates the primary keys ("PERSON_SEQUENCE")</li>
+                    <li>A function that retrieves the primary key (of type <code>Long</code>) from the <code>Person</code> object.</li>
+                    <li>A function that can set the primary key onto the object.</li>
+                </ol>
+            </div>
+
+
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
