@@ -26,6 +26,8 @@ public class DaoBuilder<T> implements DaoDescriptor<T> {
     private final Prefixer prefixer;
     private final String myPrefix;
 
+    private TypedColumn<T> lastColumnAdded;
+
     /**
      * Create a new DaoBuilder instance.
      *
@@ -91,6 +93,7 @@ public class DaoBuilder<T> implements DaoDescriptor<T> {
     public DaoBuilder<T> withStringColumn(String columnName, Function<T, String> getter, BiConsumer<T, String> setter){
         TypedColumn<T> column = new StringColumn<>(columnName, myPrefix, getter, setter);
         columns.add(column);
+        lastColumnAdded = column;
         return this;
     }
 
@@ -105,6 +108,7 @@ public class DaoBuilder<T> implements DaoDescriptor<T> {
     public DaoBuilder<T> withIntegerColumn(String columnName, Function<T, Long> getter, BiConsumer<T, Long> setter){
         TypedColumn<T> column = new LongColumn<>(columnName, myPrefix, getter, setter);
         columns.add(column);
+        lastColumnAdded = column;
         return this;
     }
 
@@ -119,6 +123,7 @@ public class DaoBuilder<T> implements DaoDescriptor<T> {
     public DaoBuilder<T> withBigDecimalColumn(String columnName, Function<T, BigDecimal> getter, BiConsumer<T, BigDecimal> setter){
         TypedColumn<T> column = new BigDecimalColumn<>(columnName, myPrefix, getter, setter);
         columns.add(column);
+        lastColumnAdded = column;
         return this;
     }
 
@@ -137,6 +142,7 @@ public class DaoBuilder<T> implements DaoDescriptor<T> {
     public <E> DaoBuilder<T> withConvertingStringColumn(String columnName, Function<T, E> getter, BiConsumer<T, E> setter, Converter<E, String> converter){
         TypedColumn<T> column = new StringConverterColumn<>(columnName, myPrefix, getter, setter, converter);
         columns.add(column);
+        lastColumnAdded = column;
         return this;
     }
 
@@ -149,7 +155,9 @@ public class DaoBuilder<T> implements DaoDescriptor<T> {
      * @return This instance.
      */
     public DaoBuilder<T> withLocalDateTimeColumn(String columnName, Function<T, LocalDateTime> getter, BiConsumer<T, LocalDateTime> setter){
-        columns.add(new LocalDateTimeColumn<>(columnName, myPrefix, getter, setter));
+        TypedColumn<T> column = new LocalDateTimeColumn<>(columnName, myPrefix, getter, setter);
+        columns.add(column);
+        lastColumnAdded = column;
         return this;
     }
 
@@ -164,7 +172,9 @@ public class DaoBuilder<T> implements DaoDescriptor<T> {
      * @return This instance.
      */
     public DaoBuilder<T> withBooleanColumn(String columnName, Function<T, Boolean> getter, BiConsumer<T, Boolean> setter){
-        columns.add(new StringConverterColumn<>(columnName, myPrefix, getter, setter, BooleanConverter.INSTANCE));
+        TypedColumn<T> column = new StringConverterColumn<>(columnName, myPrefix, getter, setter, BooleanConverter.INSTANCE);
+        columns.add(column);
+        lastColumnAdded = column;
         return this;
     }
 
@@ -194,6 +204,7 @@ public class DaoBuilder<T> implements DaoDescriptor<T> {
     public <U> DaoBuilder<T> withJoinColumn(String columnName, Function<T, U> getter, BiConsumer<T,U> setter, DaoDescriptor<U> daoDescriptor){
         JoinColumn<T,U> joinColumn = new JoinColumn<>(columnName, myPrefix, prefixer, getter, setter, daoDescriptor);
         joinColumns.add(joinColumn);
+        lastColumnAdded = joinColumn;
         return this;
     }
 
@@ -255,6 +266,20 @@ public class DaoBuilder<T> implements DaoDescriptor<T> {
         }
         this.primaryKey = new PrimaryKeyImpl<>(columnName, myPrefix, getter, setter, sequenceName);
         columns.add(primaryKey);
+        return this;
+    }
+
+    /**
+     * Sets the most recent column added to this DaoBuilder to prevent it allowing
+     * nulls on inserts or updates.
+     *
+     * @return This instance.
+     */
+    public DaoBuilder<T> notNull(){
+        if ( lastColumnAdded == null ){
+            throw new HrormException("No column to set as not null has been added.");
+        }
+        lastColumnAdded.notNull();
         return this;
     }
 

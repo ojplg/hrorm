@@ -1,5 +1,6 @@
 package org.hrorm;
 
+import net.bytebuddy.build.ToStringPlugin;
 import org.hrorm.examples.Cousin;
 import org.hrorm.examples.EnumeratedColor;
 import org.hrorm.examples.EnumeratedColorConverter;
@@ -52,17 +53,11 @@ public class JoinsTest {
                     .withStringColumn("name", Thing::getName, Thing::setName)
                     .withJoinColumn("sibling_id", Thing::getSibling, Thing::setSibling, SiblingDaoBuilder);
 
-    /*
-    select a.id as aid, a.name as aname,
-    d.id as did, d.datetime as ddatetime,
-    c.id as cid, c.color as ccolor,
-    b.id as bid, b.number as bnumber
-    from
-    things a
-    LEFT JOIN second_cousins d ON c.second_cousin_id=d.id
-    LEFT JOIN cousins c ON b.cousin_id=c.id
-    LEFT JOIN siblings b ON a.sibling_id=b.id and a.id
-    */
+    private static DaoBuilder<Thing> ThingDaoBuilderNotNullSibling =
+            new DaoBuilder<>("things", Thing::new)
+                    .withPrimaryKey("id", "thing_seq", Thing::getId, Thing::setId)
+                    .withStringColumn("name", Thing::getName, Thing::setName)
+                    .withJoinColumn("sibling_id", Thing::getSibling, Thing::setSibling, SiblingDaoBuilder).notNull();
 
 
     @Test
@@ -213,4 +208,20 @@ public class JoinsTest {
         Assert.assertNull(readThing.getSibling());
     }
 
+    @Test
+    public void notNullSettingPreventsNullSiblings(){
+        Connection connection = helper.connect();
+
+        Dao<Thing> thingDao = ThingDaoBuilderNotNullSibling.buildDao(connection);
+
+        Thing thing = new Thing();
+        thing.setName("only child");
+
+        try {
+            thingDao.insert(thing);
+            Assert.fail("Should not have inserted with a null sibling");
+        } catch (HrormException expected){
+        }
+
+    }
 }

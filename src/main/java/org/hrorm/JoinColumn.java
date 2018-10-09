@@ -51,7 +51,7 @@ public class JoinColumn<T, J> implements TypedColumn<T> {
 
     private JoinColumn(String name, Prefixer prefixer, String joinedTablePrefix, String table, Function<T, J> getter,
                        BiConsumer<T, J> setter, Supplier<J> supplier, PrimaryKey<J> primaryKey,
-                       List<TypedColumn<J>> dataColumns, List<JoinColumn<J,?>> transitiveJoins) {
+                       List<TypedColumn<J>> dataColumns, List<JoinColumn<J,?>> transitiveJoins, boolean nullable) {
         this.name = name;
         this.table = table;
         this.joinedTablePrefix = joinedTablePrefix;
@@ -62,6 +62,7 @@ public class JoinColumn<T, J> implements TypedColumn<T> {
         this.primaryKey = primaryKey;
         this.dataColumns = dataColumns.stream().map(c -> c.withPrefix(prefix) ).collect(Collectors.toList());
         this.transitiveJoins = resetColumnPrefixes(prefixer, prefix, transitiveJoins);
+        this.nullable = nullable;
     }
 
     private List<JoinColumn<J,?>> resetColumnPrefixes(Prefixer prefixer, String joinedTablePrefix, List<JoinColumn<J,?>> joinColumns){
@@ -114,8 +115,12 @@ public class JoinColumn<T, J> implements TypedColumn<T> {
     @Override
     public void setValue(T item, int index, PreparedStatement preparedStatement) throws SQLException {
         J value = getter.apply(item);
-        if( value == null){
-            preparedStatement.setNull(index, Types.INTEGER);
+        if( value == null ){
+            if ( nullable ) {
+                preparedStatement.setNull(index, Types.INTEGER);
+            } else {
+                throw new HrormException("Tried to set a null value for " + prefix + "." + name + " which was set not nullable.");
+            }
         } else {
             Long id = primaryKey.getKey(value);
             preparedStatement.setLong(index, id);
@@ -123,7 +128,7 @@ public class JoinColumn<T, J> implements TypedColumn<T> {
     }
 
     public JoinColumn<T,J> withPrefixes(Prefixer prefixer, String joinedTablePrefix) {
-        return new JoinColumn<>(name, prefixer, joinedTablePrefix, table, getter, setter, supplier, primaryKey, dataColumns, transitiveJoins);
+        return new JoinColumn<>(name, prefixer, joinedTablePrefix, table, getter, setter, supplier, primaryKey, dataColumns, transitiveJoins, nullable);
     }
 
     @Override
