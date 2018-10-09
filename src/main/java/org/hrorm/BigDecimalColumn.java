@@ -23,18 +23,23 @@ public class BigDecimalColumn<T> implements TypedColumn<T> {
     private final String prefix;
     private final BiConsumer<T, BigDecimal> setter;
     private final Function<T, BigDecimal> getter;
-    private boolean nullable = true;
+    private boolean nullable;
 
-    public BigDecimalColumn(String name, String prefix, Function<T, BigDecimal> getter, BiConsumer<T, BigDecimal> setter) {
+    public BigDecimalColumn(String name, String prefix, Function<T, BigDecimal> getter, BiConsumer<T, BigDecimal> setter, boolean nullable) {
         this.name = name;
         this.prefix = prefix;
         this.getter = getter;
         this.setter = setter;
+        this.nullable = nullable;
+    }
+
+    public BigDecimalColumn(String name, String prefix, Function<T, BigDecimal> getter, BiConsumer<T, BigDecimal> setter) {
+        this(name, prefix, getter, setter, true);
     }
 
     @Override
     public TypedColumn<T> withPrefix(String prefix) {
-        return new BigDecimalColumn<>(name, prefix, getter, setter);
+        return new BigDecimalColumn<>(name, prefix, getter, setter, nullable);
     }
 
     @Override
@@ -57,6 +62,9 @@ public class BigDecimalColumn<T> implements TypedColumn<T> {
     @Override
     public void setValue(T item, int index, PreparedStatement preparedStatement) throws SQLException {
         BigDecimal value = getter.apply(item);
+        if ( value == null && ! nullable ){
+            throw new HrormException("Tried to set a null value for " + prefix + "." + name + " which was set not nullable.");
+        }
         preparedStatement.setBigDecimal(index, value);
     }
 

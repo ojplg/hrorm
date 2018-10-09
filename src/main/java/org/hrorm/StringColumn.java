@@ -22,18 +22,24 @@ public class StringColumn<T> implements TypedColumn<T> {
     private final String prefix;
     private final BiConsumer<T, String> setter;
     private final Function<T, String> getter;
-    private boolean nullable = true;
+    private boolean nullable;
 
-    public StringColumn(String name, String prefix, Function<T, String> getter, BiConsumer<T, String> setter) {
+    public StringColumn(String name, String prefix, Function<T, String> getter, BiConsumer<T, String> setter, boolean nullable) {
         this.name = name;
         this.prefix = prefix;
         this.getter = getter;
         this.setter = setter;
+        this.nullable = nullable;
     }
+
+    public StringColumn(String name, String prefix, Function<T, String> getter, BiConsumer<T, String> setter) {
+        this(name, prefix, getter, setter, true);
+    }
+
 
     @Override
     public TypedColumn<T> withPrefix(String prefix) {
-        return new StringColumn<>(name, prefix, getter, setter);
+        return new StringColumn<>(name, prefix, getter, setter, nullable);
     }
 
     @Override
@@ -56,6 +62,9 @@ public class StringColumn<T> implements TypedColumn<T> {
     @Override
     public void setValue(T item, int index, PreparedStatement preparedStatement) throws SQLException {
         String value = getter.apply(item);
+        if( value == null && ! nullable ){
+            throw new HrormException("Tried to set a null value for " + prefix + "." + name + " which was set not nullable.");
+        }
         preparedStatement.setString(index, value);
     }
 
