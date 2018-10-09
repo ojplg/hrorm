@@ -4,6 +4,7 @@ import lombok.Data;
 import org.hrorm.Converter;
 import org.hrorm.Dao;
 import org.hrorm.DaoBuilder;
+import org.junit.Assert;
 import org.mockito.Mockito;
 
 import java.math.BigDecimal;
@@ -51,6 +52,13 @@ class Person {
         Connection connection = Mockito.mock(Connection.class);
 
         Dao<Person> personDao = daoBuilder.buildDao(connection);
+
+        Person person = new Person();
+        // set values on the fields but leave the ID null
+        long id = personDao.insert(person);
+        Assert.assertNotNull(person.getId());
+        Assert.assertTrue(id == person.getId());
+
 
     }
 }

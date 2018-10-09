@@ -181,7 +181,37 @@
                 <pre>
     Dao&lt;Person&gt; dao = daoBuilder.buildDao(connection);</pre>
 
-                
+                <p>The first thing to do is insert a new record into the database.</p>
+
+                <pre>
+    Person person = new Person();
+    // set values on the fields but leave the ID null
+    long id = dao.insert(person);
+    connection.commit();</pre>
+
+                <p>After that code runs, the record will be stored in the database. Hrorm will have pulled
+                a new sequence value and set it on the object. The following assertions will be true.</p>
+
+                <pre>
+    Assert.assertNotNull(person.getId());
+    Assert.assertTrue(id == person.getId());</pre>
+
+                <p>After making changes to the state of the object, we can call</p>
+
+                <pre>
+    dao.update(person);
+    connection.commit();</pre>
+
+                <p>This will issue an update in the database based on the primary key (<code>id</code>) field.</p>
+
+                <p>When we are done with this person, we can issue</p>
+
+                <pre>
+    dao.delete(person);
+    connection.commit();</pre>
+
+                <p>To remove the record from the database, using the primary key, as with an update.</p>
+
 
             </div>
 
