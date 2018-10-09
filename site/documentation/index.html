@@ -326,12 +326,15 @@
             <h3>Insert</h3>
                 <hr>
 
-
-                <p>The first thing to do is insert a new record into the database.</p>
+                <p>To create a new record in the database, we create a new instance of the class and pass it
+                    to <code>Dao.insert()</code>.</p>
 
                 <pre>
     Person person = new Person();
-    // set values on the fields but leave the ID null
+    // set values for the fields we want
+    person.setName("Thomas Bartholomew Atkinson Wilberforce");
+    person.setHighSchoolGraduate(true);
+    person.setWeight(100L);
     long id = dao.insert(person);
     connection.commit();</pre>
 
@@ -341,6 +344,15 @@
                 <pre>
     Assert.assertNotNull(person.getId());
     Assert.assertTrue(id == person.getId());</pre>
+
+                <h5>Children</h5>
+
+                <p>Hrorm will automatically insert child records of the instance being saved, if any.</p>
+
+                <h5>Siblings</h5>
+
+                <p>If the record has sibling entities, references to those will be persisted. But be careful,
+                those sibling references must be persisted first. Sibling inserts and updates do not cascade.</p>
 
             </div>
 
