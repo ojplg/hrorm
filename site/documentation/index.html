@@ -13,9 +13,11 @@
 
         <div class="col-sm-3">
             <nav id="navigation">
-                <a href="#introduction">Introduction&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a>
+                <a href="#introduction">Introduction&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a>
                 <a href="#daobuilders">DaoBuilders</a>
                 <a href="#one_table" class="sublink-1">One Table</a>
+                <a href="#sibling_relations" class="sublink-1">Sibling Relations</a>
+                <a href="#parent_child_relations" class="sublink-1">Parent Child Relations</a>
                 <a href="#daos">Daos</a>
                 <a href="#insert" class="sublink-1">Insert</a>
                 <a href="#select" class="sublink-1">Select</a>
@@ -60,9 +62,9 @@
                 Let's work on persisting a model for a person that includes the following elements:</p>
                 <ul>
                     <li>Name (a string or text)</li>
-                    <li>Birthday (a date)</li>
                     <li>Weight in kilograms (an integer)</li>
                     <li>Height in meters (a decimal)</li>
+                    <li>Birthday (a date)</li>
                     <li>High school graduate? (a boolean)</li>
                     <li>Hair color (an enumerated type)</li>
                 </ul>
@@ -99,11 +101,15 @@
         ID INTEGER PRIMARY KEY,
         NAME TEXT,
         WEIGHT INTEGER,
-        WEIGHT DECIMAL,
+        HEIGHT DECIMAL,
         BIRTHDAY TIMESTAMP,
         IS_HIGH_SCHOOL_GRADUATE TEXT,
         HAIR_COLOR TEXT
     );</pre>
+
+                <p>Note the somewhat different types than in the Java code. In particular, the boolean and
+                enumeration values have become text fields. SQL has a more limited palate for the expression
+                of types than Java.</p>
 
                 <p>To translate between the database reprentation and the Java representation, we plan to use
                 a <code>Dao</code> object. We could construct that directly, but hrorm provides a DaoBuilder
@@ -143,7 +149,7 @@
                 for other Java types.</p>
 
                 <p>For the integer weight value (which should actually be a <code>Long</code> or <code>long</code>,
-                not an <code>int</code> or <code>short</code>.</p>
+                not an <code>int</code> or <code>short</code>).</p>
 
                 <pre>
     daoBuilder.withIntegerColumn("WEIGHT", Person::getWeight, Person::setWeight);</pre>
@@ -166,7 +172,7 @@
                 <pre>
     daoBuilder.withBooleanColumn("IS_HIGH_SCHOOL_GRADUATE", Person::isHighSchoolGraduate, Person::setHighSchoolGraduate);</pre>
 
-                <p>For the enumerate <code>HairColor</code> type, hrorm needs a bit more help, via an implementation
+                <p>For the enumerated <code>HairColor</code> type, hrorm needs a bit more help, via an implementation
                 of its <code>Converter</code> interface. We need a simple class that looks like this:</p>
 
                 <pre>
@@ -210,6 +216,24 @@
                 <p>In just 8 lines of code, we have taught hrorm everything it needs to know to CRUD <code>Person</code>
                 objects.</p>
             </div>
+
+            <a name="sibling_relations"></a>
+            <div class="card fluid">
+                <h3>Sibling Relations</h3>
+
+                <p>When one entity object contains a reference to another entity object, hrorm calls that a
+                sibling or join relationship.</p>
+
+            </div>
+
+            <a name="parent_child_relations"></a>
+            <div class="card fluid">
+                <h3>Parent Child Relations</h3>
+
+                <p>When one entity contains a collection of other entities, hrorm calls that a parent child relation.</p>
+
+            </div>
+
 
             <a name="daos"></a>
             <h2>Daos</h2>
