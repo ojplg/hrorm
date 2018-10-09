@@ -96,6 +96,93 @@
                     <li>A function that retrieves the primary key (of type <code>Long</code>) from the <code>Person</code> object.</li>
                     <li>A function that can set the primary key onto the object.</li>
                 </ol>
+
+                <p>With that covered, we can being to teach the <code>DaoBuilder</code> about the individual data
+                elements. First, we will teach it about the name field.</p>
+
+                <pre>
+    daoBuilder.withStringColumn("NAME", Person::getName, Person::setName);</pre>
+
+                <p>This explains that that table has a column named "NAME" and that the value in the table can
+                be populated from calling <code>getName()</code> on a <code>Person</code>, and that value
+                can be set by calling <code>setName()</code>. There are other methods on the <code>DaoBuilder</code>
+                for other Java types.</p>
+
+                <p>For the integer weight value (which should actually be a <code>Long</code> or <code>long</code>,
+                not an <code>int</code> or <code>short</code>.</p>
+
+                <pre>
+    daoBuilder.withIntegerColumn("WEIGHT", Person::getWeight, Person::setWeight);</pre>
+
+                <p>For decimal values, hrorm supports the <code>java.math.BigDecimal</code> type.</p>
+
+                <pre>
+    daoBuilder.withBigDecimalColumn("HEIGHT", Person::getHeight, Person::setHeight);</pre>
+
+                <p>For dates and times, hrorm supports the <code>java.time.LocalDateTime</code> type.</p>
+
+<pre>
+    daoBuilder.withLocalDateTimeColumn("BIRTHDAY", Person::getBirthday, Person::setBirthday);</pre>
+
+                <p>And similarly for boolean values. Note that the table should declare a text or string value.
+                    Not all databases support a boolean column type. Hrorm will convert between Java's boolean
+                    enumeration of true/false with the strings "T" and "F" in the database.
+                </p>
+
+                <pre>
+    daoBuilder.withBooleanColumn("IS_HIGH_SCHOOL_GRADUATE", Person::isHighSchoolGraduate, Person::setHighSchoolGraduate);</pre>
+
+                <p>For the enumerate <code>HairColor</code> type, hrorm needs a bit more help, via an implementation
+                of its <code>Converter</code> interface. We need a simple class that looks like this:</p>
+
+                <pre>
+    class HairColorConverter implements Converter&lt;HairColor, String&gt; {
+        @Override
+        public String from(HairColor item) {
+            return item.getColorName();
+        }
+
+        @Override
+        public HairColor to(String s) {
+            return HairColor.forColorName(s);
+        }
+    }</pre>
+
+                <p>Once the <code>Converter</code> exists, we can teach the <code>DaoBuilder</code> about it
+                and the hair color field.</p>
+
+                <pre>
+    daoBuilder.withConvertingStringColumn("HAIR_COLOR", Person::getHairColor, Person::setHairColor, new HairColorConverter());</pre>
+
+                <p>Notice that in addition to the usual fields for column name, getter, and setter, we additionally
+                must specify the conversion mechanism.</p>
+
+                <p>That completes the <code>DaoBuilder</code>. Now we can actually build a <code>Dao&lt;Person&gt;</code>
+                    object, assuming we have a <code>java.sql.Connection</code>.</p>
+
+                <p>But before that, we should note that the <code>DaoBuilder</code> supports a fluent interface,
+                so we could write all of the above as:</p>
+
+                <pre>
+    DaoBuilder&lt;Person&gt; daoBuilder = new DaoBuilder<>("PERSON_TABLE", Person::new)
+                .withPrimaryKey("ID","PERSON_SEQUENCE", Person::getId, Person::setId)
+                .withStringColumn("NAME", Person::getName, Person::setName)
+                .withIntegerColumn("WEIGHT", Person::getWeight, Person::setWeight)
+                .withBigDecimalColumn("HEIGHT", Person::getHeight, Person::setHeight)
+                .withLocalDateTimeColumn("BIRTHDAY", Person::getBirthday, Person::setBirthday)
+                .withBooleanColumn("IS_HIGH_SCHOOL_GRADUATE", Person::isHighSchoolGraduate, Person::setHighSchoolGraduate)
+                .withConvertingStringColumn("HAIR_COLOR", Person::getHairColor, Person::setHairColor, new HairColorConverter());</pre>
+
+                <p>In just 8 lines of code, we have taught hrorm everything it needs to know to CRUD <code>Person</code>
+                objects.</p>
+
+                <p>To get a <code>Dao</code> from a <code>DaoBuilder</code>, just pass it a connection:</p>
+
+                <pre>
+    Dao&lt;Person&gt; dao = daoBuilder.buildDao(connection);</pre>
+
+                
+
             </div>
 
 
