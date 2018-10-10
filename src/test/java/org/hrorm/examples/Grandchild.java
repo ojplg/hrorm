@@ -5,6 +5,6 @@ import lombok.Data;
 @Data
 public class Grandchild {
     private Long id;
-    private Long childId;
+    private Child child;
     private EnumeratedColor color;
 }

@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
  *
  * @param <T> The item whose persistence is managed by this <code>Dao</code>
  */
-public class DaoImpl<T> implements Dao<T>, DaoDescriptor<T> {
+public class DaoImpl<T,P> implements Dao<T>, DaoDescriptor<T> {
 
     private final Connection connection;
     private final String tableName;
@@ -29,6 +29,7 @@ public class DaoImpl<T> implements Dao<T>, DaoDescriptor<T> {
     private final List<ChildrenDescriptor<T,?>> childrenDescriptors;
     private final SqlBuilder<T> sqlBuilder;
     private final SqlRunner<T> sqlRunner;
+    private final ParentColumn<T,P> parentColumn;
 
     public DaoImpl(Connection connection,
                    String tableName,
@@ -36,7 +37,8 @@ public class DaoImpl<T> implements Dao<T>, DaoDescriptor<T> {
                    PrimaryKey<T> primaryKey,
                    List<TypedColumn<T>> dataColumns,
                    List<JoinColumn<T,?>> joinColumns,
-                   List<ChildrenDescriptor<T,?>> childrenDescriptors){
+                   List<ChildrenDescriptor<T,?>> childrenDescriptors,
+                   ParentColumn<T,P> parentColumn){
         this.connection = connection;
         this.tableName = tableName;
         this.dataColumns = Collections.unmodifiableList(new ArrayList<>(dataColumns));
@@ -44,29 +46,40 @@ public class DaoImpl<T> implements Dao<T>, DaoDescriptor<T> {
         this.supplier = supplier;
         this.joinColumns = Collections.unmodifiableList(new ArrayList<>(joinColumns));
         this.childrenDescriptors = Collections.unmodifiableList(new ArrayList<>(childrenDescriptors));
-        this.sqlBuilder = new SqlBuilder<>(tableName, this.dataColumns, this.joinColumns, primaryKey);
-        this.sqlRunner = new SqlRunner<>(connection, this.dataColumns, this.joinColumns);
+        this.sqlBuilder = new SqlBuilder<>(tableName, this.dataColumnsWithParent(), this.joinColumns, primaryKey);
+        this.sqlRunner = new SqlRunner<>(connection, this.dataColumns, this.joinColumns, this.parentColumn());
+        this.parentColumn = parentColumn;
     }
 
+    @Override
     public String tableName(){
         return tableName;
     }
 
+    @Override
     public List<TypedColumn<T>> dataColumns(){
         return dataColumns;
     }
 
+    @Override
     public List<JoinColumn<T, ?>> joinColumns(){
         return joinColumns;
     }
 
+    @Override
     public Supplier<T> supplier() { return supplier; }
 
+    @Override
     public PrimaryKey<T> primaryKey() { return primaryKey; }
 
     @Override
     public List<ChildrenDescriptor<T, ?>> childrenDescriptors() {
         return null;
+    }
+
+    @Override
+    public ParentColumn<T, P> parentColumn() {
+        return parentColumn;
     }
 
     public String deleteSql(T item){

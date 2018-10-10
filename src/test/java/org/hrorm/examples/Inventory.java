@@ -21,7 +21,6 @@ public class Inventory {
     DaoBuilder<Inventory> inventoryDaoBuilder = new DaoBuilder<>("INVENTORY", Inventory::new)
             .withPrimaryKey("ID", "INVENTORY_SEQUENCE", Inventory::getId, Inventory::setId)
             .withLocalDateTimeColumn("DATE", Inventory::getDate, Inventory::setDate)
-            .withChildren("INVENTORY_ID", Stock::setInventoryId, Inventory::getStocks,
-                    Inventory::setStocks, stockDaoBuilder);
+            .withChildren(Inventory::getStocks, Inventory::setStocks, stockDaoBuilder);
 
 }

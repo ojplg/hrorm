@@ -48,7 +48,7 @@ public class Recipes {
             .withPrimaryKey("ID", "RECIPE_SEQUENCE", Recipe::getId, Recipe::setId)
             .withStringColumn("NAME", Recipe::getName, Recipe::setName)
             .withJoinColumn("AUTHOR_ID", Recipe::getAuthor, Recipe::setAuthor, authorDaoBuilder)
-            .withChildren("RECIPE_ID", Ingredient::setRecipeId, Recipe::getIngredients, Recipe::setIngredients, ingredientDaoBuilder);
+            .withChildren( Recipe::getIngredients, Recipe::setIngredients, ingredientDaoBuilder);
 
 
     void example(){

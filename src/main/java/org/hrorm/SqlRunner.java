@@ -28,11 +28,14 @@ public class SqlRunner<T> {
     private final Connection connection;
     private final List<TypedColumn<T>> allColumns;
 
-    public SqlRunner(Connection connection, List<TypedColumn<T>> dataColumns, List<JoinColumn<T,?>> joinColumns) {
+    public SqlRunner(Connection connection, List<TypedColumn<T>> dataColumns, List<JoinColumn<T,?>> joinColumns, ParentColumn<T,?> parentColumn) {
         this.connection = connection;
         List<TypedColumn<T>> columns = new ArrayList<>();
         columns.addAll(dataColumns);
         columns.addAll(joinColumns);
+        if( parentColumn != null ) {
+            columns.add(parentColumn);
+        }
         this.allColumns = Collections.unmodifiableList(columns);
     }
 

@@ -47,23 +47,21 @@ public class ParentsTest {
     private static DaoBuilder<Grandchild> GrandchildDaoBuilder =
             new DaoBuilder<>("grandchild_table", Grandchild::new)
                     .withPrimaryKey("id", "grandchild_seq", Grandchild::getId, Grandchild::setId)
-                    .withIntegerColumn("child_table_id", Grandchild::getChildId, Grandchild::setChildId)
+                    .withParentColumn("child_table_id", Grandchild::getChild, Grandchild::setChild)
                     .withConvertingStringColumn("color", Grandchild::getColor, Grandchild::setColor, new EnumeratedColorConverter());
 
     private static DaoBuilder<Child> ChildDaoBuilder =
             new DaoBuilder<>("child_table", Child::new)
                     .withPrimaryKey("id", "child_seq", Child::getId, Child::setId)
                     .withIntegerColumn("number", Child::getNumber, Child::setNumber)
-                    .withIntegerColumn("parent_table_id", Child::getParentId, Child::setParentId)
-                    .withChildren("child_table_id", Grandchild::setChildId,
-                            Child::getGrandchildList, Child::setGrandchildList, GrandchildDaoBuilder);
+                    .withParentColumn("parent_table_id", Child::getParent, Child::setParent)
+                    .withChildren(Child::getGrandchildList, Child::setGrandchildList, GrandchildDaoBuilder);
 
     private static DaoBuilder<Parent> ParentDaoBuilder =
             new DaoBuilder<>("parent_table", Parent::new)
                     .withPrimaryKey("id", "parent_seq", Parent::getId, Parent::setId)
                     .withStringColumn("name", Parent::getName, Parent::setName)
-                    .withChildren("parent_table_id", Child::setParentId,
-                            Parent::getChildList, Parent::setChildList, ChildDaoBuilder);
+                    .withChildren(Parent::getChildList, Parent::setChildList, ChildDaoBuilder);
 
     @Test
     public void testSavePropagatesToChildren(){

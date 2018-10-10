@@ -64,6 +64,12 @@ public interface DaoDescriptor<T> {
      */
     List<ChildrenDescriptor<T, ?>> childrenDescriptors();
 
+    <P> ParentColumn<T, P> parentColumn();
+
+    default boolean hasParent(){
+        return parentColumn() != null;
+    }
+
     /**
      * All the columns of the underlying table, both data type and join type.
      *
@@ -71,8 +77,17 @@ public interface DaoDescriptor<T> {
      */
     default List<TypedColumn<T>> allColumns(){
         List<TypedColumn<T>> allColumns = new ArrayList<>();
-        allColumns.addAll(dataColumns());
+        allColumns.addAll(dataColumnsWithParent());
         allColumns.addAll(joinColumns());
+        return Collections.unmodifiableList(allColumns);
+    }
+
+    default List<TypedColumn<T>> dataColumnsWithParent(){
+        List<TypedColumn<T>> allColumns = new ArrayList<>();
+        allColumns.addAll(dataColumns());
+        if ( hasParent()) {
+            allColumns.add(parentColumn());
+        }
         return Collections.unmodifiableList(allColumns);
     }
 

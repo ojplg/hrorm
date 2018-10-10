@@ -22,7 +22,8 @@ public class SqlBuilder<T> {
     private final List<JoinColumn<T, ?>> joinColumns;
     private final PrimaryKey<T> primaryKey;
 
-    public SqlBuilder(String table, List<TypedColumn<T>> dataColumns,
+    public SqlBuilder(String table,
+                      List<TypedColumn<T>> dataColumns,
                       List<JoinColumn<T, ?>> joinColumns,
                       PrimaryKey<T> primaryKey) {
         this.table = table;

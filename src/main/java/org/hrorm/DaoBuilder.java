@@ -22,6 +22,7 @@ public class DaoBuilder<T> implements DaoDescriptor<T> {
     private final List<JoinColumn<T,?>> joinColumns = new ArrayList<>();
     private final List<ChildrenDescriptor<T,?>> childrenDescriptors = new ArrayList<>();
     private PrimaryKey<T> primaryKey;
+    private ParentColumn<T,?> parentColumn;
     private final Supplier<T> supplier;
     private final Prefixer prefixer;
     private final String myPrefix;
@@ -66,6 +67,11 @@ public class DaoBuilder<T> implements DaoDescriptor<T> {
         return childrenDescriptors;
     }
 
+    @Override
+    public ParentColumn<T, ?> parentColumn() {
+        return parentColumn;
+    }
+
     public List<JoinColumn<T,?>> joinColumns() { return joinColumns; }
 
     /**
@@ -79,7 +85,7 @@ public class DaoBuilder<T> implements DaoDescriptor<T> {
         if( primaryKey == null ){
             throw new HrormException("Cannot create a Dao without a primary key.");
         }
-        return new DaoImpl<>(connection, tableName, supplier, primaryKey, columns, joinColumns, childrenDescriptors);
+        return new DaoImpl<>(connection, tableName, supplier, primaryKey, columns, joinColumns, childrenDescriptors, parentColumn);
     }
 
     /**
@@ -228,11 +234,6 @@ public class DaoBuilder<T> implements DaoDescriptor<T> {
      * Contrast this behavior with the join column functionality, which describes
      * the situation wherein the object makes no sense without the joined relation.
      *
-     * @param parentChildColumnName The name on of the column <em>on the child table</em> that defines
-     *                              the persisted link between the children objects of type <code>U</code>
-     *                              and the parent object of type <code>T</code>.
-     * @param parentSetter The function that allows the primary key of object <code>T</code> onto
-     *                     the child object <code>U</code>.
      * @param getter The function on <code>T</code> that returns the children.
      * @param setter The function on <code>T</code> that consumes the children.
      * @param daoDescriptor The description of how the mapping for the subordinate elements
@@ -241,10 +242,12 @@ public class DaoBuilder<T> implements DaoDescriptor<T> {
      * @param <U> The type of the child data elements.
      * @return This instance.
      */
-    public <U> DaoBuilder<T> withChildren(String parentChildColumnName, BiConsumer<U,Long> parentSetter,
-                                          Function<T, List<U>> getter, BiConsumer<T, List<U>> setter, DaoDescriptor<U> daoDescriptor){
+    public <U> DaoBuilder<T> withChildren(Function<T, List<U>> getter, BiConsumer<T, List<U>> setter, DaoDescriptor<U> daoDescriptor){
+        if( ! daoDescriptor.hasParent() ){
+            throw new HrormException("Children must have a parent column");
+        }
         childrenDescriptors.add(
-                new ChildrenDescriptor<>(parentChildColumnName, parentSetter, getter, setter, daoDescriptor, primaryKey)
+                new ChildrenDescriptor<>(getter, setter, daoDescriptor, primaryKey)
         );
         return this;
     }
@@ -266,6 +269,16 @@ public class DaoBuilder<T> implements DaoDescriptor<T> {
         }
         this.primaryKey = new PrimaryKeyImpl<>(columnName, myPrefix, getter, setter, sequenceName);
         columns.add(primaryKey);
+        return this;
+    }
+
+    public <P> DaoBuilder<T> withParentColumn(String columnName, Function<T,P> getter, BiConsumer<T,P> setter){
+        if ( parentColumn != null ){
+            throw new HrormException("Attempt to set a second parent");
+        }
+        ParentColumn<T,P> column = new ParentColumn<>(columnName, myPrefix, getter, setter);
+        lastColumnAdded = column;
+        parentColumn = column;
         return this;
     }
 

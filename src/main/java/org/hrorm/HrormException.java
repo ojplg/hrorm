@@ -50,5 +50,12 @@ public class HrormException extends RuntimeException {
         return sql;
     }
 
-
+    @Override
+    public String getMessage() {
+        if ( sql.isPresent() ) {
+            return super.getMessage() + " on sql '" + sql.get() + "'";
+        } else {
+            return super.getMessage();
+        }
+    }
 }
