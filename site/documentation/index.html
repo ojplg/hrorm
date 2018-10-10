@@ -447,6 +447,58 @@
                 <p>Hrorm provides a few methods for reading data out of the database and instantiating entity
                 objects.</p>
 
+                <p>All of the selection mechanisms below will fully read and populate the entire relevant object graph
+                including all children and siblings and all their transitive references.</p>
+
+                <h5>Primary Key</h5>
+
+                <p>You can read an item from the database if you know its primary key.</p>
+
+                <pre>
+    Person person = dao.select(432L);</pre>
+
+                <p>If you want to read several IDs at once, you can.</p>
+
+                <pre>
+    Person person = dao.selectMany(Arrays.asList(432L,21L,7659L));</pre>
+
+                <h5>All Records</h5>
+
+                <p>If you want all the records (presumably for a smallish table) just do</p>
+
+                <pre>
+    Person person = dao.selectAll();</pre>
+
+                <h5>By Columns</h5>
+
+                <p>Most of the time, you do not know up front what ID or IDs you are intersted in, so
+                hrorm allows you to select by columns. To do this, we make an instance of the entity
+                we are searching for and populate it with the values we want to match. Suppose we want
+                to find all the people who are high school graduates that weigh 100 kilograms. Here's what
+                we can do.</p>
+
+                <pre>
+    Person personTemplate = new Person();
+    personTemplate.setHighSchoolGraduate(true);
+    personTemplate.setWeight(100L);
+
+    List&lt;Person&gt; people = personDao.selectManyByColumns(personTemplate, "IS_HIGH_SCHOOL_GRADUATE", "WEIGHT");</pre>
+
+                <p>Notice that hrorm wants the names of the database <b>columns</b>, not the fields on the object.</p>
+
+                <p>If we know that a particular query will only return 0 or 1 results (for instance, if there is
+                a uniqueness constraint on the name field), hrorm provides a convenience method for that.</p>
+
+                <pre>
+    Person personTemplate = new Person();
+    personTemplate.setName("Rumplestiltskin");
+
+    Person person = personDao.selectByColumns(personTemplate, "NAME");</pre>
+
+                <p>If you use this method and hrorm finds more than one record, it will raise an exception.</p>
+
+                <p>At the moment, hrorm only supports exact matches, not any <code>LIKE</code> syntax.</p>
+
             </div>
 
             <a name="update"></a>
@@ -462,6 +514,8 @@
 
                 <p>This will issue an update in the database based on the primary key (<code>id</code>) field.</p>
 
+                <p>Updates will automatically propagate to children, but not to siblings.</p>
+
             </div>
 
             <a name="delete"></a>
@@ -469,13 +523,15 @@
                 <h3>Delete</h3>
                 <hr>
 
-                <p>When we are done with this person, we can issue</p>
+                <p>When we are done with a person, we can issue</p>
 
                 <pre>
     dao.delete(person);
     connection.commit();</pre>
 
                 <p>To remove the record from the database, using the primary key, as with an update.</p>
+
+                <p>Deletes will automatically propagate to children, but not to siblings.</p>
 
             </div>
 

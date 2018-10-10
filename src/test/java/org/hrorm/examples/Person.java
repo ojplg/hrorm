@@ -10,6 +10,7 @@ import org.mockito.Mockito;
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 class Person {
@@ -60,7 +61,15 @@ class Person {
         Assert.assertTrue(id == person.getId());
 
 
+        Person personTemplate = new Person();
+        personTemplate.setHighSchoolGraduate(true);
+        personTemplate.setWeight(100L);
+
+        List<Person> people = personDao.selectManyByColumns(person, "IS_HIGH_SCHOOL_GRADUATE", "WEIGHT");
+
     }
+
+
 }
 
 
