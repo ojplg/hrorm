@@ -16,6 +16,7 @@ import java.sql.Statement;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ParentsTest {
 
@@ -251,5 +252,88 @@ public class ParentsTest {
         Assert.assertEquals(0, allGrandchildren.size());
 
     }
+
+    @Test
+    public void testInsertMultipleChildren(){
+
+        Child childA = new Child();
+        childA.setNumber(23L);
+        Child childB = new Child();
+        childB.setNumber(46L);
+        Child childC= new Child();
+        childC.setNumber(72L);
+
+        Parent parent = new Parent();
+        parent.setName("Multi Child Parent");
+        parent.setChildList(Arrays.asList(childA, childB, childC));
+
+        Connection connection = helper.connect();
+        Dao<Parent> parentDao = ParentDaoBuilder.buildDao(connection);
+        parentDao.insert(parent);
+        long parentId = parent.getId();
+
+        Parent readItem = parentDao.select(parentId);
+
+        Assert.assertEquals(3, readItem.getChildList().size());
+
+        List<Long> numbers = readItem.getChildList().stream()
+                .map(c -> c.getNumber()).collect(Collectors.toList());
+
+        Assert.assertTrue(numbers.contains(23L));
+        Assert.assertTrue(numbers.contains(46L));
+        Assert.assertTrue(numbers.contains(72L));
+    }
+
+    @Test
+    public void testUpdateMultipleChildren(){
+
+        long parentId;
+        {
+            Child childA = new Child();
+            childA.setNumber(23L);
+            Child childB = new Child();
+            childB.setNumber(46L);
+            Child childC = new Child();
+            childC.setNumber(72L);
+
+            Parent parent = new Parent();
+            parent.setName("Multi Child Parent");
+            parent.setChildList(Arrays.asList(childA, childB, childC));
+
+            Dao<Parent> parentDao = ParentDaoBuilder.buildDao(helper.connect());
+            parentDao.insert(parent);
+            parentId = parent.getId();
+        }
+
+        {
+            Dao<Parent> parentDao = ParentDaoBuilder.buildDao(helper.connect());
+
+            Parent readItem = parentDao.select(parentId);
+
+            Assert.assertEquals(3, readItem.getChildList().size());
+
+            Child child46 = readItem.getChildByNumber(46L);
+            child46.setNumber(146L);
+
+            parentDao.update(readItem);
+        }
+
+        {
+            Dao<Parent> parentDao = ParentDaoBuilder.buildDao(helper.connect());
+
+            Parent readItem = parentDao.select(parentId);
+
+            Assert.assertEquals(3, readItem.getChildList().size());
+            List<Long> numbers = readItem.getChildList().stream()
+                    .map(c -> c.getNumber()).collect(Collectors.toList());
+
+            Assert.assertTrue(numbers.contains(23L));
+            Assert.assertTrue(numbers.contains(146L));
+            Assert.assertTrue(numbers.contains(72L));
+
+        }
+
+    }
+
 
 }
