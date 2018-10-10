@@ -131,7 +131,7 @@
 
                 <p>Because you are the absolute Empress of Overkill.</p>
 
-                <p>Now some might think to use <a href="http://hibernate.org/">Hibernate</a> or
+                <p>Some might think to use <a href="http://hibernate.org/">Hibernate</a> or
                     <a href="http://www.mybatis.org/mybatis-3/">Mybatis</a> or something, but no, you
                     are a real glutton for punishment, so you decide to use hrorm and write some code like this.</p>
 
@@ -286,7 +286,9 @@
                         you make a call to a <code>Dao</code> it's because you want to read or write something in the
                         database.
                     </li>
-                    <li>Transaction management. Transactions are for applications, not for hrorm.</li>
+                    <li>Transaction management. Transactions are for applications, not for hrorm.
+                        <a href="#hrorm_and_transactions">(Mostly.)</a>
+                    </li>
                     <li>Pollute your code with vexing annotations.</li>
                     <li>Involve itself with any XML or other configuration. Hrorm thinks Java is a better language than
                         XML.
@@ -299,7 +301,7 @@
                     <li>Reflection.</li>
                     <li>Invent its own query language.</li>
                     <li>Expect you to write SQL yourself.</li>
-                    <li>Manage integrity constraints to your schema or object model.</li>
+                    <li>Manage integrity constraints to your schema or object model. (Mostly.)</li>
                     <li>Declare checked exceptions in its client facing interfaces.</li>
                     <li>Have left pad as a dependency.</li>
                     <li>Mine cryptocurrencies.</li>
@@ -324,11 +326,9 @@
                 <ul>
                     <li>Every entity class should have a <code>Long</code> identifier field that will be used as a
                         primary key.
-                        Hrorm expects that this is a nullable field and that null means unpersisted. (Though really,
-                        this is not
-                        completely necessary.) Hrorm will populate this field from a sequence (see restrictions on
-                        schema below) and will use
-                        it when issuing updates.
+                        Hrorm expects that this is a nullable field and that null means unpersisted.
+                        Hrorm will populate this field from a sequence (see restrictions on
+                        schema below) and will use it when issuing updates.
                     </li>
                     <li>Hrorm mostly expects to work with Javabean like entities with public getters and setters. I
                         suppose
@@ -366,7 +366,7 @@
                     At the moment Hrorm supports a limited number of (Java) datatypes:
                     <code>Long</code>, <code>BigDecimal</code>, <code>String</code>, <code>Boolean</code>,
                     and <code>LocalDateTime</code>. Additionally, hrorm supports a mechanism
-                    for persisting values that can be converted to and from <code>String</code>s,
+                    for persisting values that can be converted to and from <code>String</code>,
                     which is intended primarily for enumerated types. Adding supports for new datatypes
                     that are supported by the <code>ResultSet</code> interface should not be particularly
                     difficult if you're a hacker. And if you are using hrorm, you better be.

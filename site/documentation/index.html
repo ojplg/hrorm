@@ -93,7 +93,7 @@
                     <li>Use your imagination to fill in getters, setters, equals, hashCode, etc.</li>
                     <li>We have one extra field that we did not have in our logical model: an id field that is to be used
                         for persistence.</li>
-                    <li>Assume that there is an enumerated type for hairColor, HairColor.Black, HairColor.Brown, etc.</li>
+                    <li>Assume that there is an enumerated type for hair color: <code>HairColor.Black</code>, <code>HairColor.Brown</code>, etc.</li>
                 </ul>
 
                 <p>In the database we will create two structures for persisting this class: a table to store the data
@@ -159,7 +159,7 @@
                 <pre>
     daoBuilder.withIntegerColumn("WEIGHT", Person::getWeight, Person::setWeight);</pre>
 
-                <p>For decimal values, hrorm supports the <code>java.math.BigDecimal</code> type.</p>
+                <p>For fractional, decimal, or floating point values, hrorm supports the <code>java.math.BigDecimal</code> type.</p>
 
                 <pre>
     daoBuilder.withBigDecimalColumn("HEIGHT", Person::getHeight, Person::setHeight);</pre>
@@ -170,7 +170,7 @@
     daoBuilder.withLocalDateTimeColumn("BIRTHDAY", Person::getBirthday, Person::setBirthday);</pre>
 
                 <p>And similarly for boolean values. Note that the table should declare a text or string value.
-                    Not all databases support a boolean column type. Hrorm will convert between Java's boolean
+                    ANSI SQL does not support a boolean column type. Hrorm will convert between Java's boolean
                     enumeration of true/false with the strings "T" and "F" in the database.
                 </p>
 
