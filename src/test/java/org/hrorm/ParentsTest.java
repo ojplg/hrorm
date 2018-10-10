@@ -315,6 +315,18 @@ public class ParentsTest {
             Child child46 = readItem.getChildByNumber(46L);
             child46.setNumber(146L);
 
+            Child child23 = readItem.getChildByNumber(23L);
+            readItem.getChildList().remove(child23);
+
+            Child child98 = new Child();
+            child98.setNumber(98L);
+
+            Child child54 = new Child();
+            child54.setNumber(54L);
+
+            readItem.getChildList().add(child54);
+            readItem.getChildList().add(child98);
+
             parentDao.update(readItem);
         }
 
@@ -323,14 +335,14 @@ public class ParentsTest {
 
             Parent readItem = parentDao.select(parentId);
 
-            Assert.assertEquals(3, readItem.getChildList().size());
+            Assert.assertEquals(4, readItem.getChildList().size());
             List<Long> numbers = readItem.getChildList().stream()
                     .map(c -> c.getNumber()).collect(Collectors.toList());
 
-            Assert.assertTrue(numbers.contains(23L));
             Assert.assertTrue(numbers.contains(146L));
             Assert.assertTrue(numbers.contains(72L));
-
+            Assert.assertTrue(numbers.contains(54L));
+            Assert.assertTrue(numbers.contains(98L));
         }
 
     }
