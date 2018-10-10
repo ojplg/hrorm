@@ -34,6 +34,7 @@
                 <a href="#sibling_relations" class="sublink-1">Sibling Relations</a>
                 <a href="#hrorm_and_exceptions">Hrorm and Exceptions</a>
                 <a href="#hrorm_and_transactions">Horm and Transactions</a>
+                <a href="#hrorm_and_logging">Hrorm and Logging</a>
                 <a href="#hrorm_visibility">Hrorm Visibility</a>
                 <a href="#falling_off_a_cliff">Falling Off a Cliff</a>
             </nav>
@@ -504,6 +505,29 @@
                 <p>There is no one-size-fits-all solution to how to marry the problem of database
                     to object mapping with the problems of transactions and atomicity. For this reason,
                     hrorm mostly just tries to stay out of the way.</p>
+
+            </div>
+
+            <div class="card fluid">
+
+                <a name="hrorm_and_logging"></a>
+                <h2>Hrorm and Logging</h2>
+
+                <hr>
+
+                <p>The state of Java logging is a tiny bit unfortunate.</p>
+
+                <p>The <code>java.util.logging</code> package in the standard library is not widely
+                used. Unfortunately, rather than a set of pluggable interfaces, they provided a concrete
+                implementation.</p>
+
+                <p>Log4j is pretty ubiquitous, but not universal. Additionally, hrorm currently has
+                no dependencies. It would be a shame to add one.</p>
+
+                <p>Hrorm therefore choosed to use the <code>java.util.logging</code> implementation.
+                There are ways to redirect that to log4j and other logging frameworks.</p>
+
+                <p>Hrorm logs to a logger named "org.hrorm" all the SQL it issues at INFO level.</p>
 
             </div>
 
