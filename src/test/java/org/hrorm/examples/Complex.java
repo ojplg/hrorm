@@ -2,6 +2,7 @@ package org.hrorm.examples;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -36,6 +37,24 @@ public class Complex {
         String name;
         List<Cal> cals;
         Beth beth;
+
+        @Override
+        public String toString() {
+            return "Ann{" +
+                    "id=" + id +
+                    ", name='" + name + '\'' +
+                    ", cals=" + cals +
+                    ", beth=" + beth +
+                    '}';
+        }
+    }
+
+    public static Ann newAnn(Beth beth, Cal ... cals){
+        Ann ann = new Ann();
+        ann.setName(randomSmallWord());
+        ann.setBeth(beth);
+        ann.setCals(Arrays.asList(cals));
+        return ann;
     }
 
     @Data
@@ -44,6 +63,24 @@ public class Complex {
         Long number;
         List<Don> dons;
         List<Edith> ediths;
+
+        @Override
+        public String toString() {
+            return "Beth{" +
+                    "id=" + id +
+                    ", number=" + number +
+                    ", dons=" + dons +
+                    ", ediths=" + ediths +
+                    '}';
+        }
+    }
+
+    public static Beth newBeth(List<Don> dons, List<Edith> ediths){
+        Beth beth = new Beth();
+        beth.setNumber((long) random.nextInt(10000000));
+        beth.setDons(dons);
+        beth.setEdiths(ediths);
+        return beth;
     }
 
     @Data
@@ -51,6 +88,20 @@ public class Complex {
         Long id;
         BigDecimal amount;
         Ann ann;
+
+        @Override
+        public String toString() {
+            return "Cal{" +
+                    "id=" + id +
+                    ", amount=" + amount +
+                    '}';
+        }
+    }
+
+    public static Cal newCal(){
+        Cal cal = new Cal();
+        cal.setAmount(randomBigDecimal());
+        return cal;
     }
 
     @Data
@@ -60,6 +111,24 @@ public class Complex {
         Long quantity;
         Beth beth;
         List<Henry> henries;
+
+        @Override
+        public String toString() {
+            return "Don{" +
+                    "id=" + id +
+                    ", dateTime=" + dateTime +
+                    ", quantity=" + quantity +
+                    ", henries=" + henries +
+                    '}';
+        }
+    }
+
+    public static Don newDon(Henry ... henries){
+        Don don = new Don();
+        don.setDateTime(LocalDateTime.now());
+        don.setQuantity((long) random.nextInt(1000000));
+        don.setHenries(Arrays.asList(henries));
+        return don;
     }
 
     @Data
@@ -70,6 +139,26 @@ public class Complex {
         Beth beth;
         Fred fred;
         Gap gap;
+
+        @Override
+        public String toString() {
+            return "Edith{" +
+                    "id=" + id +
+                    ", word='" + word + '\'' +
+                    ", length=" + length +
+                    ", fred=" + fred +
+                    ", gap=" + gap +
+                    '}';
+        }
+    }
+
+    public static Edith newEdith(Fred fred, Gap gap){
+        Edith edith = new Edith();
+        edith.setWord(randomSmallWord());
+        edith.setLength((long)random.nextInt(10000));
+        edith.setFred(fred);
+        edith.setGap(gap);
+        return edith;
     }
 
     @Data
@@ -78,10 +167,22 @@ public class Complex {
         Boolean flag;
     }
 
+    public static Fred newFred(){
+        Fred fred = new Fred();
+        fred.setFlag(random.nextBoolean());
+        return fred;
+    }
+
     @Data
     public static class Gap {
         Long id;
         String insignia;
+    }
+
+    public static Gap newGap(){
+        Gap gap = new Gap();
+        gap.setInsignia(randomSmallWord());
+        return gap;
     }
 
     @Data
@@ -91,6 +192,16 @@ public class Complex {
         Long amount;
         Don don;
         Ida ida;
+
+        @Override
+        public String toString() {
+            return "Henry{" +
+                    "id=" + id +
+                    ", fraction=" + fraction +
+                    ", amount=" + amount +
+                    ", ida=" + ida +
+                    '}';
+        }
     }
 
     public static Henry newHenry(Ida ida){
@@ -140,7 +251,8 @@ public class Complex {
             .withPrimaryKey("id", "henry_sequence", Henry::getId, Henry::setId)
             .withBigDecimalColumn("fraction", Henry::getFraction, Henry::setFraction)
             .withIntegerColumn("amount", Henry::getAmount, Henry::setAmount)
-            .withParentColumn("don_id", Henry::getDon, Henry::setDon);
+            .withParentColumn("don_id", Henry::getDon, Henry::setDon)
+            .withJoinColumn("ida_id", Henry::getIda, Henry::setIda, idaDaoBuilder);
 
     public static DaoBuilder<Gap> gapDaoBuilder = new DaoBuilder<>("gap", Gap::new)
             .withPrimaryKey("id", "gap_sequence", Gap::getId, Gap::setId)
@@ -151,7 +263,7 @@ public class Complex {
             .withBooleanColumn("flag", Fred::getFlag, Fred::setFlag);
 
     public static DaoBuilder<Edith> edithDaoBuilder = new DaoBuilder<>("edith", Edith::new)
-            .withPrimaryKey("id", "fred_sequence", Edith::getId, Edith::setId)
+            .withPrimaryKey("id", "edith_sequence", Edith::getId, Edith::setId)
             .withStringColumn("word", Edith::getWord, Edith::setWord)
             .withIntegerColumn("length", Edith::getLength, Edith::setLength)
             .withJoinColumn("fred_id", Edith::getFred, Edith::setFred, fredDaoBuilder)
@@ -166,12 +278,12 @@ public class Complex {
             .withParentColumn("beth_id", Don::getBeth, Don::setBeth);
 
     public static DaoBuilder<Cal> calDaoBuilder = new DaoBuilder<>("cal", Cal::new)
-            .withPrimaryKey("id", "cal_id", Cal::getId, Cal::setId)
+            .withPrimaryKey("id", "cal_sequence", Cal::getId, Cal::setId)
             .withBigDecimalColumn("amount", Cal::getAmount, Cal::setAmount)
             .withParentColumn("ann_id", Cal::getAnn, Cal::setAnn);
 
     public static DaoBuilder<Beth> bethDaoBuilder = new DaoBuilder<>("beth", Beth::new)
-            .withPrimaryKey("id", "beth_id", Beth::getId, Beth::setId)
+            .withPrimaryKey("id", "beth_sequence", Beth::getId, Beth::setId)
             .withIntegerColumn("number", Beth::getNumber, Beth::setNumber)
             .withChildren(Beth::getDons, Beth::setDons, donDaoBuilder)
             .withChildren(Beth::getEdiths, Beth::setEdiths, edithDaoBuilder);

@@ -28,7 +28,7 @@ create table DON (
 );
 
 create sequence EDITH_SEQUENCE;
-create table EDIT (
+create table EDITH (
       id integer PRIMARY KEY,
       word text,
       length integer,
