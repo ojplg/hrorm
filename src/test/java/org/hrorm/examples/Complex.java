@@ -12,6 +12,17 @@ public class Complex {
 
     private static final Random random = new Random();
 
+    private static String randomSmallWord(){
+        int length = random.nextInt(8);
+        StringBuffer buf = new StringBuffer();
+        for(int idx=0; idx<length; idx++ ){
+            int i = random.nextInt(26) + 65;
+            char c = (char) i;
+            buf.append(c);
+        }
+        return buf.toString();
+    }
+
     @Data
     public static class Ann {
         Long id;
@@ -21,7 +32,7 @@ public class Complex {
     }
 
     @Data
-    static class Beth {
+    public static class Beth {
         Long id;
         Long number;
         List<Don> dons;
@@ -29,14 +40,14 @@ public class Complex {
     }
 
     @Data
-    static class Cal {
+    public static class Cal {
         Long id;
         BigDecimal amount;
         Ann ann;
     }
 
     @Data
-    static class Don {
+    public static class Don {
         Long id;
         LocalDateTime dateTime;
         Long quantity;
@@ -45,7 +56,7 @@ public class Complex {
     }
 
     @Data
-    static class Edith {
+    public static class Edith {
         Long id;
         String word;
         Long length;
@@ -55,19 +66,19 @@ public class Complex {
     }
 
     @Data
-    static class Fred {
+    public static class Fred {
         Long id;
         Boolean flag;
     }
 
     @Data
-    static class Gap {
+    public static class Gap {
         Long id;
         String insignia;
     }
 
     @Data
-    static class Henry {
+    public static class Henry {
         Long id;
         BigDecimal fraction;
         Long amount;
@@ -76,7 +87,7 @@ public class Complex {
     }
 
     @Data
-    static class Ida {
+    public static class Ida {
         Long id;
         String name;
         Jules jules;
@@ -92,6 +103,13 @@ public class Complex {
         Jules jules = new Jules();
         jules.setMagnitude((long)random.nextInt(100000));
         return jules;
+    }
+
+    public static Ida newIda(Jules jules){
+        Ida ida = new Ida();
+        ida.setName(randomSmallWord());
+        ida.setJules(jules);
+        return ida;
     }
 
     public static DaoBuilder<Jules> julesDaoBuilder = new DaoBuilder<>("jules", Jules::new)
