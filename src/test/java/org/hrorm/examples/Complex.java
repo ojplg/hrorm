@@ -23,6 +23,13 @@ public class Complex {
         return buf.toString();
     }
 
+    private static BigDecimal randomBigDecimal() {
+        int base = random.nextInt(10000000);
+        int divideBy = 10 + random.nextInt(1000);
+        float val = (float) base / (float) divideBy;
+        return new BigDecimal(val);
+    }
+
     @Data
     public static class Ann {
         Long id;
@@ -84,6 +91,14 @@ public class Complex {
         Long amount;
         Don don;
         Ida ida;
+    }
+
+    public static Henry newHenry(Ida ida){
+        Henry henry = new Henry();
+        henry.setFraction(randomBigDecimal());
+        henry.setAmount((long)random.nextInt(100000));
+        henry.setIda(ida);
+        return henry;
     }
 
     @Data

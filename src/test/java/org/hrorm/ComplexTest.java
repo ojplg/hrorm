@@ -43,6 +43,12 @@ public class ComplexTest {
         Assert.assertNotNull(ida.getId());
 
         System.out.println(ida);
+
+        Dao<Henry> henryDao = henryDaoBuilder.buildDao(connection);
+        Henry henry = newHenry(ida);
+        henryDao.insert(henry);
+
+        System.out.println(henry);
     }
 
 }
