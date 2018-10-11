@@ -9,6 +9,11 @@ import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class H2Helper {
 
@@ -16,6 +21,11 @@ public class H2Helper {
 
     private final String schemaName;
     private boolean initialized = false;
+
+    private static final Pattern createSequencePattern = Pattern.compile(
+            "create sequence ([a-zA-Z_]+);");
+
+    private final List<String> sequenceNames = new ArrayList<>();
 
     public H2Helper(String schemaName){
         this.schemaName = schemaName;
@@ -29,6 +39,13 @@ public class H2Helper {
 
             StringBuilder wholeFileBuffer = new StringBuilder();
             bufferedReader.lines().forEach( line -> {
+
+                Matcher matcher = createSequencePattern.matcher(line);
+                if ( matcher.matches() ){
+                    String seqName = matcher.group(1);
+                    sequenceNames.add(seqName);
+                }
+
                 wholeFileBuffer.append(line);
                 wholeFileBuffer.append("\n");
             });
@@ -66,9 +83,27 @@ public class H2Helper {
                 String sql = readSchema();
                 statement.execute(sql);
                 initialized = true;
+                advanceSequences();
             } catch (Exception ex) {
                 throw new RuntimeException(ex);
             }
+        }
+    }
+
+    public void advanceSequences(){
+        Random random = new Random();
+        try {
+            Connection connection = connect();
+            for(String sequenceName : sequenceNames){
+                int count = random.nextInt(100) + 1;
+                for( int idx=0; idx<count; idx++) {
+                    Statement statement = connection.createStatement();
+                    String sql = "select nextval('" + sequenceName + "')";
+                    statement.execute(sql);
+                }
+            }
+        } catch (Exception ex){
+            throw new RuntimeException(ex);
         }
     }
 
