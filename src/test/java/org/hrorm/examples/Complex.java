@@ -291,5 +291,6 @@ public class Complex {
     public static DaoBuilder<Ann> annDaoBuilder = new DaoBuilder<>("ann", Ann::new)
             .withPrimaryKey("id", "ann_sequence", Ann::getId, Ann::setId)
             .withStringColumn("name", Ann::getName, Ann::setName)
-            .withChildren(Ann::getCals, Ann::setCals, calDaoBuilder);
+            .withChildren(Ann::getCals, Ann::setCals, calDaoBuilder)
+            .withJoinColumn("beth_id", Ann::getBeth, Ann::setBeth, bethDaoBuilder);
 }

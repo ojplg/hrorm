@@ -34,6 +34,7 @@ public class JoinColumn<T, J> implements TypedColumn<T> {
     private final List<TypedColumn<J>> dataColumns;
     private final PrimaryKey<J> primaryKey;
     private final List<JoinColumn<J,?>> transitiveJoins;
+    private final List<ChildrenDescriptor<J,?>> childrenDescriptors;
     private boolean nullable = true;
 
     public JoinColumn(String name, String joinedTablePrefix, Prefixer prefixer, Function<T, J> getter, BiConsumer<T,J> setter, DaoDescriptor<J> daoDescriptor){
@@ -47,11 +48,13 @@ public class JoinColumn<T, J> implements TypedColumn<T> {
         this.dataColumns = daoDescriptor.dataColumns().stream().map(c -> c.withPrefix(prefix)).collect(Collectors.toList());
         this.primaryKey = daoDescriptor.primaryKey();
         this.transitiveJoins = resetColumnPrefixes(prefixer, prefix, daoDescriptor.joinColumns());
+        this.childrenDescriptors = daoDescriptor.childrenDescriptors();
     }
 
     private JoinColumn(String name, Prefixer prefixer, String joinedTablePrefix, String table, Function<T, J> getter,
                        BiConsumer<T, J> setter, Supplier<J> supplier, PrimaryKey<J> primaryKey,
-                       List<TypedColumn<J>> dataColumns, List<JoinColumn<J,?>> transitiveJoins, boolean nullable) {
+                       List<TypedColumn<J>> dataColumns, List<JoinColumn<J,?>> transitiveJoins,
+                       List<ChildrenDescriptor<J,?>> childrenDescriptors, boolean nullable) {
         this.name = name;
         this.table = table;
         this.joinedTablePrefix = joinedTablePrefix;
@@ -62,6 +65,7 @@ public class JoinColumn<T, J> implements TypedColumn<T> {
         this.primaryKey = primaryKey;
         this.dataColumns = dataColumns.stream().map(c -> c.withPrefix(prefix) ).collect(Collectors.toList());
         this.transitiveJoins = resetColumnPrefixes(prefixer, prefix, transitiveJoins);
+        this.childrenDescriptors = childrenDescriptors;
         this.nullable = nullable;
     }
 
@@ -128,7 +132,7 @@ public class JoinColumn<T, J> implements TypedColumn<T> {
     }
 
     public JoinColumn<T,J> withPrefixes(Prefixer prefixer, String joinedTablePrefix) {
-        return new JoinColumn<>(name, prefixer, joinedTablePrefix, table, getter, setter, supplier, primaryKey, dataColumns, transitiveJoins, nullable);
+        return new JoinColumn<>(name, prefixer, joinedTablePrefix, table, getter, setter, supplier, primaryKey, dataColumns, transitiveJoins, childrenDescriptors, nullable);
     }
 
     @Override
@@ -148,5 +152,9 @@ public class JoinColumn<T, J> implements TypedColumn<T> {
     @Override
     public void notNull() {
         nullable = false;
+    }
+
+    public boolean hasChildrenDescriptors(){
+        return childrenDescriptors.size() > 0;
     }
 }
