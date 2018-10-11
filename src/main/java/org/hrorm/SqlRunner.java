@@ -32,10 +32,10 @@ public class SqlRunner<T> {
         this.connection = connection;
         List<TypedColumn<T>> columns = new ArrayList<>();
         columns.addAll(dataColumns);
-        columns.addAll(joinColumns);
         if( parentColumn != null ) {
             columns.add(parentColumn);
         }
+        columns.addAll(joinColumns);
         this.allColumns = Collections.unmodifiableList(columns);
     }
 

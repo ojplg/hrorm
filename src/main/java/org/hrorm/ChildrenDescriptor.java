@@ -1,9 +1,6 @@
 package org.hrorm;
 
-import javafx.scene.Parent;
-
 import java.sql.Connection;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -11,6 +8,7 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
+import java.util.logging.Logger;
 
 /**
  * Complete definition of how a child entity is related to its parent entity.
@@ -21,11 +19,13 @@ import java.util.function.Function;
 */
 public class ChildrenDescriptor<PARENT,CHILD> {
 
+    private static final Logger logger = Logger.getLogger("org.hrorm");
+
     private final String parentChildColumnName;
     private final Function<PARENT, List<CHILD>> getter;
     private final BiConsumer<PARENT, List<CHILD>> setter;
     private final DaoDescriptor<CHILD> daoDescriptor;
-    private final PrimaryKey<PARENT> primaryKey;
+    private final PrimaryKey<PARENT> parentPrimaryKey;
     private final BiConsumer<CHILD, PARENT> parentSetter;
 
     private final List<ChildrenDescriptor<CHILD,?>> grandChildrenDescriptors;
@@ -35,15 +35,15 @@ public class ChildrenDescriptor<PARENT,CHILD> {
     public ChildrenDescriptor(Function<PARENT, List<CHILD>> getter,
                               BiConsumer<PARENT, List<CHILD>> setter,
                               DaoDescriptor<CHILD> daoDescriptor,
-                              PrimaryKey<PARENT> primaryKey) {
+                              PrimaryKey<PARENT> parentPrimaryKey) {
         this.parentChildColumnName = daoDescriptor.parentColumn().getName();
         this.getter = getter;
         this.setter = setter;
         this.daoDescriptor = daoDescriptor;
-        this.primaryKey = primaryKey;
+        this.parentPrimaryKey = parentPrimaryKey;
 
         ParentColumn<CHILD, PARENT> parentColumn = daoDescriptor.parentColumn();
-        parentColumn.setParentPrimaryKey(primaryKey);
+        parentColumn.setParentPrimaryKey(parentPrimaryKey);
         this.parentSetter = parentColumn.setter();
         this.grandChildrenDescriptors = daoDescriptor.childrenDescriptors();
 
@@ -56,7 +56,7 @@ public class ChildrenDescriptor<PARENT,CHILD> {
     public void populateChildren(Connection connection, PARENT item){
         SortedMap<String, TypedColumn<CHILD>> columnNameMap = daoDescriptor.columnMap(parentChildColumnName);
         CHILD key = daoDescriptor.supplier().get();
-        Long id = primaryKey.getKey(item);
+        Long id = parentPrimaryKey.getKey(item);
         parentSetter.accept(key, item);
         String sql = sqlBuilder.selectByColumns(parentChildColumnName);
         SqlRunner<CHILD> sqlRunner = new SqlRunner<>(connection, daoDescriptor.dataColumns(), daoDescriptor.joinColumns(), daoDescriptor.parentColumn());
@@ -73,13 +73,16 @@ public class ChildrenDescriptor<PARENT,CHILD> {
     }
 
     public void saveChildren(Connection connection, PARENT item){
+
+        logger.info("saving to parent " + item);
+
         SqlRunner<CHILD> sqlRunner = new SqlRunner<>(connection, daoDescriptor.dataColumns(), daoDescriptor.joinColumns(), daoDescriptor.parentColumn());
 
         List<CHILD> children = getter.apply(item);
         if( children == null ){
             children = Collections.emptyList();
         }
-        Long parentId = primaryKey.getKey(item);
+        Long parentId = parentPrimaryKey.getKey(item);
 
         Set<Long> existingIds = findExistingChildrenIds(connection, parentId);
         for(CHILD child : children){
@@ -88,6 +91,8 @@ public class ChildrenDescriptor<PARENT,CHILD> {
             if( childId == null ) {
                 long id = DaoHelper.getNextSequenceValue(connection, daoDescriptor.primaryKey().getSequenceName());
                 daoDescriptor.primaryKey().setKey(child, id);
+                logger.info("inserting new child with id " + id + " onto parent " + parentId);
+                logger.info("child " + child);
                 String sql = sqlBuilder.insert();
                 sqlRunner.insert(sql, child);
             } else {
