@@ -36,7 +36,7 @@ public class DaoImpl<T,P> implements Dao<T>, DaoDescriptor<T> {
                    Supplier<T> supplier,
                    PrimaryKey<T> primaryKey,
                    List<TypedColumn<T>> dataColumns,
-                   List<JoinClolumn<T,?>> joinColumns,
+                   List<JoinColumn<T,?>> joinColumns,
                    List<ChildrenDescriptor<T,?>> childrenDescriptors,
                    ParentColumn<T,P> parentColumn){
         this.connection = connection;
