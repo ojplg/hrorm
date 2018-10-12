@@ -39,7 +39,7 @@ public class ChildrenDescriptor<PARENT,CHILD> {
         this.daoDescriptor = daoDescriptor;
         this.parentPrimaryKey = parentPrimaryKey;
 
-        ParentColumnI<CHILD, PARENT> parentColumn = daoDescriptor.parentColumn();
+        ParentColumn<CHILD, PARENT> parentColumn = daoDescriptor.parentColumn();
         parentColumn.setParentPrimaryKey(parentPrimaryKey);
         this.parentSetter = parentColumn.setter();
         this.grandChildrenDescriptors = daoDescriptor.childrenDescriptors();

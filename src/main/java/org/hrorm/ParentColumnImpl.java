@@ -4,40 +4,33 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
-import java.util.concurrent.Semaphore;
 import java.util.function.BiConsumer;
+import java.util.function.Function;
 
-public class NoBackReferenceParentColumn<T,P> implements ParentColumn<T,P> {
+public class ParentColumnImpl<T, P> implements ParentColumn<T,P> {
 
     private final String name;
     private final String prefix;
+    private final BiConsumer<T, P> setter;
+    private final Function<T, P> getter;
     private PrimaryKey<P> parentPrimaryKey;
     private boolean nullable;
 
-    private final Semaphore parentSemaphore = new Semaphore(1);
-    private P parent;
-
-    public NoBackReferenceParentColumn(String name, String prefix) {
+    public ParentColumnImpl(String name, String prefix, Function<T, P> getter, BiConsumer<T, P> setter) {
         this.name = name;
         this.prefix = prefix;
+        this.getter = getter;
+        this.setter = setter;
         this.nullable = false;
     }
 
-    @Override
-    public void setParentPrimaryKey(PrimaryKey<P> primaryKey) {
-        this.parentPrimaryKey = primaryKey;
-    }
-
-    @Override
-    public BiConsumer<T, P> setter() {
-        return (t,p) -> {
-            try {
-                this.parentSemaphore.acquire();
-                this.parent = p;
-            } catch (InterruptedException ex){
-                throw new HrormException("Semaphore interrupted");
-            }
-        };
+    public ParentColumnImpl(String name, String prefix, Function<T, P> getter, BiConsumer<T, P> setter, PrimaryKey<P> parentPrimaryKey, boolean nullable) {
+        this.name = name;
+        this.prefix = prefix;
+        this.getter = getter;
+        this.setter = setter;
+        this.nullable = nullable;
+        this.parentPrimaryKey = parentPrimaryKey;
     }
 
     @Override
@@ -57,7 +50,8 @@ public class NoBackReferenceParentColumn<T,P> implements ParentColumn<T,P> {
 
     @Override
     public void setValue(T item, int index, PreparedStatement preparedStatement) throws SQLException {
-        Long parentId = getParentId();
+        P parent = getter.apply(item);
+        Long parentId = parentPrimaryKey.getKey(parent);
         if ( parentId == null ){
             if ( nullable ){
                 preparedStatement.setNull(index, Types.INTEGER);
@@ -67,17 +61,12 @@ public class NoBackReferenceParentColumn<T,P> implements ParentColumn<T,P> {
         } else {
             preparedStatement.setLong(index, parentId);
         }
-    }
 
-    private Long getParentId(){
-        Long parentId = parentPrimaryKey.getKey(parent);
-        this.parentSemaphore.release();
-        return parentId;
     }
 
     @Override
-    public TypedColumn<T> withPrefix(String newPrefix, Prefixer prefixer) {
-        return new NoBackReferenceParentColumn(name, newPrefix);
+    public TypedColumn<T> withPrefix(String prefix, Prefixer prefixer) {
+        return new ParentColumnImpl<>(name, prefix, getter, setter, parentPrimaryKey, nullable);
     }
 
     @Override
@@ -87,5 +76,14 @@ public class NoBackReferenceParentColumn<T,P> implements ParentColumn<T,P> {
 
     @Override
     public void notNull() {
+        this.nullable = false;
+    }
+
+    public BiConsumer<T, P> setter(){
+        return setter;
+    }
+
+    public void setParentPrimaryKey(PrimaryKey<P> parentPrimaryKey) {
+        this.parentPrimaryKey = parentPrimaryKey;
     }
 }

@@ -22,7 +22,7 @@ public class DaoBuilder<T> implements DaoDescriptor<T> {
     private final List<JoinColumn<T,?>> joinColumns = new ArrayList<>();
     private final List<ChildrenDescriptor<T,?>> childrenDescriptors = new ArrayList<>();
     private PrimaryKey<T> primaryKey;
-    private ParentColumnI<T,?> parentColumn;
+    private ParentColumn<T,?> parentColumn;
     private final Supplier<T> supplier;
     private final Prefixer prefixer;
     private final String myPrefix;
@@ -68,7 +68,7 @@ public class DaoBuilder<T> implements DaoDescriptor<T> {
     }
 
     @Override
-    public ParentColumnI<T, ?> parentColumn() {
+    public ParentColumn<T, ?> parentColumn() {
         return parentColumn;
     }
 
@@ -285,7 +285,7 @@ public class DaoBuilder<T> implements DaoDescriptor<T> {
         if ( parentColumn != null ){
             throw new HrormException("Attempt to set a second parent");
         }
-        ParentColumn<T,P> column = new ParentColumn<>(columnName, myPrefix, getter, setter);
+        ParentColumnImpl<T,P> column = new ParentColumnImpl<>(columnName, myPrefix, getter, setter);
         lastColumnAdded = column;
         parentColumn = column;
         return this;

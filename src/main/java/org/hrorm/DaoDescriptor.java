@@ -64,7 +64,7 @@ public interface DaoDescriptor<T> {
      */
     List<ChildrenDescriptor<T, ?>> childrenDescriptors();
 
-    <P> ParentColumnI<T, P> parentColumn();
+    <P> ParentColumn<T, P> parentColumn();
 
     default boolean hasParent(){
         return parentColumn() != null;
