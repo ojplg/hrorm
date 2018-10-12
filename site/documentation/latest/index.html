@@ -556,6 +556,19 @@
 
             </div>
 
+            <a name="atomic"></a>
+            <div class="card fluid">
+                <h3>Atomic</h3>
+
+                <p>In addition to the <code>insert</code>, <code>update</code>, and <code>delete</code>
+                methods, hrorm <code>Dao</code> objects provide variants of those methods
+                called <code>atomicInsert</code>, <code>atomicUpdate</code>, and <code>atomicDelete</code>.
+                These are useful if you do not mind your changes being committed automatically. But they
+                cannot be used inside larger transactions. Additionally, these methods will close the
+                <code>Connection</code> object their enclosing <code>Dao</code> was built with.</p>
+
+            </div>
+
 
         </div>
     </div>
