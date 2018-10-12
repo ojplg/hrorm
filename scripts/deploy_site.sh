@@ -13,9 +13,9 @@ WEB_HOME=$HOME/www/html/
 cp $GIT_HOME/site/index.html $WEB_HOME/index.html
 
 cd $WEB_HOME/javadocs
+cp $GIT_HOME/site/javadocs/index.html .
 mkdir $VERSION
 cd $VERSION
-cp $GIT_HOME/site/javadocs/index.html .
 wget https://oss.sonatype.org/service/local/repositories/releases/content/org/hrorm/hrorm/$VERSION/hrorm-$VERSION-javadoc.jar
 jar xvf hrorm-$VERSION-javadoc.jar
 cd ..
