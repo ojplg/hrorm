@@ -22,7 +22,7 @@ public class DaoBuilder<T> implements DaoDescriptor<T> {
     private final List<JoinColumn<T,?>> joinColumns = new ArrayList<>();
     private final List<ChildrenDescriptor<T,?>> childrenDescriptors = new ArrayList<>();
     private PrimaryKey<T> primaryKey;
-    private ParentColumn<T,?> parentColumn;
+    private ParentColumnI<T,?> parentColumn;
     private final Supplier<T> supplier;
     private final Prefixer prefixer;
     private final String myPrefix;
@@ -68,7 +68,7 @@ public class DaoBuilder<T> implements DaoDescriptor<T> {
     }
 
     @Override
-    public ParentColumn<T, ?> parentColumn() {
+    public ParentColumnI<T, ?> parentColumn() {
         return parentColumn;
     }
 
@@ -272,6 +272,15 @@ public class DaoBuilder<T> implements DaoDescriptor<T> {
         return this;
     }
 
+    /**
+     * Indicator that the column is a reference to an owning parent object.
+     *
+     * @param columnName The name of the column that holds the foreign key reference.
+     * @param getter The function to call for setting the parent onto the child.
+     * @param setter The function to call for getting the parent from the child.
+     * @param <P> The type of the parent object.
+     * @return This instance.
+     */
     public <P> DaoBuilder<T> withParentColumn(String columnName, Function<T,P> getter, BiConsumer<T,P> setter){
         if ( parentColumn != null ){
             throw new HrormException("Attempt to set a second parent");
@@ -281,6 +290,24 @@ public class DaoBuilder<T> implements DaoDescriptor<T> {
         parentColumn = column;
         return this;
     }
+
+    /**
+     * Indicator that the column is a reference to an owning parent object.
+     *
+     * @param columnName The name of the column that holds the foreign key reference.
+     * @param <P> The type of the parent object.
+     * @return This instance.
+     */
+    public <P> DaoBuilder<T> withParentColumn(String columnName){
+        if ( parentColumn != null ){
+            throw new HrormException("Attempt to set a second parent");
+        }
+        NoBackReferenceParentColumn<T,P> column = new NoBackReferenceParentColumn<>(columnName, myPrefix);
+        lastColumnAdded = column;
+        parentColumn = column;
+        return this;
+    }
+
 
     /**
      * Sets the most recent column added to this DaoBuilder to prevent it allowing

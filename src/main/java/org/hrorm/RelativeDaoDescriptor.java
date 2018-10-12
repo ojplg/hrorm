@@ -13,7 +13,7 @@ public class RelativeDaoDescriptor<T, P> implements DaoDescriptor<T> {
     private final List<JoinColumn<T, ?>> joinColumns;
     private final PrimaryKey<T> primaryKey;
     private final List<ChildrenDescriptor<T,?>> childrenDescriptors;
-    private final ParentColumn<T,P> parentColumn;
+    private final ParentColumnI<T,P> parentColumn;
 
     public RelativeDaoDescriptor(DaoDescriptor<T> originalDaoDescriptor, String newPrefix, Prefixer prefixer){
         this.tableName = originalDaoDescriptor.tableName();
@@ -65,7 +65,7 @@ public class RelativeDaoDescriptor<T, P> implements DaoDescriptor<T> {
     }
 
     @Override
-    public ParentColumn<T, P> parentColumn() {
+    public ParentColumnI<T, P> parentColumn() {
         return parentColumn;
     }
 }

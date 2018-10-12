@@ -42,7 +42,7 @@ public class ChildrenDescriptor<PARENT,CHILD> {
         this.daoDescriptor = daoDescriptor;
         this.parentPrimaryKey = parentPrimaryKey;
 
-        ParentColumn<CHILD, PARENT> parentColumn = daoDescriptor.parentColumn();
+        ParentColumnI<CHILD, PARENT> parentColumn = daoDescriptor.parentColumn();
         parentColumn.setParentPrimaryKey(parentPrimaryKey);
         this.parentSetter = parentColumn.setter();
         this.grandChildrenDescriptors = daoDescriptor.childrenDescriptors();
@@ -56,7 +56,6 @@ public class ChildrenDescriptor<PARENT,CHILD> {
     public void populateChildren(Connection connection, PARENT item){
         SortedMap<String, TypedColumn<CHILD>> columnNameMap = daoDescriptor.columnMap(parentChildColumnName);
         CHILD key = daoDescriptor.supplier().get();
-        Long id = parentPrimaryKey.getKey(item);
         parentSetter.accept(key, item);
         String sql = sqlBuilder.selectByColumns(parentChildColumnName);
         SqlRunner<CHILD> sqlRunner = new SqlRunner<>(connection, daoDescriptor.dataColumns(), daoDescriptor.joinColumns(), daoDescriptor.parentColumn());

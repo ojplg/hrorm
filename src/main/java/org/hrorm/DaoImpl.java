@@ -29,7 +29,7 @@ public class DaoImpl<T,P> implements Dao<T>, DaoDescriptor<T> {
     private final List<ChildrenDescriptor<T,?>> childrenDescriptors;
     private final SqlBuilder<T> sqlBuilder;
     private final SqlRunner<T> sqlRunner;
-    private final ParentColumn<T,P> parentColumn;
+    private final ParentColumnI<T,P> parentColumn;
 
     public DaoImpl(Connection connection,
                    String tableName,
@@ -38,7 +38,7 @@ public class DaoImpl<T,P> implements Dao<T>, DaoDescriptor<T> {
                    List<TypedColumn<T>> dataColumns,
                    List<JoinColumn<T,?>> joinColumns,
                    List<ChildrenDescriptor<T,?>> childrenDescriptors,
-                   ParentColumn<T,P> parentColumn){
+                   ParentColumnI<T,P> parentColumn){
         this.connection = connection;
         this.tableName = tableName;
         this.dataColumns = Collections.unmodifiableList(new ArrayList<>(dataColumns));
@@ -78,7 +78,7 @@ public class DaoImpl<T,P> implements Dao<T>, DaoDescriptor<T> {
     }
 
     @Override
-    public ParentColumn<T, P> parentColumn() {
+    public ParentColumnI<T, P> parentColumn() {
         return parentColumn;
     }
 
