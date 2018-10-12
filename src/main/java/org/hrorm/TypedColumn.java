@@ -67,7 +67,4 @@ public interface TypedColumn<T> {
      */
     void notNull();
 
-//    default List<ChildrenDescriptor<?,?>> getChildrenDescriptors(){
-//        return Collections.emptyList();
-//    }
 }
