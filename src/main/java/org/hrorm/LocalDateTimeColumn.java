@@ -34,7 +34,7 @@ public class LocalDateTimeColumn<T> implements TypedColumn<T> {
     }
 
     @Override
-    public TypedColumn<T> withPrefix(String prefix) {
+    public TypedColumn<T> withPrefix(String prefix, Prefixer prefixer) {
         LocalDateTimeColumn column = new LocalDateTimeColumn<>(name, prefix, getter, setter);
         if ( ! nullable ){
             column.notNull();

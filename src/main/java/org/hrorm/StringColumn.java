@@ -38,7 +38,7 @@ public class StringColumn<T> implements TypedColumn<T> {
 
 
     @Override
-    public TypedColumn<T> withPrefix(String prefix) {
+    public TypedColumn<T> withPrefix(String prefix, Prefixer prefixer) {
         return new StringColumn<>(name, prefix, getter, setter, nullable);
     }
 

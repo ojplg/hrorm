@@ -38,7 +38,7 @@ public class LongColumn<T> implements TypedColumn<T> {
     }
 
     @Override
-    public TypedColumn<T> withPrefix(String prefix) {
+    public TypedColumn<T> withPrefix(String prefix, Prefixer prefixer) {
         return new LongColumn<>(name, prefix, getter, setter, nullable);
     }
 

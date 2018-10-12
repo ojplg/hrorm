@@ -41,7 +41,7 @@ public class StringConverterColumn<T, E> implements TypedColumn<T> {
     }
 
     @Override
-    public TypedColumn<T> withPrefix(String prefix) {
+    public TypedColumn<T> withPrefix(String prefix, Prefixer prefixer) {
         StringConverterColumn<T,E> newColumn = new StringConverterColumn<>(name, prefix, getter, setter, converter);
         if ( ! nullable ){
             newColumn.notNull();

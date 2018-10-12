@@ -36,7 +36,7 @@ public class PrimaryKeyImpl<T> implements PrimaryKey<T> {
     }
 
     @Override
-    public TypedColumn<T> withPrefix(String prefix) {
+    public TypedColumn<T> withPrefix(String prefix, Prefixer prefixer) {
         return new PrimaryKeyImpl<>(longColumn.getName(), prefix, getter, setter, sequenceName);
     }
 

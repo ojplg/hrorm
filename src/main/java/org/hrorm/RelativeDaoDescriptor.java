@@ -18,7 +18,7 @@ public class RelativeDaoDescriptor<T, P> implements DaoDescriptor<T> {
     public RelativeDaoDescriptor(DaoDescriptor<T> originalDaoDescriptor, String newPrefix, Prefixer prefixer){
         this.tableName = originalDaoDescriptor.tableName();
         this.supplier = originalDaoDescriptor.supplier();
-        this.dataColumns = originalDaoDescriptor.dataColumns().stream().map(c -> c.withPrefix(newPrefix)).collect(Collectors.toList());
+        this.dataColumns = originalDaoDescriptor.dataColumns().stream().map(c -> c.withPrefix(newPrefix, prefixer)).collect(Collectors.toList());
         this.joinColumns = resetColumnPrefixes(prefixer, newPrefix, originalDaoDescriptor.joinColumns());
         this.primaryKey = originalDaoDescriptor.primaryKey();
         this.childrenDescriptors = originalDaoDescriptor.childrenDescriptors();
@@ -28,7 +28,7 @@ public class RelativeDaoDescriptor<T, P> implements DaoDescriptor<T> {
     private List<JoinColumn<T,?>> resetColumnPrefixes(Prefixer prefixer, String joinedTablePrefix, List<JoinColumn<T,?>> joinColumns){
         List<JoinColumn<T,?>> tmp = new ArrayList<>();
         for(JoinColumn<T,?> column : joinColumns){
-            JoinColumn<T,?> resetColumn = column.withPrefixes(prefixer, joinedTablePrefix);
+            JoinColumn<T,?> resetColumn = column.withPrefix(joinedTablePrefix, prefixer);
             tmp.add(resetColumn);
         }
         return tmp;

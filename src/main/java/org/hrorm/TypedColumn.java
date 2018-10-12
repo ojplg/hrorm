@@ -3,8 +3,6 @@ package org.hrorm;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Collections;
-import java.util.List;
 
 /**
  * Representation of a single column in the table that is used
@@ -53,10 +51,11 @@ public interface TypedColumn<T> {
      * Make a new instance of the column, identical to this instance, except with a
      * new prefix.
      *
-     * @param prefix The new prefix
+     * @param newPrefix The new prefix
+     * @param prefixer The source for new prefixes
      * @return A new instance of the column with the reset prefix
      */
-    TypedColumn<T> withPrefix(String prefix);
+    TypedColumn<T> withPrefix(String newPrefix, Prefixer prefixer);
 
     /**
      * @return true if this column represents the primary key of the table

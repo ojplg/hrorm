@@ -65,7 +65,7 @@ public class ParentColumn<T, P> implements TypedColumn<T> {
     }
 
     @Override
-    public TypedColumn<T> withPrefix(String prefix) {
+    public TypedColumn<T> withPrefix(String prefix, Prefixer prefixer) {
         return new ParentColumn<>(name, prefix, getter, setter, parentPrimaryKey, nullable);
     }
 

@@ -95,13 +95,9 @@ public class JoinColumn<T, J> implements TypedColumn<T> {
         }
     }
 
-    public JoinColumn<T,J> withPrefixes(Prefixer prefixer, String joinedTablePrefix) {
-        return new JoinColumn(name, joinedTablePrefix, prefixer, getter, setter, daoDescriptor, nullable);
-    }
-
     @Override
-    public TypedColumn<T> withPrefix(String prefix) {
-        throw new UnsupportedOperationException();
+    public JoinColumn<T,J> withPrefix(String newPrefix, Prefixer prefixer) {
+        return new JoinColumn(name, newPrefix, prefixer, getter, setter, daoDescriptor, nullable);
     }
 
     public List<TypedColumn<J>> getDataColumns(){
