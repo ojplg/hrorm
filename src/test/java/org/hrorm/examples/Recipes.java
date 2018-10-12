@@ -30,7 +30,7 @@ public class Recipes {
     @Data
     class Ingredient {
         Long id;
-        long recipeId;
+        Recipe recipe;
         String name;
         long amount;
     }
@@ -41,8 +41,9 @@ public class Recipes {
 
     DaoBuilder<Ingredient> ingredientDaoBuilder = new DaoBuilder<>("INGREDIENT", Ingredient::new)
             .withPrimaryKey("ID", "INGREDIENT_SEQUENCE", Ingredient::getId, Ingredient::setId)
-            .withIntegerColumn("RECIPE_ID", Ingredient::getRecipeId, Ingredient::setRecipeId)
-            .withStringColumn("NAME", Ingredient::getName, Ingredient::setName);
+            .withParentColumn("RECIPE_ID", Ingredient::getRecipe, Ingredient::setRecipe)
+            .withStringColumn("NAME", Ingredient::getName, Ingredient::setName)
+            .withIntegerColumn("AMOUNT", Ingredient::getAmount, Ingredient::setAmount);
 
     DaoBuilder<Recipe> recipeDaoBuilder = new DaoBuilder<>("RECIPE", Recipe::new)
             .withPrimaryKey("ID", "RECIPE_SEQUENCE", Recipe::getId, Recipe::setId)

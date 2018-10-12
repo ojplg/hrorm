@@ -14,7 +14,7 @@ public class Inventory {
 
     DaoBuilder<Stock> stockDaoBuilder = new DaoBuilder<>("STOCK", Stock::new)
             .withPrimaryKey("ID","STOCK_SEQUENCE", Stock::getId, Stock::setId)
-            .withIntegerColumn("INVENTORY_ID", Stock::getInventoryId, Stock::setInventoryId)
+            .withParentColumn("INVENTORY_ID", Stock::getInventory, Stock::setInventory)
             .withStringColumn("PRODUCT_NAME", Stock::getProductName, Stock::setProductName)
             .withBigDecimalColumn("AMOUNT", Stock::getAmount, Stock::setAmount);
 

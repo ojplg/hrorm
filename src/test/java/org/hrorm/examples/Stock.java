@@ -7,7 +7,7 @@ import java.math.BigDecimal;
 @Data
 public class Stock {
     Long id;
-    Long inventoryId;
+    Inventory inventory;
     String productName;
     BigDecimal amount;
 }

@@ -323,7 +323,7 @@
 
     public class Stock {
         Long id;
-        Long inventoryId;
+        Inventory inventory;
         String productName;
         BigDecimal amount;
     }</pre>
@@ -353,30 +353,30 @@
     CREATE SEQUENCE STOCK_SEQUENCE;</pre>
 
                 <p>To model this in hrorm, we need to teach it about the parent-child relationship between the two entities
-                using the <code>DaoBuilder.withChildren()</code> method. First we make a Dao for the <code>Stock</code>
-                entity.</p>
+                    using the <code>DaoBuilder.withParent()</code> and <code>DaoBuilder.withChildren()</code> methods.
+                    First we make a Dao for the <code>Stock</code> entity.</p>
 
                 <pre>
     DaoBuilder&lt;Stock&gt; stockDaoBuilder = new DaoBuilder&lt;&gt;("STOCK", Stock::new)
             .withPrimaryKey("ID","STOCK_SEQUENCE", Stock::getId, Stock::setId)
-            .withIntegerColumn("INVENTORY_ID", Stock::getInventoryId, Stock::setInventoryId)
+            .withParentColumn("INVENTORY_ID", Stock::getInventory, Stock::setInventory)
             .withStringColumn("PRODUCT_NAME", Stock::getProductName, Stock::setProductName)
             .withBigDecimalColumn("AMOUNT", Stock::getAmount, Stock::setAmount);</pre>
 
-                <p>There is nothing special there, the new part is in the <code>Inventory</code> <code>DaoBuilder</code>.</p>
+                <p>The column <code>INVENTORY_ID</code> is marked not as an integer column,
+                    but with the special <code>withParentColumn</code> method.
+                    An entity can have only one parent. In the <code>Inventory</code>
+                    <code>DaoBuilder</code> we use the <code>withChildren</code> method
+                    to complete the relationship definition..</p>
 
                 <pre>
     DaoBuilder&lt;Inventory&gt; inventoryDaoBuilder = new DaoBuilder&lt;&gt;("INVENTORY", Inventory::new)
             .withPrimaryKey("ID", "INVENTORY_SEQUENCE", Inventory::getId, Inventory::setId)
             .withLocalDateTimeColumn("DATE", Inventory::getDate, Inventory::setDate)
-            .withChildren("INVENTORY_ID", Stock::setInventoryId, Inventory::getStocks,
-                    Inventory::setStocks, stockDaoBuilder);</pre>
+            .withChildren("INVENTORY_ID", Inventory::getStocks, Inventory::setStocks);</pre>
 
                 <p>Notice that the <code>withChildren()</code> call references the name of the column on
-                the <code>STOCK</code> table. Additionally, it references the setter on the <code>Stock</code>
-                class for <code>Inventory</code> primary key. Lastly, includes a reference to a
-                    <code>DaoDescriptor</code> for the child entity, and as with the sibling relationship,
-                we simply use the appropriate <code>DaoBuilder</code>.</p>
+                the <code>STOCK</code> table.</p>
 
                 <p>When we create a <code>Dao</code> in this fashion we create a category of entity, the child,
                 that is wholly dependent upon another, the parent. Whenever we insert, update, delete, or
