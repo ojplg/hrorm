@@ -16,6 +16,9 @@ function printstep {
 
 printstep "Correct version number in pom.xml"
 printstep "Update latest version maven link on website"
+printstep "Add latest version to site/documentation/index.html"
+printstep "Add latest version to site/javadocs/index.html"
+printstep "Update latest version maven link on website"
 printstep "Create tag in git"
 printstep "Run mvn deploy (requires gpg passphrase) to publish to oss.sonatype.org"
 printstep "Push artifact from oss.sonatype.org to maven central (requires login)"
