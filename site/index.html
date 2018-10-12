@@ -2,7 +2,9 @@
 <html>
 <head>
     <title>hrorm</title>
-    <meta name="description" content="Horm is an ORM for Java. Hrorm is a simple, declarative, type-checked library for creating data access objects. Hrorm has no external configuration or dependencies.">
+    <meta name="description" content="Horm is an ORM for Java. Hrorm is a simple,
+    declarative, type-checked library for creating data access objects.
+    Hrorm has no external configuration or dependencies.">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/mini.css/3.0.0/mini-default.min.css">
     <link rel="stylesheet" href="/css/hrorm.css"/>
 </head>
@@ -25,18 +27,18 @@
             <nav id="navigation">
                 <a href="#basics">Basics</a>
                 <a href="#quick_start">Quick Start</a>
-                <a href="#orm_comparison">ORM Comparison</a>
-                <a href="#things_hrorm_does_not_do">Things hrorm does not do</a>
-                <a href="#designing_for_hrorm">Designing for hrorm</a>
+                <a href="#designing_with_hrorm">Designing with hrorm</a>
                 <a href="#java_objects" class="sublink-1">Java Objects</a>
                 <a href="#sql_schema" class="sublink-1">SQL Schema</a>
                 <a href="#how_hrorm_handles_relations">How hrorm Handles Relations</a>
                 <a href="#parent_child_relations" class="sublink-1">Parent-Child Relations</a>
                 <a href="#sibling_relations" class="sublink-1">Sibling Relations</a>
+                <a href="#things_hrorm_does_not_do">Things hrorm does not do</a>
                 <a href="#hrorm_and_exceptions">Hrorm and Exceptions</a>
                 <a href="#hrorm_and_transactions">Horm and Transactions</a>
                 <a href="#hrorm_and_logging">Hrorm and Logging</a>
                 <a href="#hrorm_visibility">Hrorm Visibility</a>
+                <a href="#orm_comparison">ORM Comparison</a>
                 <a href="#falling_off_a_cliff">Falling Off a Cliff</a>
             </nav>
         </div>
@@ -71,7 +73,7 @@
 
                 <p>Horm is an Object Relational Mapper (ORM) for Java.
                     Hrorm is a concise, declarative, type-checked library for the creation of Data Access Objects (DAOs).
-                    Hrorm has no external configuration or dependencies.</p>
+                    Hrorm requires no external configuration or dependencies.</p>
 
                 <p>Hrorm exists to reduce the amount of boilerplate code (in both Java and SQL) you have to write to
                     manage persistence of Java objects to a relational (SQL) data store without inflicting you
@@ -79,12 +81,12 @@
 
                 <p>The hrorm <a href="/javadocs/latest/org/hrorm/DaoBuilder.html"><code>DaoBuilder</code></a>
                     class provides methods to describe the relationship between an object and its backing table. Once your
-                    <code>DaoBuilder</code> objects are defined and you have a database <code>Connection</code>, you can
+                    <code>DaoBuilder</code> objects are defined and you have a <code>java.sql.Connection</code>, you can
                     create <a href="/javadocs/latest/org/hrorm/Dao.html"><code>Dao</code></a> objects
                     for performing CRUD operations.</p>
 
-                <p>Hrorm is enormously opinionated about how Java object models and SQL schemas should be designed. It will
-                    not play well with many schemas and object models. If you want freedom, look elsewhere.</p>
+                <p>Hrorm is opinionated about how Java object models and SQL schemas should be designed. It will
+                    not play well with all schemas and objects. If you want freedom, look elsewhere.</p>
             </div>
 
             <div class="card fluid">
@@ -206,118 +208,13 @@
 
             <div class="card fluid">
 
-
-                <a name="orm_comparison"></a>
-                <h2>ORM Comparison</h2>
-
-                <table  style="max-height: 100%;">
-                    <thead>
-                    <tr>
-                        <th></th>
-                        <th>Hibernate</th>
-                        <th>Mybatis</th>
-                        <th>hrorm</th>
-                    </tr>
-                    </thead>
-
-                    <tbody>
-                    <tr>
-                        <td>Fully-featured</td>
-                        <td>Yes</td>
-                        <td>Yes</td>
-                        <td>No</td>
-                    </tr>
-                    <tr>
-                        <td>Wide community support</td>
-                        <td>Yes</td>
-                        <td>Yes</td>
-                        <td>No</td>
-                    </tr>
-                    <tr>
-                        <td>Rich documentation</td>
-                        <td>Yes</td>
-                        <td>Yes</td>
-                        <td>No</td>
-                    </tr>
-                    <tr>
-                        <td>Battle tested in major enterprise deployments</td>
-                        <td>Yes</td>
-                        <td>Yes</td>
-                        <td>No</td>
-                    </tr>
-                    <tr>
-                        <td>Has a sweet icon and other branding</td>
-                        <td>Yes</td>
-                        <td>Yes</td>
-                        <td>No</td>
-                    </tr>
-                    <tr>
-                        <td>Supports your schema and object model how <em>you</em> want it</td>
-                        <td>Maybe</td>
-                        <td>Somewhat</td>
-                        <td>Absolutely not</td>
-                    </tr>
-                    </tbody>
-
-                </table>
-
-            </div>
-
-            <div class="card fluid">
-
-
-                <a name="things_hrorm_does_not_do"></a>
-                <h2>Things hrorm Does Not Do</h2>
-
-                <hr>
-
-                <p>Hrorm is not an all-singing, all-dancing, all-cooking-a-five-course-meal framework. It's a small
-                    library for reducing the amount of time you spend writing <code>select FOO, BAR from BAZ</code>
-                    and <code>ResultSet rs = statement.execute()</code>. It does not even attempt to go into territory
-                    that many other ORM tools do.</p>
-
-                <p>This is only a partial list of all the things hrorm will not do.</p>
-
-                <ul>
-                    <li>Any kind of caching.</li>
-                    <li>Attempt to minimize database chatter by lazy-loading or object change tracking. Hrorm assumes
-                        that if
-                        you make a call to a <code>Dao</code> it's because you want to read or write something in the
-                        database.
-                    </li>
-                    <li>Transaction management. Transactions are for applications, not for hrorm.
-                        <a href="#hrorm_and_transactions">(Mostly.)</a>
-                    </li>
-                    <li>Pollute your code with vexing annotations.</li>
-                    <li>Involve itself with any XML or other configuration. Hrorm thinks Java is a better language than
-                        XML.
-                    </li>
-                    <li>Take over your application with background threads or expect some kind of container to exist.
-                        Hrorm is a library,
-                        if you do not call the methods, hrorm won't do anything.
-                    </li>
-                    <li>Connection pooling.</li>
-                    <li>Reflection.</li>
-                    <li>Invent its own query language.</li>
-                    <li>Expect you to write SQL yourself.</li>
-                    <li>Manage integrity constraints to your schema or object model. (Mostly.)</li>
-                    <li>Declare checked exceptions in its client facing interfaces.</li>
-                    <li>Have left pad as a dependency.</li>
-                    <li>Mine cryptocurrencies.</li>
-                </ul>
-
-            </div>
-
-            <div class="card fluid">
-
-                <a name="designing_for_hrorm"></a>
-                <h2>Designing for hrorm</h2>
+                <a name="designing_with_hrorm"></a>
+                <h2>Designing with hrorm</h2>
 
                 <hr>
 
                 <p>Hrorm only works on a restricted entity model. It expects your Java object model and your SQL schema
-                    to
-                    work a particular way. If this does not work for you, than neither will hrorm.</p>
+                    to work a particular way. If this does not work for you, than neither will hrorm.</p>
 
                 <a name="java_objects"></a>
                 <h4>Java Objects</h4>
@@ -379,7 +276,8 @@
                 <a name="parent_child_relations"></a>
                 <h4>Parent-Child Relations</h4>
 
-                <p>These relations are defined by using the <code>DaoBuilder.withChildren()</code> method.</p>
+                <p>These relations are defined by using the <code>DaoBuilder.withParent()</code> and
+                    <code>DaoBuilder.withChildren()</code> methods.</p>
 
                 <p>In a parent-child relationship, the child is assumed to be completely dependent on the parent, so
                     that its very existence depends on the existence of the parent.</p>
@@ -394,8 +292,7 @@
 
                 <p>One tricky thing about these relationships is the reversal in how ownership is expressed between
                     the database schema and the object model. In the object model, the Hand object has Finger objects.
-                    In
-                    the database, the FINGER table has foreign key references to the HAND table. With hrorm, the
+                    In the database, the FINGER table has foreign key references to the HAND table. With hrorm, the
                     <code>DaoBuilder</code> object of both the parent and child need to understand
                     the relationship, not just one or the other.</p>
 
@@ -418,6 +315,50 @@
                 <p>Note well: Hrorm will do nothing to prevent a dependent sibling from being deleted. The application
                     code, or database schema constraints, (or both!) must be in place to prevent orphaned records of
                     that type.</p>
+
+            </div>
+
+            <div class="card fluid">
+
+                <a name="things_hrorm_does_not_do"></a>
+                <h2>Things hrorm Does Not Do</h2>
+
+                <hr>
+
+                <p>Hrorm is not an all-singing, all-dancing, all-cooking-a-five-course-meal framework. It's a small
+                    library for reducing the amount of time you spend writing <code>select FOO, BAR from BAZ</code>
+                    and <code>ResultSet rs = statement.execute()</code>. It does not even attempt to go into territory
+                    that many other ORM tools do.</p>
+
+                <p>This is only a partial list of all the things hrorm will not do.</p>
+
+                <ul>
+                    <li>Any kind of caching.</li>
+                    <li>Attempt to minimize database chatter by lazy-loading or object change tracking. Hrorm assumes
+                        that if
+                        you make a call to a <code>Dao</code> it's because you want to read or write something in the
+                        database.
+                    </li>
+                    <li>Transaction management. Transactions are for applications, not for hrorm.
+                        <a href="#hrorm_and_transactions">(Mostly.)</a>
+                    </li>
+                    <li>Pollute your code with vexing annotations.</li>
+                    <li>Involve itself with any XML or other configuration. Hrorm thinks Java is a better language than
+                        XML.
+                    </li>
+                    <li>Take over your application with background threads or expect some kind of container to exist.
+                        Hrorm is a library,
+                        if you do not call the methods, hrorm won't do anything.
+                    </li>
+                    <li>Connection pooling.</li>
+                    <li>Reflection.</li>
+                    <li>Invent its own query language.</li>
+                    <li>Expect you to write SQL yourself.</li>
+                    <li>Manage integrity constraints to your schema or object model. (Mostly.)</li>
+                    <li>Declare checked exceptions in its client facing interfaces.</li>
+                    <li>Have left pad as a dependency.</li>
+                    <li>Mine cryptocurrencies.</li>
+                </ul>
 
             </div>
 
@@ -536,6 +477,65 @@
 
                 <p>Most of the time, hrorm will point out in the Javadocs where classes are not
                     intended for clients to use directly.</p>
+
+            </div>
+
+            <div class="card fluid">
+
+
+                <a name="orm_comparison"></a>
+                <h2>ORM Comparison</h2>
+
+                <table  style="max-height: 100%;">
+                    <thead>
+                    <tr>
+                        <th></th>
+                        <th>Hibernate</th>
+                        <th>Mybatis</th>
+                        <th>hrorm</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    <tr>
+                        <td>Fully-featured</td>
+                        <td>Yes</td>
+                        <td>Yes</td>
+                        <td>No</td>
+                    </tr>
+                    <tr>
+                        <td>Wide community support</td>
+                        <td>Yes</td>
+                        <td>Yes</td>
+                        <td>No</td>
+                    </tr>
+                    <tr>
+                        <td>Rich documentation</td>
+                        <td>Yes</td>
+                        <td>Yes</td>
+                        <td>No</td>
+                    </tr>
+                    <tr>
+                        <td>Battle tested in major enterprise deployments</td>
+                        <td>Yes</td>
+                        <td>Yes</td>
+                        <td>No</td>
+                    </tr>
+                    <tr>
+                        <td>Has a sweet icon and other branding</td>
+                        <td>Yes</td>
+                        <td>Yes</td>
+                        <td>No</td>
+                    </tr>
+                    <tr>
+                        <td>Supports your schema and object model how <em>you</em> want it</td>
+                        <td>Maybe</td>
+                        <td>Somewhat</td>
+                        <td>Absolutely not</td>
+                    </tr>
+                    </tbody>
+
+                </table>
 
             </div>
 
