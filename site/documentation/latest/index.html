@@ -373,7 +373,7 @@
     DaoBuilder&lt;Inventory&gt; inventoryDaoBuilder = new DaoBuilder&lt;&gt;("INVENTORY", Inventory::new)
             .withPrimaryKey("ID", "INVENTORY_SEQUENCE", Inventory::getId, Inventory::setId)
             .withLocalDateTimeColumn("DATE", Inventory::getDate, Inventory::setDate)
-            .withChildren("INVENTORY_ID", Inventory::getStocks, Inventory::setStocks);</pre>
+            .withChildren(Inventory::getStocks, Inventory::setStocks stockDaoBuilder);</pre>
 
                 <p>Notice that the <code>withChildren()</code> call references the name of the column on
                 the <code>STOCK</code> table.</p>
