@@ -353,7 +353,7 @@
     CREATE SEQUENCE STOCK_SEQUENCE;</pre>
 
                 <p>To model this in hrorm, we need to teach it about the parent-child relationship between the two entities
-                    using the <code>DaoBuilder.withParent()</code> and <code>DaoBuilder.withChildren()</code> methods.
+                    using the <code>DaoBuilder.withParentColumn()</code> and <code>DaoBuilder.withChildren()</code> methods.
                     First we make a Dao for the <code>Stock</code> entity.</p>
 
                 <pre>
