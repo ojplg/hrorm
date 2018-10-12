@@ -3,6 +3,8 @@ package org.hrorm;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Representation of a single column in the table that is used
@@ -65,4 +67,8 @@ public interface TypedColumn<T> {
      * Calling this method will enforce a not-null constraint on this column.
      */
     void notNull();
+
+//    default List<ChildrenDescriptor<?,?>> getChildrenDescriptors(){
+//        return Collections.emptyList();
+//    }
 }

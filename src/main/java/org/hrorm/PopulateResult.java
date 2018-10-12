@@ -1,5 +1,5 @@
 package org.hrorm;
 
 public enum PopulateResult {
-    PrimaryKey,NoPrimaryKey,Ignore,ParentColumn
+    PrimaryKey,NoPrimaryKey,Ignore,ParentColumn;
 }

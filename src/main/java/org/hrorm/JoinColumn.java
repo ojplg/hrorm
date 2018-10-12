@@ -1,5 +1,6 @@
 package org.hrorm;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -28,6 +29,7 @@ public class JoinColumn<T, J> implements TypedColumn<T> {
     private final Function<T, J> getter;
     private final DaoDescriptor<J> daoDescriptor;
     private boolean nullable;
+    private J lastItem;
 
     public JoinColumn(String name, String joinedTablePrefix, Prefixer prefixer, Function<T, J> getter, BiConsumer<T,J> setter, DaoDescriptor<J> daoDescriptor, boolean nullable){
         this.name = name;
@@ -63,7 +65,7 @@ public class JoinColumn<T, J> implements TypedColumn<T> {
 
     @Override
     public PopulateResult populate(T item, ResultSet resultSet) throws SQLException {
-        J joined  = daoDescriptor.supplier().get();
+        J joined = daoDescriptor.supplier().get();
         for (TypedColumn<J> column: daoDescriptor.dataColumns()) {
             PopulateResult result = column.populate(joined, resultSet);
             if ( result == PopulateResult.NoPrimaryKey ){
@@ -74,6 +76,7 @@ public class JoinColumn<T, J> implements TypedColumn<T> {
             joinColumn.populate(joined, resultSet);
         }
         setter.accept(item, joined);
+        lastItem = joined;
         return PopulateResult.Ignore;
     }
 
@@ -115,4 +118,9 @@ public class JoinColumn<T, J> implements TypedColumn<T> {
         nullable = false;
     }
 
+    public void populateChildren(Connection connection){
+        for(ChildrenDescriptor<J,?> childrenDescriptor : daoDescriptor.childrenDescriptors()){
+            childrenDescriptor.populateChildren(connection, lastItem);
+        }
+    }
 }

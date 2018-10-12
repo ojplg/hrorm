@@ -143,16 +143,16 @@ public class ComplexTest {
 
             List<Don> dons = beth.getDons();
 
-//            Assert.assertNotNull(dons);
-//
-//            Henry henry = don.getHenries().get(0);
-//            Jules jules = henry.getIda().getJules();
-//
-//            Assert.assertEquals(julesMagnitude, jules.getMagnitude());
-//
-//            Edith edith = beth.getEdiths().get(0);
-//            Assert.assertEquals(fredFlag, edith.getFred().getFlag());
-//            Assert.assertEquals(gapInsignia, edith.getGap().getInsignia());
+            Assert.assertNotNull(dons);
+
+            Henry henry = dons.get(0).getHenries().get(0);
+            Jules jules = henry.getIda().getJules();
+
+            Assert.assertEquals(julesMagnitude, jules.getMagnitude());
+
+            Edith edith = beth.getEdiths().get(0);
+            Assert.assertEquals(fredFlag, edith.getFred().getFlag());
+            Assert.assertEquals(gapInsignia, edith.getGap().getInsignia());
             Cal cal = ann.getCals().get(0);
             Assert.assertEquals(calAmount, cal.getAmount());
         }

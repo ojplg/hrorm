@@ -131,6 +131,10 @@ public class SqlRunner<T> {
 
         for (TypedColumn<T> column: allColumns) {
             column.populate(item, resultSet);
+            if (column instanceof JoinColumn){
+                JoinColumn<T,?> joinColumn = (JoinColumn<T,?>) column;
+                joinColumn.populateChildren(connection);
+            }
         }
 
         return item;
