@@ -468,14 +468,14 @@
                 <p>If you want to read several IDs at once, you can.</p>
 
                 <pre>
-    Person person = dao.selectMany(Arrays.asList(432L,21L,7659L));</pre>
+    List&lt;Person&gt; personList = dao.selectMany(Arrays.asList(432L,21L,7659L));</pre>
 
                 <h5>All Records</h5>
 
                 <p>If you want all the records (presumably for a smallish table) just do</p>
 
                 <pre>
-    Person person = dao.selectAll();</pre>
+    List&lt;Person&gt; personList = dao.selectAll();</pre>
 
                 <h5>By Columns</h5>
 
