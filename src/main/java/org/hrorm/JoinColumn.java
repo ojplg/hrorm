@@ -4,12 +4,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 /**
  * Represents a column that links to a foreign key of some
@@ -27,63 +24,27 @@ public class JoinColumn<T, J> implements TypedColumn<T> {
     private final String name;
     private final String prefix;
     private final String joinedTablePrefix;
-    private final String table;
     private final BiConsumer<T, J> setter;
     private final Function<T, J> getter;
-    private final Supplier<J> supplier;
-    private final List<TypedColumn<J>> dataColumns;
-    private final PrimaryKey<J> primaryKey;
-    private final List<JoinColumn<J,?>> transitiveJoins;
-    private final List<ChildrenDescriptor<J,?>> childrenDescriptors;
-    private boolean nullable = true;
+    private final DaoDescriptor<J> daoDescriptor;
+    private boolean nullable;
 
-    public JoinColumn(String name, String joinedTablePrefix, Prefixer prefixer, Function<T, J> getter, BiConsumer<T,J> setter, DaoDescriptor<J> daoDescriptor){
+    public JoinColumn(String name, String joinedTablePrefix, Prefixer prefixer, Function<T, J> getter, BiConsumer<T,J> setter, DaoDescriptor<J> daoDescriptor, boolean nullable){
         this.name = name;
         this.prefix = prefixer.nextPrefix();
         this.joinedTablePrefix = joinedTablePrefix;
         this.getter = getter;
         this.setter = setter;
-        this.table = daoDescriptor.tableName();
-        this.supplier = daoDescriptor.supplier();
-        this.dataColumns = daoDescriptor.dataColumns().stream().map(c -> c.withPrefix(prefix)).collect(Collectors.toList());
-        this.primaryKey = daoDescriptor.primaryKey();
-        this.transitiveJoins = resetColumnPrefixes(prefixer, prefix, daoDescriptor.joinColumns());
-        this.childrenDescriptors = daoDescriptor.childrenDescriptors();
-    }
-
-    private JoinColumn(String name, Prefixer prefixer, String joinedTablePrefix, String table, Function<T, J> getter,
-                       BiConsumer<T, J> setter, Supplier<J> supplier, PrimaryKey<J> primaryKey,
-                       List<TypedColumn<J>> dataColumns, List<JoinColumn<J,?>> transitiveJoins,
-                       List<ChildrenDescriptor<J,?>> childrenDescriptors, boolean nullable) {
-        this.name = name;
-        this.table = table;
-        this.joinedTablePrefix = joinedTablePrefix;
-        this.prefix = prefixer.nextPrefix();
-        this.getter = getter;
-        this.setter = setter;
-        this.supplier = supplier;
-        this.primaryKey = primaryKey;
-        this.dataColumns = dataColumns.stream().map(c -> c.withPrefix(prefix) ).collect(Collectors.toList());
-        this.transitiveJoins = resetColumnPrefixes(prefixer, prefix, transitiveJoins);
-        this.childrenDescriptors = childrenDescriptors;
+        this.daoDescriptor = new RelativeDaoDescriptor<>(daoDescriptor, prefix, prefixer);
         this.nullable = nullable;
     }
 
-    private List<JoinColumn<J,?>> resetColumnPrefixes(Prefixer prefixer, String joinedTablePrefix, List<JoinColumn<J,?>> joinColumns){
-        List<JoinColumn<J,?>> tmp = new ArrayList<>();
-        for(JoinColumn<J,?> column : joinColumns){
-            JoinColumn<J,?> resetColumn = column.withPrefixes(prefixer, joinedTablePrefix);
-            tmp.add(resetColumn);
-        }
-        return tmp;
-    }
-
     public List<JoinColumn<J,?>> getTransitiveJoins(){
-        return transitiveJoins;
+        return this.daoDescriptor.joinColumns();
     }
 
     public String getTable(){
-        return table;
+        return this.daoDescriptor.tableName();
     }
 
     @Override
@@ -102,14 +63,14 @@ public class JoinColumn<T, J> implements TypedColumn<T> {
 
     @Override
     public PopulateResult populate(T item, ResultSet resultSet) throws SQLException {
-        J joined  = supplier.get();
-        for (TypedColumn<J> column: dataColumns) {
+        J joined  = daoDescriptor.supplier().get();
+        for (TypedColumn<J> column: daoDescriptor.dataColumns()) {
             PopulateResult result = column.populate(joined, resultSet);
             if ( result == PopulateResult.NoPrimaryKey ){
                 return PopulateResult.Ignore;
             }
         }
-        for(JoinColumn<J,?> joinColumn : transitiveJoins){
+        for(JoinColumn<J,?> joinColumn : daoDescriptor.joinColumns()){
             joinColumn.populate(joined, resultSet);
         }
         setter.accept(item, joined);
@@ -126,13 +87,13 @@ public class JoinColumn<T, J> implements TypedColumn<T> {
                 throw new HrormException("Tried to set a null value for " + prefix + "." + name + " which was set not nullable.");
             }
         } else {
-            Long id = primaryKey.getKey(value);
+            Long id = daoDescriptor.primaryKey().getKey(value);
             preparedStatement.setLong(index, id);
         }
     }
 
     public JoinColumn<T,J> withPrefixes(Prefixer prefixer, String joinedTablePrefix) {
-        return new JoinColumn<>(name, prefixer, joinedTablePrefix, table, getter, setter, supplier, primaryKey, dataColumns, transitiveJoins, childrenDescriptors, nullable);
+        return new JoinColumn(name, joinedTablePrefix, prefixer, getter, setter, daoDescriptor, nullable);
     }
 
     @Override
@@ -141,7 +102,7 @@ public class JoinColumn<T, J> implements TypedColumn<T> {
     }
 
     public List<TypedColumn<J>> getDataColumns(){
-        return dataColumns;
+        return this.daoDescriptor.dataColumns();
     }
 
     @Override
@@ -154,7 +115,4 @@ public class JoinColumn<T, J> implements TypedColumn<T> {
         nullable = false;
     }
 
-    public boolean hasChildrenDescriptors(){
-        return childrenDescriptors.size() > 0;
-    }
 }

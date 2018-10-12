@@ -143,8 +143,8 @@ public class ComplexTest {
 
             List<Don> dons = beth.getDons();
 
-            Assert.assertNotNull(dons);
-
+//            Assert.assertNotNull(dons);
+//
 //            Henry henry = don.getHenries().get(0);
 //            Jules jules = henry.getIda().getJules();
 //

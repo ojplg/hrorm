@@ -208,7 +208,7 @@ public class DaoBuilder<T> implements DaoDescriptor<T> {
      * @return This instance.
      */
     public <U> DaoBuilder<T> withJoinColumn(String columnName, Function<T, U> getter, BiConsumer<T,U> setter, DaoDescriptor<U> daoDescriptor){
-        JoinColumn<T,U> joinColumn = new JoinColumn<>(columnName, myPrefix, prefixer, getter, setter, daoDescriptor);
+        JoinColumn<T,U> joinColumn = new JoinColumn<>(columnName, myPrefix, prefixer, getter, setter, daoDescriptor, true);
         joinColumns.add(joinColumn);
         lastColumnAdded = joinColumn;
         return this;
