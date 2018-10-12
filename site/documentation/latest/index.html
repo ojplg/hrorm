@@ -323,7 +323,6 @@
 
     public class Stock {
         Long id;
-        Inventory inventory;
         String productName;
         BigDecimal amount;
     }</pre>
@@ -359,7 +358,7 @@
                 <pre>
     DaoBuilder&lt;Stock&gt; stockDaoBuilder = new DaoBuilder&lt;&gt;("STOCK", Stock::new)
             .withPrimaryKey("ID","STOCK_SEQUENCE", Stock::getId, Stock::setId)
-            .withParentColumn("INVENTORY_ID", Stock::getInventory, Stock::setInventory)
+            .withParentColumn("INVENTORY_ID")
             .withStringColumn("PRODUCT_NAME", Stock::getProductName, Stock::setProductName)
             .withBigDecimalColumn("AMOUNT", Stock::getAmount, Stock::setAmount);</pre>
 

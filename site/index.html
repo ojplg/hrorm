@@ -112,7 +112,6 @@
 
     class Ingredient {
         Long id;
-        Recipe recipe;
         String name;
         long amount;
     }
@@ -152,7 +151,7 @@
 
     DaoBuilder&lt;Ingredient&gt; ingredientDaoBuilder = new DaoBuilder&lt;&gt;("INGREDIENT", Ingredient::new)
             .withPrimaryKey("ID", "INGREDIENT_SEQUENCE", Ingredient::getId, Ingredient::setId)
-            .withParentColumn("RECIPE_ID", Ingredient::getRecipe, Ingredient::setRecipe)
+            .withParentColumn("RECIPE_ID")
             .withStringColumn("NAME", Ingredient::getName, Ingredient::setName)
             .withIntegerColumn("AMOUNT", Ingredient::getAmount, Ingredient::setAmount);
 
