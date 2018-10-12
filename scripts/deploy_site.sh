@@ -26,6 +26,5 @@ cd $WEB_HOME/documentation
 mkdir $VERSION
 cp $GIT_HOME/site/documentation/index.html .
 cp $GIT_HOME/site/documentation/latest/index.html $VERSION/index.html
-cd ..
 rm latest
 ln -s $VERSION latest
