@@ -395,10 +395,9 @@
                 <p>One tricky thing about these relationships is the reversal in how ownership is expressed between
                     the database schema and the object model. In the object model, the Hand object has Finger objects.
                     In
-                    the database, the FINGER table has foreign key references to the HAND table. The call to the
-                    <code>DaoBuilder.withChildren()</code> is somewhat tricky as a result. Most of the time, a
-                    <code>DaoBuilder</code> is concerned only with columns on its own table, not so for children
-                    objects.</p>
+                    the database, the FINGER table has foreign key references to the HAND table. With hrorm, the
+                    <code>DaoBuilder</code> object of both the parent and child need to understand
+                    the relationship, not just one or the other.</p>
 
                 <a name="sibling_relations"></a>
                 <h4>Sibling Relations</h4>
