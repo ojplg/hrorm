@@ -130,11 +130,8 @@ public class SqlRunner<T> {
         T item = supplier.get();
 
         for (TypedColumn<T> column: allColumns) {
-            column.populate(item, resultSet);
-            if (column instanceof JoinColumn){
-                JoinColumn<T,?> joinColumn = (JoinColumn<T,?>) column;
-                joinColumn.populateChildren(connection);
-            }
+            PopulateResult populateResult = column.populate(item, resultSet);
+            populateResult.populateChildren(connection);
         }
 
         return item;

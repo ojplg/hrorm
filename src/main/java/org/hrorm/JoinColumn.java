@@ -1,6 +1,5 @@
 package org.hrorm;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -29,7 +28,6 @@ public class JoinColumn<T, J> implements TypedColumn<T> {
     private final Function<T, J> getter;
     private final DaoDescriptor<J> daoDescriptor;
     private boolean nullable;
-    private J lastItem;
 
     public JoinColumn(String name, String joinedTablePrefix, Prefixer prefixer, Function<T, J> getter, BiConsumer<T,J> setter, DaoDescriptor<J> daoDescriptor, boolean nullable){
         this.name = name;
@@ -76,8 +74,13 @@ public class JoinColumn<T, J> implements TypedColumn<T> {
             joinColumn.populate(joined, resultSet);
         }
         setter.accept(item, joined);
-        lastItem = joined;
-        return PopulateResult.Ignore;
+        return PopulateResult.fromJoinColumn(
+                connection -> {
+                    for(ChildrenDescriptor<J,?> childrenDescriptor : daoDescriptor.childrenDescriptors()){
+                        childrenDescriptor.populateChildren(connection, joined);
+                    }
+                }
+        );
     }
 
     @Override
@@ -114,9 +117,4 @@ public class JoinColumn<T, J> implements TypedColumn<T> {
         nullable = false;
     }
 
-    public void populateChildren(Connection connection){
-        for(ChildrenDescriptor<J,?> childrenDescriptor : daoDescriptor.childrenDescriptors()){
-            childrenDescriptor.populateChildren(connection, lastItem);
-        }
-    }
 }
