@@ -330,20 +330,11 @@
                         schema below) and will use it when issuing updates.
                     </li>
                     <li>Hrorm mostly expects to work with Javabean like entities with public getters and setters. I
-                        suppose
-                        you could have hrorm work with builder objects and then have immutable entities, but then you
-                        would
-                        have to write some glue code to link it all together.
-                    </li>
-                    <li>Hrorm expects child objects owned by other objects (in a parent-child style relationship) to
-                        hold a reference
-                        to the parent's ID, but not a reference to the parent objects themselves. Hrorm is
-                        unsophisticated in dealing
-                        with circular references.
+                        suppose you could have hrorm work with builder objects and then have immutable entities, but then you
+                        would have to write some glue code to link it all together.
                     </li>
                     <li>Hrorm expects child relationships to be modeled as <code>List</code> types exclusively. No sets
-                        or arrays or
-                        other collections.
+                        or arrays or other collections.
                     </li>
                 </ul>
 
