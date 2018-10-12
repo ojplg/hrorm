@@ -118,10 +118,9 @@
     }
 </pre>
 
-                <p>You might ask yourself: how will I persist such a rich, complex model? And you might think ... I
-                    know,
-                    I'll put everything into a <code>List</code> and call <code>serialize()</code> and write that to a
-                    file on disk.
+                <p>You might ask yourself: how will I persist such a rich, complex model? And you might think ...
+                    I know, I'll put everything into a <code>List</code> and call <code>serialize()</code>
+                    and write that to a file on disk.
                     How many recipes and simultaneous users are we expecting to support anyway?
                 </p>
 
@@ -133,15 +132,15 @@
 
                 <p>Some might think to use <a href="http://hibernate.org/">Hibernate</a> or
                     <a href="http://www.mybatis.org/mybatis-3/">Mybatis</a> or something, but no, you
-                    are a real glutton for punishment, so you decide to use hrorm and write some code like this.</p>
+                    are a real glutton for punishment, so you decide to use hrorm and write some code like this,
+                    which defines in terms of hrorm <code>DaoBuilder</code> objects the relationship
+                    between the database schema and the Java object model.</p>
 
                 <div class="disclaimer" style="width: 80%; margin: 0 auto;">
                     <p>
                         <small>Disclaimer: Yeah, I assume that your schema has some sequences that are not in the
-                            picture above.
-                            Also, you should have created getters and setters for all of the fields on your object model
-                            or
-                            used <a href="https://projectlombok.org/">Lombok</a> or something.
+                            picture above. Also, you should have created getters and setters for all of the fields
+                            on your objects or used <a href="https://projectlombok.org/">Lombok</a> or something.
                         </small>
                     </p>
                 </div>
