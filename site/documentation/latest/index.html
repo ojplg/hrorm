@@ -391,6 +391,20 @@
                 <p>Hrorm always understands child objects to be members of type <code>List</code>.
                 No other collection type is supported.</p>
 
+                <h5>Back-References</h5>
+
+                <p>If your object model for includes a back-reference from the child to the parent,
+                Hrorm will populate it for you. If in the model above, the <code>Stock</code>
+                    class had a reference to its parent <code>Inventory</code> we could use an
+                    overloaded <code>withParentColumn()</code> method call on its <code>DaoBuilder</code>
+                    as follows:</p>
+
+                <pre>
+    .withParentColumn("INVENTORY_ID", Stock::getInventory, Stock::setInventory)</pre>
+
+                <p>That will cause the reference to the parent object to be automatically
+                set when using any of the <code>Dao</code> <code>select</code> methods.</p>
+
             </div>
 
             <a name="constraints"></a>
