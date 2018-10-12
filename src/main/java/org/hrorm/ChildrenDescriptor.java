@@ -8,7 +8,6 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
-import java.util.logging.Logger;
 
 /**
  * Complete definition of how a child entity is related to its parent entity.
@@ -18,8 +17,6 @@ import java.util.logging.Logger;
  * Most users of hrorm will have no need to directly use this.
 */
 public class ChildrenDescriptor<PARENT,CHILD> {
-
-    private static final Logger logger = Logger.getLogger("org.hrorm");
 
     private final String parentChildColumnName;
     private final Function<PARENT, List<CHILD>> getter;
@@ -73,8 +70,6 @@ public class ChildrenDescriptor<PARENT,CHILD> {
 
     public void saveChildren(Connection connection, PARENT item){
 
-        logger.info("saving to parent " + item);
-
         SqlRunner<CHILD> sqlRunner = new SqlRunner<>(connection, daoDescriptor.dataColumns(), daoDescriptor.joinColumns(), daoDescriptor.parentColumn());
 
         List<CHILD> children = getter.apply(item);
@@ -90,8 +85,6 @@ public class ChildrenDescriptor<PARENT,CHILD> {
             if( childId == null ) {
                 long id = DaoHelper.getNextSequenceValue(connection, daoDescriptor.primaryKey().getSequenceName());
                 daoDescriptor.primaryKey().setKey(child, id);
-                logger.info("inserting new child with id " + id + " onto parent " + parentId);
-                logger.info("child " + child);
                 String sql = sqlBuilder.insert();
                 sqlRunner.insert(sql, child);
             } else {
