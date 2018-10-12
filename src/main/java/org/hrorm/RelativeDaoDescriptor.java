@@ -34,7 +34,6 @@ public class RelativeDaoDescriptor<T, P> implements DaoDescriptor<T> {
         return tmp;
     }
 
-
     @Override
     public String tableName() {
         return tableName;
