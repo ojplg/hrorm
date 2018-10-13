@@ -173,13 +173,20 @@
                 <pre>
     Connection connection = // somehow this happened
 
-    Dao&lt;Author&gt; authorDao = authorDaoBuilder.buildDao(connection);
-
+    // Let's make a new author object!
     Author juliaChild = new Author();
     juliaChild.setName("Julia Child");
 
+    // hrorm makes it easy to persist
+    Dao&lt;Author&gt; authorDao = authorDaoBuilder.buildDao(connection);
     authorDao.insert(juliaChild);
 
+    // now for Julia's famous Beef bourguignon
+    Recipe beefStew = new Recipe():
+    beefStew.setName("Beef Stew");
+    beefStew.setAuthor(juliaChild);
+
+    // needs some ingredients
     Ingredient carrots = new Ingredient();
     carrots.setName("Carrots");
     carrots.setAmount(4L);
@@ -189,14 +196,18 @@
     Ingredient beef = new Ingredient();
     beef.setName("Cow");
     beef.setAmount(1L);
+    Ingredient wine = new Ingredient();
+    wine.setName("Red Wine");
+    beef.setAmount(10L);
 
-    Recipe beefStew = new Recipe():
-    beefStew.setName("Beef Stew");
-    beefStew.setAuthor(juliaChild);
-    beefStew.setIngredients(Arrays.asList(carrots, onions, beef));
+    beefStew.setIngredients(Arrays.asList(carrots, onions, beef, wine));
 
+    // with hrorm, we just persist the recipe, it will take care of
+    // the ingredients for us
     Dao&lt;Recipe&gt; recipeDao = recipeDaoBuilder.buildDao(connection);
     recipeDao.insert(beefStew);
+
+    // wow ... that was easy
 </pre>
 
                 <p>Of course, a <code>Dao</code> can do more than just <code>insert</code>. A <code>Dao</code> can also
