@@ -5,6 +5,17 @@ import java.util.List;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+/**
+ * An implementation of a <code>DaoDescriptor</code> that has its
+ * prefixes shifted. Used when two or more tables are joined.
+ *
+ * <p>
+ *
+ *  Most users of hrorm will have no need to directly use this.
+ *
+ * @param <T> The type represented by this descriptor
+ * @param <P> The type of the parent of type <code>T</code>, if there is one
+ */
 public class RelativeDaoDescriptor<T, P> implements DaoDescriptor<T> {
 
     private final String tableName;

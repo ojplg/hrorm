@@ -7,6 +7,17 @@ import java.sql.Types;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
+/**
+ * Represents a reference from a child entity to its parent where
+ * the child class has a pointer back to the parent.
+ *
+ * <p>
+ *
+ * Most users of hrorm will have no need to directly use this.
+ *
+ * @param <T> The child entity type
+ * @param <P> The type of the parent
+ */
 public class ParentColumnImpl<T, P> implements ParentColumn<T,P> {
 
     private final String name;

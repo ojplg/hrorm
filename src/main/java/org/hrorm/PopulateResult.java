@@ -3,6 +3,13 @@ package org.hrorm;
 import java.sql.Connection;
 import java.util.function.Consumer;
 
+/**
+ * Indication of the result, and work remaining, after an item has been populated.
+ *
+ * <p>
+ *
+ * Most users of hrorm will have no need to directly use this.
+ */
 public class PopulateResult {
     public static final PopulateResult PrimaryKey = new PopulateResult("Primary Key");
     public static final PopulateResult NoPrimaryKey = new PopulateResult("No Primary Key");
