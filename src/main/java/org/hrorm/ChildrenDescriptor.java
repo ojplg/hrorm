@@ -100,19 +100,8 @@ public class ChildrenDescriptor<PARENT,CHILD> {
     }
 
     public Set<Long> findExistingChildrenIds(Connection connection, Long parentId){
-        StringBuilder buf = new StringBuilder();
-        buf.append("select " );
-        buf.append(daoDescriptor.primaryKey().getName());
-        buf.append(" from ");
-        buf.append(daoDescriptor.tableName());
-        buf.append(" where ");
-        buf.append(parentChildColumnName);
-        buf.append(" = ");
-        buf.append(parentId);
-
-        String sql = buf.toString();
-
-        List<Long> ids = DaoHelper.readLongs(connection, sql);
+        String sql = sqlBuilder.selectChildIds(parentChildColumnName);
+        List<Long> ids = DaoHelper.readLongs(connection, sql, parentId);
         Set<Long> idSet = new HashSet<>();
         idSet.addAll(ids);
         return idSet;

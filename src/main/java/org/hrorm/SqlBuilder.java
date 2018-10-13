@@ -22,6 +22,13 @@ public class SqlBuilder<T> {
     private final List<JoinColumn<T, ?>> joinColumns;
     private final PrimaryKey<T> primaryKey;
 
+    public SqlBuilder(DaoDescriptor<T> daoDescriptor){
+        this.table = daoDescriptor.tableName();
+        this.dataColumns = daoDescriptor.dataColumnsWithParent();
+        this.joinColumns = daoDescriptor.joinColumns();
+        this.primaryKey = daoDescriptor.primaryKey();
+    }
+
     public SqlBuilder(String table,
                       List<TypedColumn<T>> dataColumns,
                       List<JoinColumn<T, ?>> joinColumns,
@@ -102,6 +109,20 @@ public class SqlBuilder<T> {
             buf.append(columnName);
             buf.append(" = ? ");
         }
+
+        return buf.toString();
+    }
+
+    public String selectChildIds(String parentColumn){
+        StringBuilder buf = new StringBuilder();
+
+        buf.append("select ");
+        buf.append(primaryKey.getName());
+        buf.append(" from ");
+        buf.append(table);
+        buf.append(" where ");
+        buf.append(parentColumn);
+        buf.append(" = ?");
 
         return buf.toString();
     }

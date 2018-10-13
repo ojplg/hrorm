@@ -2,9 +2,9 @@ package org.hrorm;
 
 import org.hrorm.examples.Child;
 import org.hrorm.examples.EnumeratedColor;
-import org.hrorm.examples.EnumeratedColorConverter;
 import org.hrorm.examples.Grandchild;
 import org.hrorm.examples.Parent;
+import org.hrorm.examples.ParentChildBuilders;
 import org.hrorm.h2.H2Helper;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -44,26 +44,6 @@ public class ParentsTest {
         }
     }
 
-
-    private static DaoBuilder<Grandchild> GrandchildDaoBuilder =
-            new DaoBuilder<>("grandchild_table", Grandchild::new)
-                    .withPrimaryKey("id", "grandchild_seq", Grandchild::getId, Grandchild::setId)
-                    .withParentColumn("child_table_id", Grandchild::getChild, Grandchild::setChild)
-                    .withConvertingStringColumn("color", Grandchild::getColor, Grandchild::setColor, new EnumeratedColorConverter());
-
-    private static DaoBuilder<Child> ChildDaoBuilder =
-            new DaoBuilder<>("child_table", Child::new)
-                    .withPrimaryKey("id", "child_seq", Child::getId, Child::setId)
-                    .withIntegerColumn("number", Child::getNumber, Child::setNumber)
-                    .withParentColumn("parent_table_id", Child::getParent, Child::setParent)
-                    .withChildren(Child::getGrandchildList, Child::setGrandchildList, GrandchildDaoBuilder);
-
-    private static DaoBuilder<Parent> ParentDaoBuilder =
-            new DaoBuilder<>("parent_table", Parent::new)
-                    .withPrimaryKey("id", "parent_seq", Parent::getId, Parent::setId)
-                    .withStringColumn("name", Parent::getName, Parent::setName)
-                    .withChildren(Parent::getChildList, Parent::setChildList, ChildDaoBuilder);
-
     @Test
     public void testSavePropagatesToChildren(){
         Child child = new Child();
@@ -75,7 +55,7 @@ public class ParentsTest {
 
         Connection connection = helper.connect();
 
-        Dao<Parent> parentDao = ParentDaoBuilder.buildDao(connection);
+        Dao<Parent> parentDao = ParentChildBuilders.ParentDaoBuilder.buildDao(connection);
 
         parentDao.insert(parent);
 
@@ -91,7 +71,7 @@ public class ParentsTest {
     @Test
     public void testDeletesHappenOnUpdate(){
         Connection connection = helper.connect();
-        Dao<Parent> parentDao = ParentDaoBuilder.buildDao(connection);
+        Dao<Parent> parentDao = ParentChildBuilders.ParentDaoBuilder.buildDao(connection);
 
         Child child = new Child();
         child.setNumber(123L);
@@ -118,7 +98,7 @@ public class ParentsTest {
     @Test
     public void testUpdatesPropagate(){
         Connection connection = helper.connect();
-        Dao<Parent> parentDao = ParentDaoBuilder.buildDao(connection);
+        Dao<Parent> parentDao = ParentChildBuilders.ParentDaoBuilder.buildDao(connection);
 
         Child child = new Child();
         child.setNumber(123L);
@@ -158,7 +138,7 @@ public class ParentsTest {
 
         Connection connection = helper.connect();
 
-        Dao<Parent> parentDao = ParentDaoBuilder.buildDao(connection);
+        Dao<Parent> parentDao = ParentChildBuilders.ParentDaoBuilder.buildDao(connection);
 
         parentDao.insert(parent);
 
@@ -185,7 +165,7 @@ public class ParentsTest {
 
         Connection connection = helper.connect();
 
-        Dao<Parent> parentDao = ParentDaoBuilder.buildDao(connection);
+        Dao<Parent> parentDao = ParentChildBuilders.ParentDaoBuilder.buildDao(connection);
 
         parentDao.insert(parent);
 
@@ -224,7 +204,7 @@ public class ParentsTest {
 
         Connection connection = helper.connect();
 
-        Dao<Parent> parentDao = ParentDaoBuilder.buildDao(connection);
+        Dao<Parent> parentDao = ParentChildBuilders.ParentDaoBuilder.buildDao(connection);
 
         parentDao.insert(parent);
 
@@ -235,7 +215,7 @@ public class ParentsTest {
         Assert.assertEquals(1, readItem.getChildList().get(0).getGrandchildList().size());
         Assert.assertEquals(EnumeratedColor.Green,  readItem.getChildList().get(0).getGrandchildList().get(0).getColor());
 
-        Dao<Grandchild> grandchildDao = GrandchildDaoBuilder.buildDao(connection);
+        Dao<Grandchild> grandchildDao = ParentChildBuilders.GrandchildDaoBuilder.buildDao(connection);
         List<Grandchild> allGrandchildren = grandchildDao.selectAll();
 
         Assert.assertEquals(1, allGrandchildren.size());
@@ -271,13 +251,13 @@ public class ParentsTest {
                 parent.setChildList(Arrays.asList(childA, childB, childC));
 
                 Connection connection = helper.connect();
-                Dao<Parent> parentDao = ParentDaoBuilder.buildDao(connection);
+                Dao<Parent> parentDao = ParentChildBuilders.ParentDaoBuilder.buildDao(connection);
                 parentDao.insert(parent);
                 parentId = parent.getId();
             }
             {
                 Connection connection = helper.connect();
-                Dao<Parent> parentDao = ParentDaoBuilder.buildDao(connection);
+                Dao<Parent> parentDao = ParentChildBuilders.ParentDaoBuilder.buildDao(connection);
 
                 Parent readItem = parentDao.select(parentId);
 
@@ -301,7 +281,7 @@ public class ParentsTest {
                 Parent parent = new Parent();
                 parent.setName("Multi Child Parent " + idx);
 
-                Dao<Parent> parentDao = ParentDaoBuilder.buildDao(helper.connect());
+                Dao<Parent> parentDao = ParentChildBuilders.ParentDaoBuilder.buildDao(helper.connect());
                 parentDao.insert(parent);
             }
         }
@@ -320,7 +300,7 @@ public class ParentsTest {
                 parent.setName("Multi Child Parent");
                 parent.setChildList(Arrays.asList(childA, childB, childC));
 
-                Dao<Parent> parentDao = ParentDaoBuilder.buildDao(helper.connect());
+                Dao<Parent> parentDao = ParentChildBuilders.ParentDaoBuilder.buildDao(helper.connect());
                 parentDao.insert(parent);
                 parentId = parent.getId();
             }
@@ -328,7 +308,7 @@ public class ParentsTest {
             {
                 System.out.println("DOING " + parentId);
 
-                Dao<Parent> parentDao = ParentDaoBuilder.buildDao(helper.connect());
+                Dao<Parent> parentDao = ParentChildBuilders.ParentDaoBuilder.buildDao(helper.connect());
 
                 Parent readItem = parentDao.select(parentId);
 
@@ -353,7 +333,7 @@ public class ParentsTest {
             }
 
             {
-                Dao<Parent> parentDao = ParentDaoBuilder.buildDao(helper.connect());
+                Dao<Parent> parentDao = ParentChildBuilders.ParentDaoBuilder.buildDao(helper.connect());
 
                 Parent readItem = parentDao.select(parentId);
 

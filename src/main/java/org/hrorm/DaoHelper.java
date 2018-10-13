@@ -65,15 +65,16 @@ public class DaoHelper {
         }
     }
 
-    public static List<Long> readLongs(Connection connection, String sql){
-        Statement statement = null;
+    public static List<Long> readLongs(Connection connection, String sql, Long id){
+        PreparedStatement statement = null;
         ResultSet resultSet = null;
 
         try {
             List<Long> longs = new ArrayList<>();
             logger.info(sql);
-            statement = connection.createStatement();
-            resultSet = statement.executeQuery(sql);
+            statement = connection.prepareStatement(sql);
+            statement.setLong(1, id);
+            resultSet = statement.executeQuery();
             while (resultSet.next()) {
                 longs.add(resultSet.getLong(1));
             }
