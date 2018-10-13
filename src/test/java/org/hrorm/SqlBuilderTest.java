@@ -19,4 +19,17 @@ public class SqlBuilderTest {
         SimpleSqlFormatter.assertEqualSql(expected, sql);
 
     }
+
+    @Test
+    public void testDeleteSql(){
+
+        String expected = "delete from child_table where id = ?";
+
+        SqlBuilder<Child> sqlBuilder = new SqlBuilder<>(ParentChildBuilders.ChildDaoBuilder);
+
+        String sql = sqlBuilder.delete();
+
+        SimpleSqlFormatter.assertEqualSql(expected, sql);
+
+    }
 }

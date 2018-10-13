@@ -171,4 +171,16 @@ public class SqlBuilder<T> {
         return bldr.toString();
     }
 
+    public String delete(){
+        StringBuilder buf = new StringBuilder();
+
+        buf.append("delete from ");
+        buf.append(table);
+        buf.append(" where ");
+        buf.append(primaryKey.getName());
+        buf.append(" = ?");
+
+        return buf.toString();
+    }
+
 }

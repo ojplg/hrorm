@@ -82,10 +82,6 @@ public class DaoImpl<T,P> implements Dao<T>, DaoDescriptor<T> {
         return parentColumn;
     }
 
-    public String deleteSql(T item){
-        return "delete from " + tableName + " where " + primaryKey.getName() + " = " + primaryKey.getKey(item);
-    }
-
     @Override
     public long atomicInsert(T item) {
         Transactor transactor = new Transactor(connection);
@@ -133,8 +129,8 @@ public class DaoImpl<T,P> implements Dao<T>, DaoDescriptor<T> {
 
     @Override
     public void delete(T item) {
-        String sql = deleteSql(item);
-        DaoHelper.runDelete(connection, sql);
+        String sql = sqlBuilder.delete();
+        DaoHelper.runPreparedDelete(connection, sql, primaryKey.getKey(item));
     }
 
     @Override

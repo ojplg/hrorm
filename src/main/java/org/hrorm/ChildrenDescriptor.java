@@ -44,10 +44,7 @@ public class ChildrenDescriptor<PARENT,CHILD> {
         this.parentSetter = parentColumn.setter();
         this.grandChildrenDescriptors = daoDescriptor.childrenDescriptors();
 
-        this.sqlBuilder = new SqlBuilder<>(daoDescriptor.tableName(),
-                daoDescriptor.dataColumnsWithParent(),
-                daoDescriptor.joinColumns(),
-                daoDescriptor.primaryKey());
+        this.sqlBuilder = new SqlBuilder<>(daoDescriptor);
     }
 
     public void populateChildren(Connection connection, PARENT item){
@@ -108,14 +105,7 @@ public class ChildrenDescriptor<PARENT,CHILD> {
     }
 
     private void deleteOrphans(Connection connection, Set<Long> badChildrenIds) {
-        StringBuilder buf = new StringBuilder();
-        buf.append("delete from ");
-        buf.append(daoDescriptor.tableName());
-        buf.append(" where ");
-        buf.append(daoDescriptor.primaryKey().getName());
-        buf.append(" = ?");
-
-        String preparedSql = buf.toString();
+        String preparedSql = sqlBuilder.delete();
 
         for(Long badId : badChildrenIds) {
             for( ChildrenDescriptor<CHILD,?> grandChildDescriptor : grandChildrenDescriptors){

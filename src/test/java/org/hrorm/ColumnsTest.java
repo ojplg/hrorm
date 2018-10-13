@@ -188,4 +188,27 @@ public class ColumnsTest {
         Assert.assertNotNull(columns.getId());
     }
 
+    @Test
+    public void testDelete(){
+        long itemId;
+        {
+            Connection connection = helper.connect();
+            Dao<Columns> dao = daoBuilder().buildDao(connection);
+            Columns columns = new Columns();
+            itemId = dao.insert(columns);
+        }
+        {
+            Connection connection = helper.connect();
+            Dao<Columns> dao = daoBuilder().buildDao(connection);
+            Columns columns = dao.select(itemId);
+            Assert.assertNotNull(columns);
+            dao.delete(columns);
+        }
+        {
+            Connection connection = helper.connect();
+            Dao<Columns> dao = daoBuilder().buildDao(connection);
+            Columns columns = dao.select(itemId);
+            Assert.assertNull(columns);
+        }
+    }
 }

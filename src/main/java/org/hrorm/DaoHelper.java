@@ -20,15 +20,6 @@ public class DaoHelper {
 
     private static final Logger logger = Logger.getLogger("org.hrorm");
 
-    public static void runDelete(Connection connection, String sql) {
-        logger.info(sql);
-        try (PreparedStatement preparedStatement = connection.prepareStatement(sql) ){
-            preparedStatement.execute();
-        } catch (SQLException ex){
-            throw new HrormException(ex, sql);
-        }
-    }
-
     public static void runPreparedDelete(Connection connection, String sql, Long id){
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql) ){
             preparedStatement.setLong(1, id);
