@@ -54,11 +54,13 @@ public class ColumnsTest {
         columns.setTimeStampThing(time);
         columns.setColorThing(EnumeratedColor.Red);
 
-        dao.insert(columns);
+        long id = dao.insert(columns);
 
         Columns dbInstance = dao.select(columns.getId());
 
         Assert.assertEquals(columns, dbInstance);
+        Assert.assertNotNull(columns.getId());
+        Assert.assertTrue(id == columns.getId());
     }
 
     @Test
