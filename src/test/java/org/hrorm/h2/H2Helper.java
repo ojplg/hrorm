@@ -17,7 +17,7 @@ import java.util.regex.Pattern;
 
 public class H2Helper {
 
-    public static final String H2ConnectionUrlPrefix = "jdbc:h2:./db/";
+    public static final String H2ConnectionUrlPrefix = "jdbc:h2:./target/db/";
 
     private final String schemaName;
     private boolean initialized = false;
@@ -66,9 +66,9 @@ public class H2Helper {
 
     public void dropSchema(){
         try {
-            Path path = Paths.get("./db/" + schemaName + ".mv.db");
+            Path path = Paths.get("./target/db/" + schemaName + ".mv.db");
             Files.deleteIfExists(path);
-            path = Paths.get("./db/" + schemaName + ".trace.db");
+            path = Paths.get("./target/db/" + schemaName + ".trace.db");
             Files.deleteIfExists(path);
         } catch (Exception ex){
             throw new RuntimeException(ex);

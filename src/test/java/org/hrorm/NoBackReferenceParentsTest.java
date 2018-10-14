@@ -88,4 +88,55 @@ public class NoBackReferenceParentsTest {
             }
         }
     }
+
+    @Test
+    public void testUpdateChildren(){
+        long parentId;
+        {
+            SimpleParent parent = new SimpleParent();
+            parent.setName("testUpdateChildren");
+
+            List<SimpleChild> children = new ArrayList<>();
+            for(long idx=1; idx<=10; idx++){
+                SimpleChild child = new SimpleChild();
+                child.setNumber(idx);
+                children.add(child);
+            }
+
+            parent.setSimpleChildList(children);
+
+            Connection connection = helper.connect();
+            Dao<SimpleParent> dao = simpleParentDaoBuilder.buildDao(connection);
+            parentId = dao.insert(parent);
+        }
+        {
+            Connection connection = helper.connect();
+            Dao<SimpleParent> dao = simpleParentDaoBuilder.buildDao(connection);
+            SimpleParent parent = dao.select(parentId);
+
+            Assert.assertEquals(10, parent.getSimpleChildList().size());
+
+            for( SimpleChild child : parent.getSimpleChildList() ){
+                Long number = child.getNumber();
+                child.setNumber(number * 3);
+            }
+
+            dao.update(parent);
+        }
+        {
+            Connection connection = helper.connect();
+            Dao<SimpleParent> dao = simpleParentDaoBuilder.buildDao(connection);
+            SimpleParent parent = dao.select(parentId);
+
+            Assert.assertEquals(10, parent.getSimpleChildList().size());
+
+            List<Long> numbers = parent.getSimpleChildList().stream()
+                    .map(c -> c.getNumber()).collect(Collectors.toList());
+
+            for(long idx=3; idx<=30; idx+=3){
+                Assert.assertTrue(numbers.contains(idx));
+            }
+        }
+
+    }
 }
