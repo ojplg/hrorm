@@ -27,7 +27,7 @@ public class SimpleTableTest {
 
     private DaoBuilder<Simple> daoBuilder(){
         return new DaoBuilder<>("simple", Simple::new)
-                .withPrimaryKey("id", "simple_seq", Simple::getId, Simple::setId)
+                .withPrimaryKey("simple_id", "simple_seq", Simple::getId, Simple::setId)
                 .withStringColumn("field", Simple::getField, Simple::setField);
     }
 

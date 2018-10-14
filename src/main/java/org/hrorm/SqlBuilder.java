@@ -142,7 +142,9 @@ public class SqlBuilder<T> {
             sql.append(joinColumn.getName());
             sql.append(" = ? ");
         }
-        sql.append(" where id = ?");
+        sql.append(" where ");
+        sql.append(primaryKey.getName());
+        sql.append( " = ?");
         return sql.toString();
     }
 
