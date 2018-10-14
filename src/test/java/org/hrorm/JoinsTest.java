@@ -32,30 +32,30 @@ public class JoinsTest {
 
     private static DaoBuilder<SecondCousin> SecondCousinDaoBuilder =
             new DaoBuilder<>("second_cousins", SecondCousin::new)
-                    .withPrimaryKey("id", "second_cousin_seq", SecondCousin::getId, SecondCousin::setId)
+                    .withPrimaryKey("second_cousin_id", "second_cousin_seq", SecondCousin::getId, SecondCousin::setId)
                     .withLocalDateTimeColumn("datetime", SecondCousin::getDateTime, SecondCousin::setDateTime);
 
     private static DaoBuilder<Cousin> CousinDaoBuilder =
             new DaoBuilder<>("cousins", Cousin::new)
-                    .withPrimaryKey("id", "cousin_seq", Cousin::getId, Cousin::setId)
+                    .withPrimaryKey("cousin_id", "cousin_seq", Cousin::getId, Cousin::setId)
                     .withConvertingStringColumn("color", Cousin::getColor, Cousin::setColor, new EnumeratedColorConverter())
                     .withJoinColumn("second_cousin_id", Cousin::getSecondCousin, Cousin::setSecondCousin, SecondCousinDaoBuilder);
 
     private static DaoBuilder<Sibling> SiblingDaoBuilder =
             new DaoBuilder<>("siblings", Sibling::new)
-                    .withPrimaryKey("id", "sibling_seq", Sibling::getId, Sibling::setId)
+                    .withPrimaryKey("sibling_id", "sibling_seq", Sibling::getId, Sibling::setId)
                     .withIntegerColumn("number", Sibling::getNumber, Sibling::setNumber)
                     .withJoinColumn("cousin_id", Sibling::getCousin, Sibling::setCousin, CousinDaoBuilder);
 
     private static DaoBuilder<Thing> ThingDaoBuilder =
             new DaoBuilder<>("things", Thing::new)
-                    .withPrimaryKey("id", "thing_seq", Thing::getId, Thing::setId)
+                    .withPrimaryKey("thing_id", "thing_seq", Thing::getId, Thing::setId)
                     .withStringColumn("name", Thing::getName, Thing::setName)
                     .withJoinColumn("sibling_id", Thing::getSibling, Thing::setSibling, SiblingDaoBuilder);
 
     private static DaoBuilder<Thing> ThingDaoBuilderNotNullSibling =
             new DaoBuilder<>("things", Thing::new)
-                    .withPrimaryKey("id", "thing_seq", Thing::getId, Thing::setId)
+                    .withPrimaryKey("thing_id", "thing_seq", Thing::getId, Thing::setId)
                     .withStringColumn("name", Thing::getName, Thing::setName)
                     .withJoinColumn("sibling_id", Thing::getSibling, Thing::setSibling, SiblingDaoBuilder).notNull();
 

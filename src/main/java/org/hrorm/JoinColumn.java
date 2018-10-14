@@ -27,7 +27,9 @@ public class JoinColumn<T, J> implements TypedColumn<T> {
     private final BiConsumer<T, J> setter;
     private final Function<T, J> getter;
     private final DaoDescriptor<J> daoDescriptor;
+    private final String joinedTablePrimaryKeyName;
     private boolean nullable;
+
 
     public JoinColumn(String name, String joinedTablePrefix, Prefixer prefixer, Function<T, J> getter, BiConsumer<T,J> setter, DaoDescriptor<J> daoDescriptor, boolean nullable){
         this.name = name;
@@ -37,6 +39,7 @@ public class JoinColumn<T, J> implements TypedColumn<T> {
         this.setter = setter;
         this.daoDescriptor = new RelativeDaoDescriptor<>(daoDescriptor, prefix, prefixer);
         this.nullable = nullable;
+        this.joinedTablePrimaryKeyName = daoDescriptor.primaryKey().getName();
     }
 
     public List<JoinColumn<J,?>> getTransitiveJoins(){
@@ -117,4 +120,7 @@ public class JoinColumn<T, J> implements TypedColumn<T> {
         nullable = false;
     }
 
+    public String getJoinedTablePrimaryKeyName() {
+        return joinedTablePrimaryKeyName;
+    }
 }

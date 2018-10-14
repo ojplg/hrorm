@@ -79,7 +79,8 @@ public class SqlBuilder<T> {
             buf.append(joinColumn.getName());
             buf.append("=");
             buf.append(joinColumn.getPrefix());
-            buf.append(".id");
+            buf.append(".");
+            buf.append(joinColumn.getJoinedTablePrimaryKeyName());
         }
         buf.append(" where 1=1 ");
 
