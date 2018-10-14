@@ -135,9 +135,13 @@ public class DaoImpl<T,P> implements Dao<T>, DaoDescriptor<T> {
 
     @Override
     public T select(long id) {
-        String sql = sqlBuilder.select();
-        sql = sql + " and a." + primaryKey.getName() + " = " + id;
-        List<T> items = sqlRunner.select(sql, supplier, childrenDescriptors);
+        String primaryKeyName = primaryKey.getName();
+        String sql = sqlBuilder.selectByColumns(primaryKeyName);
+        T item = supplier().get();
+        primaryKey.setKey(item, id);
+        List<T> items = sqlRunner.selectByColumns(sql, supplier,
+                Collections.singletonList(primaryKeyName), columnMap(primaryKeyName),
+                childrenDescriptors, item);
         return fromSingletonList(items);
     }
 
