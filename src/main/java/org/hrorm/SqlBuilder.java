@@ -127,7 +127,7 @@ public class SqlBuilder<T> {
         return buf.toString();
     }
 
-    public String update(T item){
+    public String update(){
         StringBuilder sql = new StringBuilder("update ");
         sql.append(table);
         sql.append(" set ");
@@ -142,8 +142,7 @@ public class SqlBuilder<T> {
             sql.append(joinColumn.getName());
             sql.append(" = ? ");
         }
-        sql.append(" where id = ");
-        sql.append(primaryKey.getKey(item));
+        sql.append(" where id = ?");
         return sql.toString();
     }
 

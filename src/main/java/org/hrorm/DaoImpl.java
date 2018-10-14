@@ -47,7 +47,7 @@ public class DaoImpl<T,P> implements Dao<T>, DaoDescriptor<T> {
         this.joinColumns = Collections.unmodifiableList(new ArrayList<>(joinColumns));
         this.childrenDescriptors = Collections.unmodifiableList(new ArrayList<>(childrenDescriptors));
         this.sqlBuilder = new SqlBuilder<>(tableName, this.dataColumnsWithParent(), this.joinColumns, primaryKey);
-        this.sqlRunner = new SqlRunner<>(connection, this.dataColumns, this.joinColumns, this.parentColumn());
+        this.sqlRunner = new SqlRunner<>(connection, this);
         this.parentColumn = parentColumn;
     }
 
@@ -120,7 +120,7 @@ public class DaoImpl<T,P> implements Dao<T>, DaoDescriptor<T> {
 
     @Override
     public void update(T item) {
-        String sql = sqlBuilder.update(item);
+        String sql = sqlBuilder.update();
         sqlRunner.update(sql, item);
         for(ChildrenDescriptor<T,?> childrenDescriptor : childrenDescriptors){
             childrenDescriptor.saveChildren(connection, item);

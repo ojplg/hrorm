@@ -27,15 +27,14 @@ public class SqlRunner<T> {
 
     private final Connection connection;
     private final List<TypedColumn<T>> allColumns;
+    private final PrimaryKey<T> primaryKey;
 
-    public SqlRunner(Connection connection, List<TypedColumn<T>> dataColumns, List<JoinColumn<T,?>> joinColumns, ParentColumn<T,?> parentColumn) {
+    public SqlRunner(Connection connection, DaoDescriptor<T> daoDescriptor) {
         this.connection = connection;
         List<TypedColumn<T>> columns = new ArrayList<>();
-        columns.addAll(dataColumns);
-        if( parentColumn != null ) {
-            columns.add(parentColumn);
-        }
-        columns.addAll(joinColumns);
+        columns.addAll(daoDescriptor.dataColumnsWithParent());
+        columns.addAll(daoDescriptor.joinColumns());
+        this.primaryKey = daoDescriptor.primaryKey();
         this.allColumns = Collections.unmodifiableList(columns);
     }
 
@@ -106,6 +105,10 @@ public class SqlRunner<T> {
                     column.setValue(item, idx, preparedStatement);
                     idx++;
                 }
+            }
+            if( isUpdate ){
+                Long id = primaryKey.getKey(item);
+                preparedStatement.setLong(idx, id);
             }
 
             logger.info(sql);
