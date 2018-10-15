@@ -49,7 +49,7 @@ public class SqlRunner<T> {
             statement = connection.prepareStatement(sql);
             int idx = 1;
             for(String columnName : columnNames){
-                TypedColumn<T> column = columnNameMap.get(columnName);
+                TypedColumn<T> column = columnNameMap.get(columnName.toUpperCase());
                 column.setValue(item, idx, statement);
                 idx++;
             }

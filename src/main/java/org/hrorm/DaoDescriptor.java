@@ -3,11 +3,12 @@ package org.hrorm;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 /**
  * Implementers of this interface completely describe all the information
@@ -93,10 +94,12 @@ public interface DaoDescriptor<T> {
 
     default SortedMap<String, TypedColumn<T>> columnMap(String... columnNames){
         SortedMap<String, TypedColumn<T>> map = new TreeMap<>();
-        HashSet<String> nameSet = new HashSet<>(Arrays.asList(columnNames));
+        Set<String> nameSet = Arrays.asList(columnNames).stream()
+                .map(String::toUpperCase).collect(Collectors.toSet());
         for(TypedColumn<T> column : allColumns()){
-            if (nameSet.contains(column.getName())) {
-                map.put(column.getName(), column);
+            if (nameSet.contains(column.getName().toUpperCase())) {
+                String columnNameKey = column.getName().toUpperCase();
+                map.put(columnNameKey, column);
             }
         }
         return Collections.unmodifiableSortedMap(map);

@@ -211,4 +211,49 @@ public class ColumnsTest {
             Assert.assertNull(columns);
         }
     }
+
+    @Test
+    public void testSelectByColumnsIsCaseInsensitive(){
+        long itemId;
+        {
+            Connection connection = helper.connect();
+            Dao<Columns> dao = daoBuilder().buildDao(connection);
+            Columns columns = new Columns();
+            columns.setDecimalThing(new BigDecimal(123.4));
+            columns.setIntegerThing(1234L);
+            columns.setStringThing("CASE INSENSITIVE");
+            columns.setBooleanThing(true);
+            itemId = dao.insert(columns);
+        }
+        {
+            Connection connection = helper.connect();
+            Dao<Columns> dao = daoBuilder().buildDao(connection);
+            Columns columns = new Columns();
+            columns.setDecimalThing(new BigDecimal(123.4));
+            columns.setIntegerThing(1234L);
+
+            Columns readFromDb = dao.selectByColumns(columns, "decimal_column", "integer_column");
+            Assert.assertEquals(itemId, (long) readFromDb.getId());
+        }
+        {
+            Connection connection = helper.connect();
+            Dao<Columns> dao = daoBuilder().buildDao(connection);
+            Columns columns = new Columns();
+            columns.setDecimalThing(new BigDecimal(123.4));
+            columns.setIntegerThing(1234L);
+
+            Columns readFromDb = dao.selectByColumns(columns, "DECIMAL_COLUMN", "INTEGER_COLUMN");
+            Assert.assertEquals(itemId, (long) readFromDb.getId());
+        }
+        {
+            Connection connection = helper.connect();
+            Dao<Columns> dao = daoBuilder().buildDao(connection);
+            Columns columns = new Columns();
+            columns.setDecimalThing(new BigDecimal(123.4));
+            columns.setIntegerThing(1234L);
+
+            Columns readFromDb = dao.selectByColumns(columns, "DECIMal_colUMN", "InTEGeR_COlUmn");
+            Assert.assertEquals(itemId, (long) readFromDb.getId());
+        }
+    }
 }
