@@ -16,7 +16,7 @@ import java.util.function.Function;
  *
  * @param <T> The entity type this column belongs to
  */
-public class StringColumn<T> implements DirectTypedColumn<T> {
+public class StringColumn<T> implements DirectTypedColumn<T>, IndirectTypedColumn<T,T> {
 
     private final String name;
     private final String prefix;

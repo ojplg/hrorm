@@ -24,21 +24,18 @@ public class ImmutableObjectStringColumn<T,CONSTRUCTOR> implements IndirectTyped
     private final Function<T, String> getter;
     private boolean nullable;
 
-    private final Function<CONSTRUCTOR, T> construct;
 
-
-    public ImmutableObjectStringColumn(String name, String prefix, Function<T, String> getter, BiConsumer<CONSTRUCTOR, String> setter, Function<CONSTRUCTOR, T> construct, boolean nullable) {
+    public ImmutableObjectStringColumn(String name, String prefix, Function<T, String> getter, BiConsumer<CONSTRUCTOR, String> setter, boolean nullable) {
         this.name = name;
         this.prefix = prefix;
         this.getter = getter;
         this.setter = setter;
         this.nullable = nullable;
-        this.construct = construct;
     }
 
     @Override
     public TypedColumn<T> withPrefix(String prefix, Prefixer prefixer) {
-        return new ImmutableObjectStringColumn<>(name, prefix, getter, setter, construct, nullable);
+        return new ImmutableObjectStringColumn<>(name, prefix, getter, setter, nullable);
     }
 
     @Override

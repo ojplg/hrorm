@@ -54,7 +54,7 @@ public class ImmutableObjectDaoBuilder<T,CONSTRUCTOR>  {
      */
     public ImmutableObjectDaoBuilder<T,CONSTRUCTOR> withStringColumn(String columnName, Function<T, String> getter, BiConsumer<CONSTRUCTOR, String> setter){
         ImmutableObjectStringColumn<T, CONSTRUCTOR> stringColumn =
-                new ImmutableObjectStringColumn<>(columnName, myPrefix, getter, setter, construct, true);
+                new ImmutableObjectStringColumn<>(columnName, myPrefix, getter, setter, true);
         dataColumns.add(stringColumn);
         return this;
     }
@@ -69,7 +69,7 @@ public class ImmutableObjectDaoBuilder<T,CONSTRUCTOR>  {
      */
     public ImmutableObjectDaoBuilder<T,CONSTRUCTOR> withBigDecimalColumn(String columnName, Function<T, BigDecimal> getter, BiConsumer<CONSTRUCTOR, BigDecimal> setter){
         IndirectBigDecimalColumn<T,CONSTRUCTOR> column =
-                new IndirectBigDecimalColumn<>(columnName, myPrefix, getter, setter, construct, true);
+                new IndirectBigDecimalColumn<>(columnName, myPrefix, getter, setter, true);
         dataColumns.add(column);
         return this;
     }

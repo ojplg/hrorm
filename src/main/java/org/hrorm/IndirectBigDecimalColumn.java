@@ -25,21 +25,17 @@ public class IndirectBigDecimalColumn<T,CONSTRUCTOR> implements IndirectTypedCol
     private final Function<T, BigDecimal> getter;
     private boolean nullable;
 
-    private final Function<CONSTRUCTOR, T> construct;
-
-
-    public IndirectBigDecimalColumn(String name, String prefix, Function<T, BigDecimal> getter, BiConsumer<CONSTRUCTOR, BigDecimal> setter, Function<CONSTRUCTOR, T> construct, boolean nullable) {
+    public IndirectBigDecimalColumn(String name, String prefix, Function<T, BigDecimal> getter, BiConsumer<CONSTRUCTOR, BigDecimal> setter, boolean nullable) {
         this.name = name;
         this.prefix = prefix;
         this.getter = getter;
         this.setter = setter;
         this.nullable = nullable;
-        this.construct = construct;
     }
 
     @Override
     public TypedColumn<T> withPrefix(String prefix, Prefixer prefixer) {
-        return new IndirectBigDecimalColumn<>(name, prefix, getter, setter, construct, nullable);
+        return new IndirectBigDecimalColumn<>(name, prefix, getter, setter, nullable);
     }
 
     @Override
