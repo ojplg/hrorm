@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -18,9 +19,10 @@ import java.util.stream.Collectors;
  *
  * Most users of hrorm will have no need to directly use this.
  *
- * @param <T> The object representing the enitity being persisted.
+ * @param <T> The type representing the enitity being persisted.
+ * @param <B> The type of object that can build a <code>T</code>.
  */
-public interface DaoDescriptor<T> {
+public interface DaoDescriptor<T,B> {
 
     /**
      * The name of the table that is used to persist type <code>T</code>
@@ -66,6 +68,8 @@ public interface DaoDescriptor<T> {
     List<ChildrenDescriptor<T, ?>> childrenDescriptors();
 
     <P> ParentColumn<T, P> parentColumn();
+
+    Function<B, T> buildFunction();
 
     default boolean hasParent(){
         return parentColumn() != null;

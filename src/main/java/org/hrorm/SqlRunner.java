@@ -39,14 +39,14 @@ public class SqlRunner<T,B> {
         this.builderFunction = builderFunction;
     }
 
-    public SqlRunner(Connection connection, DaoDescriptor<T> daoDescriptor) {
+    public SqlRunner(Connection connection, DaoDescriptor<T,B> daoDescriptor) {
         this.connection = connection;
         List<TypedColumn<T>> columns = new ArrayList<>();
         columns.addAll(daoDescriptor.dataColumnsWithParent());
         columns.addAll(daoDescriptor.joinColumns());
         this.primaryKey = daoDescriptor.primaryKey();
         this.allColumns = Collections.unmodifiableList(columns);
-        this.builderFunction = null;
+        this.builderFunction = daoDescriptor.buildFunction();
     }
 
     public List<T> select(String sql, Supplier<T> supplier, List<ChildrenDescriptor<T,?>> childrenDescriptors){

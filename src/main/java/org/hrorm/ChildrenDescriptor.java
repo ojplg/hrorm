@@ -21,7 +21,7 @@ public class ChildrenDescriptor<PARENT,CHILD> {
     private final String parentChildColumnName;
     private final Function<PARENT, List<CHILD>> getter;
     private final BiConsumer<PARENT, List<CHILD>> setter;
-    private final DaoDescriptor<CHILD> daoDescriptor;
+    private final DaoDescriptor<CHILD,?> daoDescriptor;
     private final PrimaryKey<PARENT> parentPrimaryKey;
     private final BiConsumer<CHILD, PARENT> parentSetter;
 
@@ -31,7 +31,7 @@ public class ChildrenDescriptor<PARENT,CHILD> {
 
     public ChildrenDescriptor(Function<PARENT, List<CHILD>> getter,
                               BiConsumer<PARENT, List<CHILD>> setter,
-                              DaoDescriptor<CHILD> daoDescriptor,
+                              DaoDescriptor<CHILD,?> daoDescriptor,
                               PrimaryKey<PARENT> parentPrimaryKey) {
         this.parentChildColumnName = daoDescriptor.parentColumn().getName();
         this.getter = getter;
@@ -52,7 +52,7 @@ public class ChildrenDescriptor<PARENT,CHILD> {
         CHILD key = daoDescriptor.supplier().get();
         parentSetter.accept(key, item);
         String sql = sqlBuilder.selectByColumns(parentChildColumnName);
-        SqlRunner<CHILD,CHILD> sqlRunner = new SqlRunner<>(connection, daoDescriptor);
+        SqlRunner<CHILD,?> sqlRunner = new SqlRunner<>(connection, daoDescriptor);
         List<CHILD> children = sqlRunner.selectByColumns(sql, daoDescriptor.supplier(),
                 Collections.singletonList(parentChildColumnName), columnNameMap, daoDescriptor.childrenDescriptors(), key);
 
@@ -67,7 +67,7 @@ public class ChildrenDescriptor<PARENT,CHILD> {
 
     public void saveChildren(Connection connection, PARENT item){
 
-        SqlRunner<CHILD,CHILD> sqlRunner = new SqlRunner<>(connection, daoDescriptor);
+        SqlRunner<CHILD,?> sqlRunner = new SqlRunner<>(connection, daoDescriptor);
 
         List<CHILD> children = getter.apply(item);
         if( children == null ){

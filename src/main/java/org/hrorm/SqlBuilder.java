@@ -22,7 +22,7 @@ public class SqlBuilder<T> {
     private final List<JoinColumn<T, ?>> joinColumns;
     private final PrimaryKey<T> primaryKey;
 
-    public SqlBuilder(DaoDescriptor<T> daoDescriptor){
+    public SqlBuilder(DaoDescriptor<T,?> daoDescriptor){
         this.table = daoDescriptor.tableName();
         this.dataColumns = daoDescriptor.dataColumnsWithParent();
         this.joinColumns = daoDescriptor.joinColumns();

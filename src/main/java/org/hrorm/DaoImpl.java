@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -16,9 +17,11 @@ import java.util.stream.Collectors;
  * There is no good reason to directly construct this class yourself.
  * Use a {@link DaoBuilder}.
  *
- * @param <T> The item whose persistence is managed by this <code>Dao</code>
+ * @param <T> The type whose persistence is managed by this <code>Dao</code>
+ * @param <P> The type of the parent (if any) of type <code>T</code>.
+ * @param <B> The type of the builder of type <code>B</code>
  */
-public class DaoImpl<T,P> implements Dao<T>, DaoDescriptor<T> {
+public class DaoImpl<T,P,B> implements Dao<T>, DaoDescriptor<T,B> {
 
     private final Connection connection;
     private final String tableName;
@@ -28,8 +31,9 @@ public class DaoImpl<T,P> implements Dao<T>, DaoDescriptor<T> {
     private final List<JoinColumn<T,?>> joinColumns;
     private final List<ChildrenDescriptor<T,?>> childrenDescriptors;
     private final SqlBuilder<T> sqlBuilder;
-    private final SqlRunner<T,T> sqlRunner;
+    private final SqlRunner<T,?> sqlRunner;
     private final ParentColumn<T,P> parentColumn;
+    private final Function<B, T> buildFunction;
 
     public DaoImpl(Connection connection,
                    String tableName,
@@ -49,6 +53,7 @@ public class DaoImpl<T,P> implements Dao<T>, DaoDescriptor<T> {
         this.sqlBuilder = new SqlBuilder<>(tableName, this.dataColumnsWithParent(), this.joinColumns, primaryKey);
         this.sqlRunner = new SqlRunner<>(connection, this);
         this.parentColumn = parentColumn;
+        this.buildFunction = null;
     }
 
     @Override
@@ -81,6 +86,9 @@ public class DaoImpl<T,P> implements Dao<T>, DaoDescriptor<T> {
     public ParentColumn<T, P> parentColumn() {
         return parentColumn;
     }
+
+    @Override
+    public Function<B,T> buildFunction() { return buildFunction; }
 
     @Override
     public long atomicInsert(T item) {

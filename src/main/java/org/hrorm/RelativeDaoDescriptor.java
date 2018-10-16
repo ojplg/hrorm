@@ -2,6 +2,7 @@ package org.hrorm;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -15,8 +16,9 @@ import java.util.stream.Collectors;
  *
  * @param <T> The type represented by this descriptor
  * @param <P> The type of the parent of type <code>T</code>, if there is one
+ * @param <B> The type that can build a <code>T</code>
  */
-public class RelativeDaoDescriptor<T, P> implements DaoDescriptor<T> {
+public class RelativeDaoDescriptor<T, P, B> implements DaoDescriptor<T,B> {
 
     private final String tableName;
     private final Supplier<T> supplier;
@@ -25,8 +27,9 @@ public class RelativeDaoDescriptor<T, P> implements DaoDescriptor<T> {
     private final PrimaryKey<T> primaryKey;
     private final List<ChildrenDescriptor<T,?>> childrenDescriptors;
     private final ParentColumn<T,P> parentColumn;
+    private final Function<B,T> buildFunction;
 
-    public RelativeDaoDescriptor(DaoDescriptor<T> originalDaoDescriptor, String newPrefix, Prefixer prefixer){
+    public RelativeDaoDescriptor(DaoDescriptor<T,B> originalDaoDescriptor, String newPrefix, Prefixer prefixer){
         this.tableName = originalDaoDescriptor.tableName();
         this.supplier = originalDaoDescriptor.supplier();
         this.dataColumns = originalDaoDescriptor.dataColumns().stream().map(c -> c.withPrefix(newPrefix, prefixer)).collect(Collectors.toList());
@@ -34,6 +37,7 @@ public class RelativeDaoDescriptor<T, P> implements DaoDescriptor<T> {
         this.primaryKey = originalDaoDescriptor.primaryKey();
         this.childrenDescriptors = originalDaoDescriptor.childrenDescriptors();
         this.parentColumn = originalDaoDescriptor.parentColumn();
+        this.buildFunction = originalDaoDescriptor.buildFunction();
     }
 
     private List<JoinColumn<T,?>> resetColumnPrefixes(Prefixer prefixer, String joinedTablePrefix, List<JoinColumn<T,?>> joinColumns){
@@ -78,5 +82,10 @@ public class RelativeDaoDescriptor<T, P> implements DaoDescriptor<T> {
     @Override
     public ParentColumn<T, P> parentColumn() {
         return parentColumn;
+    }
+
+    @Override
+    public Function<B, T> buildFunction() {
+        return buildFunction;
     }
 }

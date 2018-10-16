@@ -15,7 +15,7 @@ import java.util.function.Supplier;
  *
  * @param <T> The class that the Dao will support.
  */
-public class DaoBuilder<T> implements DaoDescriptor<T> {
+public class DaoBuilder<T> implements DaoDescriptor<T,T> {
 
     private final String tableName;
     private final List<TypedColumn<T>> columns = new ArrayList<>();
@@ -73,6 +73,11 @@ public class DaoBuilder<T> implements DaoDescriptor<T> {
     }
 
     public List<JoinColumn<T,?>> joinColumns() { return joinColumns; }
+
+    @Override
+    public Function<T, T> buildFunction() {
+        return t -> t;
+    }
 
     /**
      * Creates a {@link Dao} for performing CRUD operations of type <code>T</code>.
@@ -207,7 +212,7 @@ public class DaoBuilder<T> implements DaoDescriptor<T> {
      * @param <U> The type of the data element.
      * @return This instance.
      */
-    public <U> DaoBuilder<T> withJoinColumn(String columnName, Function<T, U> getter, BiConsumer<T,U> setter, DaoDescriptor<U> daoDescriptor){
+    public <U> DaoBuilder<T> withJoinColumn(String columnName, Function<T, U> getter, BiConsumer<T,U> setter, DaoDescriptor<U,?> daoDescriptor){
         JoinColumn<T,U> joinColumn = new JoinColumn<>(columnName, myPrefix, prefixer, getter, setter, daoDescriptor, true);
         joinColumns.add(joinColumn);
         lastColumnAdded = joinColumn;
@@ -242,7 +247,7 @@ public class DaoBuilder<T> implements DaoDescriptor<T> {
      * @param <U> The type of the child data elements.
      * @return This instance.
      */
-    public <U> DaoBuilder<T> withChildren(Function<T, List<U>> getter, BiConsumer<T, List<U>> setter, DaoDescriptor<U> daoDescriptor){
+    public <U> DaoBuilder<T> withChildren(Function<T, List<U>> getter, BiConsumer<T, List<U>> setter, DaoDescriptor<U,?> daoDescriptor){
         if( ! daoDescriptor.hasParent() ){
             throw new HrormException("Children must have a parent column");
         }

@@ -26,12 +26,12 @@ public class JoinColumn<T, J> implements DirectTypedColumn<T> {
     private final String joinedTablePrefix;
     private final BiConsumer<T, J> setter;
     private final Function<T, J> getter;
-    private final DaoDescriptor<J> daoDescriptor;
+    private final DaoDescriptor<J,?> daoDescriptor;
     private final String joinedTablePrimaryKeyName;
     private boolean nullable;
 
 
-    public JoinColumn(String name, String joinedTablePrefix, Prefixer prefixer, Function<T, J> getter, BiConsumer<T,J> setter, DaoDescriptor<J> daoDescriptor, boolean nullable){
+    public JoinColumn(String name, String joinedTablePrefix, Prefixer prefixer, Function<T, J> getter, BiConsumer<T,J> setter, DaoDescriptor<J,?> daoDescriptor, boolean nullable){
         this.name = name;
         this.prefix = prefixer.nextPrefix();
         this.joinedTablePrefix = joinedTablePrefix;
