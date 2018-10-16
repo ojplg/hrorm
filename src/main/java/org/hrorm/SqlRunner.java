@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
 
@@ -21,7 +22,7 @@ import java.util.logging.Logger;
  *
  * @param <T> the type of object this runner supports
  */
-public class SqlRunner<T> {
+public class SqlRunner<T,B> {
 
     private static final Logger logger = Logger.getLogger("org.hrorm");
 
@@ -29,10 +30,13 @@ public class SqlRunner<T> {
     private final List<? extends TypedColumn<T>> allColumns;
     private final PrimaryKey<T> primaryKey;
 
-    public SqlRunner(Connection connection, List<? extends TypedColumn<T>> allColumns, PrimaryKey<T> primaryKey){
+    private final Function<B,T> builderFunction;
+
+    public SqlRunner(Connection connection, List<? extends TypedColumn<T>> allColumns, PrimaryKey<T> primaryKey, Function<B,T> builderFunction){
         this.connection = connection;
         this.allColumns = allColumns;
         this.primaryKey = primaryKey;
+        this.builderFunction = builderFunction;
     }
 
     public SqlRunner(Connection connection, DaoDescriptor<T> daoDescriptor) {
@@ -42,6 +46,7 @@ public class SqlRunner<T> {
         columns.addAll(daoDescriptor.joinColumns());
         this.primaryKey = daoDescriptor.primaryKey();
         this.allColumns = Collections.unmodifiableList(columns);
+        this.builderFunction = null;
     }
 
     public List<T> select(String sql, Supplier<T> supplier, List<ChildrenDescriptor<T,?>> childrenDescriptors){

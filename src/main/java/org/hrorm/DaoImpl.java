@@ -28,7 +28,7 @@ public class DaoImpl<T,P> implements Dao<T>, DaoDescriptor<T> {
     private final List<JoinColumn<T,?>> joinColumns;
     private final List<ChildrenDescriptor<T,?>> childrenDescriptors;
     private final SqlBuilder<T> sqlBuilder;
-    private final SqlRunner<T> sqlRunner;
+    private final SqlRunner<T,T> sqlRunner;
     private final ParentColumn<T,P> parentColumn;
 
     public DaoImpl(Connection connection,

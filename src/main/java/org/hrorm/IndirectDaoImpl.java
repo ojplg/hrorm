@@ -24,7 +24,7 @@ public class IndirectDaoImpl<T, CONSTRUCTOR> implements Dao<T> {
     private final ImmutableObjectPrimaryKey<T, CONSTRUCTOR> primaryKey;
     private final List<IndirectTypedColumn<T, CONSTRUCTOR>> dataColumns;
     private final SqlBuilder<T> sqlBuilder;
-    private final SqlRunner<T> sqlRunner;
+    private final SqlRunner<T,CONSTRUCTOR> sqlRunner;
     private final Supplier<CONSTRUCTOR> constructorSupplier;
     private final Function<CONSTRUCTOR, T> construct;
 
@@ -55,7 +55,8 @@ public class IndirectDaoImpl<T, CONSTRUCTOR> implements Dao<T> {
         this.sqlRunner = new SqlRunner<>(
                 connection,
                 dataColumns,
-                primaryKey
+                primaryKey,
+                construct
         );
     }
 

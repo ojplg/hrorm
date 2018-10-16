@@ -83,7 +83,6 @@ public class ImmutableObjectDaoBuilder<T,CONSTRUCTOR>  {
      */
     public Dao<T> buildDao(Connection connection){
 
-
         return new IndirectDaoImpl<>(
                 connection,
                 tableName,
