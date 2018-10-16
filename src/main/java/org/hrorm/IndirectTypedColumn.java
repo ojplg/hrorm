@@ -15,4 +15,15 @@ public interface IndirectTypedColumn<T,CONSTRUCTOR> extends TypedColumn<T> {
      */
     PopulateResult populate(CONSTRUCTOR constructor, ResultSet resultSet) throws SQLException;
 
+
+    /**
+     * Make a new instance of the column, identical to this instance, except with a
+     * new prefix.
+     *
+     * @param newPrefix The new prefix
+     * @param prefixer The source for new prefixes
+     * @return A new instance of the column with the reset prefix
+     */
+    IndirectTypedColumn<T,CONSTRUCTOR> withPrefix(String newPrefix, Prefixer prefixer);
+
 }

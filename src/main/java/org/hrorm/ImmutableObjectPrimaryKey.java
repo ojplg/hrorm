@@ -6,7 +6,7 @@ import java.sql.SQLException;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
-public class ImmutableObjectPrimaryKey<T, CONSTRUCTOR> implements PrimaryKey<T>, IndirectTypedColumn<T, CONSTRUCTOR> {
+public class ImmutableObjectPrimaryKey<T, CONSTRUCTOR> implements IndirectPrimaryKey<T, CONSTRUCTOR>, IndirectTypedColumn<T, CONSTRUCTOR> {
 
     private final String prefix;
     private final String name;
@@ -36,9 +36,20 @@ public class ImmutableObjectPrimaryKey<T, CONSTRUCTOR> implements PrimaryKey<T>,
         return sequenceName;
     }
 
-    //@Override
-    public void setKey(CONSTRUCTOR constructor, Long id) {
-        setter.accept(constructor, id);
+    @Override
+    public void setKey(CONSTRUCTOR builder, Long id) {
+        setter.accept(builder, id);
+    }
+
+    @Override
+    public void optimisticSetKey(T item, Long id) {
+        // FIXME: This is awful!!
+        try {
+            CONSTRUCTOR constructor = (CONSTRUCTOR) item;
+            setter.accept(constructor, id);
+        } catch (ClassCastException ex){
+            System.out.println(ex);
+        }
     }
 
     @Override
@@ -70,11 +81,10 @@ public class ImmutableObjectPrimaryKey<T, CONSTRUCTOR> implements PrimaryKey<T>,
         } else {
             preparedStatement.setLong(index, value);
         }
-
     }
 
     @Override
-    public TypedColumn<T> withPrefix(String newPrefix, Prefixer prefixer) {
+    public IndirectTypedColumn<T, CONSTRUCTOR> withPrefix(String newPrefix, Prefixer prefixer) {
         throw new UnsupportedOperationException();
     }
 

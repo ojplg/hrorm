@@ -18,11 +18,11 @@ import java.util.function.BiConsumer;
  * @param <T> The child entity type
  * @param <P> The type of the parent
  */
-public class NoBackReferenceParentColumn<T,P> implements ParentColumn<T,P> {
+public class NoBackReferenceParentColumn<T,P,TBUILDER,PBUILDER> implements ParentColumn<T,P,TBUILDER,PBUILDER> {
 
     private final String name;
     private final String prefix;
-    private PrimaryKey<P> parentPrimaryKey;
+    private IndirectPrimaryKey<P,PBUILDER> parentPrimaryKey;
     private boolean nullable;
 
     private final Semaphore parentSemaphore = new Semaphore(1);
@@ -35,12 +35,12 @@ public class NoBackReferenceParentColumn<T,P> implements ParentColumn<T,P> {
     }
 
     @Override
-    public void setParentPrimaryKey(PrimaryKey<P> primaryKey) {
+    public void setParentPrimaryKey(IndirectPrimaryKey<P,PBUILDER> primaryKey) {
         this.parentPrimaryKey = primaryKey;
     }
 
     @Override
-    public BiConsumer<T, P> setter() {
+    public BiConsumer<TBUILDER, P> setter() {
         return (t,p) -> {
             try {
                 this.parentSemaphore.acquire();
@@ -62,7 +62,7 @@ public class NoBackReferenceParentColumn<T,P> implements ParentColumn<T,P> {
     }
 
     @Override
-    public PopulateResult populate(T item, ResultSet resultSet) throws SQLException {
+    public PopulateResult populate(TBUILDER item, ResultSet resultSet) throws SQLException {
         return PopulateResult.ParentColumn;
     }
 
@@ -87,7 +87,7 @@ public class NoBackReferenceParentColumn<T,P> implements ParentColumn<T,P> {
     }
 
     @Override
-    public TypedColumn<T> withPrefix(String newPrefix, Prefixer prefixer) {
+    public IndirectTypedColumn<T,TBUILDER> withPrefix(String newPrefix, Prefixer prefixer) {
         return new NoBackReferenceParentColumn(name, newPrefix);
     }
 

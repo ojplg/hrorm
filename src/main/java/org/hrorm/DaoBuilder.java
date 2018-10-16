@@ -18,11 +18,11 @@ import java.util.function.Supplier;
 public class DaoBuilder<T> implements DaoDescriptor<T,T> {
 
     private final String tableName;
-    private final List<TypedColumn<T>> columns = new ArrayList<>();
-    private final List<JoinColumn<T,?>> joinColumns = new ArrayList<>();
-    private final List<ChildrenDescriptor<T,?>> childrenDescriptors = new ArrayList<>();
-    private PrimaryKey<T> primaryKey;
-    private ParentColumn<T,?> parentColumn;
+    private final List<IndirectTypedColumn<T,T>> columns = new ArrayList<>();
+    private final List<JoinColumn<T,?,T,?>> joinColumns = new ArrayList<>();
+    private final List<ChildrenDescriptor<T,?,T,?>> childrenDescriptors = new ArrayList<>();
+    private IndirectPrimaryKey<T,T> primaryKey;
+    private ParentColumn<T,?,T,?> parentColumn;
     private final Supplier<T> supplier;
     private final Prefixer prefixer;
     private final String myPrefix;
@@ -53,26 +53,26 @@ public class DaoBuilder<T> implements DaoDescriptor<T,T> {
     }
 
     @Override
-    public List<TypedColumn<T>> dataColumns() {
+    public List<IndirectTypedColumn<T,T>> dataColumns() {
         return columns;
     }
 
     @Override
-    public PrimaryKey<T> primaryKey() {
+    public IndirectPrimaryKey<T,T> primaryKey() {
         return primaryKey;
     }
 
     @Override
-    public List<ChildrenDescriptor<T, ?>> childrenDescriptors() {
+    public List<ChildrenDescriptor<T, ?, T, ?>> childrenDescriptors() {
         return childrenDescriptors;
     }
 
     @Override
-    public ParentColumn<T, ?> parentColumn() {
+    public ParentColumn<T, ?, T, ?> parentColumn() {
         return parentColumn;
     }
 
-    public List<JoinColumn<T,?>> joinColumns() { return joinColumns; }
+    public List<JoinColumn<T, ?, T, ?>> joinColumns() { return joinColumns; }
 
     @Override
     public Function<T, T> buildFunction() {
@@ -90,7 +90,7 @@ public class DaoBuilder<T> implements DaoDescriptor<T,T> {
         if( primaryKey == null ){
             throw new HrormException("Cannot create a Dao without a primary key.");
         }
-        return new DaoImpl<>(connection, tableName, supplier, primaryKey, columns, joinColumns, childrenDescriptors, parentColumn);
+        return new DaoImpl<>(connection, tableName, supplier, primaryKey, columns, joinColumns, childrenDescriptors, parentColumn, t -> t);
     }
 
     /**
@@ -102,7 +102,7 @@ public class DaoBuilder<T> implements DaoDescriptor<T,T> {
      * @return This instance.
      */
     public DaoBuilder<T> withStringColumn(String columnName, Function<T, String> getter, BiConsumer<T, String> setter){
-        TypedColumn<T> column = new StringColumn<>(columnName, myPrefix, getter, setter);
+        IndirectTypedColumn<T,T> column = new StringColumn<>(columnName, myPrefix, getter, setter);
         columns.add(column);
         lastColumnAdded = column;
         return this;
@@ -117,7 +117,7 @@ public class DaoBuilder<T> implements DaoDescriptor<T,T> {
      * @return This instance.
      */
     public DaoBuilder<T> withIntegerColumn(String columnName, Function<T, Long> getter, BiConsumer<T, Long> setter){
-        TypedColumn<T> column = new LongColumn<>(columnName, myPrefix, getter, setter);
+        IndirectTypedColumn<T,T> column = new LongColumn<>(columnName, myPrefix, getter, setter);
         columns.add(column);
         lastColumnAdded = column;
         return this;
@@ -132,7 +132,7 @@ public class DaoBuilder<T> implements DaoDescriptor<T,T> {
      * @return This instance.
      */
     public DaoBuilder<T> withBigDecimalColumn(String columnName, Function<T, BigDecimal> getter, BiConsumer<T, BigDecimal> setter){
-        TypedColumn<T> column = new BigDecimalColumn<>(columnName, myPrefix, getter, setter);
+        IndirectTypedColumn<T,T> column = new BigDecimalColumn<>(columnName, myPrefix, getter, setter);
         columns.add(column);
         lastColumnAdded = column;
         return this;
@@ -151,7 +151,7 @@ public class DaoBuilder<T> implements DaoDescriptor<T,T> {
      * @return This instance.
      */
     public <E> DaoBuilder<T> withConvertingStringColumn(String columnName, Function<T, E> getter, BiConsumer<T, E> setter, Converter<E, String> converter){
-        TypedColumn<T> column = new StringConverterColumn<>(columnName, myPrefix, getter, setter, converter);
+        IndirectTypedColumn<T,T> column = new StringConverterColumn<>(columnName, myPrefix, getter, setter, converter);
         columns.add(column);
         lastColumnAdded = column;
         return this;
@@ -166,7 +166,7 @@ public class DaoBuilder<T> implements DaoDescriptor<T,T> {
      * @return This instance.
      */
     public DaoBuilder<T> withLocalDateTimeColumn(String columnName, Function<T, LocalDateTime> getter, BiConsumer<T, LocalDateTime> setter){
-        TypedColumn<T> column = new LocalDateTimeColumn<>(columnName, myPrefix, getter, setter);
+        IndirectTypedColumn<T,T> column = new LocalDateTimeColumn<>(columnName, myPrefix, getter, setter);
         columns.add(column);
         lastColumnAdded = column;
         return this;
@@ -183,7 +183,7 @@ public class DaoBuilder<T> implements DaoDescriptor<T,T> {
      * @return This instance.
      */
     public DaoBuilder<T> withBooleanColumn(String columnName, Function<T, Boolean> getter, BiConsumer<T, Boolean> setter){
-        TypedColumn<T> column = new StringConverterColumn<>(columnName, myPrefix, getter, setter, BooleanConverter.INSTANCE);
+        IndirectTypedColumn<T,T> column = new StringConverterColumn<>(columnName, myPrefix, getter, setter, BooleanConverter.INSTANCE);
         columns.add(column);
         lastColumnAdded = column;
         return this;
@@ -213,7 +213,7 @@ public class DaoBuilder<T> implements DaoDescriptor<T,T> {
      * @return This instance.
      */
     public <U> DaoBuilder<T> withJoinColumn(String columnName, Function<T, U> getter, BiConsumer<T,U> setter, DaoDescriptor<U,?> daoDescriptor){
-        JoinColumn<T,U> joinColumn = new JoinColumn<>(columnName, myPrefix, prefixer, getter, setter, daoDescriptor, true);
+        JoinColumn<T,U,T,?> joinColumn = new JoinColumn<>(columnName, myPrefix, prefixer, getter, setter, daoDescriptor, true);
         joinColumns.add(joinColumn);
         lastColumnAdded = joinColumn;
         return this;
@@ -272,7 +272,7 @@ public class DaoBuilder<T> implements DaoDescriptor<T,T> {
         if ( this.primaryKey != null ){
             throw new HrormException("Attempt to set a second primary key");
         }
-        this.primaryKey = new PrimaryKeyImpl<>(columnName, myPrefix, getter, setter, sequenceName);
+        this.primaryKey = new ImmutableObjectPrimaryKey<>(myPrefix, columnName, sequenceName, getter, setter);
         columns.add(primaryKey);
         return this;
     }
@@ -290,7 +290,7 @@ public class DaoBuilder<T> implements DaoDescriptor<T,T> {
         if ( parentColumn != null ){
             throw new HrormException("Attempt to set a second parent");
         }
-        ParentColumnImpl<T,P> column = new ParentColumnImpl<>(columnName, myPrefix, getter, setter);
+        ParentColumnImpl<T,P,T,?> column = new ParentColumnImpl<>(columnName, myPrefix, getter, setter);
         lastColumnAdded = column;
         parentColumn = column;
         return this;
@@ -307,7 +307,7 @@ public class DaoBuilder<T> implements DaoDescriptor<T,T> {
         if ( parentColumn != null ){
             throw new HrormException("Attempt to set a second parent");
         }
-        NoBackReferenceParentColumn<T,P> column = new NoBackReferenceParentColumn<>(columnName, myPrefix);
+        NoBackReferenceParentColumn<T,P,T,?> column = new NoBackReferenceParentColumn<>(columnName, myPrefix);
         lastColumnAdded = column;
         parentColumn = column;
         return this;

@@ -34,7 +34,7 @@ public class IndirectBigDecimalColumn<T,CONSTRUCTOR> implements IndirectTypedCol
     }
 
     @Override
-    public TypedColumn<T> withPrefix(String prefix, Prefixer prefixer) {
+    public IndirectTypedColumn<T, CONSTRUCTOR> withPrefix(String prefix, Prefixer prefixer) {
         return new IndirectBigDecimalColumn<>(name, prefix, getter, setter, nullable);
     }
 

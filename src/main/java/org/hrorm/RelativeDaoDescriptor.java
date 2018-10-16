@@ -21,12 +21,12 @@ import java.util.stream.Collectors;
 public class RelativeDaoDescriptor<T, P, B> implements DaoDescriptor<T,B> {
 
     private final String tableName;
-    private final Supplier<T> supplier;
-    private final List<TypedColumn<T>> dataColumns;
-    private final List<JoinColumn<T, ?>> joinColumns;
-    private final PrimaryKey<T> primaryKey;
-    private final List<ChildrenDescriptor<T,?>> childrenDescriptors;
-    private final ParentColumn<T,P> parentColumn;
+    private final Supplier<B> supplier;
+    private final List<IndirectTypedColumn<T,B>> dataColumns;
+    private final List<JoinColumn<T, ?, B, ?>> joinColumns;
+    private final IndirectPrimaryKey<T,B> primaryKey;
+    private final List<ChildrenDescriptor<T,?,B,?>> childrenDescriptors;
+    private final ParentColumn<T,P,B,?> parentColumn;
     private final Function<B,T> buildFunction;
 
     public RelativeDaoDescriptor(DaoDescriptor<T,B> originalDaoDescriptor, String newPrefix, Prefixer prefixer){
@@ -40,10 +40,10 @@ public class RelativeDaoDescriptor<T, P, B> implements DaoDescriptor<T,B> {
         this.buildFunction = originalDaoDescriptor.buildFunction();
     }
 
-    private List<JoinColumn<T,?>> resetColumnPrefixes(Prefixer prefixer, String joinedTablePrefix, List<JoinColumn<T,?>> joinColumns){
-        List<JoinColumn<T,?>> tmp = new ArrayList<>();
-        for(JoinColumn<T,?> column : joinColumns){
-            JoinColumn<T,?> resetColumn = column.withPrefix(joinedTablePrefix, prefixer);
+    private List<JoinColumn<T,?,B,?>> resetColumnPrefixes(Prefixer prefixer, String joinedTablePrefix, List<JoinColumn<T,?,B,?>> joinColumns){
+        List<JoinColumn<T,?,B,?>> tmp = new ArrayList<>();
+        for(JoinColumn<T,?,B,?> column : joinColumns){
+            JoinColumn<T,?,B,?> resetColumn = column.withPrefix(joinedTablePrefix, prefixer);
             tmp.add(resetColumn);
         }
         return tmp;
@@ -55,32 +55,32 @@ public class RelativeDaoDescriptor<T, P, B> implements DaoDescriptor<T,B> {
     }
 
     @Override
-    public Supplier<T> supplier() {
+    public Supplier<B> supplier() {
         return supplier;
     }
 
     @Override
-    public List<TypedColumn<T>> dataColumns() {
+    public List<IndirectTypedColumn<T,B>> dataColumns() {
         return dataColumns;
     }
 
     @Override
-    public List<JoinColumn<T, ?>> joinColumns() {
+    public List<JoinColumn<T, ?, B, ?>> joinColumns() {
         return joinColumns;
     }
 
     @Override
-    public PrimaryKey<T> primaryKey() {
+    public IndirectPrimaryKey<T,B> primaryKey() {
         return primaryKey;
     }
 
     @Override
-    public List<ChildrenDescriptor<T, ?>> childrenDescriptors() {
+    public List<ChildrenDescriptor<T, ?, B, ?>> childrenDescriptors() {
         return childrenDescriptors;
     }
 
     @Override
-    public ParentColumn<T, P> parentColumn() {
+    public ParentColumn<T, P, B, ?> parentColumn() {
         return parentColumn;
     }
 

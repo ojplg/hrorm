@@ -19,19 +19,20 @@ import java.util.function.Function;
  * @param <T> the entity this column belongs to
  * @param <J> the entity being joined
  */
-public class JoinColumn<T, J> implements DirectTypedColumn<T> {
+public class JoinColumn<T, J, B, JB> implements IndirectTypedColumn<T, B> {
 
     private final String name;
     private final String prefix;
     private final String joinedTablePrefix;
-    private final BiConsumer<T, J> setter;
+    private final BiConsumer<B, J> setter;
     private final Function<T, J> getter;
-    private final DaoDescriptor<J,?> daoDescriptor;
+    private final DaoDescriptor<J,JB> daoDescriptor;
     private final String joinedTablePrimaryKeyName;
     private boolean nullable;
 
+    private Function<JB,J> joinBuilder;
 
-    public JoinColumn(String name, String joinedTablePrefix, Prefixer prefixer, Function<T, J> getter, BiConsumer<T,J> setter, DaoDescriptor<J,?> daoDescriptor, boolean nullable){
+    public JoinColumn(String name, String joinedTablePrefix, Prefixer prefixer, Function<T, J> getter, BiConsumer<B,J> setter, DaoDescriptor<J,JB> daoDescriptor, boolean nullable){
         this.name = name;
         this.prefix = prefixer.nextPrefix();
         this.joinedTablePrefix = joinedTablePrefix;
@@ -42,7 +43,7 @@ public class JoinColumn<T, J> implements DirectTypedColumn<T> {
         this.joinedTablePrimaryKeyName = daoDescriptor.primaryKey().getName();
     }
 
-    public List<JoinColumn<J,?>> getTransitiveJoins(){
+    public List<JoinColumn<J,?,JB,?>> getTransitiveJoins(){
         return this.daoDescriptor.joinColumns();
     }
 
@@ -65,22 +66,24 @@ public class JoinColumn<T, J> implements DirectTypedColumn<T> {
     }
 
     @Override
-    public PopulateResult populate(T item, ResultSet resultSet) throws SQLException {
-        J joined = daoDescriptor.supplier().get();
-        for (TypedColumn<J> column: daoDescriptor.dataColumns()) {
-            PopulateResult result = ((DirectTypedColumn<J>)column).populate(joined, resultSet);
+    public PopulateResult populate(B builder, ResultSet resultSet) throws SQLException {
+        JB joinedBuilder = daoDescriptor.supplier().get();
+        for (IndirectTypedColumn<J,JB> column: daoDescriptor.dataColumns()) {
+            PopulateResult result = column.populate(joinedBuilder, resultSet);
             if ( result == PopulateResult.NoPrimaryKey ){
                 return PopulateResult.Ignore;
             }
         }
-        for(JoinColumn<J,?> joinColumn : daoDescriptor.joinColumns()){
-            joinColumn.populate(joined, resultSet);
+        for(JoinColumn<J,?,JB,?> joinColumn : daoDescriptor.joinColumns()){
+            joinColumn.populate(joinedBuilder, resultSet);
         }
-        setter.accept(item, joined);
+
+        J joinedItem = joinBuilder.apply(joinedBuilder);
+        setter.accept(builder, joinedItem);
         return PopulateResult.fromJoinColumn(
                 connection -> {
-                    for(ChildrenDescriptor<J,?> childrenDescriptor : daoDescriptor.childrenDescriptors()){
-                        childrenDescriptor.populateChildren(connection, joined);
+                    for(ChildrenDescriptor<J,?,JB,?> childrenDescriptor : daoDescriptor.childrenDescriptors()){
+                        childrenDescriptor.populateChildren(connection, joinedBuilder);
                     }
                 }
         );
@@ -102,11 +105,11 @@ public class JoinColumn<T, J> implements DirectTypedColumn<T> {
     }
 
     @Override
-    public JoinColumn<T,J> withPrefix(String newPrefix, Prefixer prefixer) {
+    public JoinColumn<T,J,B,JB> withPrefix(String newPrefix, Prefixer prefixer) {
         return new JoinColumn(name, newPrefix, prefixer, getter, setter, daoDescriptor, nullable);
     }
 
-    public List<TypedColumn<J>> getDataColumns(){
+    public List<IndirectTypedColumn<J,JB>> getDataColumns(){
         return this.daoDescriptor.dataColumns();
     }
 

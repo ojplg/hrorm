@@ -19,8 +19,8 @@ public class SqlBuilder<T> {
 
     private final String table;
     private final List<? extends TypedColumn<T>> dataColumns;
-    private final List<JoinColumn<T, ?>> joinColumns;
-    private final PrimaryKey<T> primaryKey;
+    private final List<? extends JoinColumn<T, ?, ?, ?>> joinColumns;
+    private final IndirectPrimaryKey<T,?> primaryKey;
 
     public SqlBuilder(DaoDescriptor<T,?> daoDescriptor){
         this.table = daoDescriptor.tableName();
@@ -31,8 +31,8 @@ public class SqlBuilder<T> {
 
     public SqlBuilder(String table,
                       List<? extends TypedColumn<T>> dataColumns,
-                      List<JoinColumn<T, ?>> joinColumns,
-                      PrimaryKey<T> primaryKey) {
+                      List<? extends JoinColumn<T, ?, ?, ?>> joinColumns,
+                      IndirectPrimaryKey<T, ?> primaryKey) {
         this.table = table;
         this.dataColumns = dataColumns;
         this.joinColumns = joinColumns;
@@ -56,7 +56,7 @@ public class SqlBuilder<T> {
         StringBuilder buf = new StringBuilder();
         buf.append("select ");
         buf.append(columnsAsString("a", true, dataColumns));
-        for(JoinColumn<?, ?> joinColumn : flattenedJoinColumns()) {
+        for(JoinColumn<?, ?, ?, ?> joinColumn : flattenedJoinColumns()) {
             buf.append(", ");
             buf.append(columnsAsString(
                     joinColumn.getPrefix(),

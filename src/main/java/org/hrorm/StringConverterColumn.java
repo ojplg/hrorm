@@ -23,7 +23,7 @@ import java.util.function.Function;
  * @param <T> The entity type this column belongs to
  * @param <E> The type that this column is mapped to
  */
-public class StringConverterColumn<T, E> implements DirectTypedColumn<T> {
+public class StringConverterColumn<T, E> implements IndirectTypedColumn<T,T> {
 
     private final String name;
     private final String prefix;
@@ -41,7 +41,7 @@ public class StringConverterColumn<T, E> implements DirectTypedColumn<T> {
     }
 
     @Override
-    public TypedColumn<T> withPrefix(String prefix, Prefixer prefixer) {
+    public IndirectTypedColumn<T,T> withPrefix(String prefix, Prefixer prefixer) {
         StringConverterColumn<T,E> newColumn = new StringConverterColumn<>(name, prefix, getter, setter, converter);
         if ( ! nullable ){
             newColumn.notNull();

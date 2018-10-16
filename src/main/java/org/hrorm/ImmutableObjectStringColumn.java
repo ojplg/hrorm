@@ -34,7 +34,7 @@ public class ImmutableObjectStringColumn<T,CONSTRUCTOR> implements IndirectTyped
     }
 
     @Override
-    public TypedColumn<T> withPrefix(String prefix, Prefixer prefixer) {
+    public IndirectTypedColumn<T, CONSTRUCTOR> withPrefix(String prefix, Prefixer prefixer) {
         return new ImmutableObjectStringColumn<>(name, prefix, getter, setter, nullable);
     }
 

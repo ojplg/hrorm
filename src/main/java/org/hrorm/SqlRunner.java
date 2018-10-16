@@ -27,12 +27,12 @@ public class SqlRunner<T,B> {
     private static final Logger logger = Logger.getLogger("org.hrorm");
 
     private final Connection connection;
-    private final List<? extends TypedColumn<T>> allColumns;
-    private final PrimaryKey<T> primaryKey;
+    private final List<IndirectTypedColumn<T,B>> allColumns;
+    private final IndirectPrimaryKey<T,B> primaryKey;
 
     private final Function<B,T> builderFunction;
 
-    public SqlRunner(Connection connection, List<? extends TypedColumn<T>> allColumns, PrimaryKey<T> primaryKey, Function<B,T> builderFunction){
+    public SqlRunner(Connection connection, List<IndirectTypedColumn<T,B>> allColumns, IndirectPrimaryKey<T,B> primaryKey, Function<B,T> builderFunction){
         this.connection = connection;
         this.allColumns = allColumns;
         this.primaryKey = primaryKey;
@@ -41,7 +41,7 @@ public class SqlRunner<T,B> {
 
     public SqlRunner(Connection connection, DaoDescriptor<T,B> daoDescriptor) {
         this.connection = connection;
-        List<TypedColumn<T>> columns = new ArrayList<>();
+        List<IndirectTypedColumn<T,B>> columns = new ArrayList<>();
         columns.addAll(daoDescriptor.dataColumnsWithParent());
         columns.addAll(daoDescriptor.joinColumns());
         this.primaryKey = daoDescriptor.primaryKey();
@@ -49,11 +49,11 @@ public class SqlRunner<T,B> {
         this.builderFunction = daoDescriptor.buildFunction();
     }
 
-    public List<T> select(String sql, Supplier<T> supplier, List<ChildrenDescriptor<T,?>> childrenDescriptors){
+    public List<B> select(String sql, Supplier<B> supplier, List<ChildrenDescriptor<T,?,B,?>> childrenDescriptors){
         return selectByColumns(sql, supplier, Collections.emptyList(), Collections.emptyMap(), childrenDescriptors, null);
     }
 
-    public List<T> selectByColumns(String sql, Supplier<T> supplier, List<String> columnNames, Map<String, TypedColumn<T>> columnNameMap,  List<ChildrenDescriptor<T,?>> childrenDescriptors, T item){
+    public List<B> selectByColumns(String sql, Supplier<B> supplier, List<String> columnNames, Map<String, TypedColumn<T>> columnNameMap,  List<? extends ChildrenDescriptor<T,?,B,?>> childrenDescriptors, T item){
         ResultSet resultSet = null;
         PreparedStatement statement = null;
         try {
@@ -68,11 +68,11 @@ public class SqlRunner<T,B> {
             logger.info(sql);
             resultSet = statement.executeQuery();
 
-            List<T> results = new ArrayList<>();
+            List<B> results = new ArrayList<>();
 
             while (resultSet.next()) {
-                T result = populate(resultSet, supplier);
-                for(ChildrenDescriptor<T,?> descriptor : childrenDescriptors){
+                B result = populate(resultSet, supplier);
+                for(ChildrenDescriptor<T,?,B,?> descriptor : childrenDescriptors){
                     descriptor.populateChildren(connection, result);
                 }
                 results.add(result);
@@ -96,15 +96,16 @@ public class SqlRunner<T,B> {
         }
     }
 
-    public void insert(String sql, T item) {
-        runInsertOrUpdate(sql, item, false);
+    public void insert(String sql, T item, long id) {
+        runInsertOrUpdate(sql, item, id, false);
     }
 
     public void update(String sql, T item) {
-        runInsertOrUpdate(sql, item, true);
+        Long id = primaryKey.getKey(item);
+        runInsertOrUpdate(sql, item, id, true);
     }
 
-    private void runInsertOrUpdate(String sql, T item, boolean isUpdate){
+    private void runInsertOrUpdate(String sql, T item, long id, boolean isUpdate){
         PreparedStatement preparedStatement = null;
 
         try {
@@ -112,13 +113,17 @@ public class SqlRunner<T,B> {
 
             int idx = 1;
             for(TypedColumn<T> column : allColumns){
-                if( ! ( isUpdate && column.isPrimaryKey() ) ) {
+                if( column.isPrimaryKey() ) {
+                    if ( ! isUpdate ) {
+                        preparedStatement.setLong(idx, id);
+                        idx++;
+                    }
+                } else if ( ! column.isPrimaryKey() ){
                     column.setValue(item, idx, preparedStatement);
                     idx++;
                 }
             }
             if( isUpdate ){
-                Long id = primaryKey.getKey(item);
                 preparedStatement.setLong(idx, id);
             }
 
@@ -139,12 +144,12 @@ public class SqlRunner<T,B> {
 
     }
 
-    private T populate(ResultSet resultSet, Supplier<T> supplier)
+    private B populate(ResultSet resultSet, Supplier<B> supplier)
             throws SQLException {
-        T item = supplier.get();
+        B item = supplier.get();
 
-        for (TypedColumn<T> column: allColumns) {
-            PopulateResult populateResult = ((DirectTypedColumn<T>)column).populate(item, resultSet);
+        for (IndirectTypedColumn<T,B> column: allColumns) {
+            PopulateResult populateResult = column.populate(item, resultSet);
             populateResult.populateChildren(connection);
         }
 

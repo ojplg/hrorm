@@ -37,16 +37,6 @@ public interface TypedColumn<T> {
     void setValue(T item, int index, PreparedStatement preparedStatement) throws SQLException;
 
     /**
-     * Make a new instance of the column, identical to this instance, except with a
-     * new prefix.
-     *
-     * @param newPrefix The new prefix
-     * @param prefixer The source for new prefixes
-     * @return A new instance of the column with the reset prefix
-     */
-    TypedColumn<T> withPrefix(String newPrefix, Prefixer prefixer);
-
-    /**
      * @return true if this column represents the primary key of the table
      */
     boolean isPrimaryKey();

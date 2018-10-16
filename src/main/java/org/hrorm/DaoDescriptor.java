@@ -37,37 +37,37 @@ public interface DaoDescriptor<T,B> {
      *
      * @return A function pointer to the instantiation mechanism
      */
-    Supplier<T> supplier();
+    Supplier<B> supplier();
 
     /**
      * The columns that contain the data that make up the object
      *
      * @return all the data columns supported
      */
-    List<TypedColumn<T>> dataColumns();
+    List<IndirectTypedColumn<T,B>> dataColumns();
 
     /**
      * The columns that contain references to foreign keys to other objects
      *
      * @return all the reference columns supported
      */
-    List<JoinColumn<T,?>> joinColumns();
+    List<JoinColumn<T,?,B,?>> joinColumns();
 
     /**
      * The primary key for objects of type <code>T</code>
      *
      * @return the primary key
      */
-    PrimaryKey<T> primaryKey();
+    IndirectPrimaryKey<T,B> primaryKey();
 
     /**
      * The definitions of any entities that are owned by type <code>T</code>
      *
      * @return all the owned entities
      */
-    List<ChildrenDescriptor<T, ?>> childrenDescriptors();
+    List<ChildrenDescriptor<T, ?, B, ?>> childrenDescriptors();
 
-    <P> ParentColumn<T, P> parentColumn();
+    <P,PB> ParentColumn<T, P, B, PB> parentColumn();
 
     Function<B, T> buildFunction();
 
@@ -80,15 +80,15 @@ public interface DaoDescriptor<T,B> {
      *
      * @return all the columns
      */
-    default List<TypedColumn<T>> allColumns(){
-        List<TypedColumn<T>> allColumns = new ArrayList<>();
+    default List<IndirectTypedColumn<T,B>> allColumns(){
+        List<IndirectTypedColumn<T,B>> allColumns = new ArrayList<>();
         allColumns.addAll(dataColumnsWithParent());
         allColumns.addAll(joinColumns());
         return Collections.unmodifiableList(allColumns);
     }
 
-    default List<TypedColumn<T>> dataColumnsWithParent(){
-        List<TypedColumn<T>> allColumns = new ArrayList<>();
+    default List<IndirectTypedColumn<T,B>> dataColumnsWithParent(){
+        List<IndirectTypedColumn<T,B>> allColumns = new ArrayList<>();
         allColumns.addAll(dataColumns());
         if ( hasParent()) {
             allColumns.add(parentColumn());

@@ -6,7 +6,7 @@ import java.sql.SQLException;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
-public class PrimaryKeyImpl<T> implements DirectPrimaryKey<T> {
+public class PrimaryKeyImpl<T> implements IndirectTypedColumn<T,T> {
 
     private final LongColumn<T> longColumn;
     private final Function<T, Long> getter;
@@ -20,23 +20,20 @@ public class PrimaryKeyImpl<T> implements DirectPrimaryKey<T> {
         this.longColumn = new LongColumn<>(name, prefix, getter, setter, false);
     }
 
-    @Override
     public Long getKey(T item) {
         return getter.apply(item);
     }
 
-    @Override
     public String getSequenceName() {
         return sequenceName;
     }
 
-    @Override
     public void setKey(T item, Long id) {
         setter.accept(item, id);
     }
 
     @Override
-    public TypedColumn<T> withPrefix(String prefix, Prefixer prefixer) {
+    public IndirectTypedColumn<T,T> withPrefix(String prefix, Prefixer prefixer) {
         return new PrimaryKeyImpl<>(longColumn.getName(), prefix, getter, setter, sequenceName);
     }
 

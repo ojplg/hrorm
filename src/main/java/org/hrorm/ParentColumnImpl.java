@@ -18,16 +18,16 @@ import java.util.function.Function;
  * @param <T> The child entity type
  * @param <P> The type of the parent
  */
-public class ParentColumnImpl<T, P> implements ParentColumn<T,P> {
+public class ParentColumnImpl<T, P,TBUILDER,PBUILDER> implements ParentColumn<T,P,TBUILDER,PBUILDER> {
 
     private final String name;
     private final String prefix;
-    private final BiConsumer<T, P> setter;
+    private final BiConsumer<TBUILDER, P> setter;
     private final Function<T, P> getter;
-    private PrimaryKey<P> parentPrimaryKey;
+    private IndirectPrimaryKey<P, PBUILDER> parentPrimaryKey;
     private boolean nullable;
 
-    public ParentColumnImpl(String name, String prefix, Function<T, P> getter, BiConsumer<T, P> setter) {
+    public ParentColumnImpl(String name, String prefix, Function<T, P> getter, BiConsumer<TBUILDER, P> setter) {
         this.name = name;
         this.prefix = prefix;
         this.getter = getter;
@@ -35,7 +35,8 @@ public class ParentColumnImpl<T, P> implements ParentColumn<T,P> {
         this.nullable = false;
     }
 
-    public ParentColumnImpl(String name, String prefix, Function<T, P> getter, BiConsumer<T, P> setter, PrimaryKey<P> parentPrimaryKey, boolean nullable) {
+    public ParentColumnImpl(String name, String prefix, Function<T, P> getter, BiConsumer<TBUILDER, P> setter,
+                            IndirectPrimaryKey<P, PBUILDER> parentPrimaryKey, boolean nullable) {
         this.name = name;
         this.prefix = prefix;
         this.getter = getter;
@@ -55,7 +56,7 @@ public class ParentColumnImpl<T, P> implements ParentColumn<T,P> {
     }
 
     @Override
-    public PopulateResult populate(T item, ResultSet resultSet) throws SQLException {
+    public PopulateResult populate(TBUILDER item, ResultSet resultSet) throws SQLException {
         return PopulateResult.ParentColumn;
     }
 
@@ -76,7 +77,7 @@ public class ParentColumnImpl<T, P> implements ParentColumn<T,P> {
     }
 
     @Override
-    public TypedColumn<T> withPrefix(String prefix, Prefixer prefixer) {
+    public IndirectTypedColumn<T,TBUILDER> withPrefix(String prefix, Prefixer prefixer) {
         return new ParentColumnImpl<>(name, prefix, getter, setter, parentPrimaryKey, nullable);
     }
 
@@ -90,11 +91,11 @@ public class ParentColumnImpl<T, P> implements ParentColumn<T,P> {
         this.nullable = false;
     }
 
-    public BiConsumer<T, P> setter(){
+    public BiConsumer<TBUILDER, P> setter(){
         return setter;
     }
 
-    public void setParentPrimaryKey(PrimaryKey<P> parentPrimaryKey) {
+    public void setParentPrimaryKey(IndirectPrimaryKey<P,PBUILDER> parentPrimaryKey) {
         this.parentPrimaryKey = parentPrimaryKey;
     }
 }

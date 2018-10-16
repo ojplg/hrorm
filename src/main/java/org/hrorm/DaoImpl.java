@@ -25,24 +25,25 @@ public class DaoImpl<T,P,B> implements Dao<T>, DaoDescriptor<T,B> {
 
     private final Connection connection;
     private final String tableName;
-    private final List<TypedColumn<T>> dataColumns;
-    private final PrimaryKey<T> primaryKey;
-    private final Supplier<T> supplier;
-    private final List<JoinColumn<T,?>> joinColumns;
-    private final List<ChildrenDescriptor<T,?>> childrenDescriptors;
+    private final List<IndirectTypedColumn<T,B>> dataColumns;
+    private final IndirectPrimaryKey<T,B> primaryKey;
+    private final Supplier<B> supplier;
+    private final List<JoinColumn<T,?,B,?>> joinColumns;
+    private final List<ChildrenDescriptor<T,?,B,?>> childrenDescriptors;
     private final SqlBuilder<T> sqlBuilder;
-    private final SqlRunner<T,?> sqlRunner;
-    private final ParentColumn<T,P> parentColumn;
+    private final SqlRunner<T,B> sqlRunner;
+    private final ParentColumn<T,P,B,?> parentColumn;
     private final Function<B, T> buildFunction;
 
     public DaoImpl(Connection connection,
                    String tableName,
-                   Supplier<T> supplier,
-                   PrimaryKey<T> primaryKey,
-                   List<TypedColumn<T>> dataColumns,
-                   List<JoinColumn<T,?>> joinColumns,
-                   List<ChildrenDescriptor<T,?>> childrenDescriptors,
-                   ParentColumn<T,P> parentColumn){
+                   Supplier<B> supplier,
+                   IndirectPrimaryKey<T,B> primaryKey,
+                   List<IndirectTypedColumn<T,B>> dataColumns,
+                   List<JoinColumn<T,?,B,?>> joinColumns,
+                   List<ChildrenDescriptor<T,?,B,?>> childrenDescriptors,
+                   ParentColumn<T,P,B,?> parentColumn,
+                   Function<B,T> buildFunction){
         this.connection = connection;
         this.tableName = tableName;
         this.dataColumns = Collections.unmodifiableList(new ArrayList<>(dataColumns));
@@ -50,10 +51,10 @@ public class DaoImpl<T,P,B> implements Dao<T>, DaoDescriptor<T,B> {
         this.supplier = supplier;
         this.joinColumns = Collections.unmodifiableList(new ArrayList<>(joinColumns));
         this.childrenDescriptors = Collections.unmodifiableList(new ArrayList<>(childrenDescriptors));
-        this.sqlBuilder = new SqlBuilder<>(tableName, this.dataColumnsWithParent(), this.joinColumns, primaryKey);
+        this.sqlBuilder = new SqlBuilder<T>(tableName, this.dataColumnsWithParent(), this.joinColumns, primaryKey);
         this.sqlRunner = new SqlRunner<>(connection, this);
         this.parentColumn = parentColumn;
-        this.buildFunction = null;
+        this.buildFunction = buildFunction;
     }
 
     @Override
@@ -62,28 +63,28 @@ public class DaoImpl<T,P,B> implements Dao<T>, DaoDescriptor<T,B> {
     }
 
     @Override
-    public List<TypedColumn<T>> dataColumns(){
+    public List<IndirectTypedColumn<T,B>> dataColumns(){
         return dataColumns;
     }
 
     @Override
-    public List<JoinColumn<T, ?>> joinColumns(){
+    public List<JoinColumn<T, ?, B, ?>> joinColumns(){
         return joinColumns;
     }
 
     @Override
-    public Supplier<T> supplier() { return supplier; }
+    public Supplier<B> supplier() { return supplier; }
 
     @Override
-    public PrimaryKey<T> primaryKey() { return primaryKey; }
+    public IndirectPrimaryKey<T,B> primaryKey() { return primaryKey; }
 
     @Override
-    public List<ChildrenDescriptor<T, ?>> childrenDescriptors() {
+    public List<ChildrenDescriptor<T, ?, B, ?>> childrenDescriptors() {
         return null;
     }
 
     @Override
-    public ParentColumn<T, P> parentColumn() {
+    public ParentColumn<T, P, B, ?> parentColumn() {
         return parentColumn;
     }
 
@@ -118,9 +119,9 @@ public class DaoImpl<T,P,B> implements Dao<T>, DaoDescriptor<T,B> {
     public long insert(T item) {
         String sql = sqlBuilder.insert();
         long id = DaoHelper.getNextSequenceValue(connection, primaryKey.getSequenceName());
-        ((DirectPrimaryKey<T>)primaryKey).setKey(item, id);
-        sqlRunner.insert(sql, item);
-        for(ChildrenDescriptor<T,?> childrenDescriptor : childrenDescriptors){
+        primaryKey.optimisticSetKey(item, id);
+        sqlRunner.insert(sql, item, id);
+        for(ChildrenDescriptor<T,?,B,?> childrenDescriptor : childrenDescriptors){
             childrenDescriptor.saveChildren(connection, item);
         }
         return id;
@@ -130,7 +131,7 @@ public class DaoImpl<T,P,B> implements Dao<T>, DaoDescriptor<T,B> {
     public void update(T item) {
         String sql = sqlBuilder.update();
         sqlRunner.update(sql, item);
-        for(ChildrenDescriptor<T,?> childrenDescriptor : childrenDescriptors){
+        for(ChildrenDescriptor<T,?,B,?> childrenDescriptor : childrenDescriptors){
             childrenDescriptor.saveChildren(connection, item);
         }
     }
@@ -141,16 +142,21 @@ public class DaoImpl<T,P,B> implements Dao<T>, DaoDescriptor<T,B> {
         DaoHelper.runPreparedDelete(connection, sql, primaryKey.getKey(item));
     }
 
+    private List<T> mapBuilders(List<B> bs){
+        return bs.stream().map(b -> buildFunction.apply(b)).collect(Collectors.toList());
+    }
+
     @Override
     public T select(long id) {
         String primaryKeyName = primaryKey.getName();
         String sql = sqlBuilder.selectByColumns(primaryKeyName);
-        T item = supplier().get();
-        ((DirectPrimaryKey<T>) primaryKey).setKey(item, id);
-        List<T> items = sqlRunner.selectByColumns(sql, supplier,
+        B builder = supplier().get();
+        primaryKey.setKey(builder, id);
+        T item = buildFunction.apply(builder);
+        List<B> items = sqlRunner.selectByColumns(sql, supplier,
                 Collections.singletonList(primaryKeyName), columnMap(primaryKeyName),
                 childrenDescriptors, item);
-        return fromSingletonList(items);
+        return fromSingletonList(mapBuilders(items));
     }
 
     @Override
@@ -159,13 +165,15 @@ public class DaoImpl<T,P,B> implements Dao<T>, DaoDescriptor<T,B> {
         List<String> idStrings = ids.stream().map(Object::toString).collect(Collectors.toList());
         String idsString = String.join(",", idStrings);
         sql = sql + " and a." + primaryKey.getName() + " in (" + idsString + ")";
-        return sqlRunner.select(sql, supplier, childrenDescriptors);
+        List<B> bs = sqlRunner.select(sql, supplier, childrenDescriptors);
+        return mapBuilders(bs);
     }
 
     @Override
     public List<T> selectAll() {
         String sql = sqlBuilder.select();
-        return sqlRunner.select(sql, supplier, childrenDescriptors);
+        List<B> bs = sqlRunner.select(sql, supplier, childrenDescriptors);
+        return mapBuilders(bs);
     }
 
     @Override
@@ -177,7 +185,8 @@ public class DaoImpl<T,P,B> implements Dao<T>, DaoDescriptor<T,B> {
     @Override
     public List<T> selectManyByColumns(T item, String ... columnNames) {
         String sql = sqlBuilder.selectByColumns(columnNames);
-        return sqlRunner.selectByColumns(sql, supplier, Arrays.asList(columnNames), columnMap(columnNames), childrenDescriptors, item);
+        List<B> bs = sqlRunner.selectByColumns(sql, supplier, Arrays.asList(columnNames), columnMap(columnNames), childrenDescriptors, item);
+        return mapBuilders(bs);
     }
 
     private <A> A fromSingletonList(List<A> items) {
