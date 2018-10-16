@@ -15,7 +15,7 @@ public class ConstructingDaoImpl<T, CONSTRUCTOR> implements Dao<T> {
 
     @Override
     public long insert(T item) {
-
+        return 0;
     }
 
     @Override

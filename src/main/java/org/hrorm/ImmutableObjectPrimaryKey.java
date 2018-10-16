@@ -15,8 +15,22 @@ public class ImmutableObjectPrimaryKey<T, CONSTRUCTOR> implements PrimaryKey<T> 
     private final Function<T, Long> getter;
     private final Function<CONSTRUCTOR, T> construct;
 
-    private CONSTRUCTOR constructor;
 
+    public ImmutableObjectPrimaryKey(String prefix,
+                                     String name,
+                                     String sequenceName,
+                                     Function<T, Long> getter,
+                                     BiConsumer<CONSTRUCTOR, Long> setter,
+                                     Function<CONSTRUCTOR, T> construct) {
+        this.prefix = prefix;
+        this.name = name;
+        this.sequenceName = sequenceName;
+        this.setter = setter;
+        this.getter = getter;
+        this.construct = construct;
+    }
+
+    private CONSTRUCTOR constructor;
 
     @Override
     public Long getKey(T item) {

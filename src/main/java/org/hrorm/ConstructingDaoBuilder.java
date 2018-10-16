@@ -8,12 +8,17 @@ import java.util.function.Supplier;
 
 public class ConstructingDaoBuilder<T,CONSTRUCTOR>  {
 
+    private final String tableName;
+    private final Supplier<CONSTRUCTOR> constructor;
     private final Function<CONSTRUCTOR, T> construct;
-
     private final Prefixer prefixer;
     private final String myPrefix;
 
+    private ImmutableObjectPrimaryKey<T, CONSTRUCTOR> primaryKey;
+
     public ConstructingDaoBuilder(String tableName, Supplier<CONSTRUCTOR> constructor, Function<CONSTRUCTOR, T> construct){
+        this.tableName = tableName;
+        this.constructor = constructor;
         this.construct = construct;
         this.prefixer = new Prefixer();
         this.myPrefix = this.prefixer.nextPrefix();
@@ -31,7 +36,7 @@ public class ConstructingDaoBuilder<T,CONSTRUCTOR>  {
      * @return This instance.
      */
     public ConstructingDaoBuilder<T,CONSTRUCTOR> withPrimaryKey(String columnName, String sequenceName, Function<T, Long> getter, BiConsumer<CONSTRUCTOR, Long> setter){
-        internalDaoBuilder.withPrimaryKey(columnName,sequenceName,wrap(getter),setter);
+        primaryKey = new ImmutableObjectPrimaryKey<>(myPrefix, columnName, sequenceName, getter, setter, construct);
         return this;
     }
 
@@ -44,7 +49,6 @@ public class ConstructingDaoBuilder<T,CONSTRUCTOR>  {
      * @return This instance.
      */
     public ConstructingDaoBuilder<T,CONSTRUCTOR> withStringColumn(String columnName, Function<T, String> getter, BiConsumer<CONSTRUCTOR, String> setter){
-        internalDaoBuilder.withStringColumn(columnName, wrap(getter), setter);
         return this;
     }
 
@@ -57,7 +61,6 @@ public class ConstructingDaoBuilder<T,CONSTRUCTOR>  {
      * @return This instance.
      */
     public ConstructingDaoBuilder<T,CONSTRUCTOR> withBigDecimalColumn(String columnName, Function<T, BigDecimal> getter, BiConsumer<CONSTRUCTOR, BigDecimal> setter){
-        internalDaoBuilder.withBigDecimalColumn(columnName, wrap(getter), setter);
         return this;
     }
 
@@ -70,15 +73,6 @@ public class ConstructingDaoBuilder<T,CONSTRUCTOR>  {
      * @return The newly created <code>Dao</code>.
      */
     public Dao<T> buildDao(Connection connection){
-
-        Dao<CONSTRUCTOR> constructorDao = new DaoImpl<>(connection,
-                internalDaoBuilder.tableName(),
-                internalDaoBuilder.supplier(),
-                internalDaoBuilder.primaryKey(),
-                internalDaoBuilder.dataColumns(),
-                internalDaoBuilder.joinColumns(),
-                internalDaoBuilder.childrenDescriptors(),
-                internalDaoBuilder.parentColumn());
 
 
         return null;
