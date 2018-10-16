@@ -110,7 +110,7 @@ public class DaoImpl<T,P> implements Dao<T>, DaoDescriptor<T> {
     public long insert(T item) {
         String sql = sqlBuilder.insert();
         long id = DaoHelper.getNextSequenceValue(connection, primaryKey.getSequenceName());
-        primaryKey.setKey(item, id);
+        ((DirectPrimaryKey<T>)primaryKey).setKey(item, id);
         sqlRunner.insert(sql, item);
         for(ChildrenDescriptor<T,?> childrenDescriptor : childrenDescriptors){
             childrenDescriptor.saveChildren(connection, item);
@@ -138,7 +138,7 @@ public class DaoImpl<T,P> implements Dao<T>, DaoDescriptor<T> {
         String primaryKeyName = primaryKey.getName();
         String sql = sqlBuilder.selectByColumns(primaryKeyName);
         T item = supplier().get();
-        primaryKey.setKey(item, id);
+        ((DirectPrimaryKey<T>) primaryKey).setKey(item, id);
         List<T> items = sqlRunner.selectByColumns(sql, supplier,
                 Collections.singletonList(primaryKeyName), columnMap(primaryKeyName),
                 childrenDescriptors, item);

@@ -27,17 +27,6 @@ public interface TypedColumn<T> {
     String getPrefix();
 
     /**
-     * Populates the object with the data read from the database.
-     *
-     * @param item The object being populated
-     * @param resultSet The result said being read
-     * @return A coded value indicating information about what happened
-     * during population
-     * @throws SQLException allowed for <code>ResultSet</code> operations
-     */
-    PopulateResult populate(T item, ResultSet resultSet) throws SQLException;
-
-    /**
      * Sets a value onto the prepared statement based on the state of the object passed.
      *
      * @param item The object to read the data from.

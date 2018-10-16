@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 public class SqlBuilder<T> {
 
     private final String table;
-    private final List<TypedColumn<T>> dataColumns;
+    private final List<? extends TypedColumn<T>> dataColumns;
     private final List<JoinColumn<T, ?>> joinColumns;
     private final PrimaryKey<T> primaryKey;
 
@@ -30,7 +30,7 @@ public class SqlBuilder<T> {
     }
 
     public SqlBuilder(String table,
-                      List<TypedColumn<T>> dataColumns,
+                      List<? extends TypedColumn<T>> dataColumns,
                       List<JoinColumn<T, ?>> joinColumns,
                       PrimaryKey<T> primaryKey) {
         this.table = table;

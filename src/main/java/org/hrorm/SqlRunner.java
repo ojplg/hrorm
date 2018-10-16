@@ -26,8 +26,14 @@ public class SqlRunner<T> {
     private static final Logger logger = Logger.getLogger("org.hrorm");
 
     private final Connection connection;
-    private final List<TypedColumn<T>> allColumns;
+    private final List<? extends TypedColumn<T>> allColumns;
     private final PrimaryKey<T> primaryKey;
+
+    public SqlRunner(Connection connection, List<? extends TypedColumn<T>> allColumns, PrimaryKey<T> primaryKey){
+        this.connection = connection;
+        this.allColumns = allColumns;
+        this.primaryKey = primaryKey;
+    }
 
     public SqlRunner(Connection connection, DaoDescriptor<T> daoDescriptor) {
         this.connection = connection;
@@ -133,7 +139,7 @@ public class SqlRunner<T> {
         T item = supplier.get();
 
         for (TypedColumn<T> column: allColumns) {
-            PopulateResult populateResult = column.populate(item, resultSet);
+            PopulateResult populateResult = ((DirectTypedColumn<T>)column).populate(item, resultSet);
             populateResult.populateChildren(connection);
         }
 

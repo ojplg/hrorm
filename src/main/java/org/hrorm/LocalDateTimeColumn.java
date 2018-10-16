@@ -18,7 +18,7 @@ import java.util.function.Function;
  *
  * @param <T> The entity type this column belongs to
  */
-public class LocalDateTimeColumn<T> implements TypedColumn<T> {
+public class LocalDateTimeColumn<T> implements DirectTypedColumn<T> {
 
     private final String name;
     private final String prefix;

@@ -6,31 +6,25 @@ import java.sql.SQLException;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
-public class ImmutableObjectPrimaryKey<T, CONSTRUCTOR> implements PrimaryKey<T> {
+public class ImmutableObjectPrimaryKey<T, CONSTRUCTOR> implements PrimaryKey<T>, IndirectTypedColumn<T, CONSTRUCTOR> {
 
     private final String prefix;
     private final String name;
     private final String sequenceName;
     private final BiConsumer<CONSTRUCTOR, Long> setter;
     private final Function<T, Long> getter;
-    private final Function<CONSTRUCTOR, T> construct;
-
 
     public ImmutableObjectPrimaryKey(String prefix,
                                      String name,
                                      String sequenceName,
                                      Function<T, Long> getter,
-                                     BiConsumer<CONSTRUCTOR, Long> setter,
-                                     Function<CONSTRUCTOR, T> construct) {
+                                     BiConsumer<CONSTRUCTOR, Long> setter) {
         this.prefix = prefix;
         this.name = name;
         this.sequenceName = sequenceName;
         this.setter = setter;
         this.getter = getter;
-        this.construct = construct;
     }
-
-    private CONSTRUCTOR constructor;
 
     @Override
     public Long getKey(T item) {
@@ -42,8 +36,8 @@ public class ImmutableObjectPrimaryKey<T, CONSTRUCTOR> implements PrimaryKey<T> 
         return sequenceName;
     }
 
-    @Override
-    public void setKey(T item, Long id) {
+    //@Override
+    public void setKey(CONSTRUCTOR constructor, Long id) {
         setter.accept(constructor, id);
     }
 
@@ -58,7 +52,7 @@ public class ImmutableObjectPrimaryKey<T, CONSTRUCTOR> implements PrimaryKey<T> 
     }
 
     @Override
-    public PopulateResult populate(T item, ResultSet resultSet) throws SQLException {
+    public PopulateResult populate(CONSTRUCTOR constructor, ResultSet resultSet) throws SQLException {
         Long value = resultSet.getLong(prefix  + name);
         setter.accept(constructor, value);
         if (value == null || value == 0 ){

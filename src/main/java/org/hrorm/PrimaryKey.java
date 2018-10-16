@@ -26,12 +26,4 @@ public interface PrimaryKey<T> extends TypedColumn<T> {
      */
     String getSequenceName();
 
-    /**
-     * Sets the key onto the object
-     *
-     * @param item the object whose key is to be set
-     * @param id the primary key to assign it
-     */
-    void setKey(T item, Long id);
-
 }

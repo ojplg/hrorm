@@ -24,17 +24,11 @@ public class ImmutableThingTest {
         helper.dropSchema();
     }
 
-
-    static final DaoBuilder<ImmutableThing.ImmutableThingBuilder> itbDaoBuilder =
-            new DaoBuilder<>("immutable_thing",ImmutableThing::builder)
-            .withPrimaryKey("id", "immutable_thing_seq",
-                    bldr -> bldr.build().getId(), ImmutableThing.ImmutableThingBuilder::id)
-            .withStringColumn("word", bldr -> bldr.build().getWord(), ImmutableThing.ImmutableThingBuilder::word)
-            .withBigDecimalColumn("amount", bldr -> bldr.build().getAmount(), ImmutableThing.ImmutableThingBuilder::amount);
-
-    static final ConstructingDaoBuilder<ImmutableThing, ImmutableThing.ImmutableThingBuilder> constructingDaoBuilder =
-            new ConstructingDaoBuilder<>("immutable_thing", ImmutableThing::builder, ImmutableThing.ImmutableThingBuilder::build)
-            .withPrimaryKey("id", "immutable_thing_seq", ImmutableThing::getId, ImmutableThing.ImmutableThingBuilder::id);
+    static final ImmutableObjectDaoBuilder<ImmutableThing, ImmutableThing.ImmutableThingBuilder> IMMUTABLE_OBJECT_DAO_BUILDER =
+            new ImmutableObjectDaoBuilder<>("immutable_thing", ImmutableThing::builder, ImmutableThing.ImmutableThingBuilder::build)
+            .withPrimaryKey("id", "immutable_thing_seq", ImmutableThing::getId, ImmutableThing.ImmutableThingBuilder::id)
+            .withBigDecimalColumn("amount", ImmutableThing::getAmount, ImmutableThing.ImmutableThingBuilder::amount )
+            .withStringColumn("word", ImmutableThing::getWord, ImmutableThing.ImmutableThingBuilder::word);
 
     @Test
     public void insertAndSelectImmutableThing(){
@@ -42,7 +36,7 @@ public class ImmutableThingTest {
         long id;
         {
             Connection connection = helper.connect();
-            Dao<ImmutableThing> dao = constructingDaoBuilder.buildDao(connection);
+            Dao<ImmutableThing> dao = IMMUTABLE_OBJECT_DAO_BUILDER.buildDao(connection);
 
             ImmutableThing it = ImmutableThing.builder()
                     .word("test one")
@@ -53,9 +47,10 @@ public class ImmutableThingTest {
         }
         {
             Connection connection = helper.connect();
-            Dao<ImmutableThing> dao = constructingDaoBuilder.buildDao(connection);
+            Dao<ImmutableThing> dao = IMMUTABLE_OBJECT_DAO_BUILDER.buildDao(connection);
 
             ImmutableThing it = dao.select(id);
+
             Assert.assertNotNull(it.getId());
             Assert.assertEquals("test one", it.getWord());
             Assert.assertEquals(new BigDecimal("1.3"), it.getAmount());

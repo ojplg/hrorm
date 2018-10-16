@@ -6,7 +6,7 @@ import java.sql.SQLException;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
-public class PrimaryKeyImpl<T> implements PrimaryKey<T> {
+public class PrimaryKeyImpl<T> implements DirectPrimaryKey<T> {
 
     private final LongColumn<T> longColumn;
     private final Function<T, Long> getter;

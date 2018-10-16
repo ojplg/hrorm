@@ -19,7 +19,7 @@ import java.util.function.Function;
  * @param <T> the entity this column belongs to
  * @param <J> the entity being joined
  */
-public class JoinColumn<T, J> implements TypedColumn<T> {
+public class JoinColumn<T, J> implements DirectTypedColumn<T> {
 
     private final String name;
     private final String prefix;
@@ -68,7 +68,7 @@ public class JoinColumn<T, J> implements TypedColumn<T> {
     public PopulateResult populate(T item, ResultSet resultSet) throws SQLException {
         J joined = daoDescriptor.supplier().get();
         for (TypedColumn<J> column: daoDescriptor.dataColumns()) {
-            PopulateResult result = column.populate(joined, resultSet);
+            PopulateResult result = ((DirectTypedColumn<J>)column).populate(joined, resultSet);
             if ( result == PopulateResult.NoPrimaryKey ){
                 return PopulateResult.Ignore;
             }

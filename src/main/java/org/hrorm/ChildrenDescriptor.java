@@ -81,7 +81,7 @@ public class ChildrenDescriptor<PARENT,CHILD> {
             Long childId = daoDescriptor.primaryKey().getKey(child);
             if( childId == null ) {
                 long id = DaoHelper.getNextSequenceValue(connection, daoDescriptor.primaryKey().getSequenceName());
-                daoDescriptor.primaryKey().setKey(child, id);
+                ((DirectPrimaryKey<CHILD>)daoDescriptor.primaryKey()).setKey(child, id);
                 String sql = sqlBuilder.insert();
                 sqlRunner.insert(sql, child);
             } else {

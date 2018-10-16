@@ -2,11 +2,13 @@ package org.hrorm;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-public class ConstructingDaoBuilder<T,CONSTRUCTOR>  {
+public class ImmutableObjectDaoBuilder<T,CONSTRUCTOR>  {
 
     private final String tableName;
     private final Supplier<CONSTRUCTOR> constructor;
@@ -16,7 +18,9 @@ public class ConstructingDaoBuilder<T,CONSTRUCTOR>  {
 
     private ImmutableObjectPrimaryKey<T, CONSTRUCTOR> primaryKey;
 
-    public ConstructingDaoBuilder(String tableName, Supplier<CONSTRUCTOR> constructor, Function<CONSTRUCTOR, T> construct){
+    private List<IndirectTypedColumn<T, CONSTRUCTOR>> dataColumns = new ArrayList<>();
+
+    public ImmutableObjectDaoBuilder(String tableName, Supplier<CONSTRUCTOR> constructor, Function<CONSTRUCTOR, T> construct){
         this.tableName = tableName;
         this.constructor = constructor;
         this.construct = construct;
@@ -35,8 +39,8 @@ public class ConstructingDaoBuilder<T,CONSTRUCTOR>  {
      * @param setter The function to call to set the primary key value to the object's builder instance.
      * @return This instance.
      */
-    public ConstructingDaoBuilder<T,CONSTRUCTOR> withPrimaryKey(String columnName, String sequenceName, Function<T, Long> getter, BiConsumer<CONSTRUCTOR, Long> setter){
-        primaryKey = new ImmutableObjectPrimaryKey<>(myPrefix, columnName, sequenceName, getter, setter, construct);
+    public ImmutableObjectDaoBuilder<T,CONSTRUCTOR> withPrimaryKey(String columnName, String sequenceName, Function<T, Long> getter, BiConsumer<CONSTRUCTOR, Long> setter){
+        primaryKey = new ImmutableObjectPrimaryKey<>(myPrefix, columnName, sequenceName, getter, setter);
         return this;
     }
 
@@ -48,7 +52,10 @@ public class ConstructingDaoBuilder<T,CONSTRUCTOR>  {
      * @param setter The function on <code>T</code> that consumes the data element.
      * @return This instance.
      */
-    public ConstructingDaoBuilder<T,CONSTRUCTOR> withStringColumn(String columnName, Function<T, String> getter, BiConsumer<CONSTRUCTOR, String> setter){
+    public ImmutableObjectDaoBuilder<T,CONSTRUCTOR> withStringColumn(String columnName, Function<T, String> getter, BiConsumer<CONSTRUCTOR, String> setter){
+        ImmutableObjectStringColumn<T, CONSTRUCTOR> stringColumn =
+                new ImmutableObjectStringColumn<>(columnName, myPrefix, getter, setter, construct, true);
+        dataColumns.add(stringColumn);
         return this;
     }
 
@@ -60,10 +67,12 @@ public class ConstructingDaoBuilder<T,CONSTRUCTOR>  {
      * @param setter The function on <code>T</code> that consumes the data element.
      * @return This instance.
      */
-    public ConstructingDaoBuilder<T,CONSTRUCTOR> withBigDecimalColumn(String columnName, Function<T, BigDecimal> getter, BiConsumer<CONSTRUCTOR, BigDecimal> setter){
+    public ImmutableObjectDaoBuilder<T,CONSTRUCTOR> withBigDecimalColumn(String columnName, Function<T, BigDecimal> getter, BiConsumer<CONSTRUCTOR, BigDecimal> setter){
+        IndirectBigDecimalColumn<T,CONSTRUCTOR> column =
+                new IndirectBigDecimalColumn<>(columnName, myPrefix, getter, setter, construct, true);
+        dataColumns.add(column);
         return this;
     }
-
 
     /**
      * Creates a {@link Dao} for performing CRUD operations of type <code>T</code>.
@@ -75,9 +84,16 @@ public class ConstructingDaoBuilder<T,CONSTRUCTOR>  {
     public Dao<T> buildDao(Connection connection){
 
 
-        return null;
-    }
+        return new IndirectDaoImpl<>(
+                connection,
+                tableName,
+                primaryKey,
+                dataColumns,
+                constructor,
+                construct
 
+        );
+    }
 
     private <X> Function<CONSTRUCTOR, X> wrap(Function<T, X> getter){
         return constructor -> {

@@ -16,30 +16,29 @@ import java.util.function.Function;
  *
  * @param <T> The entity type this column belongs to
  */
-public class StringColumn<T> implements DirectTypedColumn<T> {
+public class ImmutableObjectStringColumn<T,CONSTRUCTOR> implements IndirectTypedColumn<T, CONSTRUCTOR> {
 
     private final String name;
     private final String prefix;
-    private final BiConsumer<T, String> setter;
+    private final BiConsumer<CONSTRUCTOR, String> setter;
     private final Function<T, String> getter;
     private boolean nullable;
 
-    public StringColumn(String name, String prefix, Function<T, String> getter, BiConsumer<T, String> setter, boolean nullable) {
+    private final Function<CONSTRUCTOR, T> construct;
+
+
+    public ImmutableObjectStringColumn(String name, String prefix, Function<T, String> getter, BiConsumer<CONSTRUCTOR, String> setter, Function<CONSTRUCTOR, T> construct, boolean nullable) {
         this.name = name;
         this.prefix = prefix;
         this.getter = getter;
         this.setter = setter;
         this.nullable = nullable;
+        this.construct = construct;
     }
-
-    public StringColumn(String name, String prefix, Function<T, String> getter, BiConsumer<T, String> setter) {
-        this(name, prefix, getter, setter, true);
-    }
-
 
     @Override
     public TypedColumn<T> withPrefix(String prefix, Prefixer prefixer) {
-        return new StringColumn<>(name, prefix, getter, setter, nullable);
+        return new ImmutableObjectStringColumn<>(name, prefix, getter, setter, construct, nullable);
     }
 
     @Override
@@ -53,9 +52,9 @@ public class StringColumn<T> implements DirectTypedColumn<T> {
     }
 
     @Override
-    public PopulateResult populate(T item, ResultSet resultSet) throws SQLException {
+    public PopulateResult populate(CONSTRUCTOR constructor, ResultSet resultSet) throws SQLException {
         String value = resultSet.getString(prefix + name);
-        setter.accept(item, value);
+        setter.accept(constructor, value);
         return PopulateResult.Ignore;
     }
 
