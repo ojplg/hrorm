@@ -247,12 +247,12 @@ public class DaoBuilder<T> implements DaoDescriptor<T,T> {
      * @param <U> The type of the child data elements.
      * @return This instance.
      */
-    public <U> DaoBuilder<T> withChildren(Function<T, List<U>> getter, BiConsumer<T, List<U>> setter, DaoDescriptor<U,?> daoDescriptor){
+    public <U,UB> DaoBuilder<T> withChildren(Function<T, List<U>> getter, BiConsumer<T, List<U>> setter, DaoDescriptor<U,UB> daoDescriptor){
         if( ! daoDescriptor.hasParent() ){
             throw new HrormException("Children must have a parent column");
         }
         childrenDescriptors.add(
-                new ChildrenDescriptor<>(getter, setter, daoDescriptor, primaryKey)
+                new ChildrenDescriptor<>(getter, setter, daoDescriptor, primaryKey, daoDescriptor.buildFunction(), buildFunction())
         );
         return this;
     }

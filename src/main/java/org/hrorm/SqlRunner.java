@@ -60,6 +60,9 @@ public class SqlRunner<T,B> {
             statement = connection.prepareStatement(sql);
             int idx = 1;
             for(String columnName : columnNames){
+
+                logger.info("Setting " + columnName);
+
                 TypedColumn<T> column = columnNameMap.get(columnName.toUpperCase());
                 column.setValue(item, idx, statement);
                 idx++;
@@ -71,6 +74,8 @@ public class SqlRunner<T,B> {
             List<B> results = new ArrayList<>();
 
             while (resultSet.next()) {
+                logger.info("Working on result set!");
+
                 B result = populate(resultSet, supplier);
                 for(ChildrenDescriptor<T,?,B,?> descriptor : childrenDescriptors){
                     descriptor.populateChildren(connection, result);
@@ -96,16 +101,20 @@ public class SqlRunner<T,B> {
         }
     }
 
-    public void insert(String sql, T item, long id) {
-        runInsertOrUpdate(sql, item, id, false);
+    public void insert(String sql, T item, long id, long parentId) {
+        runInsertOrUpdate(sql, item, id, parentId,false);
     }
 
     public void update(String sql, T item) {
         Long id = primaryKey.getKey(item);
-        runInsertOrUpdate(sql, item, id, true);
+        runInsertOrUpdate(sql, item, id, -34575, true);
     }
 
-    private void runInsertOrUpdate(String sql, T item, long id, boolean isUpdate){
+    private void runInsertOrUpdate(String sql, T item, long id, long parentId, boolean isUpdate){
+        if( item == null ){
+            throw new HrormException("Cannot insert or update a null item");
+        }
+
         PreparedStatement preparedStatement = null;
 
         try {
@@ -118,7 +127,10 @@ public class SqlRunner<T,B> {
                         preparedStatement.setLong(idx, id);
                         idx++;
                     }
-                } else if ( ! column.isPrimaryKey() ){
+                } else if ( column.isParentColumn() ){
+                    preparedStatement.setLong(idx, parentId);
+                    idx++;
+                } else if ( ! column.isPrimaryKey()  ){
                     column.setValue(item, idx, preparedStatement);
                     idx++;
                 }

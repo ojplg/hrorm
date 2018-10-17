@@ -6,6 +6,7 @@ import java.sql.SQLException;
 import java.sql.Types;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
+import java.util.logging.Logger;
 
 /**
  * Represents a reference from a child entity to its parent where
@@ -19,6 +20,8 @@ import java.util.function.Function;
  * @param <P> The type of the parent
  */
 public class ParentColumnImpl<T, P,TBUILDER,PBUILDER> implements ParentColumn<T,P,TBUILDER,PBUILDER> {
+
+    private static final Logger logger = Logger.getLogger("org.hrorm");
 
     private final String name;
     private final String prefix;
@@ -62,7 +65,11 @@ public class ParentColumnImpl<T, P,TBUILDER,PBUILDER> implements ParentColumn<T,
 
     @Override
     public void setValue(T item, int index, PreparedStatement preparedStatement) throws SQLException {
+
+        logger.info("WOrking on item " + item);
         P parent = getter.apply(item);
+        logger.info("It had parent "  + parent);
+
         Long parentId = parentPrimaryKey.getKey(parent);
         if ( parentId == null ){
             if ( nullable ){

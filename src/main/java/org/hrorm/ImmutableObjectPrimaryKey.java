@@ -5,8 +5,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
+import java.util.logging.Logger;
 
 public class ImmutableObjectPrimaryKey<T, CONSTRUCTOR> implements IndirectPrimaryKey<T, CONSTRUCTOR>, IndirectTypedColumn<T, CONSTRUCTOR> {
+
+    private static final Logger logger = Logger.getLogger("org.hrorm");
 
     private final String prefix;
     private final String name;
@@ -28,6 +31,9 @@ public class ImmutableObjectPrimaryKey<T, CONSTRUCTOR> implements IndirectPrimar
 
     @Override
     public Long getKey(T item) {
+        if ( item == null ){
+            throw new HrormException("Cannot get a key from a null item ");
+        }
         return getter.apply(item);
     }
 
@@ -79,13 +85,14 @@ public class ImmutableObjectPrimaryKey<T, CONSTRUCTOR> implements IndirectPrimar
         if ( value == null ){
             throw new HrormException("Tried to set a null value for the primary key named " + name);
         } else {
+            logger.info("setting value for " + name + " to " + value);
             preparedStatement.setLong(index, value);
         }
     }
 
     @Override
     public IndirectTypedColumn<T, CONSTRUCTOR> withPrefix(String newPrefix, Prefixer prefixer) {
-        throw new UnsupportedOperationException();
+        return new ImmutableObjectPrimaryKey<>(newPrefix, name, sequenceName, getter, setter);
     }
 
     @Override

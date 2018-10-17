@@ -12,6 +12,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Arrays;
 import java.util.Collections;
@@ -45,7 +47,7 @@ public class ParentsTest {
     }
 
     @Test
-    public void testSavePropagatesToChildren(){
+    public void testSavePropagatesToChildren() throws SQLException {
         Child child = new Child();
         child.setNumber(123L);
 
@@ -61,8 +63,17 @@ public class ParentsTest {
 
         long parentId = parent.getId();
 
+        Assert.assertTrue(parentId > 0);
+
+        Statement statement = connection.createStatement();
+        ResultSet resultSet = statement.executeQuery("select * from parent_table");
+        while (resultSet.next()){
+            System.out.println(" XXXXXX " + resultSet.getLong("ID"));
+        }
+
         Parent readItem = parentDao.select(parentId);
 
+        Assert.assertNotNull(readItem);
         Assert.assertEquals("save propagation test", readItem.getName());
         Assert.assertEquals(1, readItem.getChildList().size());
         Assert.assertEquals(123L, (long) readItem.getChildList().get(0).getNumber());

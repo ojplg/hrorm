@@ -46,4 +46,8 @@ public interface TypedColumn<T> {
      */
     void notNull();
 
+    default boolean isParentColumn() {
+        return false;
+    }
+
 }
