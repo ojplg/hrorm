@@ -102,7 +102,9 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
         setter.accept(parentBuilder, children);
     }
 
-    public void saveChildren(Connection connection, PARENT item){
+    public void saveChildren(Connection connection, Envelope<PARENT> envelope){
+
+        PARENT item = envelope.getItem();
 
         logger.info("Working to save " + item);
 
@@ -115,7 +117,7 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
         if( children == null ){
             children = Collections.emptyList();
         }
-        Long parentId = parentPrimaryKey.getKey(item);
+        Long parentId = envelope.getId();
 
         Set<Long> existingIds = findExistingChildrenIds(connection, parentId);
         for(CHILD child : children){
@@ -133,7 +135,7 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
                 sqlRunner.update(sql, child, parentId);
             }
             for(ChildrenDescriptor<CHILD,?,?,?> grandchildrenDescriptor : grandChildrenDescriptors){
-                grandchildrenDescriptor.saveChildren(connection, child);
+                grandchildrenDescriptor.saveChildren(connection, new Envelope<>(child, childId));
             }
         }
         deleteOrphans(connection, existingIds);

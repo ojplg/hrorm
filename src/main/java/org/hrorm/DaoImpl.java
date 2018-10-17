@@ -123,9 +123,10 @@ public class DaoImpl<T,P,B> implements Dao<T>, DaoDescriptor<T,B> {
         String sql = sqlBuilder.insert();
         long id = DaoHelper.getNextSequenceValue(connection, primaryKey.getSequenceName());
         primaryKey.optimisticSetKey(item, id);
+        // FIXME: this minus one is super suspicious
         sqlRunner.insert(sql, item, id, -1);
         for(ChildrenDescriptor<T,?,B,?> childrenDescriptor : childrenDescriptors){
-            childrenDescriptor.saveChildren(connection, item);
+            childrenDescriptor.saveChildren(connection, new Envelope<>(item, id));
         }
         return id;
     }
@@ -133,9 +134,10 @@ public class DaoImpl<T,P,B> implements Dao<T>, DaoDescriptor<T,B> {
     @Override
     public void update(T item) {
         String sql = sqlBuilder.update();
+        // FIXME: this minus one is super suspicious
         sqlRunner.update(sql, item, -1);
         for(ChildrenDescriptor<T,?,B,?> childrenDescriptor : childrenDescriptors){
-            childrenDescriptor.saveChildren(connection, item);
+            childrenDescriptor.saveChildren(connection, new Envelope<>(item, primaryKey.getKey(item)));
         }
     }
 
