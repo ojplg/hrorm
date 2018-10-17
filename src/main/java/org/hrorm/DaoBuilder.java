@@ -151,7 +151,7 @@ public class DaoBuilder<T> implements DaoDescriptor<T,T> {
      * @return This instance.
      */
     public <E> DaoBuilder<T> withConvertingStringColumn(String columnName, Function<T, E> getter, BiConsumer<T, E> setter, Converter<E, String> converter){
-        Column<T,T> column = new StringConverterColumn<>(columnName, myPrefix, getter, setter, converter);
+        Column<T,T> column = DataColumnFactory.stringConverterColumn(columnName, myPrefix, getter, setter, converter, true);
         columns.add(column);
         lastColumnAdded = column;
         return this;
@@ -183,7 +183,7 @@ public class DaoBuilder<T> implements DaoDescriptor<T,T> {
      * @return This instance.
      */
     public DaoBuilder<T> withBooleanColumn(String columnName, Function<T, Boolean> getter, BiConsumer<T, Boolean> setter){
-        Column<T,T> column = new StringConverterColumn<>(columnName, myPrefix, getter, setter, BooleanConverter.INSTANCE);
+        Column<T,T> column = DataColumnFactory.stringConverterColumn(columnName, myPrefix, getter, setter, BooleanConverter.INSTANCE, true);
         columns.add(column);
         lastColumnAdded = column;
         return this;

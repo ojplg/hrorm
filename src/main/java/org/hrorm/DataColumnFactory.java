@@ -118,4 +118,40 @@ public class DataColumnFactory {
         };
     }
 
+
+    public static <E,ENTITY,BUILDER> AbstractColumn<E, ENTITY, BUILDER> stringConverterColumn(
+            String name, String prefix, Function<ENTITY, E> getter, BiConsumer<BUILDER, E> setter,
+            Converter<E,String> converter, boolean nullable){
+        return new AbstractColumn<E, ENTITY, BUILDER>(name, prefix, getter, setter, nullable) {
+            @Override
+            public E fromResultSet(ResultSet resultSet, String columnName) throws SQLException {
+                String code = resultSet.getString(columnName);
+                if ( code == null ) {
+                    return null;
+                }
+                E value = converter.to(code);
+                return value;
+            }
+
+            @Override
+            public void setPreparedStatement(PreparedStatement preparedStatement, int index, E value) throws SQLException {
+                String code = null;
+                if ( value != null ){
+                    code = converter.from(value);
+                }
+                preparedStatement.setString(index, code);
+            }
+
+            @Override
+            public Column<ENTITY, BUILDER> withPrefix(String newPrefix, Prefixer prefixer) {
+                return stringConverterColumn(getName(), newPrefix, getter, setter, converter, nullable);
+            }
+
+            @Override
+            int sqlType() {
+                return Types.VARCHAR;
+            }
+        };
+    }
+
 }

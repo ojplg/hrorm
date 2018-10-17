@@ -10,14 +10,15 @@ import org.mockito.Mockito;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 
 public class StringConverterTest {
 
     @Test
     public void testSetValueHandlesNulls() throws SQLException {
 
-        StringConverterColumn<Columns, EnumeratedColor> column = new StringConverterColumn<>(
-                "COLOR", "A", Columns::getColorThing, Columns::setColorThing, new EnumeratedColorConverter());
+        AbstractColumn<EnumeratedColor,Columns, Columns> column = DataColumnFactory.stringConverterColumn(
+                "COLOR", "A", Columns::getColorThing, Columns::setColorThing, new EnumeratedColorConverter(), true);
 
         Columns columns = new Columns();
 
@@ -25,15 +26,15 @@ public class StringConverterTest {
 
         column.setValue(columns, 1, preparedStatement);
 
-        Mockito.verify(preparedStatement).setString(1, null);
+        Mockito.verify(preparedStatement).setNull(1, Types.VARCHAR);
         Mockito.verifyNoMoreInteractions(preparedStatement);
     }
 
     @Test
     public void testPopulateHandlesNulls() throws SQLException {
 
-        StringConverterColumn<Columns, EnumeratedColor> column = new StringConverterColumn<>(
-                "COLOR", "A", Columns::getColorThing, Columns::setColorThing, new EnumeratedColorConverter());
+        AbstractColumn<EnumeratedColor,Columns, Columns> column = DataColumnFactory.stringConverterColumn(
+                "COLOR", "A", Columns::getColorThing, Columns::setColorThing, new EnumeratedColorConverter(), true);
 
         Columns columns = new Columns();
 
@@ -47,8 +48,8 @@ public class StringConverterTest {
 
     @Test
     public void testPreventsNullsWhenSet() throws SQLException {
-        StringConverterColumn<Columns, EnumeratedColor> column = new StringConverterColumn<>(
-                "COLOR", "A", Columns::getColorThing, Columns::setColorThing, new EnumeratedColorConverter());
+        AbstractColumn<EnumeratedColor,Columns, Columns> column = DataColumnFactory.stringConverterColumn(
+                "COLOR", "A", Columns::getColorThing, Columns::setColorThing, new EnumeratedColorConverter(), true);
         column.notNull();
 
         Columns columns = new Columns();
