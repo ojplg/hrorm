@@ -44,7 +44,7 @@ public interface DaoDescriptor<ENTITY, ENTITYBUILDER> {
      *
      * @return all the data columns supported
      */
-    List<IndirectTypedColumn<ENTITY, ENTITYBUILDER>> dataColumns();
+    List<Column<ENTITY, ENTITYBUILDER>> dataColumns();
 
     /**
      * The columns that contain references to foreign keys to other objects
@@ -58,7 +58,7 @@ public interface DaoDescriptor<ENTITY, ENTITYBUILDER> {
      *
      * @return the primary key
      */
-    IndirectPrimaryKey<ENTITY, ENTITYBUILDER> primaryKey();
+    PrimaryKey<ENTITY, ENTITYBUILDER> primaryKey();
 
     /**
      * The definitions of any entities that are owned by type <code>ENTITY</code>
@@ -80,15 +80,15 @@ public interface DaoDescriptor<ENTITY, ENTITYBUILDER> {
      *
      * @return all the columns
      */
-    default List<IndirectTypedColumn<ENTITY, ENTITYBUILDER>> allColumns(){
-        List<IndirectTypedColumn<ENTITY, ENTITYBUILDER>> allColumns = new ArrayList<>();
+    default List<Column<ENTITY, ENTITYBUILDER>> allColumns(){
+        List<Column<ENTITY, ENTITYBUILDER>> allColumns = new ArrayList<>();
         allColumns.addAll(dataColumnsWithParent());
         allColumns.addAll(joinColumns());
         return Collections.unmodifiableList(allColumns);
     }
 
-    default List<IndirectTypedColumn<ENTITY, ENTITYBUILDER>> dataColumnsWithParent(){
-        List<IndirectTypedColumn<ENTITY, ENTITYBUILDER>> allColumns = new ArrayList<>();
+    default List<Column<ENTITY, ENTITYBUILDER>> dataColumnsWithParent(){
+        List<Column<ENTITY, ENTITYBUILDER>> allColumns = new ArrayList<>();
         allColumns.addAll(dataColumns());
         if ( hasParent()) {
             allColumns.add(parentColumn());
@@ -96,11 +96,11 @@ public interface DaoDescriptor<ENTITY, ENTITYBUILDER> {
         return Collections.unmodifiableList(allColumns);
     }
 
-    default SortedMap<String, IndirectTypedColumn<ENTITY,ENTITYBUILDER>> columnMap(String... columnNames){
-        SortedMap<String, IndirectTypedColumn<ENTITY,ENTITYBUILDER>> map = new TreeMap<>();
+    default SortedMap<String, Column<ENTITY,ENTITYBUILDER>> columnMap(String... columnNames){
+        SortedMap<String, Column<ENTITY,ENTITYBUILDER>> map = new TreeMap<>();
         Set<String> nameSet = Arrays.asList(columnNames).stream()
                 .map(String::toUpperCase).collect(Collectors.toSet());
-        for(IndirectTypedColumn<ENTITY,ENTITYBUILDER> column : allColumns()){
+        for(Column<ENTITY,ENTITYBUILDER> column : allColumns()){
             if (nameSet.contains(column.getName().toUpperCase())) {
                 String columnNameKey = column.getName().toUpperCase();
                 map.put(columnNameKey, column);

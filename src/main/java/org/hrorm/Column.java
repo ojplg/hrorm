@@ -4,7 +4,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public interface IndirectTypedColumn<T,CONSTRUCTOR> {
+public interface Column<T,CONSTRUCTOR> {
     /**
      * @return The name of the column in the underlying database.
      */
@@ -60,6 +60,6 @@ public interface IndirectTypedColumn<T,CONSTRUCTOR> {
      * @param prefixer The source for new prefixes
      * @return A new instance of the column with the reset prefix
      */
-    IndirectTypedColumn<T,CONSTRUCTOR> withPrefix(String newPrefix, Prefixer prefixer);
+    Column<T,CONSTRUCTOR> withPrefix(String newPrefix, Prefixer prefixer);
 
 }

@@ -17,7 +17,7 @@ import java.util.function.Function;
  *
  * @param <T> The entity type this column belongs to
  */
-public class BigDecimalColumn<T,B> implements IndirectTypedColumn<T,B> {
+public class BigDecimalColumn<T,B> implements Column<T,B> {
 
     private final String name;
     private final String prefix;
@@ -38,7 +38,7 @@ public class BigDecimalColumn<T,B> implements IndirectTypedColumn<T,B> {
     }
 
     @Override
-    public IndirectTypedColumn<T,B> withPrefix(String prefix, Prefixer prefixer) {
+    public Column<T,B> withPrefix(String prefix, Prefixer prefixer) {
         return new BigDecimalColumn<>(name, prefix, getter, setter, nullable);
     }
 

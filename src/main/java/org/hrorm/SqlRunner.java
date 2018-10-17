@@ -27,12 +27,12 @@ public class SqlRunner<T,B> {
     private static final Logger logger = Logger.getLogger("org.hrorm");
 
     private final Connection connection;
-    private final List<IndirectTypedColumn<T,B>> allColumns;
-    private final IndirectPrimaryKey<T,B> primaryKey;
+    private final List<Column<T,B>> allColumns;
+    private final PrimaryKey<T,B> primaryKey;
 
     private final Function<B,T> builderFunction;
 
-    public SqlRunner(Connection connection, List<IndirectTypedColumn<T,B>> allColumns, IndirectPrimaryKey<T,B> primaryKey, Function<B,T> builderFunction){
+    public SqlRunner(Connection connection, List<Column<T,B>> allColumns, PrimaryKey<T,B> primaryKey, Function<B,T> builderFunction){
         this.connection = connection;
         this.allColumns = allColumns;
         this.primaryKey = primaryKey;
@@ -41,7 +41,7 @@ public class SqlRunner<T,B> {
 
     public SqlRunner(Connection connection, DaoDescriptor<T,B> daoDescriptor) {
         this.connection = connection;
-        List<IndirectTypedColumn<T,B>> columns = new ArrayList<>();
+        List<Column<T,B>> columns = new ArrayList<>();
         columns.addAll(daoDescriptor.dataColumnsWithParent());
         columns.addAll(daoDescriptor.joinColumns());
         this.primaryKey = daoDescriptor.primaryKey();
@@ -53,7 +53,7 @@ public class SqlRunner<T,B> {
         return selectByColumns(sql, supplier, Collections.emptyList(), Collections.emptyMap(), childrenDescriptors, null);
     }
 
-    public List<B> selectByColumns(String sql, Supplier<B> supplier, List<String> columnNames, Map<String, ? extends IndirectTypedColumn<T,?>> columnNameMap,  List<? extends ChildrenDescriptor<T,?,B,?>> childrenDescriptors, T item){
+    public List<B> selectByColumns(String sql, Supplier<B> supplier, List<String> columnNames, Map<String, ? extends Column<T,?>> columnNameMap, List<? extends ChildrenDescriptor<T,?,B,?>> childrenDescriptors, T item){
         ResultSet resultSet = null;
         PreparedStatement statement = null;
         try {
@@ -63,7 +63,7 @@ public class SqlRunner<T,B> {
 
                 logger.info("Setting " + columnName);
 
-                IndirectTypedColumn<T,?> column = columnNameMap.get(columnName.toUpperCase());
+                Column<T,?> column = columnNameMap.get(columnName.toUpperCase());
                 column.setValue(item, idx, statement);
                 idx++;
             }
@@ -121,7 +121,7 @@ public class SqlRunner<T,B> {
             preparedStatement = connection.prepareStatement(sql);
 
             int idx = 1;
-            for(IndirectTypedColumn<T,B> column : allColumns){
+            for(Column<T,B> column : allColumns){
                 if( column.isPrimaryKey() ) {
                     if ( ! isUpdate ) {
                         preparedStatement.setLong(idx, id);
@@ -160,7 +160,7 @@ public class SqlRunner<T,B> {
             throws SQLException {
         B item = supplier.get();
 
-        for (IndirectTypedColumn<T,B> column: allColumns) {
+        for (Column<T,B> column: allColumns) {
             PopulateResult populateResult = column.populate(item, resultSet);
             populateResult.populateChildren(connection);
         }

@@ -19,7 +19,7 @@ import java.util.function.Function;
  * @param <ENTITY> the entity this column belongs to
  * @param <JOINED> the entity being joined
  */
-public class JoinColumn<ENTITY, JOINED, ENTITYBUILDER, JOINEDBUILDER> implements IndirectTypedColumn<ENTITY, ENTITYBUILDER> {
+public class JoinColumn<ENTITY, JOINED, ENTITYBUILDER, JOINEDBUILDER> implements Column<ENTITY, ENTITYBUILDER> {
 
     private final String name;
     private final String prefix;
@@ -69,7 +69,7 @@ public class JoinColumn<ENTITY, JOINED, ENTITYBUILDER, JOINEDBUILDER> implements
     @Override
     public PopulateResult populate(ENTITYBUILDER builder, ResultSet resultSet) throws SQLException {
         JOINEDBUILDER joinedBuilder = daoDescriptor.supplier().get();
-        for (IndirectTypedColumn<JOINED, JOINEDBUILDER> column: daoDescriptor.dataColumns()) {
+        for (Column<JOINED, JOINEDBUILDER> column: daoDescriptor.dataColumns()) {
             PopulateResult result = column.populate(joinedBuilder, resultSet);
             if ( result == PopulateResult.NoPrimaryKey ){
                 return PopulateResult.Ignore;
@@ -110,7 +110,7 @@ public class JoinColumn<ENTITY, JOINED, ENTITYBUILDER, JOINEDBUILDER> implements
         return new JoinColumn(name, newPrefix, prefixer, getter, setter, daoDescriptor, nullable);
     }
 
-    public List<IndirectTypedColumn<JOINED, JOINEDBUILDER>> getDataColumns(){
+    public List<Column<JOINED, JOINEDBUILDER>> getDataColumns(){
         return this.daoDescriptor.dataColumns();
     }
 

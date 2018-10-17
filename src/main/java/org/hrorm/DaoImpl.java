@@ -28,8 +28,8 @@ public class DaoImpl<T,P,B> implements Dao<T>, DaoDescriptor<T,B> {
 
     private final Connection connection;
     private final String tableName;
-    private final List<IndirectTypedColumn<T,B>> dataColumns;
-    private final IndirectPrimaryKey<T,B> primaryKey;
+    private final List<Column<T,B>> dataColumns;
+    private final PrimaryKey<T,B> primaryKey;
     private final Supplier<B> supplier;
     private final List<JoinColumn<T,?,B,?>> joinColumns;
     private final List<ChildrenDescriptor<T,?,B,?>> childrenDescriptors;
@@ -41,8 +41,8 @@ public class DaoImpl<T,P,B> implements Dao<T>, DaoDescriptor<T,B> {
     public DaoImpl(Connection connection,
                    String tableName,
                    Supplier<B> supplier,
-                   IndirectPrimaryKey<T,B> primaryKey,
-                   List<IndirectTypedColumn<T,B>> dataColumns,
+                   PrimaryKey<T,B> primaryKey,
+                   List<Column<T,B>> dataColumns,
                    List<JoinColumn<T,?,B,?>> joinColumns,
                    List<ChildrenDescriptor<T,?,B,?>> childrenDescriptors,
                    ParentColumn<T,P,B,?> parentColumn,
@@ -66,7 +66,7 @@ public class DaoImpl<T,P,B> implements Dao<T>, DaoDescriptor<T,B> {
     }
 
     @Override
-    public List<IndirectTypedColumn<T,B>> dataColumns(){
+    public List<Column<T,B>> dataColumns(){
         return dataColumns;
     }
 
@@ -79,7 +79,7 @@ public class DaoImpl<T,P,B> implements Dao<T>, DaoDescriptor<T,B> {
     public Supplier<B> supplier() { return supplier; }
 
     @Override
-    public IndirectPrimaryKey<T,B> primaryKey() { return primaryKey; }
+    public PrimaryKey<T,B> primaryKey() { return primaryKey; }
 
     @Override
     public List<ChildrenDescriptor<T, ?, B, ?>> childrenDescriptors() {

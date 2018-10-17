@@ -18,7 +18,7 @@ import java.util.function.Function;
  *
  * @param <T> The entity type this column belongs to
  */
-public class LocalDateTimeColumn<T> implements IndirectTypedColumn<T,T> {
+public class LocalDateTimeColumn<T> implements Column<T,T> {
 
     private final String name;
     private final String prefix;
@@ -34,7 +34,7 @@ public class LocalDateTimeColumn<T> implements IndirectTypedColumn<T,T> {
     }
 
     @Override
-    public IndirectTypedColumn<T,T> withPrefix(String prefix, Prefixer prefixer) {
+    public Column<T,T> withPrefix(String prefix, Prefixer prefixer) {
         LocalDateTimeColumn column = new LocalDateTimeColumn<>(name, prefix, getter, setter);
         if ( ! nullable ){
             column.notNull();

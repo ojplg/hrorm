@@ -27,7 +27,7 @@ public class ParentColumnImpl<T, P,TBUILDER,PBUILDER> implements ParentColumn<T,
     private final String prefix;
     private final BiConsumer<TBUILDER, P> setter;
     private final Function<T, P> getter;
-    private IndirectPrimaryKey<P, PBUILDER> parentPrimaryKey;
+    private PrimaryKey<P, PBUILDER> parentPrimaryKey;
     private boolean nullable;
 
     public ParentColumnImpl(String name, String prefix, Function<T, P> getter, BiConsumer<TBUILDER, P> setter) {
@@ -39,7 +39,7 @@ public class ParentColumnImpl<T, P,TBUILDER,PBUILDER> implements ParentColumn<T,
     }
 
     public ParentColumnImpl(String name, String prefix, Function<T, P> getter, BiConsumer<TBUILDER, P> setter,
-                            IndirectPrimaryKey<P, PBUILDER> parentPrimaryKey, boolean nullable) {
+                            PrimaryKey<P, PBUILDER> parentPrimaryKey, boolean nullable) {
         this.name = name;
         this.prefix = prefix;
         this.getter = getter;
@@ -84,7 +84,7 @@ public class ParentColumnImpl<T, P,TBUILDER,PBUILDER> implements ParentColumn<T,
     }
 
     @Override
-    public IndirectTypedColumn<T,TBUILDER> withPrefix(String prefix, Prefixer prefixer) {
+    public Column<T,TBUILDER> withPrefix(String prefix, Prefixer prefixer) {
         return new ParentColumnImpl<>(name, prefix, getter, setter, parentPrimaryKey, nullable);
     }
 
@@ -102,7 +102,7 @@ public class ParentColumnImpl<T, P,TBUILDER,PBUILDER> implements ParentColumn<T,
         return setter;
     }
 
-    public void setParentPrimaryKey(IndirectPrimaryKey<P,PBUILDER> parentPrimaryKey) {
+    public void setParentPrimaryKey(PrimaryKey<P,PBUILDER> parentPrimaryKey) {
         this.parentPrimaryKey = parentPrimaryKey;
     }
 }

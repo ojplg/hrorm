@@ -1,6 +1,6 @@
 package org.hrorm;
 
-public interface IndirectPrimaryKey<T,B> extends IndirectTypedColumn<T,B> {
+public interface PrimaryKey<T,B> extends Column<T,B> {
 
     /**
      * Sets the key onto the object

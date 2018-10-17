@@ -18,9 +18,9 @@ import java.util.stream.Collectors;
 public class SqlBuilder<T> {
 
     private final String table;
-    private final List<? extends IndirectTypedColumn<T,?>> dataColumns;
+    private final List<? extends Column<T,?>> dataColumns;
     private final List<? extends JoinColumn<T, ?, ?, ?>> joinColumns;
-    private final IndirectPrimaryKey<T,?> primaryKey;
+    private final PrimaryKey<T,?> primaryKey;
 
     public SqlBuilder(DaoDescriptor<T,?> daoDescriptor){
         this.table = daoDescriptor.tableName();
@@ -30,23 +30,23 @@ public class SqlBuilder<T> {
     }
 
     public SqlBuilder(String table,
-                      List<? extends IndirectTypedColumn<T,?>> dataColumns,
+                      List<? extends Column<T,?>> dataColumns,
                       List<? extends JoinColumn<T, ?, ?, ?>> joinColumns,
-                      IndirectPrimaryKey<T, ?> primaryKey) {
+                      PrimaryKey<T, ?> primaryKey) {
         this.table = table;
         this.dataColumns = dataColumns;
         this.joinColumns = joinColumns;
         this.primaryKey = primaryKey;
     }
 
-    private String columnsAsString(String prefix, boolean withAliases, List<? extends IndirectTypedColumn> columns){
-        Function<IndirectTypedColumn,String> stringer;
+    private String columnsAsString(String prefix, boolean withAliases, List<? extends Column> columns){
+        Function<Column,String> stringer;
         if( withAliases && prefix != null ) {
             stringer = c -> prefix + "." + c.getName() + " as " + prefix + c.getName();
         } else if (prefix != null ){
             stringer = c -> prefix + c.getName();
         } else {
-            stringer = IndirectTypedColumn::getName;
+            stringer = Column::getName;
         }
         List<String> columnNames = columns.stream().map(stringer).collect(Collectors.toList());
         return String.join(", ", columnNames);

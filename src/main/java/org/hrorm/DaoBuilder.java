@@ -18,16 +18,16 @@ import java.util.function.Supplier;
 public class DaoBuilder<T> implements DaoDescriptor<T,T> {
 
     private final String tableName;
-    private final List<IndirectTypedColumn<T,T>> columns = new ArrayList<>();
+    private final List<Column<T,T>> columns = new ArrayList<>();
     private final List<JoinColumn<T,?,T,?>> joinColumns = new ArrayList<>();
     private final List<ChildrenDescriptor<T,?,T,?>> childrenDescriptors = new ArrayList<>();
-    private IndirectPrimaryKey<T,T> primaryKey;
+    private PrimaryKey<T,T> primaryKey;
     private ParentColumn<T,?,T,?> parentColumn;
     private final Supplier<T> supplier;
     private final Prefixer prefixer;
     private final String myPrefix;
 
-    private IndirectTypedColumn<T,T> lastColumnAdded;
+    private Column<T,T> lastColumnAdded;
 
     /**
      * Create a new DaoBuilder instance.
@@ -53,12 +53,12 @@ public class DaoBuilder<T> implements DaoDescriptor<T,T> {
     }
 
     @Override
-    public List<IndirectTypedColumn<T,T>> dataColumns() {
+    public List<Column<T,T>> dataColumns() {
         return columns;
     }
 
     @Override
-    public IndirectPrimaryKey<T,T> primaryKey() {
+    public PrimaryKey<T,T> primaryKey() {
         return primaryKey;
     }
 
@@ -102,7 +102,7 @@ public class DaoBuilder<T> implements DaoDescriptor<T,T> {
      * @return This instance.
      */
     public DaoBuilder<T> withStringColumn(String columnName, Function<T, String> getter, BiConsumer<T, String> setter){
-        IndirectTypedColumn<T,T> column = new StringColumn<>(columnName, myPrefix, getter, setter);
+        Column<T,T> column = new StringColumn<>(columnName, myPrefix, getter, setter);
         columns.add(column);
         lastColumnAdded = column;
         return this;
@@ -117,7 +117,7 @@ public class DaoBuilder<T> implements DaoDescriptor<T,T> {
      * @return This instance.
      */
     public DaoBuilder<T> withIntegerColumn(String columnName, Function<T, Long> getter, BiConsumer<T, Long> setter){
-        IndirectTypedColumn<T,T> column = new LongColumn<>(columnName, myPrefix, getter, setter);
+        Column<T,T> column = new LongColumn<>(columnName, myPrefix, getter, setter);
         columns.add(column);
         lastColumnAdded = column;
         return this;
@@ -132,7 +132,7 @@ public class DaoBuilder<T> implements DaoDescriptor<T,T> {
      * @return This instance.
      */
     public DaoBuilder<T> withBigDecimalColumn(String columnName, Function<T, BigDecimal> getter, BiConsumer<T, BigDecimal> setter){
-        IndirectTypedColumn<T,T> column = new BigDecimalColumn<>(columnName, myPrefix, getter, setter);
+        Column<T,T> column = new BigDecimalColumn<>(columnName, myPrefix, getter, setter);
         columns.add(column);
         lastColumnAdded = column;
         return this;
@@ -151,7 +151,7 @@ public class DaoBuilder<T> implements DaoDescriptor<T,T> {
      * @return This instance.
      */
     public <E> DaoBuilder<T> withConvertingStringColumn(String columnName, Function<T, E> getter, BiConsumer<T, E> setter, Converter<E, String> converter){
-        IndirectTypedColumn<T,T> column = new StringConverterColumn<>(columnName, myPrefix, getter, setter, converter);
+        Column<T,T> column = new StringConverterColumn<>(columnName, myPrefix, getter, setter, converter);
         columns.add(column);
         lastColumnAdded = column;
         return this;
@@ -166,7 +166,7 @@ public class DaoBuilder<T> implements DaoDescriptor<T,T> {
      * @return This instance.
      */
     public DaoBuilder<T> withLocalDateTimeColumn(String columnName, Function<T, LocalDateTime> getter, BiConsumer<T, LocalDateTime> setter){
-        IndirectTypedColumn<T,T> column = new LocalDateTimeColumn<>(columnName, myPrefix, getter, setter);
+        Column<T,T> column = new LocalDateTimeColumn<>(columnName, myPrefix, getter, setter);
         columns.add(column);
         lastColumnAdded = column;
         return this;
@@ -183,7 +183,7 @@ public class DaoBuilder<T> implements DaoDescriptor<T,T> {
      * @return This instance.
      */
     public DaoBuilder<T> withBooleanColumn(String columnName, Function<T, Boolean> getter, BiConsumer<T, Boolean> setter){
-        IndirectTypedColumn<T,T> column = new StringConverterColumn<>(columnName, myPrefix, getter, setter, BooleanConverter.INSTANCE);
+        Column<T,T> column = new StringConverterColumn<>(columnName, myPrefix, getter, setter, BooleanConverter.INSTANCE);
         columns.add(column);
         lastColumnAdded = column;
         return this;

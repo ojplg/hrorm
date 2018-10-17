@@ -12,8 +12,8 @@ import java.util.function.BiConsumer;
  * @param <CHILD> The child entity type
  * @param <PARENT> The type of the parent
  */
-public interface ParentColumn<CHILD,PARENT,CHILDBUILDER,PARENTBUILDER> extends IndirectTypedColumn<CHILD,CHILDBUILDER> {
-    void setParentPrimaryKey(IndirectPrimaryKey<PARENT, PARENTBUILDER> parentPrimaryKey);
+public interface ParentColumn<CHILD,PARENT,CHILDBUILDER,PARENTBUILDER> extends Column<CHILD,CHILDBUILDER> {
+    void setParentPrimaryKey(PrimaryKey<PARENT, PARENTBUILDER> parentPrimaryKey);
     BiConsumer<CHILDBUILDER, PARENT> setter();
 
     @Override

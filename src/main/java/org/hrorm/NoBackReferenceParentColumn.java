@@ -22,7 +22,7 @@ public class NoBackReferenceParentColumn<T,P,TBUILDER,PBUILDER> implements Paren
 
     private final String name;
     private final String prefix;
-    private IndirectPrimaryKey<P,PBUILDER> parentPrimaryKey;
+    private PrimaryKey<P,PBUILDER> parentPrimaryKey;
     private boolean nullable;
 
     private final Semaphore parentSemaphore = new Semaphore(1);
@@ -35,7 +35,7 @@ public class NoBackReferenceParentColumn<T,P,TBUILDER,PBUILDER> implements Paren
     }
 
     @Override
-    public void setParentPrimaryKey(IndirectPrimaryKey<P,PBUILDER> primaryKey) {
+    public void setParentPrimaryKey(PrimaryKey<P,PBUILDER> primaryKey) {
         this.parentPrimaryKey = primaryKey;
     }
 
@@ -87,7 +87,7 @@ public class NoBackReferenceParentColumn<T,P,TBUILDER,PBUILDER> implements Paren
     }
 
     @Override
-    public IndirectTypedColumn<T,TBUILDER> withPrefix(String newPrefix, Prefixer prefixer) {
+    public Column<T,TBUILDER> withPrefix(String newPrefix, Prefixer prefixer) {
         return new NoBackReferenceParentColumn(name, newPrefix);
     }
 

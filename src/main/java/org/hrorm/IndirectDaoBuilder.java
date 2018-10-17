@@ -19,7 +19,7 @@ public class IndirectDaoBuilder<ENTITY, ENTITYBUILDER>  {
 
     private PrimaryKeyImpl<ENTITY, ENTITYBUILDER> primaryKey;
 
-    private List<IndirectTypedColumn<ENTITY, ENTITYBUILDER>> dataColumns = new ArrayList<>();
+    private List<Column<ENTITY, ENTITYBUILDER>> dataColumns = new ArrayList<>();
 
     public IndirectDaoBuilder(String tableName, Supplier<ENTITYBUILDER> entityBuilder, Function<ENTITYBUILDER, ENTITY> build){
         this.tableName = tableName;

@@ -7,7 +7,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.logging.Logger;
 
-public class PrimaryKeyImpl<ENTITY, ENTITYBUILDER> implements IndirectPrimaryKey<ENTITY, ENTITYBUILDER> {
+public class PrimaryKeyImpl<ENTITY, ENTITYBUILDER> implements PrimaryKey<ENTITY, ENTITYBUILDER> {
 
     private static final Logger logger = Logger.getLogger("org.hrorm");
 
@@ -91,7 +91,7 @@ public class PrimaryKeyImpl<ENTITY, ENTITYBUILDER> implements IndirectPrimaryKey
     }
 
     @Override
-    public IndirectTypedColumn<ENTITY, ENTITYBUILDER> withPrefix(String newPrefix, Prefixer prefixer) {
+    public Column<ENTITY, ENTITYBUILDER> withPrefix(String newPrefix, Prefixer prefixer) {
         return new PrimaryKeyImpl<>(newPrefix, name, sequenceName, getter, setter);
     }
 

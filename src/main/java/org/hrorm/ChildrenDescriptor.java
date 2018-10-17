@@ -29,7 +29,7 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
     private final Function<PARENT, List<CHILD>> getter;
     private final BiConsumer<PARENTBUILDER, List<CHILD>> setter;
     private final DaoDescriptor<CHILD,CHILDBUILDER> daoDescriptor;
-    private final IndirectPrimaryKey<PARENT,PARENTBUILDER> parentPrimaryKey;
+    private final PrimaryKey<PARENT,PARENTBUILDER> parentPrimaryKey;
     private final BiConsumer<CHILDBUILDER, PARENT> parentSetter;
 
     private final List<ChildrenDescriptor<CHILD,?,CHILDBUILDER,?>> grandChildrenDescriptors;
@@ -42,7 +42,7 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
     public ChildrenDescriptor(Function<PARENT, List<CHILD>> getter,
                               BiConsumer<PARENTBUILDER, List<CHILD>> setter,
                               DaoDescriptor<CHILD,CHILDBUILDER> daoDescriptor,
-                              IndirectPrimaryKey<PARENT,PARENTBUILDER> parentPrimaryKey,
+                              PrimaryKey<PARENT,PARENTBUILDER> parentPrimaryKey,
                               Function<CHILDBUILDER, CHILD> childBuild,
                               Function<PARENTBUILDER, PARENT> parentBuild) {
         this.parentChildColumnName = daoDescriptor.parentColumn().getName();
@@ -73,7 +73,7 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
 
         logger.info("Instantiated a child " + child);
 
-        SortedMap<String, IndirectTypedColumn<CHILD, CHILDBUILDER>> columnNameMap = daoDescriptor.columnMap(parentChildColumnName);
+        SortedMap<String, Column<CHILD, CHILDBUILDER>> columnNameMap = daoDescriptor.columnMap(parentChildColumnName);
 
         String sql = sqlBuilder.selectByColumns(parentChildColumnName);
         SqlRunner<CHILD,CHILDBUILDER> sqlRunner = new SqlRunner<>(connection, daoDescriptor);
