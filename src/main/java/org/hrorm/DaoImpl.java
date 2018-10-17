@@ -133,7 +133,7 @@ public class DaoImpl<T,P,B> implements Dao<T>, DaoDescriptor<T,B> {
     @Override
     public void update(T item) {
         String sql = sqlBuilder.update();
-        sqlRunner.update(sql, item);
+        sqlRunner.update(sql, item, -1);
         for(ChildrenDescriptor<T,?,B,?> childrenDescriptor : childrenDescriptors){
             childrenDescriptor.saveChildren(connection, item);
         }

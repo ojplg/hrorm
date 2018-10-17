@@ -130,7 +130,7 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
             } else {
                 existingIds.remove(childId);
                 String sql = sqlBuilder.update();
-                sqlRunner.update(sql, child);
+                sqlRunner.update(sql, child, parentId);
             }
             for(ChildrenDescriptor<CHILD,?,?,?> grandchildrenDescriptor : grandChildrenDescriptors){
                 grandchildrenDescriptor.saveChildren(connection, child);

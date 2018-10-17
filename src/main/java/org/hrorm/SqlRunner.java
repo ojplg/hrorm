@@ -105,9 +105,9 @@ public class SqlRunner<T,B> {
         runInsertOrUpdate(sql, item, id, parentId,false);
     }
 
-    public void update(String sql, T item) {
+    public void update(String sql, T item,long parentId) {
         Long id = primaryKey.getKey(item);
-        runInsertOrUpdate(sql, item, id, -34575, true);
+        runInsertOrUpdate(sql, item, id, parentId, true);
     }
 
     private void runInsertOrUpdate(String sql, T item, long id, long parentId, boolean isUpdate){
