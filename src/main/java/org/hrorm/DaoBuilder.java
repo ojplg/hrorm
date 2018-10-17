@@ -13,21 +13,21 @@ import java.util.function.Supplier;
  * A DaoBuilder provides mechanisms for describing the relationship between
  * a Java type and the table(s) that will persist the data held in the class.
  *
- * @param <T> The class that the Dao will support.
+ * @param <ENTITY> The class that the Dao will support.
  */
-public class DaoBuilder<T> implements DaoDescriptor<T,T> {
+public class DaoBuilder<ENTITY> implements DaoDescriptor<ENTITY, ENTITY> {
 
     private final String tableName;
-    private final List<Column<T,T>> columns = new ArrayList<>();
-    private final List<JoinColumn<T,?,T,?>> joinColumns = new ArrayList<>();
-    private final List<ChildrenDescriptor<T,?,T,?>> childrenDescriptors = new ArrayList<>();
-    private PrimaryKey<T,T> primaryKey;
-    private ParentColumn<T,?,T,?> parentColumn;
-    private final Supplier<T> supplier;
+    private final List<Column<ENTITY, ENTITY>> columns = new ArrayList<>();
+    private final List<JoinColumn<ENTITY,?, ENTITY,?>> joinColumns = new ArrayList<>();
+    private final List<ChildrenDescriptor<ENTITY,?, ENTITY,?>> childrenDescriptors = new ArrayList<>();
+    private PrimaryKey<ENTITY, ENTITY> primaryKey;
+    private ParentColumn<ENTITY,?, ENTITY,?> parentColumn;
+    private final Supplier<ENTITY> supplier;
     private final Prefixer prefixer;
     private final String myPrefix;
 
-    private Column<T,T> lastColumnAdded;
+    private Column<ENTITY, ENTITY> lastColumnAdded;
 
     /**
      * Create a new DaoBuilder instance.
@@ -35,7 +35,7 @@ public class DaoBuilder<T> implements DaoDescriptor<T,T> {
      * @param tableName The name of the table in the database.
      * @param supplier A mechanism (generally a constructor) for creating a new instance.
      */
-    public DaoBuilder(String tableName, Supplier<T> supplier){
+    public DaoBuilder(String tableName, Supplier<ENTITY> supplier){
         this.tableName = tableName;
         this.supplier = supplier;
         this.prefixer = new Prefixer();
@@ -48,45 +48,45 @@ public class DaoBuilder<T> implements DaoDescriptor<T,T> {
     }
 
     @Override
-    public Supplier<T> supplier() {
+    public Supplier<ENTITY> supplier() {
         return supplier;
     }
 
     @Override
-    public List<Column<T,T>> dataColumns() {
+    public List<Column<ENTITY, ENTITY>> dataColumns() {
         return columns;
     }
 
     @Override
-    public PrimaryKey<T,T> primaryKey() {
+    public PrimaryKey<ENTITY, ENTITY> primaryKey() {
         return primaryKey;
     }
 
     @Override
-    public List<ChildrenDescriptor<T, ?, T, ?>> childrenDescriptors() {
+    public List<ChildrenDescriptor<ENTITY, ?, ENTITY, ?>> childrenDescriptors() {
         return childrenDescriptors;
     }
 
     @Override
-    public ParentColumn<T, ?, T, ?> parentColumn() {
+    public ParentColumn<ENTITY, ?, ENTITY, ?> parentColumn() {
         return parentColumn;
     }
 
-    public List<JoinColumn<T, ?, T, ?>> joinColumns() { return joinColumns; }
+    public List<JoinColumn<ENTITY, ?, ENTITY, ?>> joinColumns() { return joinColumns; }
 
     @Override
-    public Function<T, T> buildFunction() {
+    public Function<ENTITY, ENTITY> buildFunction() {
         return t -> t;
     }
 
     /**
-     * Creates a {@link Dao} for performing CRUD operations of type <code>T</code>.
+     * Creates a {@link Dao} for performing CRUD operations of type <code>ENTITY</code>.
      *
      * @param connection The SQL connection this <code>Dao</code> will use
      *                   for its operations.
      * @return The newly created <code>Dao</code>.
      */
-    public Dao<T> buildDao(Connection connection){
+    public Dao<ENTITY> buildDao(Connection connection){
         if( primaryKey == null ){
             throw new HrormException("Cannot create a Dao without a primary key.");
         }
@@ -97,12 +97,12 @@ public class DaoBuilder<T> implements DaoDescriptor<T,T> {
      * Describes a text or string data element.
      *
      * @param columnName The name of the column that holds the data element.
-     * @param getter The function on <code>T</code> that returns the data element.
-     * @param setter The function on <code>T</code> that consumes the data element.
+     * @param getter The function on <code>ENTITY</code> that returns the data element.
+     * @param setter The function on <code>ENTITY</code> that consumes the data element.
      * @return This instance.
      */
-    public DaoBuilder<T> withStringColumn(String columnName, Function<T, String> getter, BiConsumer<T, String> setter){
-        Column<T,T> column = DataColumnFactory.stringColumn(columnName, myPrefix, getter, setter, true);
+    public DaoBuilder<ENTITY> withStringColumn(String columnName, Function<ENTITY, String> getter, BiConsumer<ENTITY, String> setter){
+        Column<ENTITY, ENTITY> column = DataColumnFactory.stringColumn(columnName, myPrefix, getter, setter, true);
         columns.add(column);
         lastColumnAdded = column;
         return this;
@@ -112,12 +112,12 @@ public class DaoBuilder<T> implements DaoDescriptor<T,T> {
      * Describes a numeric data element with no decimal or fractional part.
      *
      * @param columnName The name of the column that holds the data element.
-     * @param getter The function on <code>T</code> that returns the data element.
-     * @param setter The function on <code>T</code> that consumes the data element.
+     * @param getter The function on <code>ENTITY</code> that returns the data element.
+     * @param setter The function on <code>ENTITY</code> that consumes the data element.
      * @return This instance.
      */
-    public DaoBuilder<T> withIntegerColumn(String columnName, Function<T, Long> getter, BiConsumer<T, Long> setter){
-        Column<T,T> column = DataColumnFactory.longColumn(columnName, myPrefix, getter, setter, true);
+    public DaoBuilder<ENTITY> withIntegerColumn(String columnName, Function<ENTITY, Long> getter, BiConsumer<ENTITY, Long> setter){
+        Column<ENTITY, ENTITY> column = DataColumnFactory.longColumn(columnName, myPrefix, getter, setter, true);
         columns.add(column);
         lastColumnAdded = column;
         return this;
@@ -127,12 +127,12 @@ public class DaoBuilder<T> implements DaoDescriptor<T,T> {
      * Describes a numeric data element with a decimal part.
      *
      * @param columnName The name of the column that holds the data element.
-     * @param getter The function on <code>T</code> that returns the data element.
-     * @param setter The function on <code>T</code> that consumes the data element.
+     * @param getter The function on <code>ENTITY</code> that returns the data element.
+     * @param setter The function on <code>ENTITY</code> that consumes the data element.
      * @return This instance.
      */
-    public DaoBuilder<T> withBigDecimalColumn(String columnName, Function<T, BigDecimal> getter, BiConsumer<T, BigDecimal> setter){
-        Column<T,T> column = DataColumnFactory.bigDecimalColumn(columnName, myPrefix, getter, setter, true);
+    public DaoBuilder<ENTITY> withBigDecimalColumn(String columnName, Function<ENTITY, BigDecimal> getter, BiConsumer<ENTITY, BigDecimal> setter){
+        Column<ENTITY, ENTITY> column = DataColumnFactory.bigDecimalColumn(columnName, myPrefix, getter, setter, true);
         columns.add(column);
         lastColumnAdded = column;
         return this;
@@ -143,15 +143,15 @@ public class DaoBuilder<T> implements DaoDescriptor<T,T> {
      * is persisted using a <code>String</code> representation.
      *
      * @param columnName The name of the column that holds the data element.
-     * @param getter The function on <code>T</code> that returns the data element.
-     * @param setter The function on <code>T</code> that consumes the data element.
+     * @param getter The function on <code>ENTITY</code> that returns the data element.
+     * @param setter The function on <code>ENTITY</code> that consumes the data element.
      * @param converter A mechanism for converting between a <code>String</code> and
      *                  the type <code>E</code> that the object contains.
      * @param <E> The type being converted for persistence.
      * @return This instance.
      */
-    public <E> DaoBuilder<T> withConvertingStringColumn(String columnName, Function<T, E> getter, BiConsumer<T, E> setter, Converter<E, String> converter){
-        Column<T,T> column = DataColumnFactory.stringConverterColumn(columnName, myPrefix, getter, setter, converter, true);
+    public <E> DaoBuilder<ENTITY> withConvertingStringColumn(String columnName, Function<ENTITY, E> getter, BiConsumer<ENTITY, E> setter, Converter<E, String> converter){
+        Column<ENTITY, ENTITY> column = DataColumnFactory.stringConverterColumn(columnName, myPrefix, getter, setter, converter, true);
         columns.add(column);
         lastColumnAdded = column;
         return this;
@@ -161,12 +161,12 @@ public class DaoBuilder<T> implements DaoDescriptor<T,T> {
      * Describes a data element that represents a time stamp.
      *
      * @param columnName The name of the column that holds the data element.
-     * @param getter The function on <code>T</code> that returns the data element.
-     * @param setter The function on <code>T</code> that consumes the data element.
+     * @param getter The function on <code>ENTITY</code> that returns the data element.
+     * @param setter The function on <code>ENTITY</code> that consumes the data element.
      * @return This instance.
      */
-    public DaoBuilder<T> withLocalDateTimeColumn(String columnName, Function<T, LocalDateTime> getter, BiConsumer<T, LocalDateTime> setter){
-        Column<T,T> column = DataColumnFactory.localDateTimeColumn(columnName, myPrefix, getter, setter, true);
+    public DaoBuilder<ENTITY> withLocalDateTimeColumn(String columnName, Function<ENTITY, LocalDateTime> getter, BiConsumer<ENTITY, LocalDateTime> setter){
+        Column<ENTITY, ENTITY> column = DataColumnFactory.localDateTimeColumn(columnName, myPrefix, getter, setter, true);
         columns.add(column);
         lastColumnAdded = column;
         return this;
@@ -175,15 +175,15 @@ public class DaoBuilder<T> implements DaoDescriptor<T,T> {
     /**
      * Describes a data element that represents a true/false value. Boolean
      * elements are persisted to a text column with the single character
-     * "T" or "F".
+     * "ENTITY" or "F".
      *
      * @param columnName The name of the column that holds the data element.
-     * @param getter The function on <code>T</code> that returns the data element.
-     * @param setter The function on <code>T</code> that consumes the data element.
+     * @param getter The function on <code>ENTITY</code> that returns the data element.
+     * @param setter The function on <code>ENTITY</code> that consumes the data element.
      * @return This instance.
      */
-    public DaoBuilder<T> withBooleanColumn(String columnName, Function<T, Boolean> getter, BiConsumer<T, Boolean> setter){
-        Column<T,T> column = DataColumnFactory.stringConverterColumn(columnName, myPrefix, getter, setter, BooleanConverter.INSTANCE, true);
+    public DaoBuilder<ENTITY> withBooleanColumn(String columnName, Function<ENTITY, Boolean> getter, BiConsumer<ENTITY, Boolean> setter){
+        Column<ENTITY, ENTITY> column = DataColumnFactory.stringConverterColumn(columnName, myPrefix, getter, setter, BooleanConverter.INSTANCE, true);
         columns.add(column);
         lastColumnAdded = column;
         return this;
@@ -204,23 +204,23 @@ public class DaoBuilder<T> implements DaoDescriptor<T,T> {
      * @param columnName The name of the column with the foreign key to the other table.
      *                   This column must be an integer type and must reference the primary
      *                   key of the other table.
-     * @param getter The function on <code>T</code> that returns the data element.
-     * @param setter The function on <code>T</code> that consumes the data element.
+     * @param getter The function on <code>ENTITY</code> that returns the data element.
+     * @param setter The function on <code>ENTITY</code> that consumes the data element.
      * @param daoDescriptor The description of how the mapping for the subordinate element
      *                      is persisted. Both <code>Dao</code> and <code>DaoBuilder</code>
      *                      objects implement the <code>DaoDescriptor</code> interface.
      * @param <U> The type of the data element.
      * @return This instance.
      */
-    public <U> DaoBuilder<T> withJoinColumn(String columnName, Function<T, U> getter, BiConsumer<T,U> setter, DaoDescriptor<U,?> daoDescriptor){
-        JoinColumn<T,U,T,?> joinColumn = new JoinColumn<>(columnName, myPrefix, prefixer, getter, setter, daoDescriptor, true);
+    public <U> DaoBuilder<ENTITY> withJoinColumn(String columnName, Function<ENTITY, U> getter, BiConsumer<ENTITY,U> setter, DaoDescriptor<U,?> daoDescriptor){
+        JoinColumn<ENTITY,U, ENTITY,?> joinColumn = new JoinColumn<>(columnName, myPrefix, prefixer, getter, setter, daoDescriptor, true);
         joinColumns.add(joinColumn);
         lastColumnAdded = joinColumn;
         return this;
     }
 
     /**
-     * Describes a relationship between the object <code>T</code> and its several
+     * Describes a relationship between the object <code>ENTITY</code> and its several
      * child objects of type <code>U</code>.
      *
      * When hrorm inserts or updates objects with children it will attempt to
@@ -239,8 +239,8 @@ public class DaoBuilder<T> implements DaoDescriptor<T,T> {
      * Contrast this behavior with the join column functionality, which describes
      * the situation wherein the object makes no sense without the joined relation.
      *
-     * @param getter The function on <code>T</code> that returns the children.
-     * @param setter The function on <code>T</code> that consumes the children.
+     * @param getter The function on <code>ENTITY</code> that returns the children.
+     * @param setter The function on <code>ENTITY</code> that consumes the children.
      * @param daoDescriptor The description of how the mapping for the subordinate elements
      *                      are persisted. Both <code>Dao</code> and <code>DaoBuilder</code>
      *                      objects implement the <code>DaoDescriptor</code> interface.
@@ -248,7 +248,7 @@ public class DaoBuilder<T> implements DaoDescriptor<T,T> {
      * @param <UB> The type of the builder of child data elements
      * @return This instance.
      */
-    public <U,UB> DaoBuilder<T> withChildren(Function<T, List<U>> getter, BiConsumer<T, List<U>> setter, DaoDescriptor<U,UB> daoDescriptor){
+    public <U,UB> DaoBuilder<ENTITY> withChildren(Function<ENTITY, List<U>> getter, BiConsumer<ENTITY, List<U>> setter, DaoDescriptor<U,UB> daoDescriptor){
         if( ! daoDescriptor.hasParent() ){
             throw new HrormException("Children must have a parent column");
         }
@@ -269,7 +269,7 @@ public class DaoBuilder<T> implements DaoDescriptor<T,T> {
      * @param setter The function to call to set the primary key value to an object instance.
      * @return This instance.
      */
-    public DaoBuilder<T> withPrimaryKey(String columnName, String sequenceName, Function<T, Long> getter, BiConsumer<T, Long> setter){
+    public DaoBuilder<ENTITY> withPrimaryKey(String columnName, String sequenceName, Function<ENTITY, Long> getter, BiConsumer<ENTITY, Long> setter){
         if ( this.primaryKey != null ){
             throw new HrormException("Attempt to set a second primary key");
         }
@@ -287,11 +287,11 @@ public class DaoBuilder<T> implements DaoDescriptor<T,T> {
      * @param <P> The type of the parent object.
      * @return This instance.
      */
-    public <P> DaoBuilder<T> withParentColumn(String columnName, Function<T,P> getter, BiConsumer<T,P> setter){
+    public <P> DaoBuilder<ENTITY> withParentColumn(String columnName, Function<ENTITY,P> getter, BiConsumer<ENTITY,P> setter){
         if ( parentColumn != null ){
             throw new HrormException("Attempt to set a second parent");
         }
-        ParentColumnImpl<T,P,T,?> column = new ParentColumnImpl<>(columnName, myPrefix, getter, setter);
+        ParentColumnImpl<ENTITY,P, ENTITY,?> column = new ParentColumnImpl<>(columnName, myPrefix, getter, setter);
         lastColumnAdded = column;
         parentColumn = column;
         return this;
@@ -304,11 +304,11 @@ public class DaoBuilder<T> implements DaoDescriptor<T,T> {
      * @param <P> The type of the parent object.
      * @return This instance.
      */
-    public <P> DaoBuilder<T> withParentColumn(String columnName){
+    public <P> DaoBuilder<ENTITY> withParentColumn(String columnName){
         if ( parentColumn != null ){
             throw new HrormException("Attempt to set a second parent");
         }
-        NoBackReferenceParentColumn<T,P,T,?> column = new NoBackReferenceParentColumn<>(columnName, myPrefix);
+        NoBackReferenceParentColumn<ENTITY,P, ENTITY,?> column = new NoBackReferenceParentColumn<>(columnName, myPrefix);
         lastColumnAdded = column;
         parentColumn = column;
         return this;
@@ -321,7 +321,7 @@ public class DaoBuilder<T> implements DaoDescriptor<T,T> {
      *
      * @return This instance.
      */
-    public DaoBuilder<T> notNull(){
+    public DaoBuilder<ENTITY> notNull(){
         if ( lastColumnAdded == null ){
             throw new HrormException("No column to set as not null has been added.");
         }
