@@ -3,6 +3,7 @@ package org.hrorm;
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -41,6 +42,7 @@ public class ImmutableObjectDaoBuilder<T,CONSTRUCTOR>  {
      */
     public ImmutableObjectDaoBuilder<T,CONSTRUCTOR> withPrimaryKey(String columnName, String sequenceName, Function<T, Long> getter, BiConsumer<CONSTRUCTOR, Long> setter){
         primaryKey = new ImmutableObjectPrimaryKey<>(myPrefix, columnName, sequenceName, getter, setter);
+        dataColumns.add(primaryKey);
         return this;
     }
 
@@ -83,15 +85,16 @@ public class ImmutableObjectDaoBuilder<T,CONSTRUCTOR>  {
      */
     public Dao<T> buildDao(Connection connection){
 
-        return new IndirectDaoImpl<>(
+        return new DaoImpl<>(
                 connection,
                 tableName,
+                constructor,
                 primaryKey,
                 dataColumns,
-                constructor,
-                construct
-
-        );
+                Collections.emptyList(),
+                Collections.emptyList(),
+                null,
+                construct);
     }
 
     private <X> Function<CONSTRUCTOR, X> wrap(Function<T, X> getter){
