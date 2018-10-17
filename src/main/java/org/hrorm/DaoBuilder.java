@@ -166,7 +166,7 @@ public class DaoBuilder<T> implements DaoDescriptor<T,T> {
      * @return This instance.
      */
     public DaoBuilder<T> withLocalDateTimeColumn(String columnName, Function<T, LocalDateTime> getter, BiConsumer<T, LocalDateTime> setter){
-        Column<T,T> column = new LocalDateTimeColumn<>(columnName, myPrefix, getter, setter);
+        Column<T,T> column = DataColumnFactory.localDateTimeColumn(columnName, myPrefix, getter, setter, true);
         columns.add(column);
         lastColumnAdded = column;
         return this;

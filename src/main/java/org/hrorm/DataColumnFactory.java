@@ -4,7 +4,9 @@ import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.sql.Types;
+import java.time.LocalDateTime;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
@@ -85,5 +87,35 @@ public class DataColumnFactory {
         };
     }
 
+    public static <ENTITY,BUILDER> AbstractColumn<LocalDateTime, ENTITY, BUILDER> localDateTimeColumn(
+            String name, String prefix, Function<ENTITY, LocalDateTime> getter, BiConsumer<BUILDER, LocalDateTime> setter, boolean nullable){
+        return new AbstractColumn<LocalDateTime, ENTITY, BUILDER>(name, prefix, getter, setter, nullable) {
+            @Override
+            public LocalDateTime fromResultSet(ResultSet resultSet, String columnName) throws SQLException {
+                Timestamp sqlTime = resultSet.getTimestamp(columnName);
+                LocalDateTime value = null;
+                if ( sqlTime != null ) {
+                    value = sqlTime.toLocalDateTime();
+                }
+                return value;
+            }
+
+            @Override
+            public void setPreparedStatement(PreparedStatement preparedStatement, int index, LocalDateTime value) throws SQLException {
+                Timestamp sqlTime = Timestamp.valueOf(value);
+                preparedStatement.setTimestamp(index, sqlTime);
+            }
+
+            @Override
+            public Column<ENTITY, BUILDER> withPrefix(String newPrefix, Prefixer prefixer) {
+                return localDateTimeColumn(getName(), newPrefix, getter, setter, nullable);
+            }
+
+            @Override
+            int sqlType() {
+                return Types.TIMESTAMP;
+            }
+        };
+    }
 
 }

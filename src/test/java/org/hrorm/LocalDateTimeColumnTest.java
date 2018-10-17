@@ -8,14 +8,16 @@ import org.mockito.Mockito;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
+import java.time.LocalDateTime;
 
 public class LocalDateTimeColumnTest {
 
     @Test
     public void testSetValueHandlesNulls() throws SQLException  {
 
-        LocalDateTimeColumn<Columns> column = new LocalDateTimeColumn<>(
-                "TIME COLUMN", "A", Columns::getTimeStampThing, Columns::setTimeStampThing);
+        AbstractColumn<LocalDateTime,Columns,Columns> column = DataColumnFactory.localDateTimeColumn(
+                "TIME COLUMN", "A", Columns::getTimeStampThing, Columns::setTimeStampThing, true);
 
         Columns columns = new Columns();
 
@@ -23,15 +25,15 @@ public class LocalDateTimeColumnTest {
 
         column.setValue(columns, 1, preparedStatement);
 
-        Mockito.verify(preparedStatement).setTimestamp(1, null);
+        Mockito.verify(preparedStatement).setNull(1, Types.TIMESTAMP);
         Mockito.verifyNoMoreInteractions(preparedStatement);
     }
 
     @Test
     public void testPopulateHandlesNulls() throws SQLException {
 
-        LocalDateTimeColumn<Columns> column = new LocalDateTimeColumn<>(
-                "TIME COLUMN", "A", Columns::getTimeStampThing, Columns::setTimeStampThing);
+        AbstractColumn<LocalDateTime,Columns,Columns> column = DataColumnFactory.localDateTimeColumn(
+                "TIME COLUMN", "A", Columns::getTimeStampThing, Columns::setTimeStampThing, true);
 
         Columns columns = new Columns();
 
@@ -45,8 +47,8 @@ public class LocalDateTimeColumnTest {
 
     @Test
     public void testPreventsNullsWhenSet() throws SQLException {
-        LocalDateTimeColumn<Columns> column = new LocalDateTimeColumn<>(
-                "TIME COLUMN", "A", Columns::getTimeStampThing, Columns::setTimeStampThing);
+        AbstractColumn<LocalDateTime,Columns,Columns> column = DataColumnFactory.localDateTimeColumn(
+                "TIME COLUMN", "A", Columns::getTimeStampThing, Columns::setTimeStampThing, true);
         column.notNull();
 
         Columns columns = new Columns();
