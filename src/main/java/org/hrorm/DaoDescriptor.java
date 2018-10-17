@@ -13,63 +13,63 @@ import java.util.stream.Collectors;
 
 /**
  * Implementers of this interface completely describe all the information
- * necessary to persisting objects of type <code>T</code>.
+ * necessary to persisting objects of type <code>ENTITY</code>.
  *
  * <p>
  *
  * Most users of hrorm will have no need to directly use this.
  *
- * @param <T> The type representing the enitity being persisted.
- * @param <B> The type of object that can build a <code>T</code>.
+ * @param <ENTITY> The type representing the enitity being persisted.
+ * @param <ENTITYBUILDER> The type of object that can build a <code>ENTITY</code>.
  */
-public interface DaoDescriptor<T,B> {
+public interface DaoDescriptor<ENTITY, ENTITYBUILDER> {
 
     /**
-     * The name of the table that is used to persist type <code>T</code>
+     * The name of the table that is used to persist type <code>ENTITY</code>
      *
      * @return the table name
      */
     String tableName();
 
     /**
-     * The mechanism to use to instantiate a new instance of type <code>T</code>,
+     * The mechanism to use to instantiate a new instance of type <code>ENTITY</code>,
      * generally a no-argument constructor of the class.
      *
      * @return A function pointer to the instantiation mechanism
      */
-    Supplier<B> supplier();
+    Supplier<ENTITYBUILDER> supplier();
 
     /**
      * The columns that contain the data that make up the object
      *
      * @return all the data columns supported
      */
-    List<IndirectTypedColumn<T,B>> dataColumns();
+    List<IndirectTypedColumn<ENTITY, ENTITYBUILDER>> dataColumns();
 
     /**
      * The columns that contain references to foreign keys to other objects
      *
      * @return all the reference columns supported
      */
-    List<JoinColumn<T,?,B,?>> joinColumns();
+    List<JoinColumn<ENTITY,?, ENTITYBUILDER,?>> joinColumns();
 
     /**
-     * The primary key for objects of type <code>T</code>
+     * The primary key for objects of type <code>ENTITY</code>
      *
      * @return the primary key
      */
-    IndirectPrimaryKey<T,B> primaryKey();
+    IndirectPrimaryKey<ENTITY, ENTITYBUILDER> primaryKey();
 
     /**
-     * The definitions of any entities that are owned by type <code>T</code>
+     * The definitions of any entities that are owned by type <code>ENTITY</code>
      *
      * @return all the owned entities
      */
-    List<ChildrenDescriptor<T, ?, B, ?>> childrenDescriptors();
+    List<ChildrenDescriptor<ENTITY, ?, ENTITYBUILDER, ?>> childrenDescriptors();
 
-    <P,PB> ParentColumn<T, P, B, PB> parentColumn();
+    <P,PB> ParentColumn<ENTITY, P, ENTITYBUILDER, PB> parentColumn();
 
-    Function<B, T> buildFunction();
+    Function<ENTITYBUILDER, ENTITY> buildFunction();
 
     default boolean hasParent(){
         return parentColumn() != null;
@@ -80,15 +80,15 @@ public interface DaoDescriptor<T,B> {
      *
      * @return all the columns
      */
-    default List<IndirectTypedColumn<T,B>> allColumns(){
-        List<IndirectTypedColumn<T,B>> allColumns = new ArrayList<>();
+    default List<IndirectTypedColumn<ENTITY, ENTITYBUILDER>> allColumns(){
+        List<IndirectTypedColumn<ENTITY, ENTITYBUILDER>> allColumns = new ArrayList<>();
         allColumns.addAll(dataColumnsWithParent());
         allColumns.addAll(joinColumns());
         return Collections.unmodifiableList(allColumns);
     }
 
-    default List<IndirectTypedColumn<T,B>> dataColumnsWithParent(){
-        List<IndirectTypedColumn<T,B>> allColumns = new ArrayList<>();
+    default List<IndirectTypedColumn<ENTITY, ENTITYBUILDER>> dataColumnsWithParent(){
+        List<IndirectTypedColumn<ENTITY, ENTITYBUILDER>> allColumns = new ArrayList<>();
         allColumns.addAll(dataColumns());
         if ( hasParent()) {
             allColumns.add(parentColumn());
@@ -96,11 +96,11 @@ public interface DaoDescriptor<T,B> {
         return Collections.unmodifiableList(allColumns);
     }
 
-    default SortedMap<String, TypedColumn<T>> columnMap(String... columnNames){
-        SortedMap<String, TypedColumn<T>> map = new TreeMap<>();
+    default SortedMap<String, TypedColumn<ENTITY>> columnMap(String... columnNames){
+        SortedMap<String, TypedColumn<ENTITY>> map = new TreeMap<>();
         Set<String> nameSet = Arrays.asList(columnNames).stream()
                 .map(String::toUpperCase).collect(Collectors.toSet());
-        for(TypedColumn<T> column : allColumns()){
+        for(TypedColumn<ENTITY> column : allColumns()){
             if (nameSet.contains(column.getName().toUpperCase())) {
                 String columnNameKey = column.getName().toUpperCase();
                 map.put(columnNameKey, column);
