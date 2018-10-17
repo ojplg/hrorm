@@ -45,7 +45,11 @@ public abstract class AbstractColumn<TYPE,ENTITY,BUILDER> implements Column<ENTI
         if ( value == null && ! nullable ){
             throw new HrormException("Tried to set a null value for " + prefix + "." + name + " which was set not nullable.");
         }
-        setPreparedStatement(preparedStatement, index, value);
+        if ( value == null ) {
+            preparedStatement.setNull(index,sqlType());
+        } else {
+            setPreparedStatement(preparedStatement, index, value);
+        }
     }
 
     @Override
@@ -58,8 +62,9 @@ public abstract class AbstractColumn<TYPE,ENTITY,BUILDER> implements Column<ENTI
         nullable = false;
     }
 
-
     abstract TYPE fromResultSet(ResultSet resultSet, String columnName) throws SQLException;
 
     abstract void setPreparedStatement(PreparedStatement preparedStatement, int index, TYPE value) throws SQLException;
+
+    abstract int sqlType();
 }

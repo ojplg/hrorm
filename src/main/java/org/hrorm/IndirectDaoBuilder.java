@@ -70,8 +70,8 @@ public class IndirectDaoBuilder<ENTITY, ENTITYBUILDER>  {
      * @return This instance.
      */
     public IndirectDaoBuilder<ENTITY, ENTITYBUILDER> withBigDecimalColumn(String columnName, Function<ENTITY, BigDecimal> getter, BiConsumer<ENTITYBUILDER, BigDecimal> setter){
-        BigDecimalColumn<ENTITY, ENTITYBUILDER> column =
-                new BigDecimalColumn<>(columnName, myPrefix, getter, setter, true);
+        Column<ENTITY, ENTITYBUILDER> column =
+                DataColumnFactory.bigDecimalColumn(columnName, myPrefix, getter, setter, true);
         dataColumns.add(column);
         return this;
     }
