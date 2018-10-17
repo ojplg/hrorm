@@ -34,8 +34,8 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
 
     private final List<ChildrenDescriptor<CHILD,?,CHILDBUILDER,?>> grandChildrenDescriptors;
 
-    private Function<CHILDBUILDER, CHILD> childBuild;
-    private Function<PARENTBUILDER, PARENT> parentBuild;
+    private final Function<CHILDBUILDER, CHILD> childBuild;
+    private final Function<PARENTBUILDER, PARENT> parentBuild;
 
     private final SqlBuilder<CHILD> sqlBuilder;
 

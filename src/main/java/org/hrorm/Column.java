@@ -4,7 +4,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public interface Column<T,CONSTRUCTOR> {
+public interface Column<ENTITY, BUILDER> {
     /**
      * @return The name of the column in the underlying database.
      */
@@ -23,7 +23,7 @@ public interface Column<T,CONSTRUCTOR> {
      * @param preparedStatement The statement being populated
      * @throws SQLException allowed for <code>PreparedStatement</code> operations
      */
-    void setValue(T item, int index, PreparedStatement preparedStatement) throws SQLException;
+    void setValue(ENTITY item, int index, PreparedStatement preparedStatement) throws SQLException;
 
     /**
      * @return true if this column represents the primary key of the table
@@ -49,7 +49,7 @@ public interface Column<T,CONSTRUCTOR> {
      * during population
      * @throws SQLException allowed for <code>ResultSet</code> operations
      */
-    PopulateResult populate(CONSTRUCTOR constructor, ResultSet resultSet) throws SQLException;
+    PopulateResult populate(BUILDER constructor, ResultSet resultSet) throws SQLException;
 
 
     /**
@@ -60,6 +60,6 @@ public interface Column<T,CONSTRUCTOR> {
      * @param prefixer The source for new prefixes
      * @return A new instance of the column with the reset prefix
      */
-    Column<T,CONSTRUCTOR> withPrefix(String newPrefix, Prefixer prefixer);
+    Column<ENTITY, BUILDER> withPrefix(String newPrefix, Prefixer prefixer);
 
 }
