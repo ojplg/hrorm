@@ -12,24 +12,28 @@ import java.util.function.Supplier;
 public class IndirectDaoBuilder<ENTITY, BUILDER>  implements DaoDescriptor<ENTITY, BUILDER> {
 
     private final String tableName;
+    private final String myPrefix;
+    private final Function<BUILDER, ENTITY> buildFunction;
+    private final Supplier<BUILDER> supplier;
+
+    private final Prefixer prefixer;
+
     private final List<Column<ENTITY, BUILDER>> columns = new ArrayList<>();
     private final List<JoinColumn<ENTITY,?, BUILDER,?>> joinColumns = new ArrayList<>();
     private final List<ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors = new ArrayList<>();
+
     private PrimaryKey<ENTITY, BUILDER> primaryKey;
     private ParentColumn<ENTITY,?, BUILDER,?> parentColumn;
-    private final Supplier<BUILDER> supplier;
-    private final Prefixer prefixer;
-    private final String myPrefix;
 
     private Column<ENTITY, BUILDER> lastColumnAdded;
 
-    private final Function<BUILDER, ENTITY> buildFunction;
 
     /**
      * Create a new DaoBuilder instance.
      *
      * @param tableName The name of the table in the database.
      * @param supplier A mechanism (generally a constructor) for creating a new instance.
+     * @param buildFunction How to create an instance of the entity class from its builder.
      */
     public IndirectDaoBuilder(String tableName, Supplier<BUILDER> supplier, Function<BUILDER, ENTITY> buildFunction){
         this.tableName = tableName;
@@ -128,7 +132,7 @@ public class IndirectDaoBuilder<ENTITY, BUILDER>  implements DaoDescriptor<ENTIT
      * @param setter The function on <code>ENTITY</code> that consumes the data element.
      * @return This instance.
      */
-    public IndirectDaoBuilder<ENTITY, BUILDER>withBigDecimalColumn(String columnName, Function<ENTITY, BigDecimal> getter, BiConsumer<BUILDER, BigDecimal> setter){
+    public IndirectDaoBuilder<ENTITY, BUILDER> withBigDecimalColumn(String columnName, Function<ENTITY, BigDecimal> getter, BiConsumer<BUILDER, BigDecimal> setter){
         Column<ENTITY, BUILDER> column = DataColumnFactory.bigDecimalColumn(columnName, myPrefix, getter, setter, true);
         columns.add(column);
         lastColumnAdded = column;
