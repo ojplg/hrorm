@@ -12,8 +12,8 @@ public class StringColumnTest {
 
     @Test
     public void testNotNullable() throws SQLException {
-        StringColumn<Columns,Columns> column = new StringColumn<>(
-                "TEXT", "A", Columns::getStringThing, Columns::setStringThing);
+        Column<Columns,Columns> column = DataColumnFactory.stringColumn(
+                "TEXT", "A", Columns::getStringThing, Columns::setStringThing, false);
         column.notNull();
 
         Columns columns = new Columns();

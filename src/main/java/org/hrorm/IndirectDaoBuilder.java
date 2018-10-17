@@ -55,8 +55,8 @@ public class IndirectDaoBuilder<ENTITY, ENTITYBUILDER>  {
      * @return This instance.
      */
     public IndirectDaoBuilder<ENTITY, ENTITYBUILDER> withStringColumn(String columnName, Function<ENTITY, String> getter, BiConsumer<ENTITYBUILDER, String> setter){
-        StringColumn<ENTITY, ENTITYBUILDER> stringColumn =
-                new StringColumn<>(columnName, myPrefix, getter, setter, true);
+        Column<ENTITY, ENTITYBUILDER> stringColumn =
+                DataColumnFactory.stringColumn(columnName, myPrefix, getter, setter, true);
         dataColumns.add(stringColumn);
         return this;
     }

@@ -102,7 +102,7 @@ public class DaoBuilder<T> implements DaoDescriptor<T,T> {
      * @return This instance.
      */
     public DaoBuilder<T> withStringColumn(String columnName, Function<T, String> getter, BiConsumer<T, String> setter){
-        Column<T,T> column = new StringColumn<>(columnName, myPrefix, getter, setter);
+        Column<T,T> column = DataColumnFactory.stringColumn(columnName, myPrefix, getter, setter, true);
         columns.add(column);
         lastColumnAdded = column;
         return this;
