@@ -17,15 +17,15 @@ import java.util.function.Function;
  *
  * @param <T> The entity type this column belongs to
  */
-public class BigDecimalColumn<T> implements IndirectTypedColumn<T,T> {
+public class BigDecimalColumn<T,B> implements IndirectTypedColumn<T,B> {
 
     private final String name;
     private final String prefix;
-    private final BiConsumer<T, BigDecimal> setter;
+    private final BiConsumer<B, BigDecimal> setter;
     private final Function<T, BigDecimal> getter;
     private boolean nullable;
 
-    public BigDecimalColumn(String name, String prefix, Function<T, BigDecimal> getter, BiConsumer<T, BigDecimal> setter, boolean nullable) {
+    public BigDecimalColumn(String name, String prefix, Function<T, BigDecimal> getter, BiConsumer<B, BigDecimal> setter, boolean nullable) {
         this.name = name;
         this.prefix = prefix;
         this.getter = getter;
@@ -33,12 +33,12 @@ public class BigDecimalColumn<T> implements IndirectTypedColumn<T,T> {
         this.nullable = nullable;
     }
 
-    public BigDecimalColumn(String name, String prefix, Function<T, BigDecimal> getter, BiConsumer<T, BigDecimal> setter) {
+    public BigDecimalColumn(String name, String prefix, Function<T, BigDecimal> getter, BiConsumer<B, BigDecimal> setter) {
         this(name, prefix, getter, setter, true);
     }
 
     @Override
-    public IndirectTypedColumn<T,T> withPrefix(String prefix, Prefixer prefixer) {
+    public IndirectTypedColumn<T,B> withPrefix(String prefix, Prefixer prefixer) {
         return new BigDecimalColumn<>(name, prefix, getter, setter, nullable);
     }
 
@@ -53,7 +53,7 @@ public class BigDecimalColumn<T> implements IndirectTypedColumn<T,T> {
     }
 
     @Override
-    public PopulateResult populate(T item, ResultSet resultSet) throws SQLException {
+    public PopulateResult populate(B item, ResultSet resultSet) throws SQLException {
         BigDecimal value = resultSet.getBigDecimal(prefix  + name);
         setter.accept(item, value);
         return PopulateResult.Ignore;

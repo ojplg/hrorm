@@ -12,7 +12,7 @@ public class StringColumnTest {
 
     @Test
     public void testNotNullable() throws SQLException {
-        StringColumn<Columns> column = new StringColumn<>(
+        StringColumn<Columns,Columns> column = new StringColumn<>(
                 "TEXT", "A", Columns::getStringThing, Columns::setStringThing);
         column.notNull();
 

@@ -16,15 +16,15 @@ import java.util.function.Function;
  *
  * @param <T> The entity type this column belongs to
  */
-public class StringColumn<T> implements IndirectTypedColumn<T,T> {
+public class StringColumn<T,B> implements IndirectTypedColumn<T,B> {
 
     private final String name;
     private final String prefix;
-    private final BiConsumer<T, String> setter;
+    private final BiConsumer<B, String> setter;
     private final Function<T, String> getter;
     private boolean nullable;
 
-    public StringColumn(String name, String prefix, Function<T, String> getter, BiConsumer<T, String> setter, boolean nullable) {
+    public StringColumn(String name, String prefix, Function<T, String> getter, BiConsumer<B, String> setter, boolean nullable) {
         this.name = name;
         this.prefix = prefix;
         this.getter = getter;
@@ -32,13 +32,13 @@ public class StringColumn<T> implements IndirectTypedColumn<T,T> {
         this.nullable = nullable;
     }
 
-    public StringColumn(String name, String prefix, Function<T, String> getter, BiConsumer<T, String> setter) {
+    public StringColumn(String name, String prefix, Function<T, String> getter, BiConsumer<B, String> setter) {
         this(name, prefix, getter, setter, true);
     }
 
 
     @Override
-    public IndirectTypedColumn<T,T> withPrefix(String prefix, Prefixer prefixer) {
+    public IndirectTypedColumn<T,B> withPrefix(String prefix, Prefixer prefixer) {
         return new StringColumn<>(name, prefix, getter, setter, nullable);
     }
 
@@ -53,7 +53,7 @@ public class StringColumn<T> implements IndirectTypedColumn<T,T> {
     }
 
     @Override
-    public PopulateResult populate(T item, ResultSet resultSet) throws SQLException {
+    public PopulateResult populate(B item, ResultSet resultSet) throws SQLException {
         String value = resultSet.getString(prefix + name);
         setter.accept(item, value);
         return PopulateResult.Ignore;
