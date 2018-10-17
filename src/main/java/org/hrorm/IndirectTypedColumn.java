@@ -1,9 +1,45 @@
 package org.hrorm;
 
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public interface IndirectTypedColumn<T,CONSTRUCTOR> extends TypedColumn<T> {
+public interface IndirectTypedColumn<T,CONSTRUCTOR> {
+    /**
+     * @return The name of the column in the underlying database.
+     */
+    String getName();
+
+    /**
+     * @return The prefix to use when generating SQL with this column instance.
+     */
+    String getPrefix();
+
+    /**
+     * Sets a value onto the prepared statement based on the state of the object passed.
+     *
+     * @param item The object to read the data from.
+     * @param index Where in the prepared statement to set the read value
+     * @param preparedStatement The statement being populated
+     * @throws SQLException allowed for <code>PreparedStatement</code> operations
+     */
+    void setValue(T item, int index, PreparedStatement preparedStatement) throws SQLException;
+
+    /**
+     * @return true if this column represents the primary key of the table
+     */
+    boolean isPrimaryKey();
+
+    /**
+     * Calling this method will enforce a not-null constraint on this column.
+     */
+    void notNull();
+
+    default boolean isParentColumn() {
+        return false;
+    }
+
+
     /**
      * Populates the object with the data read from the database.
      *
