@@ -132,7 +132,7 @@ public class DaoBuilder<T> implements DaoDescriptor<T,T> {
      * @return This instance.
      */
     public DaoBuilder<T> withBigDecimalColumn(String columnName, Function<T, BigDecimal> getter, BiConsumer<T, BigDecimal> setter){
-        Column<T,T> column = new BigDecimalColumn<>(columnName, myPrefix, getter, setter);
+        Column<T,T> column = new BigDecimalColumn<>(columnName, myPrefix, getter, setter, true);
         columns.add(column);
         lastColumnAdded = column;
         return this;

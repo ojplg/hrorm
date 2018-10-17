@@ -15,67 +15,26 @@ import java.util.function.Function;
  *
  * Most users of hrorm will have no need to directly use this.
  *
- * @param <T> The entity type this column belongs to
+ * @param <ENTITY> The entity type this column belongs to
  */
-public class BigDecimalColumn<T,B> implements Column<T,B> {
+public class BigDecimalColumn<ENTITY, BUILDER> extends  AbstractColumn<BigDecimal, ENTITY, BUILDER> {
 
-    private final String name;
-    private final String prefix;
-    private final BiConsumer<B, BigDecimal> setter;
-    private final Function<T, BigDecimal> getter;
-    private boolean nullable;
-
-    public BigDecimalColumn(String name, String prefix, Function<T, BigDecimal> getter, BiConsumer<B, BigDecimal> setter, boolean nullable) {
-        this.name = name;
-        this.prefix = prefix;
-        this.getter = getter;
-        this.setter = setter;
-        this.nullable = nullable;
-    }
-
-    public BigDecimalColumn(String name, String prefix, Function<T, BigDecimal> getter, BiConsumer<B, BigDecimal> setter) {
-        this(name, prefix, getter, setter, true);
+    public BigDecimalColumn(String name, String prefix, Function<ENTITY, BigDecimal> getter, BiConsumer<BUILDER, BigDecimal> setter, boolean nullable) {
+        super(name, prefix, getter, setter, nullable);
     }
 
     @Override
-    public Column<T,B> withPrefix(String prefix, Prefixer prefixer) {
-        return new BigDecimalColumn<>(name, prefix, getter, setter, nullable);
+    public Column<ENTITY, BUILDER> withPrefix(String prefix, Prefixer prefixer) {
+        return new BigDecimalColumn<>(getName(), prefix, getter, setter, nullable);
     }
 
     @Override
-    public String getName() {
-        return name;
+    public BigDecimal fromResultSet(ResultSet resultSet, String columnName) throws SQLException {
+        return resultSet.getBigDecimal(columnName);
     }
 
     @Override
-    public String getPrefix() {
-        return prefix;
-    }
-
-    @Override
-    public PopulateResult populate(B item, ResultSet resultSet) throws SQLException {
-        BigDecimal value = resultSet.getBigDecimal(prefix  + name);
-        setter.accept(item, value);
-        return PopulateResult.Ignore;
-    }
-
-    @Override
-    public void setValue(T item, int index, PreparedStatement preparedStatement) throws SQLException {
-        BigDecimal value = getter.apply(item);
-        if ( value == null && ! nullable ){
-            throw new HrormException("Tried to set a null value for " + prefix + "." + name + " which was set not nullable.");
-        }
+    public void setPreparedStatement(PreparedStatement preparedStatement, int index, BigDecimal value) throws SQLException {
         preparedStatement.setBigDecimal(index, value);
     }
-
-    @Override
-    public boolean isPrimaryKey() {
-        return false;
-    }
-
-    @Override
-    public void notNull() {
-        nullable = false;
-    }
-
 }
