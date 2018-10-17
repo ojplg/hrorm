@@ -96,11 +96,11 @@ public interface DaoDescriptor<ENTITY, ENTITYBUILDER> {
         return Collections.unmodifiableList(allColumns);
     }
 
-    default SortedMap<String, TypedColumn<ENTITY>> columnMap(String... columnNames){
-        SortedMap<String, TypedColumn<ENTITY>> map = new TreeMap<>();
+    default SortedMap<String, IndirectTypedColumn<ENTITY,ENTITYBUILDER>> columnMap(String... columnNames){
+        SortedMap<String, IndirectTypedColumn<ENTITY,ENTITYBUILDER>> map = new TreeMap<>();
         Set<String> nameSet = Arrays.asList(columnNames).stream()
                 .map(String::toUpperCase).collect(Collectors.toSet());
-        for(TypedColumn<ENTITY> column : allColumns()){
+        for(IndirectTypedColumn<ENTITY,ENTITYBUILDER> column : allColumns()){
             if (nameSet.contains(column.getName().toUpperCase())) {
                 String columnNameKey = column.getName().toUpperCase();
                 map.put(columnNameKey, column);

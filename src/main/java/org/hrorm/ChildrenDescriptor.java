@@ -73,7 +73,7 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
 
         logger.info("Instantiated a child " + child);
 
-        SortedMap<String, TypedColumn<CHILD>> columnNameMap = daoDescriptor.columnMap(parentChildColumnName);
+        SortedMap<String, IndirectTypedColumn<CHILD, CHILDBUILDER>> columnNameMap = daoDescriptor.columnMap(parentChildColumnName);
 
         String sql = sqlBuilder.selectByColumns(parentChildColumnName);
         SqlRunner<CHILD,CHILDBUILDER> sqlRunner = new SqlRunner<>(connection, daoDescriptor);

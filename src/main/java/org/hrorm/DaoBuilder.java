@@ -27,7 +27,7 @@ public class DaoBuilder<T> implements DaoDescriptor<T,T> {
     private final Prefixer prefixer;
     private final String myPrefix;
 
-    private TypedColumn<T> lastColumnAdded;
+    private IndirectTypedColumn<T,T> lastColumnAdded;
 
     /**
      * Create a new DaoBuilder instance.

@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 public class SqlBuilder<T> {
 
     private final String table;
-    private final List<? extends TypedColumn<T>> dataColumns;
+    private final List<? extends IndirectTypedColumn<T,?>> dataColumns;
     private final List<? extends JoinColumn<T, ?, ?, ?>> joinColumns;
     private final IndirectPrimaryKey<T,?> primaryKey;
 
@@ -30,7 +30,7 @@ public class SqlBuilder<T> {
     }
 
     public SqlBuilder(String table,
-                      List<? extends TypedColumn<T>> dataColumns,
+                      List<? extends IndirectTypedColumn<T,?>> dataColumns,
                       List<? extends JoinColumn<T, ?, ?, ?>> joinColumns,
                       IndirectPrimaryKey<T, ?> primaryKey) {
         this.table = table;
@@ -39,14 +39,14 @@ public class SqlBuilder<T> {
         this.primaryKey = primaryKey;
     }
 
-    private String columnsAsString(String prefix, boolean withAliases, List<? extends TypedColumn> columns){
-        Function<TypedColumn,String> stringer;
+    private String columnsAsString(String prefix, boolean withAliases, List<? extends IndirectTypedColumn> columns){
+        Function<IndirectTypedColumn,String> stringer;
         if( withAliases && prefix != null ) {
             stringer = c -> prefix + "." + c.getName() + " as " + prefix + c.getName();
         } else if (prefix != null ){
             stringer = c -> prefix + c.getName();
         } else {
-            stringer = TypedColumn::getName;
+            stringer = IndirectTypedColumn::getName;
         }
         List<String> columnNames = columns.stream().map(stringer).collect(Collectors.toList());
         return String.join(", ", columnNames);

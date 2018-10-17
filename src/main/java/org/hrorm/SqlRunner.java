@@ -53,7 +53,7 @@ public class SqlRunner<T,B> {
         return selectByColumns(sql, supplier, Collections.emptyList(), Collections.emptyMap(), childrenDescriptors, null);
     }
 
-    public List<B> selectByColumns(String sql, Supplier<B> supplier, List<String> columnNames, Map<String, TypedColumn<T>> columnNameMap,  List<? extends ChildrenDescriptor<T,?,B,?>> childrenDescriptors, T item){
+    public List<B> selectByColumns(String sql, Supplier<B> supplier, List<String> columnNames, Map<String, ? extends IndirectTypedColumn<T,?>> columnNameMap,  List<? extends ChildrenDescriptor<T,?,B,?>> childrenDescriptors, T item){
         ResultSet resultSet = null;
         PreparedStatement statement = null;
         try {
@@ -63,7 +63,7 @@ public class SqlRunner<T,B> {
 
                 logger.info("Setting " + columnName);
 
-                TypedColumn<T> column = columnNameMap.get(columnName.toUpperCase());
+                IndirectTypedColumn<T,?> column = columnNameMap.get(columnName.toUpperCase());
                 column.setValue(item, idx, statement);
                 idx++;
             }
@@ -121,7 +121,7 @@ public class SqlRunner<T,B> {
             preparedStatement = connection.prepareStatement(sql);
 
             int idx = 1;
-            for(TypedColumn<T> column : allColumns){
+            for(IndirectTypedColumn<T,B> column : allColumns){
                 if( column.isPrimaryKey() ) {
                     if ( ! isUpdate ) {
                         preparedStatement.setLong(idx, id);
