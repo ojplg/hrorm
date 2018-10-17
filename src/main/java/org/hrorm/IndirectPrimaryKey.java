@@ -1,6 +1,6 @@
 package org.hrorm;
 
-public interface IndirectPrimaryKey<T,B> extends PrimaryKey<T>, IndirectTypedColumn<T,B> {
+public interface IndirectPrimaryKey<T,B> extends IndirectTypedColumn<T,B> {
 
     /**
      * Sets the key onto the object
@@ -13,4 +13,12 @@ public interface IndirectPrimaryKey<T,B> extends PrimaryKey<T>, IndirectTypedCol
     void setKey(B builder, Long id);
 
     Long getKey(T item);
+
+    /**
+     * The name of the database sequence that is used to populate this key
+     *
+     * @return the sequence name
+     */
+    String getSequenceName();
+
 }
