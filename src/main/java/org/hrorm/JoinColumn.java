@@ -41,6 +41,7 @@ public class JoinColumn<T, J, B, JB> implements IndirectTypedColumn<T, B> {
         this.daoDescriptor = new RelativeDaoDescriptor<>(daoDescriptor, prefix, prefixer);
         this.nullable = nullable;
         this.joinedTablePrimaryKeyName = daoDescriptor.primaryKey().getName();
+        this.joinBuilder = daoDescriptor.buildFunction();
     }
 
     public List<JoinColumn<J,?,JB,?>> getTransitiveJoins(){
