@@ -272,7 +272,7 @@ public class DaoBuilder<T> implements DaoDescriptor<T,T> {
         if ( this.primaryKey != null ){
             throw new HrormException("Attempt to set a second primary key");
         }
-        this.primaryKey = new ImmutableObjectPrimaryKey<>(myPrefix, columnName, sequenceName, getter, setter);
+        this.primaryKey = new PrimaryKeyImpl<>(myPrefix, columnName, sequenceName, getter, setter);
         columns.add(primaryKey);
         return this;
     }

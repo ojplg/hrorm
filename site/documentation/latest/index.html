@@ -118,7 +118,7 @@
                 of types than Java.</p>
 
                 <p>To translate between the database reprentation and the Java representation, we plan to use
-                a <code>Dao</code> object. We could construct that directly, but hrorm provides a DaoBuilder
+                a <code>Dao</code> object. We could build that directly, but hrorm provides a DaoBuilder
                 class that makes things much easier. In hrorm, both <code>Dao</code> objects and their builders
                 are parameterized on the type of thing they persist. We start off by simply calling the
                 <code>DaoBuilder</code> constructor.</p>
@@ -381,7 +381,7 @@
                 to their children.</p>
 
                 <p>Be careful, if you do not want the children to be deleted, this is not the relationship
-                you want to construct. In particular, remember that issuing an <code>update</code>
+                you want to build. In particular, remember that issuing an <code>update</code>
                 will result not just in a SQL <code>UPDATE</code> in the database, but possibly
                 a whole series of <CODE>INSERT</CODE>, <code>UPDATE</code>, and <code>DELETE</code>
                 queries being run.</p>

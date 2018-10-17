@@ -7,21 +7,21 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.logging.Logger;
 
-public class ImmutableObjectPrimaryKey<T, CONSTRUCTOR> implements IndirectPrimaryKey<T, CONSTRUCTOR>, IndirectTypedColumn<T, CONSTRUCTOR> {
+public class PrimaryKeyImpl<ENTITY, ENTITYBUILDER> implements IndirectPrimaryKey<ENTITY, ENTITYBUILDER> {
 
     private static final Logger logger = Logger.getLogger("org.hrorm");
 
     private final String prefix;
     private final String name;
     private final String sequenceName;
-    private final BiConsumer<CONSTRUCTOR, Long> setter;
-    private final Function<T, Long> getter;
+    private final BiConsumer<ENTITYBUILDER, Long> setter;
+    private final Function<ENTITY, Long> getter;
 
-    public ImmutableObjectPrimaryKey(String prefix,
-                                     String name,
-                                     String sequenceName,
-                                     Function<T, Long> getter,
-                                     BiConsumer<CONSTRUCTOR, Long> setter) {
+    public PrimaryKeyImpl(String prefix,
+                          String name,
+                          String sequenceName,
+                          Function<ENTITY, Long> getter,
+                          BiConsumer<ENTITYBUILDER, Long> setter) {
         this.prefix = prefix;
         this.name = name;
         this.sequenceName = sequenceName;
@@ -30,7 +30,7 @@ public class ImmutableObjectPrimaryKey<T, CONSTRUCTOR> implements IndirectPrimar
     }
 
     @Override
-    public Long getKey(T item) {
+    public Long getKey(ENTITY item) {
         if ( item == null ){
             throw new HrormException("Cannot get a key from a null item ");
         }
@@ -43,15 +43,15 @@ public class ImmutableObjectPrimaryKey<T, CONSTRUCTOR> implements IndirectPrimar
     }
 
     @Override
-    public void setKey(CONSTRUCTOR builder, Long id) {
+    public void setKey(ENTITYBUILDER builder, Long id) {
         setter.accept(builder, id);
     }
 
     @Override
-    public void optimisticSetKey(T item, Long id) {
+    public void optimisticSetKey(ENTITY item, Long id) {
         // FIXME: This is awful!!
         try {
-            CONSTRUCTOR constructor = (CONSTRUCTOR) item;
+            ENTITYBUILDER constructor = (ENTITYBUILDER) item;
             setter.accept(constructor, id);
         } catch (ClassCastException ex){
             System.out.println(ex);
@@ -69,7 +69,7 @@ public class ImmutableObjectPrimaryKey<T, CONSTRUCTOR> implements IndirectPrimar
     }
 
     @Override
-    public PopulateResult populate(CONSTRUCTOR constructor, ResultSet resultSet) throws SQLException {
+    public PopulateResult populate(ENTITYBUILDER constructor, ResultSet resultSet) throws SQLException {
         Long value = resultSet.getLong(prefix  + name);
         setter.accept(constructor, value);
         if (value == null || value == 0 ){
@@ -80,7 +80,7 @@ public class ImmutableObjectPrimaryKey<T, CONSTRUCTOR> implements IndirectPrimar
     }
 
     @Override
-    public void setValue(T item, int index, PreparedStatement preparedStatement) throws SQLException {
+    public void setValue(ENTITY item, int index, PreparedStatement preparedStatement) throws SQLException {
         Long value = getter.apply(item);
         if ( value == null ){
             throw new HrormException("Tried to set a null value for the primary key named " + name);
@@ -91,8 +91,8 @@ public class ImmutableObjectPrimaryKey<T, CONSTRUCTOR> implements IndirectPrimar
     }
 
     @Override
-    public IndirectTypedColumn<T, CONSTRUCTOR> withPrefix(String newPrefix, Prefixer prefixer) {
-        return new ImmutableObjectPrimaryKey<>(newPrefix, name, sequenceName, getter, setter);
+    public IndirectTypedColumn<ENTITY, ENTITYBUILDER> withPrefix(String newPrefix, Prefixer prefixer) {
+        return new PrimaryKeyImpl<>(newPrefix, name, sequenceName, getter, setter);
     }
 
     @Override
