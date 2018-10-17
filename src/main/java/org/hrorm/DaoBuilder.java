@@ -245,6 +245,7 @@ public class DaoBuilder<T> implements DaoDescriptor<T,T> {
      *                      are persisted. Both <code>Dao</code> and <code>DaoBuilder</code>
      *                      objects implement the <code>DaoDescriptor</code> interface.
      * @param <U> The type of the child data elements.
+     * @param <UB> The type of the builder of child data elements
      * @return This instance.
      */
     public <U,UB> DaoBuilder<T> withChildren(Function<T, List<U>> getter, BiConsumer<T, List<U>> setter, DaoDescriptor<U,UB> daoDescriptor){
