@@ -125,10 +125,10 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
 //            parentSetter.accept(child, item);
             Long childId = daoDescriptor.primaryKey().getKey(child);
             if( childId == null ) {
-                long id = DaoHelper.getNextSequenceValue(connection, daoDescriptor.primaryKey().getSequenceName());
-                daoDescriptor.primaryKey().optimisticSetKey(child, id);
+                childId = DaoHelper.getNextSequenceValue(connection, daoDescriptor.primaryKey().getSequenceName());
+                daoDescriptor.primaryKey().optimisticSetKey(child, childId);
                 String sql = sqlBuilder.insert();
-                sqlRunner.insert(sql, child, id, parentId);
+                sqlRunner.insert(sql, child, childId, parentId);
             } else {
                 existingIds.remove(childId);
                 String sql = sqlBuilder.update();
