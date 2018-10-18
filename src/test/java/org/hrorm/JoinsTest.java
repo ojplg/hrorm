@@ -88,9 +88,9 @@ public class JoinsTest {
         Thing thing = new Thing();
         thing.setName("sibling load test");
         thing.setSibling(sibling);
-        thingDao.insert(thing);
+        long thingId = thingDao.insert(thing);
 
-        Thing readFromDb = thingDao.select(thing.getId());
+        Thing readFromDb = thingDao.select(thingId);
 
         Assert.assertEquals(44L, (long) readFromDb.getSibling().getNumber());
         Assert.assertEquals(EnumeratedColor.Green, readFromDb.getSibling().getCousin().getColor());

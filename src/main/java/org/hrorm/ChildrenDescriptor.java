@@ -8,6 +8,9 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  * Complete definition of how a child entity is related to its parent entity.
@@ -15,89 +18,111 @@ import java.util.function.Function;
  * <p>
  *
  * Most users of hrorm will have no need to directly use this.
-*/
-public class ChildrenDescriptor<PARENT,CHILD> {
+ */
+public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
 
-    private final String parentChildColumnName;
+
+    private static final Logger logger = Logger.getLogger("org.hrorm");
+
     private final Function<PARENT, List<CHILD>> getter;
-    private final BiConsumer<PARENT, List<CHILD>> setter;
-    private final DaoDescriptor<CHILD> daoDescriptor;
-    private final PrimaryKey<PARENT> parentPrimaryKey;
-    private final BiConsumer<CHILD, PARENT> parentSetter;
+    private final BiConsumer<PARENTBUILDER, List<CHILD>> setter;
+    private final DaoDescriptor<CHILD,CHILDBUILDER> childDaoDescriptor;
+    private final BiConsumer<CHILDBUILDER, PARENT> parentSetter;
 
-    private final List<ChildrenDescriptor<CHILD,?>> grandChildrenDescriptors;
+    private final Function<PARENTBUILDER, PARENT> parentBuildFunction;
 
     private final SqlBuilder<CHILD> sqlBuilder;
 
     public ChildrenDescriptor(Function<PARENT, List<CHILD>> getter,
-                              BiConsumer<PARENT, List<CHILD>> setter,
-                              DaoDescriptor<CHILD> daoDescriptor,
-                              PrimaryKey<PARENT> parentPrimaryKey) {
-        this.parentChildColumnName = daoDescriptor.parentColumn().getName();
+                              BiConsumer<PARENTBUILDER, List<CHILD>> setter,
+                              DaoDescriptor<CHILD,CHILDBUILDER> childDaoDescriptor,
+                              PrimaryKey<PARENT, PARENTBUILDER> parentPrimaryKey,
+                              Function<PARENTBUILDER, PARENT> parentBuildFunction) {
         this.getter = getter;
         this.setter = setter;
-        this.daoDescriptor = daoDescriptor;
-        this.parentPrimaryKey = parentPrimaryKey;
+        this.childDaoDescriptor = childDaoDescriptor;
+        this.sqlBuilder = new SqlBuilder<>(childDaoDescriptor);
+        this.parentBuildFunction = parentBuildFunction;
 
-        ParentColumn<CHILD, PARENT> parentColumn = daoDescriptor.parentColumn();
+        ParentColumn<CHILD, PARENT, CHILDBUILDER, PARENTBUILDER> parentColumn = childDaoDescriptor.parentColumn();
         parentColumn.setParentPrimaryKey(parentPrimaryKey);
         this.parentSetter = parentColumn.setter();
-        this.grandChildrenDescriptors = daoDescriptor.childrenDescriptors();
-
-        this.sqlBuilder = new SqlBuilder<>(daoDescriptor);
     }
 
-    public void populateChildren(Connection connection, PARENT item){
-        SortedMap<String, TypedColumn<CHILD>> columnNameMap = daoDescriptor.columnMap(parentChildColumnName);
-        CHILD key = daoDescriptor.supplier().get();
-        parentSetter.accept(key, item);
-        String sql = sqlBuilder.selectByColumns(parentChildColumnName);
-        SqlRunner<CHILD> sqlRunner = new SqlRunner<>(connection, daoDescriptor);
-        List<CHILD> children = sqlRunner.selectByColumns(sql, daoDescriptor.supplier(),
-                Collections.singletonList(parentChildColumnName), columnNameMap, daoDescriptor.childrenDescriptors(), key);
+    public void populateChildren(Connection connection, PARENTBUILDER parentBuilder){
 
-        for( CHILD child : children ){
-            for( ChildrenDescriptor<CHILD,?> grandChildDescriptor : grandChildrenDescriptors ){
-                grandChildDescriptor.populateChildren(connection, child);
+        PARENT parent = parentBuildFunction.apply(parentBuilder);
+
+        CHILDBUILDER childBuilder = childDaoDescriptor.supplier().get();
+        parentSetter.accept(childBuilder, parent);
+        CHILD child = childBuilder().apply(childBuilder);
+
+        SortedMap<String, Column<CHILD, CHILDBUILDER>> columnNameMap = childDaoDescriptor.columnMap(parentChildColumnName());
+
+        String sql = sqlBuilder.selectByColumns(parentChildColumnName());
+        SqlRunner<CHILD,CHILDBUILDER> sqlRunner = new SqlRunner<>(connection, childDaoDescriptor);
+        List<String> parentChildColumnNameList = Collections.singletonList(parentChildColumnName());
+        List<ChildrenDescriptor<CHILD,?,CHILDBUILDER, ?>> childrenDescriptorsList = childDaoDescriptor.childrenDescriptors();
+
+        Supplier<CHILDBUILDER> supplier = childDaoDescriptor.supplier();
+
+        List<CHILDBUILDER> childrenBuilders = sqlRunner.selectByColumns(
+                sql,
+                supplier,
+                parentChildColumnNameList,
+                columnNameMap,
+                childrenDescriptorsList,
+                child);
+
+        for( CHILDBUILDER childrenBuilder : childrenBuilders ){
+            for( ChildrenDescriptor<CHILD,?,CHILDBUILDER,?> grandChildDescriptor : grandChildrenDescriptors() ){
+                grandChildDescriptor.populateChildren(connection, childrenBuilder);
             }
         }
 
-        setter.accept(item, children);
+        List<CHILD> children = childrenBuilders.stream()
+                .map (cb-> childBuilder().apply(cb)).collect(Collectors.toList());
+
+        setter.accept(parentBuilder, children);
     }
 
-    public void saveChildren(Connection connection, PARENT item){
+    public void saveChildren(Connection connection, Envelope<PARENT> envelope){
 
-        SqlRunner<CHILD> sqlRunner = new SqlRunner<>(connection, daoDescriptor);
+        PARENT item = envelope.getItem();
+
+        SqlRunner<CHILD,CHILDBUILDER> sqlRunner = new SqlRunner<>(connection, childDaoDescriptor);
 
         List<CHILD> children = getter.apply(item);
+
         if( children == null ){
             children = Collections.emptyList();
         }
-        Long parentId = parentPrimaryKey.getKey(item);
+        Long parentId = envelope.getId();
 
         Set<Long> existingIds = findExistingChildrenIds(connection, parentId);
         for(CHILD child : children){
-            parentSetter.accept(child, item);
-            Long childId = daoDescriptor.primaryKey().getKey(child);
+            Long childId = childDaoDescriptor.primaryKey().getKey(child);
             if( childId == null ) {
-                long id = DaoHelper.getNextSequenceValue(connection, daoDescriptor.primaryKey().getSequenceName());
-                daoDescriptor.primaryKey().setKey(child, id);
+                childId = DaoHelper.getNextSequenceValue(connection, childDaoDescriptor.primaryKey().getSequenceName());
+                childDaoDescriptor.primaryKey().optimisticSetKey(child, childId);
                 String sql = sqlBuilder.insert();
-                sqlRunner.insert(sql, child);
+                Envelope<CHILD> childEnvelope = new Envelope<>(child, childId, parentId);
+                sqlRunner.insert(sql, childEnvelope);
             } else {
                 existingIds.remove(childId);
                 String sql = sqlBuilder.update();
-                sqlRunner.update(sql, child);
+                Envelope<CHILD> childEnvelope = new Envelope<>(child, childId, parentId);
+                sqlRunner.update(sql, childEnvelope);
             }
-            for(ChildrenDescriptor<CHILD,?> grandchildrenDescriptor : grandChildrenDescriptors){
-                grandchildrenDescriptor.saveChildren(connection, child);
+            for(ChildrenDescriptor<CHILD,?,?,?> grandchildrenDescriptor : grandChildrenDescriptors()){
+                grandchildrenDescriptor.saveChildren(connection, new Envelope<>(child, childId));
             }
         }
         deleteOrphans(connection, existingIds);
     }
 
     public Set<Long> findExistingChildrenIds(Connection connection, Long parentId){
-        String sql = sqlBuilder.selectChildIds(parentChildColumnName);
+        String sql = sqlBuilder.selectChildIds(parentChildColumnName());
         List<Long> ids = DaoHelper.readLongs(connection, sql, parentId);
         Set<Long> idSet = new HashSet<>();
         idSet.addAll(ids);
@@ -108,7 +133,7 @@ public class ChildrenDescriptor<PARENT,CHILD> {
         String preparedSql = sqlBuilder.delete();
 
         for(Long badId : badChildrenIds) {
-            for( ChildrenDescriptor<CHILD,?> grandChildDescriptor : grandChildrenDescriptors){
+            for( ChildrenDescriptor<CHILD,?,?,?> grandChildDescriptor : grandChildrenDescriptors()){
                 Set<Long> badGranchildIds = grandChildDescriptor.findExistingChildrenIds(connection, badId);
                 grandChildDescriptor.deleteOrphans(connection, badGranchildIds);
             }
@@ -116,4 +141,15 @@ public class ChildrenDescriptor<PARENT,CHILD> {
         }
     }
 
+    private String parentChildColumnName(){
+        return childDaoDescriptor.parentColumn().getName();
+    }
+
+    private List<ChildrenDescriptor<CHILD,?,CHILDBUILDER,?>> grandChildrenDescriptors(){
+        return childDaoDescriptor.childrenDescriptors();
+    }
+
+    private Function<CHILDBUILDER, CHILD> childBuilder(){
+        return childDaoDescriptor.buildFunction();
+    }
 }

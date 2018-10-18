@@ -16,22 +16,25 @@ import java.util.function.Function;
  *
  * Most users of hrorm will have no need to directly use this.
  *
- * @param <T> the entity this column belongs to
- * @param <J> the entity being joined
+ * @param <ENTITY> the entity this column belongs to
+ * @param <JOINED> the entity being joined
+ * @param <ENTITYBUILDER> the class that can construct new entity instances
+ * @param <JOINEDBUILDER> the class that can construct instances of the joined entity
  */
-public class JoinColumn<T, J> implements TypedColumn<T> {
+public class JoinColumn<ENTITY, JOINED, ENTITYBUILDER, JOINEDBUILDER> implements Column<ENTITY, ENTITYBUILDER> {
 
     private final String name;
     private final String prefix;
     private final String joinedTablePrefix;
-    private final BiConsumer<T, J> setter;
-    private final Function<T, J> getter;
-    private final DaoDescriptor<J> daoDescriptor;
+    private final BiConsumer<ENTITYBUILDER, JOINED> setter;
+    private final Function<ENTITY, JOINED> getter;
+    private final DaoDescriptor<JOINED, JOINEDBUILDER> daoDescriptor;
     private final String joinedTablePrimaryKeyName;
     private boolean nullable;
 
+    private Function<JOINEDBUILDER, JOINED> joinBuilder;
 
-    public JoinColumn(String name, String joinedTablePrefix, Prefixer prefixer, Function<T, J> getter, BiConsumer<T,J> setter, DaoDescriptor<J> daoDescriptor, boolean nullable){
+    public JoinColumn(String name, String joinedTablePrefix, Prefixer prefixer, Function<ENTITY, JOINED> getter, BiConsumer<ENTITYBUILDER, JOINED> setter, DaoDescriptor<JOINED, JOINEDBUILDER> daoDescriptor, boolean nullable){
         this.name = name;
         this.prefix = prefixer.nextPrefix();
         this.joinedTablePrefix = joinedTablePrefix;
@@ -40,9 +43,10 @@ public class JoinColumn<T, J> implements TypedColumn<T> {
         this.daoDescriptor = new RelativeDaoDescriptor<>(daoDescriptor, prefix, prefixer);
         this.nullable = nullable;
         this.joinedTablePrimaryKeyName = daoDescriptor.primaryKey().getName();
+        this.joinBuilder = daoDescriptor.buildFunction();
     }
 
-    public List<JoinColumn<J,?>> getTransitiveJoins(){
+    public List<JoinColumn<JOINED,?, JOINEDBUILDER,?>> getTransitiveJoins(){
         return this.daoDescriptor.joinColumns();
     }
 
@@ -65,30 +69,32 @@ public class JoinColumn<T, J> implements TypedColumn<T> {
     }
 
     @Override
-    public PopulateResult populate(T item, ResultSet resultSet) throws SQLException {
-        J joined = daoDescriptor.supplier().get();
-        for (TypedColumn<J> column: daoDescriptor.dataColumns()) {
-            PopulateResult result = column.populate(joined, resultSet);
+    public PopulateResult populate(ENTITYBUILDER builder, ResultSet resultSet) throws SQLException {
+        JOINEDBUILDER joinedBuilder = daoDescriptor.supplier().get();
+        for (Column<JOINED, JOINEDBUILDER> column: daoDescriptor.dataColumns()) {
+            PopulateResult result = column.populate(joinedBuilder, resultSet);
             if ( result == PopulateResult.NoPrimaryKey ){
                 return PopulateResult.Ignore;
             }
         }
-        for(JoinColumn<J,?> joinColumn : daoDescriptor.joinColumns()){
-            joinColumn.populate(joined, resultSet);
+        for(JoinColumn<JOINED,?, JOINEDBUILDER,?> joinColumn : daoDescriptor.joinColumns()){
+            joinColumn.populate(joinedBuilder, resultSet);
         }
-        setter.accept(item, joined);
+
+        JOINED joinedItem = joinBuilder.apply(joinedBuilder);
+        setter.accept(builder, joinedItem);
         return PopulateResult.fromJoinColumn(
                 connection -> {
-                    for(ChildrenDescriptor<J,?> childrenDescriptor : daoDescriptor.childrenDescriptors()){
-                        childrenDescriptor.populateChildren(connection, joined);
+                    for(ChildrenDescriptor<JOINED,?, JOINEDBUILDER,?> childrenDescriptor : daoDescriptor.childrenDescriptors()){
+                        childrenDescriptor.populateChildren(connection, joinedBuilder);
                     }
                 }
         );
     }
 
     @Override
-    public void setValue(T item, int index, PreparedStatement preparedStatement) throws SQLException {
-        J value = getter.apply(item);
+    public void setValue(ENTITY item, int index, PreparedStatement preparedStatement) throws SQLException {
+        JOINED value = getter.apply(item);
         if( value == null ){
             if ( nullable ) {
                 preparedStatement.setNull(index, Types.INTEGER);
@@ -102,17 +108,12 @@ public class JoinColumn<T, J> implements TypedColumn<T> {
     }
 
     @Override
-    public JoinColumn<T,J> withPrefix(String newPrefix, Prefixer prefixer) {
+    public JoinColumn<ENTITY, JOINED, ENTITYBUILDER, JOINEDBUILDER> withPrefix(String newPrefix, Prefixer prefixer) {
         return new JoinColumn(name, newPrefix, prefixer, getter, setter, daoDescriptor, nullable);
     }
 
-    public List<TypedColumn<J>> getDataColumns(){
+    public List<Column<JOINED, JOINEDBUILDER>> getDataColumns(){
         return this.daoDescriptor.dataColumns();
-    }
-
-    @Override
-    public boolean isPrimaryKey() {
-        return false;
     }
 
     @Override

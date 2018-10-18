@@ -6,6 +6,7 @@ import java.sql.SQLException;
 import java.sql.Types;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
+import java.util.logging.Logger;
 
 /**
  * Represents a reference from a child entity to its parent where
@@ -15,19 +16,21 @@ import java.util.function.Function;
  *
  * Most users of hrorm will have no need to directly use this.
  *
- * @param <T> The child entity type
- * @param <P> The type of the parent
+ * @param <CHILD> The child entity type
+ * @param <PARENT> The parent entity type
+ * @param <CHILDBUILDER> The class used to construct new <code>CHILD</code> instances
+ * @param <PARENTBUILDER> The class used to construct new <code>PARENT</code> instances
  */
-public class ParentColumnImpl<T, P> implements ParentColumn<T,P> {
+public class ParentColumnImpl<CHILD, PARENT, CHILDBUILDER, PARENTBUILDER> implements ParentColumn<CHILD, PARENT, CHILDBUILDER, PARENTBUILDER> {
 
     private final String name;
     private final String prefix;
-    private final BiConsumer<T, P> setter;
-    private final Function<T, P> getter;
-    private PrimaryKey<P> parentPrimaryKey;
+    private final BiConsumer<CHILDBUILDER, PARENT> setter;
+    private final Function<CHILD, PARENT> getter;
+    private PrimaryKey<PARENT, PARENTBUILDER> parentPrimaryKey;
     private boolean nullable;
 
-    public ParentColumnImpl(String name, String prefix, Function<T, P> getter, BiConsumer<T, P> setter) {
+    public ParentColumnImpl(String name, String prefix, Function<CHILD, PARENT> getter, BiConsumer<CHILDBUILDER, PARENT> setter) {
         this.name = name;
         this.prefix = prefix;
         this.getter = getter;
@@ -35,7 +38,8 @@ public class ParentColumnImpl<T, P> implements ParentColumn<T,P> {
         this.nullable = false;
     }
 
-    public ParentColumnImpl(String name, String prefix, Function<T, P> getter, BiConsumer<T, P> setter, PrimaryKey<P> parentPrimaryKey, boolean nullable) {
+    public ParentColumnImpl(String name, String prefix, Function<CHILD, PARENT> getter, BiConsumer<CHILDBUILDER, PARENT> setter,
+                            PrimaryKey<PARENT, PARENTBUILDER> parentPrimaryKey, boolean nullable) {
         this.name = name;
         this.prefix = prefix;
         this.getter = getter;
@@ -55,13 +59,13 @@ public class ParentColumnImpl<T, P> implements ParentColumn<T,P> {
     }
 
     @Override
-    public PopulateResult populate(T item, ResultSet resultSet) throws SQLException {
+    public PopulateResult populate(CHILDBUILDER item, ResultSet resultSet) throws SQLException {
         return PopulateResult.ParentColumn;
     }
 
     @Override
-    public void setValue(T item, int index, PreparedStatement preparedStatement) throws SQLException {
-        P parent = getter.apply(item);
+    public void setValue(CHILD item, int index, PreparedStatement preparedStatement) throws SQLException {
+        PARENT parent = getter.apply(item);
         Long parentId = parentPrimaryKey.getKey(parent);
         if ( parentId == null ){
             if ( nullable ){
@@ -72,17 +76,11 @@ public class ParentColumnImpl<T, P> implements ParentColumn<T,P> {
         } else {
             preparedStatement.setLong(index, parentId);
         }
-
     }
 
     @Override
-    public TypedColumn<T> withPrefix(String prefix, Prefixer prefixer) {
+    public Column<CHILD, CHILDBUILDER> withPrefix(String prefix, Prefixer prefixer) {
         return new ParentColumnImpl<>(name, prefix, getter, setter, parentPrimaryKey, nullable);
-    }
-
-    @Override
-    public boolean isPrimaryKey() {
-        return false;
     }
 
     @Override
@@ -90,11 +88,11 @@ public class ParentColumnImpl<T, P> implements ParentColumn<T,P> {
         this.nullable = false;
     }
 
-    public BiConsumer<T, P> setter(){
+    public BiConsumer<CHILDBUILDER, PARENT> setter(){
         return setter;
     }
 
-    public void setParentPrimaryKey(PrimaryKey<P> parentPrimaryKey) {
+    public void setParentPrimaryKey(PrimaryKey<PARENT, PARENTBUILDER> parentPrimaryKey) {
         this.parentPrimaryKey = parentPrimaryKey;
     }
 }

@@ -1,30 +1,16 @@
 package org.hrorm;
 
 /**
- * Representation of a primary key of an entity.
+ * Representation of the column that holds the primary key for the entity.
  *
  * <p>
  *
  * Most users of hrorm will have no need to directly use this.
  *
- * @param <T> The entity represented by this key.
+ * @param <ENTITY> The type of the entity being represented
+ * @param <BUILDER> The type of the class that can construct new <code>ENTITY</code> instances
  */
-public interface PrimaryKey<T> extends TypedColumn<T> {
-
-    /**
-     * Extracts the primary key
-     *
-     * @param item The object whose key is to be extracted
-     * @return the primary key
-     */
-    Long getKey(T item);
-
-    /**
-     * The name of the database sequence that is used to populate this key
-     *
-     * @return the sequence name
-     */
-    String getSequenceName();
+public interface PrimaryKey<ENTITY, BUILDER> extends Column<ENTITY, BUILDER> {
 
     /**
      * Sets the key onto the object
@@ -32,6 +18,17 @@ public interface PrimaryKey<T> extends TypedColumn<T> {
      * @param item the object whose key is to be set
      * @param id the primary key to assign it
      */
-    void setKey(T item, Long id);
+    void optimisticSetKey(ENTITY item, Long id);
+
+    void setKey(BUILDER builder, Long id);
+
+    Long getKey(ENTITY item);
+
+    /**
+     * The name of the database sequence that is used to populate this key
+     *
+     * @return the sequence name
+     */
+    String getSequenceName();
 
 }

@@ -12,6 +12,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Arrays;
 import java.util.Collections;
@@ -45,7 +46,7 @@ public class ParentsTest {
     }
 
     @Test
-    public void testSavePropagatesToChildren(){
+    public void testSavePropagatesToChildren() throws SQLException {
         Child child = new Child();
         child.setNumber(123L);
 
@@ -61,11 +62,15 @@ public class ParentsTest {
 
         long parentId = parent.getId();
 
+        Assert.assertTrue(parentId > 0);
+
         Parent readItem = parentDao.select(parentId);
 
+        Assert.assertNotNull(readItem);
         Assert.assertEquals("save propagation test", readItem.getName());
         Assert.assertEquals(1, readItem.getChildList().size());
         Assert.assertEquals(123L, (long) readItem.getChildList().get(0).getNumber());
+        Assert.assertTrue(readItem.getChildList().get(0).getId() > 1);
     }
 
     @Test
@@ -148,42 +153,52 @@ public class ParentsTest {
 
         Assert.assertEquals(1, readItem.getChildList().get(0).getGrandchildList().size());
         Assert.assertEquals(EnumeratedColor.Green,  readItem.getChildList().get(0).getGrandchildList().get(0).getColor());
+        Assert.assertTrue(readItem.getChildList().get(0).getGrandchildList().get(0).getId() > 1);
     }
 
     @Test
     public void testUpdatesPropagatesToGrandChildren(){
-        Grandchild grandchild = new Grandchild();
-        grandchild.setColor(EnumeratedColor.Green);
+        long parentId;
+        {
+            Grandchild grandchild = new Grandchild();
+            grandchild.setColor(EnumeratedColor.Green);
 
-        Child child = new Child();
-        child.setNumber(123L);
-        child.setGrandchildList(Arrays.asList(grandchild));
+            Child child = new Child();
+            child.setNumber(123L);
+            child.setGrandchildList(Arrays.asList(grandchild));
 
-        Parent parent = new Parent();
-        parent.setName("update multigeneration test");
-        parent.setChildList(Arrays.asList(child));
+            Parent parent = new Parent();
+            parent.setName("update multigeneration test");
+            parent.setChildList(Arrays.asList(child));
 
-        Connection connection = helper.connect();
+            Connection connection = helper.connect();
+            Dao<Parent> parentDao = ParentChildBuilders.ParentDaoBuilder.buildDao(connection);
 
-        Dao<Parent> parentDao = ParentChildBuilders.ParentDaoBuilder.buildDao(connection);
+            parentId = parentDao.insert(parent);
+        }
+        {
+            Connection connection = helper.connect();
+            Dao<Parent> parentDao = ParentChildBuilders.ParentDaoBuilder.buildDao(connection);
+            Parent readItem = parentDao.select(parentId);
 
-        parentDao.insert(parent);
+            Assert.assertEquals(1, readItem.getChildList().get(0).getGrandchildList().size());
+            Assert.assertEquals(EnumeratedColor.Green, readItem.getChildList().get(0).getGrandchildList().get(0).getColor());
 
-        long parentId = parent.getId();
+            readItem.getChildList().get(0).getGrandchildList().get(0).setColor(EnumeratedColor.Blue);
 
-        Parent readItem = parentDao.select(parentId);
+            parentDao.update(readItem);
+        }
+        {
+            Connection connection = helper.connect();
+            Dao<Parent> parentDao = ParentChildBuilders.ParentDaoBuilder.buildDao(connection);
+            Parent secondReadItem = parentDao.select(parentId);
 
-        Assert.assertEquals(1, readItem.getChildList().get(0).getGrandchildList().size());
-        Assert.assertEquals(EnumeratedColor.Green,  readItem.getChildList().get(0).getGrandchildList().get(0).getColor());
+            Assert.assertNotNull(secondReadItem);
+            Assert.assertEquals(1, secondReadItem.getChildList().size());
 
-        readItem.getChildList().get(0).getGrandchildList().get(0).setColor(EnumeratedColor.Blue);
-
-        parentDao.update(readItem);
-
-        Parent secondReadItem = parentDao.select(parentId);
-
-        Assert.assertEquals(1, secondReadItem.getChildList().get(0).getGrandchildList().size());
-        Assert.assertEquals(EnumeratedColor.Blue,  secondReadItem.getChildList().get(0).getGrandchildList().get(0).getColor());
+            Assert.assertEquals(1, secondReadItem.getChildList().get(0).getGrandchildList().size());
+            Assert.assertEquals(EnumeratedColor.Blue, secondReadItem.getChildList().get(0).getGrandchildList().get(0).getColor());
+        }
 
     }
 
@@ -306,8 +321,6 @@ public class ParentsTest {
             }
 
             {
-                System.out.println("DOING " + parentId);
-
                 Dao<Parent> parentDao = ParentChildBuilders.ParentDaoBuilder.buildDao(helper.connect());
 
                 Parent readItem = parentDao.select(parentId);

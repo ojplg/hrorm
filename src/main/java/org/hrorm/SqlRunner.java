@@ -19,37 +19,37 @@ import java.util.logging.Logger;
  *
  * Most users of hrorm will have no need to directly use this.
  *
- * @param <T> the type of object this runner supports
+ * @param <ENTITY> the type of object this runner supports
+ * @param <BUILDER> the type of object that can construct new <code>ENTITY</code> instances
  */
-public class SqlRunner<T> {
+public class SqlRunner<ENTITY, BUILDER> {
 
     private static final Logger logger = Logger.getLogger("org.hrorm");
 
     private final Connection connection;
-    private final List<TypedColumn<T>> allColumns;
-    private final PrimaryKey<T> primaryKey;
+    private final List<Column<ENTITY, BUILDER>> allColumns;
 
-    public SqlRunner(Connection connection, DaoDescriptor<T> daoDescriptor) {
+    public SqlRunner(Connection connection, DaoDescriptor<ENTITY, BUILDER> daoDescriptor) {
         this.connection = connection;
-        List<TypedColumn<T>> columns = new ArrayList<>();
+        List<Column<ENTITY, BUILDER>> columns = new ArrayList<>();
         columns.addAll(daoDescriptor.dataColumnsWithParent());
         columns.addAll(daoDescriptor.joinColumns());
-        this.primaryKey = daoDescriptor.primaryKey();
         this.allColumns = Collections.unmodifiableList(columns);
     }
 
-    public List<T> select(String sql, Supplier<T> supplier, List<ChildrenDescriptor<T,?>> childrenDescriptors){
+    public List<BUILDER> select(String sql, Supplier<BUILDER> supplier, List<ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors){
         return selectByColumns(sql, supplier, Collections.emptyList(), Collections.emptyMap(), childrenDescriptors, null);
     }
 
-    public List<T> selectByColumns(String sql, Supplier<T> supplier, List<String> columnNames, Map<String, TypedColumn<T>> columnNameMap,  List<ChildrenDescriptor<T,?>> childrenDescriptors, T item){
+    public List<BUILDER> selectByColumns(String sql, Supplier<BUILDER> supplier, List<String> columnNames, Map<String, ? extends Column<ENTITY,?>> columnNameMap, List<? extends ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors, ENTITY item){
         ResultSet resultSet = null;
         PreparedStatement statement = null;
         try {
             statement = connection.prepareStatement(sql);
             int idx = 1;
             for(String columnName : columnNames){
-                TypedColumn<T> column = columnNameMap.get(columnName.toUpperCase());
+
+                Column<ENTITY,?> column = columnNameMap.get(columnName.toUpperCase());
                 column.setValue(item, idx, statement);
                 idx++;
             }
@@ -57,11 +57,11 @@ public class SqlRunner<T> {
             logger.info(sql);
             resultSet = statement.executeQuery();
 
-            List<T> results = new ArrayList<>();
+            List<BUILDER> results = new ArrayList<>();
 
             while (resultSet.next()) {
-                T result = populate(resultSet, supplier);
-                for(ChildrenDescriptor<T,?> descriptor : childrenDescriptors){
+                BUILDER result = populate(resultSet, supplier);
+                for(ChildrenDescriptor<ENTITY,?, BUILDER,?> descriptor : childrenDescriptors){
                     descriptor.populateChildren(connection, result);
                 }
                 results.add(result);
@@ -85,30 +85,38 @@ public class SqlRunner<T> {
         }
     }
 
-    public void insert(String sql, T item) {
-        runInsertOrUpdate(sql, item, false);
+    public void insert(String sql, Envelope<ENTITY> envelope) {
+        runInsertOrUpdate(sql, envelope, false);
     }
 
-    public void update(String sql, T item) {
-        runInsertOrUpdate(sql, item, true);
+    public void update(String sql, Envelope<ENTITY> envelope) {
+        runInsertOrUpdate(sql, envelope, true);
     }
 
-    private void runInsertOrUpdate(String sql, T item, boolean isUpdate){
+    private void runInsertOrUpdate(String sql, Envelope<ENTITY> envelope, boolean isUpdate){
+
         PreparedStatement preparedStatement = null;
 
         try {
             preparedStatement = connection.prepareStatement(sql);
 
             int idx = 1;
-            for(TypedColumn<T> column : allColumns){
-                if( ! ( isUpdate && column.isPrimaryKey() ) ) {
-                    column.setValue(item, idx, preparedStatement);
+            for(Column<ENTITY, BUILDER> column : allColumns){
+                if( column.isPrimaryKey() ) {
+                    if ( ! isUpdate ) {
+                        preparedStatement.setLong(idx, envelope.getId());
+                        idx++;
+                    }
+                } else if ( column.isParentColumn() ){
+                    preparedStatement.setLong(idx, envelope.getParentId());
+                    idx++;
+                } else if ( ! column.isPrimaryKey()  ){
+                    column.setValue(envelope.getItem(), idx, preparedStatement);
                     idx++;
                 }
             }
             if( isUpdate ){
-                Long id = primaryKey.getKey(item);
-                preparedStatement.setLong(idx, id);
+                preparedStatement.setLong(idx, envelope.getId());
             }
 
             logger.info(sql);
@@ -128,11 +136,11 @@ public class SqlRunner<T> {
 
     }
 
-    private T populate(ResultSet resultSet, Supplier<T> supplier)
+    private BUILDER populate(ResultSet resultSet, Supplier<BUILDER> supplier)
             throws SQLException {
-        T item = supplier.get();
+        BUILDER item = supplier.get();
 
-        for (TypedColumn<T> column: allColumns) {
+        for (Column<ENTITY, BUILDER> column: allColumns) {
             PopulateResult populateResult = column.populate(item, resultSet);
             populateResult.populateChildren(connection);
         }

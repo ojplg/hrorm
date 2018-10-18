@@ -4,7 +4,7 @@ import java.sql.SQLException;
 import java.util.Optional;
 
 /**
- * A {@link RuntimeException} that wraps {@link SQLException}.
+ * A {@link RuntimeException} that often wraps {@link SQLException}.
  *
  * <p>
  *

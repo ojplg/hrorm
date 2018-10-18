@@ -34,6 +34,7 @@
                 <a href="#parent_child_relations" class="sublink-1">Parent-Child Relations</a>
                 <a href="#sibling_relations" class="sublink-1">Sibling Relations</a>
                 <a href="#things_hrorm_does_not_do">Things hrorm does not do</a>
+                <a href="#hrorm_and_immutability">Hrorm and Immutability</a>
                 <a href="#hrorm_and_exceptions">Hrorm and Exceptions</a>
                 <a href="#hrorm_and_transactions">Horm and Transactions</a>
                 <a href="#hrorm_and_logging">Hrorm and Logging</a>
@@ -60,7 +61,7 @@
 &lt;dependency&gt;
     &lt;groupId&gt;org.hrorm&lt;/groupId&gt;
     &lt;artifactId&gt;hrorm&lt;/artifactId&gt;
-    &lt;version&gt;0.3.3&lt;/version&gt;
+    &lt;version&gt;0.4.0&lt;/version&gt;
 &lt;/dependency&gt;</pre>
             </div>
 
@@ -237,9 +238,9 @@
                         Hrorm will populate this field from a sequence (see restrictions on
                         schema below) and will use it when issuing updates.
                     </li>
-                    <li>Hrorm mostly expects to work with Javabean like entities with public getters and setters. I
-                        suppose you could have hrorm work with builder objects and then have immutable entities, but then you
-                        would have to write some glue code to link it all together.
+                    <li>Hrorm expects to work with Javabean like entities with public getters and setters or
+                        with entities with public getters for fields and related builder objects with setters
+                        for the individual fields. (See <a href="#hrorm_and_immutability">Hrorm and Immutability</a>.)
                     </li>
                     <li>Hrorm expects child relationships to be modeled as <code>List</code> types exclusively. No sets
                         or arrays or other collections.
@@ -374,6 +375,62 @@
             </div>
 
             <div class="card fluid">
+
+                <a name="hrorm_and_immutability"></a>
+                <h2>Hrorm and Immutability</h2>
+
+                <hr>
+
+                <p>If you prefer that your Java entity model be made up of immutable classes, hrorm can support that.</p>
+
+                <p>Hrorm works well with immutable objects that have distinct builder classes for managing their setters.
+                To allow this, hrorm provides an <a href="/javadocs/latest/org/hrorm/IndirectDaoBuilder.html"><code>IndirectDaoBuilder</code></a>
+                class. The indirect moniker is intended to suggest that the entities will not be directly constructed,
+                but that will be handled by the builder objects.</p>
+
+                <p>The following example uses lombok style builders, but you can roll your own if that's what you prefer.</p>
+
+                <pre>
+    @lombok.Builder
+    @lombok.Data
+    public class ImmutableThing {
+        private final Long id;
+        private final String word;
+        private final BigDecimal amount;
+    }
+
+    IndirectDaoBuilder&lt;ImmutableThing, ImmutableThing.ImmutableThingBuilder&gt; immutableThingDaoBuilder =
+            new IndirectDaoBuilder&lt;&gt;("immutable_thing", ImmutableThing::builder, ImmutableThing.ImmutableThingBuilder::build)
+            .withPrimaryKey("id", "immutable_thing_seq", ImmutableThing::getId, ImmutableThing.ImmutableThingBuilder::id)
+            .withBigDecimalColumn("amount", ImmutableThing::getAmount, ImmutableThing.ImmutableThingBuilder::amount)
+            .withStringColumn("word", ImmutableThing::getWord, ImmutableThing.ImmutableThingBuilder::word);
+
+    Connection connection = // comes from somewhere
+
+    // this retured object implements the identical interface as any other hrorm Dao
+    Dao&lt;ImmutableThing&gt; immutableThingDao = immutableThingDaoBuilder.buildDao(connection);</pre>
+
+                <p>It works very similarly to the regular <code>DaoBuilder</code>, but some extra details
+                    are required. There are now two type parameters: one for the entity itself and
+                one for its builder object. On construction, instead of simply showing how to create
+                a new entity instance, two parameters show how to make a new builder instance and
+                how to make a new entity instance from the builder. Finally, all the setters are
+                specified on the builder class, not the entity instance.</p>
+
+                <p>With a regular <code>Dao</code> the object's primary key will be set on
+                the object during the <code>insert()</code>. This is not true for <code>Dao</code>
+                objects created from an <code>IndirectDaoBuilder</code>. The <code>insert</code>
+                method will still return the newly issued ID.</p>
+
+                <p>Indirect Dao objects support all the mechanisms for child and sibling records
+                that regular Dao objects do. Due to the lack of population of IDs, some care
+                must be taken. You cannot simply insert a sibling object and then
+                immediately place it into a new entity instance, since it will not yet
+                have its ID set.</p>
+
+            </div>
+
+                <div class="card fluid">
 
                 <a name="hrorm_and_exceptions"></a>
                 <h2>Hrorm and Exceptions</h2>

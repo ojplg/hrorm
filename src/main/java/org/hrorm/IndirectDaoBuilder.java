@@ -3,78 +3,118 @@ package org.hrorm;
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+
 /**
- * A DaoBuilder provides mechanisms for describing the relationship between
- * a Java type and the table(s) that will persist the data held in the class.
+ * An <code>IndirectDaoBuilder</code> is used for times when the class representing
+ * the persisted entity is immutable. It allows the relationships between the database
+ * table, the entity class, and the entity's builder class to be defined.
  *
  * <p>
- *     Also see {@link IndirectDaoBuilder}.
+ *     Also see {@link DaoBuilder}.
  * </p>
  *
- * @param <ENTITY> The class that the Dao will support.
+ * @param <ENTITY> The type of the class that the <code>Dao</code> will support.
+ * @param <BUILDER> The type of the class that can be used to construct new <code>ENTITY</code>
+ *                 instances and accept individual data elements.
  */
-public class DaoBuilder<ENTITY> implements DaoDescriptor<ENTITY, ENTITY> {
+public class IndirectDaoBuilder<ENTITY, BUILDER>  implements DaoDescriptor<ENTITY, BUILDER> {
 
-    private final IndirectDaoBuilder<ENTITY, ENTITY> internalDaoBuilder;
-
-    private final Consumer<PrimaryKey<ENTITY,ENTITY>> primaryKeyConsumer;
+    private final String tableName;
     private final String myPrefix;
+    private final Function<BUILDER, ENTITY> buildFunction;
+    private final Supplier<BUILDER> supplier;
+
+    private final Prefixer prefixer;
+
+    private final List<Column<ENTITY, BUILDER>> columns = new ArrayList<>();
+    private final List<JoinColumn<ENTITY,?, BUILDER,?>> joinColumns = new ArrayList<>();
+    private final List<ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors = new ArrayList<>();
+
+    private PrimaryKey<ENTITY, BUILDER> primaryKey;
+    private ParentColumn<ENTITY,?, BUILDER,?> parentColumn;
+
+    private Column<ENTITY, BUILDER> lastColumnAdded;
+
+    static class BuilderHolder<T,TB> {
+        IndirectDaoBuilder<T,TB> daoBuilder;
+        Consumer<PrimaryKey<T,TB>> primaryKeyConsumer;
+        String myPrefix;
+    }
+
+    static <T> BuilderHolder<T,T> forDirectDaoBuilder(String tableName, Supplier<T> supplier){
+        IndirectDaoBuilder<T,T> daoBuilder = new IndirectDaoBuilder<>(tableName, supplier, t-> t);
+        BuilderHolder<T,T> holder = new BuilderHolder<>();
+        holder.daoBuilder = daoBuilder;
+        holder.primaryKeyConsumer = daoBuilder::acceptPrimaryKey;
+        holder.myPrefix = daoBuilder.myPrefix;
+        return holder;
+    }
+
+    private void acceptPrimaryKey(PrimaryKey<ENTITY,BUILDER> primaryKey){
+        if ( this.primaryKey != null ){
+            throw new HrormException("Attempt to set a second primary key");
+        }
+        this.primaryKey = primaryKey;
+        columns.add(primaryKey);
+    }
 
     /**
      * Create a new DaoBuilder instance.
      *
      * @param tableName The name of the table in the database.
      * @param supplier A mechanism (generally a constructor) for creating a new instance.
+     * @param buildFunction How to create an instance of the entity class from its builder.
      */
-    public DaoBuilder(String tableName, Supplier<ENTITY> supplier){
-        IndirectDaoBuilder.BuilderHolder<ENTITY,ENTITY> builderHolder =
-                IndirectDaoBuilder.forDirectDaoBuilder(tableName, supplier);
-        internalDaoBuilder = builderHolder.daoBuilder;
-        primaryKeyConsumer = builderHolder.primaryKeyConsumer;
-        myPrefix = builderHolder.myPrefix;
+    public IndirectDaoBuilder(String tableName, Supplier<BUILDER> supplier, Function<BUILDER, ENTITY> buildFunction){
+        this.tableName = tableName;
+        this.supplier = supplier;
+        this.prefixer = new Prefixer();
+        this.myPrefix = this.prefixer.nextPrefix();
+        this.buildFunction = buildFunction;
     }
 
     @Override
     public String tableName() {
-        return internalDaoBuilder.tableName();
+        return tableName;
     }
 
     @Override
-    public Supplier<ENTITY> supplier() {
-        return internalDaoBuilder.supplier();
+    public Supplier<BUILDER> supplier() {
+        return supplier;
     }
 
     @Override
-    public List<Column<ENTITY, ENTITY>> dataColumns() {
-        return internalDaoBuilder.dataColumns();
+    public List<Column<ENTITY, BUILDER>> dataColumns() {
+        return columns;
     }
 
     @Override
-    public PrimaryKey<ENTITY, ENTITY> primaryKey() {
-        return internalDaoBuilder.primaryKey();
+    public PrimaryKey<ENTITY, BUILDER> primaryKey() {
+        return primaryKey;
     }
 
     @Override
-    public List<ChildrenDescriptor<ENTITY, ?, ENTITY, ?>> childrenDescriptors() {
-        return internalDaoBuilder.childrenDescriptors();
+    public List<ChildrenDescriptor<ENTITY, ?, BUILDER, ?>> childrenDescriptors() {
+        return childrenDescriptors;
     }
 
     @Override
-    public ParentColumn<ENTITY, ?, ENTITY, ?> parentColumn() {
-        return internalDaoBuilder.parentColumn();
+    public ParentColumn<ENTITY, ?, BUILDER, ?> parentColumn() {
+        return parentColumn;
     }
 
-    public List<JoinColumn<ENTITY, ?, ENTITY, ?>> joinColumns() { return internalDaoBuilder.joinColumns(); }
+    public List<JoinColumn<ENTITY, ?, BUILDER, ?>> joinColumns() { return joinColumns; }
 
     @Override
-    public Function<ENTITY, ENTITY> buildFunction() {
-        return internalDaoBuilder.buildFunction();
+    public Function<BUILDER, ENTITY> buildFunction() {
+        return buildFunction;
     }
 
     /**
@@ -85,7 +125,10 @@ public class DaoBuilder<ENTITY> implements DaoDescriptor<ENTITY, ENTITY> {
      * @return The newly created <code>Dao</code>.
      */
     public Dao<ENTITY> buildDao(Connection connection){
-        return internalDaoBuilder.buildDao(connection);
+        if( primaryKey == null ){
+            throw new HrormException("Cannot create a Dao without a primary key.");
+        }
+        return new DaoImpl<>(connection, tableName, supplier, primaryKey, columns, joinColumns, childrenDescriptors, parentColumn, buildFunction);
     }
 
     /**
@@ -96,8 +139,10 @@ public class DaoBuilder<ENTITY> implements DaoDescriptor<ENTITY, ENTITY> {
      * @param setter The function on <code>ENTITY</code> that consumes the data element.
      * @return This instance.
      */
-    public DaoBuilder<ENTITY> withStringColumn(String columnName, Function<ENTITY, String> getter, BiConsumer<ENTITY, String> setter){
-        internalDaoBuilder.withStringColumn(columnName, getter, setter);
+    public IndirectDaoBuilder<ENTITY, BUILDER> withStringColumn(String columnName, Function<ENTITY, String> getter, BiConsumer<BUILDER, String> setter){
+        Column<ENTITY, BUILDER> column = DataColumnFactory.stringColumn(columnName, myPrefix, getter, setter, true);
+        columns.add(column);
+        lastColumnAdded = column;
         return this;
     }
 
@@ -109,8 +154,10 @@ public class DaoBuilder<ENTITY> implements DaoDescriptor<ENTITY, ENTITY> {
      * @param setter The function on <code>ENTITY</code> that consumes the data element.
      * @return This instance.
      */
-    public DaoBuilder<ENTITY> withIntegerColumn(String columnName, Function<ENTITY, Long> getter, BiConsumer<ENTITY, Long> setter){
-        internalDaoBuilder.withIntegerColumn(columnName, getter, setter);
+    public IndirectDaoBuilder<ENTITY, BUILDER> withIntegerColumn(String columnName, Function<ENTITY, Long> getter, BiConsumer<BUILDER, Long> setter){
+        Column<ENTITY, BUILDER> column = DataColumnFactory.longColumn(columnName, myPrefix, getter, setter, true);
+        columns.add(column);
+        lastColumnAdded = column;
         return this;
     }
 
@@ -122,8 +169,10 @@ public class DaoBuilder<ENTITY> implements DaoDescriptor<ENTITY, ENTITY> {
      * @param setter The function on <code>ENTITY</code> that consumes the data element.
      * @return This instance.
      */
-    public DaoBuilder<ENTITY> withBigDecimalColumn(String columnName, Function<ENTITY, BigDecimal> getter, BiConsumer<ENTITY, BigDecimal> setter){
-        internalDaoBuilder.withBigDecimalColumn(columnName, getter, setter);
+    public IndirectDaoBuilder<ENTITY, BUILDER> withBigDecimalColumn(String columnName, Function<ENTITY, BigDecimal> getter, BiConsumer<BUILDER, BigDecimal> setter){
+        Column<ENTITY, BUILDER> column = DataColumnFactory.bigDecimalColumn(columnName, myPrefix, getter, setter, true);
+        columns.add(column);
+        lastColumnAdded = column;
         return this;
     }
 
@@ -139,8 +188,10 @@ public class DaoBuilder<ENTITY> implements DaoDescriptor<ENTITY, ENTITY> {
      * @param <E> The type being converted for persistence.
      * @return This instance.
      */
-    public <E> DaoBuilder<ENTITY> withConvertingStringColumn(String columnName, Function<ENTITY, E> getter, BiConsumer<ENTITY, E> setter, Converter<E, String> converter){
-        internalDaoBuilder.withConvertingStringColumn(columnName, getter, setter, converter);
+    public <E> IndirectDaoBuilder<ENTITY, BUILDER> withConvertingStringColumn(String columnName, Function<ENTITY, E> getter, BiConsumer<BUILDER, E> setter, Converter<E, String> converter){
+        Column<ENTITY, BUILDER> column = DataColumnFactory.stringConverterColumn(columnName, myPrefix, getter, setter, converter, true);
+        columns.add(column);
+        lastColumnAdded = column;
         return this;
     }
 
@@ -152,8 +203,10 @@ public class DaoBuilder<ENTITY> implements DaoDescriptor<ENTITY, ENTITY> {
      * @param setter The function on <code>ENTITY</code> that consumes the data element.
      * @return This instance.
      */
-    public DaoBuilder<ENTITY> withLocalDateTimeColumn(String columnName, Function<ENTITY, LocalDateTime> getter, BiConsumer<ENTITY, LocalDateTime> setter){
-        internalDaoBuilder.withLocalDateTimeColumn(columnName, getter, setter);
+    public IndirectDaoBuilder<ENTITY, BUILDER> withLocalDateTimeColumn(String columnName, Function<ENTITY, LocalDateTime> getter, BiConsumer<BUILDER, LocalDateTime> setter){
+        Column<ENTITY, BUILDER> column = DataColumnFactory.localDateTimeColumn(columnName, myPrefix, getter, setter, true);
+        columns.add(column);
+        lastColumnAdded = column;
         return this;
     }
 
@@ -167,8 +220,10 @@ public class DaoBuilder<ENTITY> implements DaoDescriptor<ENTITY, ENTITY> {
      * @param setter The function on <code>ENTITY</code> that consumes the data element.
      * @return This instance.
      */
-    public DaoBuilder<ENTITY> withBooleanColumn(String columnName, Function<ENTITY, Boolean> getter, BiConsumer<ENTITY, Boolean> setter){
-        internalDaoBuilder.withBooleanColumn(columnName, getter, setter);
+    public IndirectDaoBuilder<ENTITY, BUILDER> withBooleanColumn(String columnName, Function<ENTITY, Boolean> getter, BiConsumer<BUILDER, Boolean> setter){
+        Column<ENTITY, BUILDER> column = DataColumnFactory.stringConverterColumn(columnName, myPrefix, getter, setter, BooleanConverter.INSTANCE, true);
+        columns.add(column);
+        lastColumnAdded = column;
         return this;
     }
 
@@ -195,8 +250,10 @@ public class DaoBuilder<ENTITY> implements DaoDescriptor<ENTITY, ENTITY> {
      * @param <U> The type of the data element.
      * @return This instance.
      */
-    public <U> DaoBuilder<ENTITY> withJoinColumn(String columnName, Function<ENTITY, U> getter, BiConsumer<ENTITY,U> setter, DaoDescriptor<U,?> daoDescriptor){
-        internalDaoBuilder.withJoinColumn(columnName, getter, setter, daoDescriptor);
+    public <U> IndirectDaoBuilder<ENTITY, BUILDER> withJoinColumn(String columnName, Function<ENTITY, U> getter, BiConsumer<BUILDER,U> setter, DaoDescriptor<U,?> daoDescriptor){
+        JoinColumn<ENTITY,U, BUILDER,?> joinColumn = new JoinColumn<>(columnName, myPrefix, prefixer, getter, setter, daoDescriptor, true);
+        joinColumns.add(joinColumn);
+        lastColumnAdded = joinColumn;
         return this;
     }
 
@@ -222,15 +279,24 @@ public class DaoBuilder<ENTITY> implements DaoDescriptor<ENTITY, ENTITY> {
      *
      * @param getter The function on <code>ENTITY</code> that returns the children.
      * @param setter The function on <code>ENTITY</code> that consumes the children.
-     * @param daoDescriptor The description of how the mapping for the subordinate elements
+     * @param childDaoDescriptor The description of how the mapping for the subordinate elements
      *                      are persisted. Both <code>Dao</code> and <code>DaoBuilder</code>
      *                      objects implement the <code>DaoDescriptor</code> interface.
-     * @param <U> The type of the child data elements.
-     * @param <UB> The type of the builder of child data elements
+     * @param <CHILD> The type of the child data elements.
+     * @param <CHILDBUILDER> The type of the builder of child data elements
      * @return This instance.
      */
-    public <U,UB> DaoBuilder<ENTITY> withChildren(Function<ENTITY, List<U>> getter, BiConsumer<ENTITY, List<U>> setter, DaoDescriptor<U,UB> daoDescriptor){
-        internalDaoBuilder.withChildren(getter, setter, daoDescriptor);
+    public <CHILD,CHILDBUILDER> IndirectDaoBuilder<ENTITY, BUILDER> withChildren(Function<ENTITY, List<CHILD>> getter,
+                                                                   BiConsumer<BUILDER, List<CHILD>> setter,
+                                                                   DaoDescriptor<CHILD,CHILDBUILDER> childDaoDescriptor){
+        if( ! childDaoDescriptor.hasParent() ){
+            throw new HrormException("Children must have a parent column");
+        }
+
+        ChildrenDescriptor<ENTITY, CHILD, BUILDER, CHILDBUILDER> childrenDescriptor
+                = new ChildrenDescriptor<>(getter, setter, childDaoDescriptor, primaryKey, buildFunction);
+
+        childrenDescriptors.add(childrenDescriptor);
         return this;
     }
 
@@ -245,9 +311,9 @@ public class DaoBuilder<ENTITY> implements DaoDescriptor<ENTITY, ENTITY> {
      * @param setter The function to call to set the primary key value to an object instance.
      * @return This instance.
      */
-    public DaoBuilder<ENTITY> withPrimaryKey(String columnName, String sequenceName, Function<ENTITY, Long> getter, BiConsumer<ENTITY, Long> setter){
-        PrimaryKey<ENTITY,ENTITY> primaryKey = new DirectPrimaryKey<>(myPrefix, columnName, sequenceName, getter, setter);
-        primaryKeyConsumer.accept(primaryKey);
+    public IndirectDaoBuilder<ENTITY, BUILDER> withPrimaryKey(String columnName, String sequenceName, Function<ENTITY, Long> getter, BiConsumer<BUILDER, Long> setter){
+        PrimaryKey<ENTITY, BUILDER> key = new IndirectPrimaryKey<>(myPrefix, columnName, sequenceName, getter, setter);
+        acceptPrimaryKey(key);
         return this;
     }
 
@@ -260,8 +326,13 @@ public class DaoBuilder<ENTITY> implements DaoDescriptor<ENTITY, ENTITY> {
      * @param <P> The type of the parent object.
      * @return This instance.
      */
-    public <P> DaoBuilder<ENTITY> withParentColumn(String columnName, Function<ENTITY,P> getter, BiConsumer<ENTITY,P> setter){
-        internalDaoBuilder.withParentColumn(columnName, getter, setter);
+    public <P> IndirectDaoBuilder<ENTITY, BUILDER> withParentColumn(String columnName, Function<ENTITY,P> getter, BiConsumer<BUILDER,P> setter){
+        if ( parentColumn != null ){
+            throw new HrormException("Attempt to set a second parent");
+        }
+        ParentColumnImpl<ENTITY,P, BUILDER,?> column = new ParentColumnImpl<>(columnName, myPrefix, getter, setter);
+        lastColumnAdded = column;
+        parentColumn = column;
         return this;
     }
 
@@ -272,8 +343,13 @@ public class DaoBuilder<ENTITY> implements DaoDescriptor<ENTITY, ENTITY> {
      * @param <P> The type of the parent object.
      * @return This instance.
      */
-    public <P> DaoBuilder<ENTITY> withParentColumn(String columnName){
-        internalDaoBuilder.withParentColumn(columnName);
+    public <P> IndirectDaoBuilder<ENTITY, BUILDER> withParentColumn(String columnName){
+        if ( parentColumn != null ){
+            throw new HrormException("Attempt to set a second parent");
+        }
+        NoBackReferenceParentColumn<ENTITY,P, BUILDER,?> column = new NoBackReferenceParentColumn<>(columnName, myPrefix);
+        lastColumnAdded = column;
+        parentColumn = column;
         return this;
     }
 
@@ -284,8 +360,11 @@ public class DaoBuilder<ENTITY> implements DaoDescriptor<ENTITY, ENTITY> {
      *
      * @return This instance.
      */
-    public DaoBuilder<ENTITY> notNull(){
-        internalDaoBuilder.notNull();
+    public IndirectDaoBuilder<ENTITY, BUILDER> notNull(){
+        if ( lastColumnAdded == null ){
+            throw new HrormException("No column to set as not null has been added.");
+        }
+        lastColumnAdded.notNull();
         return this;
     }
 

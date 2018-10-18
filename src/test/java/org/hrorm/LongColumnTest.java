@@ -12,8 +12,8 @@ public class LongColumnTest {
 
     @Test
     public void testNotNullable() throws SQLException {
-        LongColumn<Columns> column = new LongColumn<>(
-                "NUMBER", "A", Columns::getIntegerThing, Columns::setIntegerThing);
+        Column<Columns, Columns> column = DataColumnFactory.longColumn(
+                "NUMBER", "A", Columns::getIntegerThing, Columns::setIntegerThing, false);
         column.notNull();
 
         Columns columns = new Columns();

@@ -56,7 +56,7 @@ public class ColumnsTest {
 
         long id = dao.insert(columns);
 
-        Columns dbInstance = dao.select(columns.getId());
+        Columns dbInstance = dao.select(id);
 
         Assert.assertEquals(columns, dbInstance);
         Assert.assertNotNull(columns.getId());
@@ -186,6 +186,7 @@ public class ColumnsTest {
         dao.insert(columns);
 
         Assert.assertNotNull(columns.getId());
+        Assert.assertTrue(columns.getId()>1);
     }
 
     @Test

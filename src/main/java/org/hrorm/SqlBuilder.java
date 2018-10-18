@@ -13,16 +13,16 @@ import java.util.stream.Collectors;
  *
  * Most users of hrorm will have no need to directly use this.
  *
- * @param <T> The type of the entity being persisted.
+ * @param <ENTITY> The type of the entity being persisted.
  */
-public class SqlBuilder<T> {
+public class SqlBuilder<ENTITY> {
 
     private final String table;
-    private final List<TypedColumn<T>> dataColumns;
-    private final List<JoinColumn<T, ?>> joinColumns;
-    private final PrimaryKey<T> primaryKey;
+    private final List<? extends Column<ENTITY,?>> dataColumns;
+    private final List<? extends JoinColumn<ENTITY, ?, ?, ?>> joinColumns;
+    private final PrimaryKey<ENTITY,?> primaryKey;
 
-    public SqlBuilder(DaoDescriptor<T> daoDescriptor){
+    public SqlBuilder(DaoDescriptor<ENTITY,?> daoDescriptor){
         this.table = daoDescriptor.tableName();
         this.dataColumns = daoDescriptor.dataColumnsWithParent();
         this.joinColumns = daoDescriptor.joinColumns();
@@ -30,23 +30,23 @@ public class SqlBuilder<T> {
     }
 
     public SqlBuilder(String table,
-                      List<TypedColumn<T>> dataColumns,
-                      List<JoinColumn<T, ?>> joinColumns,
-                      PrimaryKey<T> primaryKey) {
+                      List<? extends Column<ENTITY,?>> dataColumns,
+                      List<? extends JoinColumn<ENTITY, ?, ?, ?>> joinColumns,
+                      PrimaryKey<ENTITY, ?> primaryKey) {
         this.table = table;
         this.dataColumns = dataColumns;
         this.joinColumns = joinColumns;
         this.primaryKey = primaryKey;
     }
 
-    private String columnsAsString(String prefix, boolean withAliases, List<? extends TypedColumn> columns){
-        Function<TypedColumn,String> stringer;
+    private String columnsAsString(String prefix, boolean withAliases, List<? extends Column> columns){
+        Function<Column,String> stringer;
         if( withAliases && prefix != null ) {
             stringer = c -> prefix + "." + c.getName() + " as " + prefix + c.getName();
         } else if (prefix != null ){
             stringer = c -> prefix + c.getName();
         } else {
-            stringer = TypedColumn::getName;
+            stringer = Column::getName;
         }
         List<String> columnNames = columns.stream().map(stringer).collect(Collectors.toList());
         return String.join(", ", columnNames);
@@ -56,7 +56,7 @@ public class SqlBuilder<T> {
         StringBuilder buf = new StringBuilder();
         buf.append("select ");
         buf.append(columnsAsString("a", true, dataColumns));
-        for(JoinColumn<?, ?> joinColumn : flattenedJoinColumns()) {
+        for(JoinColumn<?, ?, ?, ?> joinColumn : flattenedJoinColumns()) {
             buf.append(", ");
             buf.append(columnsAsString(
                     joinColumn.getPrefix(),
