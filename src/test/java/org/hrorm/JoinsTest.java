@@ -90,8 +90,6 @@ public class JoinsTest {
         thing.setSibling(sibling);
         long thingId = thingDao.insert(thing);
 
-        System.out.println(" THING ID " + thingId);
-
         Thing readFromDb = thingDao.select(thingId);
 
         Assert.assertEquals(44L, (long) readFromDb.getSibling().getNumber());
