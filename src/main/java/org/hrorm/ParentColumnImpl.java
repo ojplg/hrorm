@@ -65,11 +65,7 @@ public class ParentColumnImpl<T, P,TBUILDER,PBUILDER> implements ParentColumn<T,
 
     @Override
     public void setValue(T item, int index, PreparedStatement preparedStatement) throws SQLException {
-
-        logger.info("WOrking on item " + item);
         P parent = getter.apply(item);
-        logger.info("It had parent "  + parent);
-
         Long parentId = parentPrimaryKey.getKey(parent);
         if ( parentId == null ){
             if ( nullable ){
@@ -80,7 +76,6 @@ public class ParentColumnImpl<T, P,TBUILDER,PBUILDER> implements ParentColumn<T,
         } else {
             preparedStatement.setLong(index, parentId);
         }
-
     }
 
     @Override

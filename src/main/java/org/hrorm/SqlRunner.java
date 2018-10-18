@@ -61,8 +61,6 @@ public class SqlRunner<T,B> {
             int idx = 1;
             for(String columnName : columnNames){
 
-                logger.info("Setting " + columnName);
-
                 Column<T,?> column = columnNameMap.get(columnName.toUpperCase());
                 column.setValue(item, idx, statement);
                 idx++;
@@ -74,8 +72,6 @@ public class SqlRunner<T,B> {
             List<B> results = new ArrayList<>();
 
             while (resultSet.next()) {
-                logger.info("Working on result set!");
-
                 B result = populate(resultSet, supplier);
                 for(ChildrenDescriptor<T,?,B,?> descriptor : childrenDescriptors){
                     descriptor.populateChildren(connection, result);

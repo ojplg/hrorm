@@ -85,7 +85,6 @@ public class PrimaryKeyImpl<ENTITY, ENTITYBUILDER> implements PrimaryKey<ENTITY,
         if ( value == null ){
             throw new HrormException("Tried to set a null value for the primary key named " + name);
         } else {
-            logger.info("setting value for " + name + " to " + value);
             preparedStatement.setLong(index, value);
         }
     }
