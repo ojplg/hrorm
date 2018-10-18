@@ -15,18 +15,20 @@ import java.util.function.BiConsumer;
  *
  * Most users of hrorm will have no need to directly use this.
  *
- * @param <T> The child entity type
- * @param <P> The type of the parent
+ * @param <ENTITY> The type whose persistence is managed by this <code>Dao</code>.
+ * @param <PARENT> The type of the parent (if any) of type <code>ENTITY</code>.
+ * @param <BUILDER> The type of object that can build an <code>ENTITY</code> instance.
+ * @param <PARENTBUILDER> The type of the object that can build a <code>PARENT</code> instance.
  */
-public class NoBackReferenceParentColumn<T,P,TBUILDER,PBUILDER> implements ParentColumn<T,P,TBUILDER,PBUILDER> {
+public class NoBackReferenceParentColumn<ENTITY, PARENT, BUILDER, PARENTBUILDER> implements ParentColumn<ENTITY, PARENT, BUILDER, PARENTBUILDER> {
 
     private final String name;
     private final String prefix;
-    private PrimaryKey<P,PBUILDER> parentPrimaryKey;
+    private PrimaryKey<PARENT, PARENTBUILDER> parentPrimaryKey;
     private boolean nullable;
 
     private final Semaphore parentSemaphore = new Semaphore(1);
-    private P parent;
+    private PARENT parent;
 
     public NoBackReferenceParentColumn(String name, String prefix) {
         this.name = name;
@@ -35,12 +37,12 @@ public class NoBackReferenceParentColumn<T,P,TBUILDER,PBUILDER> implements Paren
     }
 
     @Override
-    public void setParentPrimaryKey(PrimaryKey<P,PBUILDER> primaryKey) {
+    public void setParentPrimaryKey(PrimaryKey<PARENT, PARENTBUILDER> primaryKey) {
         this.parentPrimaryKey = primaryKey;
     }
 
     @Override
-    public BiConsumer<TBUILDER, P> setter() {
+    public BiConsumer<BUILDER, PARENT> setter() {
         return (t,p) -> {
             try {
                 this.parentSemaphore.acquire();
@@ -62,12 +64,12 @@ public class NoBackReferenceParentColumn<T,P,TBUILDER,PBUILDER> implements Paren
     }
 
     @Override
-    public PopulateResult populate(TBUILDER item, ResultSet resultSet) throws SQLException {
+    public PopulateResult populate(BUILDER item, ResultSet resultSet) throws SQLException {
         return PopulateResult.ParentColumn;
     }
 
     @Override
-    public void setValue(T item, int index, PreparedStatement preparedStatement) throws SQLException {
+    public void setValue(ENTITY item, int index, PreparedStatement preparedStatement) throws SQLException {
         Long parentId = getParentId();
         if ( parentId == null ){
             if ( nullable ){
@@ -87,7 +89,7 @@ public class NoBackReferenceParentColumn<T,P,TBUILDER,PBUILDER> implements Paren
     }
 
     @Override
-    public Column<T,TBUILDER> withPrefix(String newPrefix, Prefixer prefixer) {
+    public Column<ENTITY, BUILDER> withPrefix(String newPrefix, Prefixer prefixer) {
         return new NoBackReferenceParentColumn(name, newPrefix);
     }
 

@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
 
@@ -20,40 +19,29 @@ import java.util.logging.Logger;
  *
  * Most users of hrorm will have no need to directly use this.
  *
- * @param <T> the type of object this runner supports
+ * @param <ENTITY> the type of object this runner supports
+ * @param <BUILDER> the type of object that can construct new <code>ENTITY</code> instances
  */
-public class SqlRunner<T,B> {
+public class SqlRunner<ENTITY, BUILDER> {
 
     private static final Logger logger = Logger.getLogger("org.hrorm");
 
     private final Connection connection;
-    private final List<Column<T,B>> allColumns;
-    private final PrimaryKey<T,B> primaryKey;
+    private final List<Column<ENTITY, BUILDER>> allColumns;
 
-    private final Function<B,T> builderFunction;
-
-    public SqlRunner(Connection connection, List<Column<T,B>> allColumns, PrimaryKey<T,B> primaryKey, Function<B,T> builderFunction){
+    public SqlRunner(Connection connection, DaoDescriptor<ENTITY, BUILDER> daoDescriptor) {
         this.connection = connection;
-        this.allColumns = allColumns;
-        this.primaryKey = primaryKey;
-        this.builderFunction = builderFunction;
-    }
-
-    public SqlRunner(Connection connection, DaoDescriptor<T,B> daoDescriptor) {
-        this.connection = connection;
-        List<Column<T,B>> columns = new ArrayList<>();
+        List<Column<ENTITY, BUILDER>> columns = new ArrayList<>();
         columns.addAll(daoDescriptor.dataColumnsWithParent());
         columns.addAll(daoDescriptor.joinColumns());
-        this.primaryKey = daoDescriptor.primaryKey();
         this.allColumns = Collections.unmodifiableList(columns);
-        this.builderFunction = daoDescriptor.buildFunction();
     }
 
-    public List<B> select(String sql, Supplier<B> supplier, List<ChildrenDescriptor<T,?,B,?>> childrenDescriptors){
+    public List<BUILDER> select(String sql, Supplier<BUILDER> supplier, List<ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors){
         return selectByColumns(sql, supplier, Collections.emptyList(), Collections.emptyMap(), childrenDescriptors, null);
     }
 
-    public List<B> selectByColumns(String sql, Supplier<B> supplier, List<String> columnNames, Map<String, ? extends Column<T,?>> columnNameMap, List<? extends ChildrenDescriptor<T,?,B,?>> childrenDescriptors, T item){
+    public List<BUILDER> selectByColumns(String sql, Supplier<BUILDER> supplier, List<String> columnNames, Map<String, ? extends Column<ENTITY,?>> columnNameMap, List<? extends ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors, ENTITY item){
         ResultSet resultSet = null;
         PreparedStatement statement = null;
         try {
@@ -61,7 +49,7 @@ public class SqlRunner<T,B> {
             int idx = 1;
             for(String columnName : columnNames){
 
-                Column<T,?> column = columnNameMap.get(columnName.toUpperCase());
+                Column<ENTITY,?> column = columnNameMap.get(columnName.toUpperCase());
                 column.setValue(item, idx, statement);
                 idx++;
             }
@@ -69,11 +57,11 @@ public class SqlRunner<T,B> {
             logger.info(sql);
             resultSet = statement.executeQuery();
 
-            List<B> results = new ArrayList<>();
+            List<BUILDER> results = new ArrayList<>();
 
             while (resultSet.next()) {
-                B result = populate(resultSet, supplier);
-                for(ChildrenDescriptor<T,?,B,?> descriptor : childrenDescriptors){
+                BUILDER result = populate(resultSet, supplier);
+                for(ChildrenDescriptor<ENTITY,?, BUILDER,?> descriptor : childrenDescriptors){
                     descriptor.populateChildren(connection, result);
                 }
                 results.add(result);
@@ -97,15 +85,15 @@ public class SqlRunner<T,B> {
         }
     }
 
-    public void insert(String sql, Envelope<T> envelope) {
+    public void insert(String sql, Envelope<ENTITY> envelope) {
         runInsertOrUpdate(sql, envelope, false);
     }
 
-    public void update(String sql, Envelope<T> envelope) {
+    public void update(String sql, Envelope<ENTITY> envelope) {
         runInsertOrUpdate(sql, envelope, true);
     }
 
-    private void runInsertOrUpdate(String sql, Envelope<T> envelope, boolean isUpdate){
+    private void runInsertOrUpdate(String sql, Envelope<ENTITY> envelope, boolean isUpdate){
 
         PreparedStatement preparedStatement = null;
 
@@ -113,7 +101,7 @@ public class SqlRunner<T,B> {
             preparedStatement = connection.prepareStatement(sql);
 
             int idx = 1;
-            for(Column<T,B> column : allColumns){
+            for(Column<ENTITY, BUILDER> column : allColumns){
                 if( column.isPrimaryKey() ) {
                     if ( ! isUpdate ) {
                         preparedStatement.setLong(idx, envelope.getId());
@@ -148,11 +136,11 @@ public class SqlRunner<T,B> {
 
     }
 
-    private B populate(ResultSet resultSet, Supplier<B> supplier)
+    private BUILDER populate(ResultSet resultSet, Supplier<BUILDER> supplier)
             throws SQLException {
-        B item = supplier.get();
+        BUILDER item = supplier.get();
 
-        for (Column<T,B> column: allColumns) {
+        for (Column<ENTITY, BUILDER> column: allColumns) {
             PopulateResult populateResult = column.populate(item, resultSet);
             populateResult.populateChildren(connection);
         }

@@ -13,16 +13,16 @@ import java.util.stream.Collectors;
  *
  * Most users of hrorm will have no need to directly use this.
  *
- * @param <T> The type of the entity being persisted.
+ * @param <ENTITY> The type of the entity being persisted.
  */
-public class SqlBuilder<T> {
+public class SqlBuilder<ENTITY> {
 
     private final String table;
-    private final List<? extends Column<T,?>> dataColumns;
-    private final List<? extends JoinColumn<T, ?, ?, ?>> joinColumns;
-    private final PrimaryKey<T,?> primaryKey;
+    private final List<? extends Column<ENTITY,?>> dataColumns;
+    private final List<? extends JoinColumn<ENTITY, ?, ?, ?>> joinColumns;
+    private final PrimaryKey<ENTITY,?> primaryKey;
 
-    public SqlBuilder(DaoDescriptor<T,?> daoDescriptor){
+    public SqlBuilder(DaoDescriptor<ENTITY,?> daoDescriptor){
         this.table = daoDescriptor.tableName();
         this.dataColumns = daoDescriptor.dataColumnsWithParent();
         this.joinColumns = daoDescriptor.joinColumns();
@@ -30,9 +30,9 @@ public class SqlBuilder<T> {
     }
 
     public SqlBuilder(String table,
-                      List<? extends Column<T,?>> dataColumns,
-                      List<? extends JoinColumn<T, ?, ?, ?>> joinColumns,
-                      PrimaryKey<T, ?> primaryKey) {
+                      List<? extends Column<ENTITY,?>> dataColumns,
+                      List<? extends JoinColumn<ENTITY, ?, ?, ?>> joinColumns,
+                      PrimaryKey<ENTITY, ?> primaryKey) {
         this.table = table;
         this.dataColumns = dataColumns;
         this.joinColumns = joinColumns;

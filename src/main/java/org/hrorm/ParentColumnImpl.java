@@ -16,21 +16,21 @@ import java.util.logging.Logger;
  *
  * Most users of hrorm will have no need to directly use this.
  *
- * @param <T> The child entity type
- * @param <P> The type of the parent
+ * @param <CHILD> The child entity type
+ * @param <PARENT> The parent entity type
+ * @param <CHILDBUILDER> The class used to construct new <code>CHILD</code> instances
+ * @param <PARENTBUILDER> The class used to construct new <code>PARENT</code> instances
  */
-public class ParentColumnImpl<T, P,TBUILDER,PBUILDER> implements ParentColumn<T,P,TBUILDER,PBUILDER> {
-
-    private static final Logger logger = Logger.getLogger("org.hrorm");
+public class ParentColumnImpl<CHILD, PARENT, CHILDBUILDER, PARENTBUILDER> implements ParentColumn<CHILD, PARENT, CHILDBUILDER, PARENTBUILDER> {
 
     private final String name;
     private final String prefix;
-    private final BiConsumer<TBUILDER, P> setter;
-    private final Function<T, P> getter;
-    private PrimaryKey<P, PBUILDER> parentPrimaryKey;
+    private final BiConsumer<CHILDBUILDER, PARENT> setter;
+    private final Function<CHILD, PARENT> getter;
+    private PrimaryKey<PARENT, PARENTBUILDER> parentPrimaryKey;
     private boolean nullable;
 
-    public ParentColumnImpl(String name, String prefix, Function<T, P> getter, BiConsumer<TBUILDER, P> setter) {
+    public ParentColumnImpl(String name, String prefix, Function<CHILD, PARENT> getter, BiConsumer<CHILDBUILDER, PARENT> setter) {
         this.name = name;
         this.prefix = prefix;
         this.getter = getter;
@@ -38,8 +38,8 @@ public class ParentColumnImpl<T, P,TBUILDER,PBUILDER> implements ParentColumn<T,
         this.nullable = false;
     }
 
-    public ParentColumnImpl(String name, String prefix, Function<T, P> getter, BiConsumer<TBUILDER, P> setter,
-                            PrimaryKey<P, PBUILDER> parentPrimaryKey, boolean nullable) {
+    public ParentColumnImpl(String name, String prefix, Function<CHILD, PARENT> getter, BiConsumer<CHILDBUILDER, PARENT> setter,
+                            PrimaryKey<PARENT, PARENTBUILDER> parentPrimaryKey, boolean nullable) {
         this.name = name;
         this.prefix = prefix;
         this.getter = getter;
@@ -59,13 +59,13 @@ public class ParentColumnImpl<T, P,TBUILDER,PBUILDER> implements ParentColumn<T,
     }
 
     @Override
-    public PopulateResult populate(TBUILDER item, ResultSet resultSet) throws SQLException {
+    public PopulateResult populate(CHILDBUILDER item, ResultSet resultSet) throws SQLException {
         return PopulateResult.ParentColumn;
     }
 
     @Override
-    public void setValue(T item, int index, PreparedStatement preparedStatement) throws SQLException {
-        P parent = getter.apply(item);
+    public void setValue(CHILD item, int index, PreparedStatement preparedStatement) throws SQLException {
+        PARENT parent = getter.apply(item);
         Long parentId = parentPrimaryKey.getKey(parent);
         if ( parentId == null ){
             if ( nullable ){
@@ -79,7 +79,7 @@ public class ParentColumnImpl<T, P,TBUILDER,PBUILDER> implements ParentColumn<T,
     }
 
     @Override
-    public Column<T,TBUILDER> withPrefix(String prefix, Prefixer prefixer) {
+    public Column<CHILD, CHILDBUILDER> withPrefix(String prefix, Prefixer prefixer) {
         return new ParentColumnImpl<>(name, prefix, getter, setter, parentPrimaryKey, nullable);
     }
 
@@ -88,11 +88,11 @@ public class ParentColumnImpl<T, P,TBUILDER,PBUILDER> implements ParentColumn<T,
         this.nullable = false;
     }
 
-    public BiConsumer<TBUILDER, P> setter(){
+    public BiConsumer<CHILDBUILDER, PARENT> setter(){
         return setter;
     }
 
-    public void setParentPrimaryKey(PrimaryKey<P,PBUILDER> parentPrimaryKey) {
+    public void setParentPrimaryKey(PrimaryKey<PARENT, PARENTBUILDER> parentPrimaryKey) {
         this.parentPrimaryKey = parentPrimaryKey;
     }
 }
