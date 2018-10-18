@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -27,6 +28,28 @@ public class IndirectDaoBuilder<ENTITY, BUILDER>  implements DaoDescriptor<ENTIT
 
     private Column<ENTITY, BUILDER> lastColumnAdded;
 
+    static class BuilderHolder<T,TB> {
+        IndirectDaoBuilder<T,TB> daoBuilder;
+        Consumer<PrimaryKey<T,TB>> primaryKeyConsumer;
+        String myPrefix;
+    }
+
+    static <T> BuilderHolder<T,T> forDirectDaoBuilder(String tableName, Supplier<T> supplier){
+        IndirectDaoBuilder<T,T> daoBuilder = new IndirectDaoBuilder<>(tableName, supplier, t-> t);
+        BuilderHolder<T,T> holder = new BuilderHolder<>();
+        holder.daoBuilder = daoBuilder;
+        holder.primaryKeyConsumer = daoBuilder::acceptPrimaryKey;
+        holder.myPrefix = daoBuilder.myPrefix;
+        return holder;
+    }
+
+    private void acceptPrimaryKey(PrimaryKey<ENTITY,BUILDER> primaryKey){
+        if ( this.primaryKey != null ){
+            throw new HrormException("Attempt to set a second primary key");
+        }
+        this.primaryKey = primaryKey;
+        columns.add(primaryKey);
+    }
 
     /**
      * Create a new DaoBuilder instance.
@@ -275,11 +298,8 @@ public class IndirectDaoBuilder<ENTITY, BUILDER>  implements DaoDescriptor<ENTIT
      * @return This instance.
      */
     public IndirectDaoBuilder<ENTITY, BUILDER> withPrimaryKey(String columnName, String sequenceName, Function<ENTITY, Long> getter, BiConsumer<BUILDER, Long> setter){
-        if ( this.primaryKey != null ){
-            throw new HrormException("Attempt to set a second primary key");
-        }
-        this.primaryKey = new PrimaryKeyImpl<>(myPrefix, columnName, sequenceName, getter, setter);
-        columns.add(primaryKey);
+        PrimaryKey<ENTITY, BUILDER> key = new IndirectPrimaryKey<>(myPrefix, columnName, sequenceName, getter, setter);
+        acceptPrimaryKey(key);
         return this;
     }
 

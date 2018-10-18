@@ -5,6 +5,7 @@ import java.sql.Connection;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -18,6 +19,9 @@ public class DaoBuilder<ENTITY> implements DaoDescriptor<ENTITY, ENTITY> {
 
     private final IndirectDaoBuilder<ENTITY, ENTITY> internalDaoBuilder;
 
+    private final Consumer<PrimaryKey<ENTITY,ENTITY>> primaryKeyConsumer;
+    private final String myPrefix;
+
     /**
      * Create a new DaoBuilder instance.
      *
@@ -25,7 +29,11 @@ public class DaoBuilder<ENTITY> implements DaoDescriptor<ENTITY, ENTITY> {
      * @param supplier A mechanism (generally a constructor) for creating a new instance.
      */
     public DaoBuilder(String tableName, Supplier<ENTITY> supplier){
-        internalDaoBuilder = new IndirectDaoBuilder<>(tableName, supplier, t -> t);
+        IndirectDaoBuilder.BuilderHolder<ENTITY,ENTITY> builderHolder =
+                IndirectDaoBuilder.forDirectDaoBuilder(tableName, supplier);
+        internalDaoBuilder = builderHolder.daoBuilder;
+        primaryKeyConsumer = builderHolder.primaryKeyConsumer;
+        myPrefix = builderHolder.myPrefix;
     }
 
     @Override
@@ -234,7 +242,8 @@ public class DaoBuilder<ENTITY> implements DaoDescriptor<ENTITY, ENTITY> {
      * @return This instance.
      */
     public DaoBuilder<ENTITY> withPrimaryKey(String columnName, String sequenceName, Function<ENTITY, Long> getter, BiConsumer<ENTITY, Long> setter){
-        internalDaoBuilder.withPrimaryKey(columnName, sequenceName, getter, setter);
+        PrimaryKey<ENTITY,ENTITY> primaryKey = new DirectPrimaryKey<>(myPrefix, columnName, sequenceName, getter, setter);
+        primaryKeyConsumer.accept(primaryKey);
         return this;
     }
 

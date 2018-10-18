@@ -7,9 +7,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.logging.Logger;
 
-public class PrimaryKeyImpl<ENTITY, ENTITYBUILDER> implements PrimaryKey<ENTITY, ENTITYBUILDER> {
-
-    private static final Logger logger = Logger.getLogger("org.hrorm");
+public class IndirectPrimaryKey<ENTITY, ENTITYBUILDER> implements PrimaryKey<ENTITY, ENTITYBUILDER> {
 
     private final String prefix;
     private final String name;
@@ -17,11 +15,11 @@ public class PrimaryKeyImpl<ENTITY, ENTITYBUILDER> implements PrimaryKey<ENTITY,
     private final BiConsumer<ENTITYBUILDER, Long> setter;
     private final Function<ENTITY, Long> getter;
 
-    public PrimaryKeyImpl(String prefix,
-                          String name,
-                          String sequenceName,
-                          Function<ENTITY, Long> getter,
-                          BiConsumer<ENTITYBUILDER, Long> setter) {
+    public IndirectPrimaryKey(String prefix,
+                              String name,
+                              String sequenceName,
+                              Function<ENTITY, Long> getter,
+                              BiConsumer<ENTITYBUILDER, Long> setter) {
         this.prefix = prefix;
         this.name = name;
         this.sequenceName = sequenceName;
@@ -49,13 +47,9 @@ public class PrimaryKeyImpl<ENTITY, ENTITYBUILDER> implements PrimaryKey<ENTITY,
 
     @Override
     public void optimisticSetKey(ENTITY item, Long id) {
-        // FIXME: This is awful!!
-        try {
-            ENTITYBUILDER constructor = (ENTITYBUILDER) item;
-            setter.accept(constructor, id);
-        } catch (ClassCastException ex){
-            System.out.println(ex);
-        }
+        // nothing to do in this case
+        // in the indirect case the primary key has no
+        // access to the entity itself
     }
 
     @Override
@@ -91,7 +85,7 @@ public class PrimaryKeyImpl<ENTITY, ENTITYBUILDER> implements PrimaryKey<ENTITY,
 
     @Override
     public Column<ENTITY, ENTITYBUILDER> withPrefix(String newPrefix, Prefixer prefixer) {
-        return new PrimaryKeyImpl<>(newPrefix, name, sequenceName, getter, setter);
+        return new IndirectPrimaryKey<>(newPrefix, name, sequenceName, getter, setter);
     }
 
     @Override
