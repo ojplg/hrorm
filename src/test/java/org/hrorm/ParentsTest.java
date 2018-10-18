@@ -12,7 +12,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Arrays;
@@ -65,18 +64,13 @@ public class ParentsTest {
 
         Assert.assertTrue(parentId > 0);
 
-        Statement statement = connection.createStatement();
-        ResultSet resultSet = statement.executeQuery("select * from parent_table");
-        while (resultSet.next()){
-            System.out.println(" XXXXXX " + resultSet.getLong("ID"));
-        }
-
         Parent readItem = parentDao.select(parentId);
 
         Assert.assertNotNull(readItem);
         Assert.assertEquals("save propagation test", readItem.getName());
         Assert.assertEquals(1, readItem.getChildList().size());
         Assert.assertEquals(123L, (long) readItem.getChildList().get(0).getNumber());
+        Assert.assertTrue(readItem.getChildList().get(0).getId() > 1);
     }
 
     @Test
@@ -326,8 +320,6 @@ public class ParentsTest {
             }
 
             {
-                System.out.println("DOING " + parentId);
-
                 Dao<Parent> parentDao = ParentChildBuilders.ParentDaoBuilder.buildDao(helper.connect());
 
                 Parent readItem = parentDao.select(parentId);

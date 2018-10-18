@@ -186,6 +186,7 @@ public class ColumnsTest {
         dao.insert(columns);
 
         Assert.assertNotNull(columns.getId());
+        Assert.assertTrue(columns.getId()>1);
     }
 
     @Test
