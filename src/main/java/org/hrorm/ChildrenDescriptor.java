@@ -36,17 +36,13 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
     public ChildrenDescriptor(Function<PARENT, List<CHILD>> getter,
                               BiConsumer<PARENTBUILDER, List<CHILD>> setter,
                               DaoDescriptor<CHILD,CHILDBUILDER> childDaoDescriptor,
-                              PrimaryKey<PARENT,PARENTBUILDER> parentPrimaryKey,
+                              BiConsumer<CHILDBUILDER, PARENT> parentSetter,
                               Function<PARENTBUILDER, PARENT> parentBuild) {
         this.getter = getter;
         this.setter = setter;
         this.childDaoDescriptor = childDaoDescriptor;
 
-        ParentColumn<CHILD, PARENT, CHILDBUILDER, PARENTBUILDER> parentColumn = childDaoDescriptor.parentColumn();
-        parentColumn.setParentPrimaryKey(parentPrimaryKey);
-
-
-        this.parentSetter = parentColumn.setter();
+        this.parentSetter = parentSetter;
 
         this.sqlBuilder = new SqlBuilder<>(childDaoDescriptor);
 

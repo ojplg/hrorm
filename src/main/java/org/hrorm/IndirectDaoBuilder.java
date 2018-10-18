@@ -242,19 +242,23 @@ public class IndirectDaoBuilder<ENTITY, BUILDER>  implements DaoDescriptor<ENTIT
      *
      * @param getter The function on <code>ENTITY</code> that returns the children.
      * @param setter The function on <code>ENTITY</code> that consumes the children.
-     * @param daoDescriptor The description of how the mapping for the subordinate elements
+     * @param childDaoDescriptor The description of how the mapping for the subordinate elements
      *                      are persisted. Both <code>Dao</code> and <code>DaoBuilder</code>
      *                      objects implement the <code>DaoDescriptor</code> interface.
-     * @param <U> The type of the child data elements.
-     * @param <UB> The type of the builder of child data elements
+     * @param <CHILD> The type of the child data elements.
+     * @param <CHILDBUILDER> The type of the builder of child data elements
      * @return This instance.
      */
-    public <U,UB> IndirectDaoBuilder<ENTITY, BUILDER> withChildren(Function<ENTITY, List<U>> getter, BiConsumer<BUILDER, List<U>> setter, DaoDescriptor<U,UB> daoDescriptor){
-        if( ! daoDescriptor.hasParent() ){
+    public <CHILD,CHILDBUILDER> IndirectDaoBuilder<ENTITY, BUILDER> withChildren(Function<ENTITY, List<CHILD>> getter,
+                                                                   BiConsumer<BUILDER, List<CHILD>> setter,
+                                                                   DaoDescriptor<CHILD,CHILDBUILDER> childDaoDescriptor){
+        if( ! childDaoDescriptor.hasParent() ){
             throw new HrormException("Children must have a parent column");
         }
+        ParentColumn<CHILD, ENTITY, CHILDBUILDER, BUILDER> parentColumn = childDaoDescriptor.parentColumn();
+        parentColumn.setParentPrimaryKey(primaryKey);
         childrenDescriptors.add(
-                new ChildrenDescriptor<>(getter, setter, daoDescriptor, primaryKey, buildFunction())
+                new ChildrenDescriptor<>(getter, setter, childDaoDescriptor, parentColumn.setter(), buildFunction())
         );
         return this;
     }
