@@ -153,6 +153,7 @@ public class ParentsTest {
 
         Assert.assertEquals(1, readItem.getChildList().get(0).getGrandchildList().size());
         Assert.assertEquals(EnumeratedColor.Green,  readItem.getChildList().get(0).getGrandchildList().get(0).getColor());
+        Assert.assertTrue(readItem.getChildList().get(0).getGrandchildList().get(0).getId() > 1);
     }
 
     @Test
