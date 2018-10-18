@@ -40,27 +40,21 @@ public class DaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> implements Dao<ENTI
     private final Function<BUILDER, ENTITY> buildFunction;
 
     public DaoImpl(Connection connection,
-                   String tableName,
-                   Supplier<BUILDER> supplier,
-                   PrimaryKey<ENTITY, BUILDER> primaryKey,
-                   List<Column<ENTITY, BUILDER>> dataColumns,
-                   List<JoinColumn<ENTITY,?, BUILDER,?>> joinColumns,
-                   List<ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors,
-                   ParentColumn<ENTITY, PARENT, BUILDER, PARENTBUILDER> parentColumn,
-                   Function<BUILDER, ENTITY> buildFunction){
+                   DaoDescriptor<ENTITY, BUILDER> daoDescriptor){
         this.connection = connection;
-        this.tableName = tableName;
-        this.dataColumns = Collections.unmodifiableList(new ArrayList<>(dataColumns));
-        this.primaryKey = primaryKey;
-        this.supplier = supplier;
-        this.joinColumns = Collections.unmodifiableList(new ArrayList<>(joinColumns));
-        this.childrenDescriptors = Collections.unmodifiableList(new ArrayList<>(childrenDescriptors));
-        this.sqlBuilder = new SqlBuilder<ENTITY>(tableName, this.dataColumnsWithParent(), this.joinColumns, primaryKey);
-        this.sqlRunner = new SqlRunner<>(connection, this);
-        this.parentColumn = parentColumn;
-        this.buildFunction = buildFunction;
-    }
+        this.tableName = daoDescriptor.tableName();
+        this.dataColumns = Collections.unmodifiableList(new ArrayList<>(daoDescriptor.dataColumns()));
+        this.primaryKey = daoDescriptor.primaryKey();
+        this.supplier = daoDescriptor.supplier();
+        this.joinColumns = Collections.unmodifiableList(new ArrayList<>(daoDescriptor.joinColumns()));
+        this.childrenDescriptors = Collections.unmodifiableList(new ArrayList<>(daoDescriptor.childrenDescriptors()));
+        this.parentColumn = daoDescriptor.parentColumn();
+        this.buildFunction = daoDescriptor.buildFunction();
 
+        this.sqlBuilder = new SqlBuilder<>(tableName, this.dataColumnsWithParent(), this.joinColumns, this.primaryKey);
+        this.sqlRunner = new SqlRunner<>(connection, this);
+    }
+    
     @Override
     public String tableName(){
         return tableName;

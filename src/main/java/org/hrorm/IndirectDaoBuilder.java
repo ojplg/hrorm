@@ -128,7 +128,7 @@ public class IndirectDaoBuilder<ENTITY, BUILDER>  implements DaoDescriptor<ENTIT
         if( primaryKey == null ){
             throw new HrormException("Cannot create a Dao without a primary key.");
         }
-        return new DaoImpl<>(connection, tableName, supplier, primaryKey, columns, joinColumns, childrenDescriptors, parentColumn, buildFunction);
+        return new DaoImpl<>(connection, this);
     }
 
     /**
