@@ -255,11 +255,11 @@ public class IndirectDaoBuilder<ENTITY, BUILDER>  implements DaoDescriptor<ENTIT
         if( ! childDaoDescriptor.hasParent() ){
             throw new HrormException("Children must have a parent column");
         }
-        ParentColumn<CHILD, ENTITY, CHILDBUILDER, BUILDER> parentColumn = childDaoDescriptor.parentColumn();
-        parentColumn.setParentPrimaryKey(primaryKey);
-        childrenDescriptors.add(
-                new ChildrenDescriptor<>(getter, setter, childDaoDescriptor, parentColumn.setter(), buildFunction())
-        );
+
+        ChildrenDescriptor<ENTITY, CHILD, BUILDER, CHILDBUILDER> childrenDescriptor
+                = new ChildrenDescriptor<>(getter, setter, childDaoDescriptor, primaryKey, buildFunction);
+
+        childrenDescriptors.add(childrenDescriptor);
         return this;
     }
 

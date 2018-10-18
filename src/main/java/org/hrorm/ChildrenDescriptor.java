@@ -29,30 +29,30 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
     private final DaoDescriptor<CHILD,CHILDBUILDER> childDaoDescriptor;
     private final BiConsumer<CHILDBUILDER, PARENT> parentSetter;
 
-    private final Function<PARENTBUILDER, PARENT> parentBuild;
+    private final Function<PARENTBUILDER, PARENT> parentBuildFunction;
 
     private final SqlBuilder<CHILD> sqlBuilder;
 
     public ChildrenDescriptor(Function<PARENT, List<CHILD>> getter,
                               BiConsumer<PARENTBUILDER, List<CHILD>> setter,
                               DaoDescriptor<CHILD,CHILDBUILDER> childDaoDescriptor,
-                              BiConsumer<CHILDBUILDER, PARENT> parentSetter,
-                              Function<PARENTBUILDER, PARENT> parentBuild) {
+                              PrimaryKey<PARENT, PARENTBUILDER> parentPrimaryKey,
+                              Function<PARENTBUILDER, PARENT> parentBuildFunction) {
         this.getter = getter;
         this.setter = setter;
         this.childDaoDescriptor = childDaoDescriptor;
-
-        this.parentSetter = parentSetter;
-
         this.sqlBuilder = new SqlBuilder<>(childDaoDescriptor);
+        this.parentBuildFunction = parentBuildFunction;
 
-        this.parentBuild = parentBuild;
+        ParentColumn<CHILD, PARENT, CHILDBUILDER, PARENTBUILDER> parentColumn = childDaoDescriptor.parentColumn();
+        parentColumn.setParentPrimaryKey(parentPrimaryKey);
+        this.parentSetter = parentColumn.setter();
     }
 
     public void populateChildren(Connection connection, PARENTBUILDER parentBuilder){
 
         logger.info("Populating children for " + parentBuilder);
-        PARENT parent = parentBuild.apply(parentBuilder);
+        PARENT parent = parentBuildFunction.apply(parentBuilder);
 
         CHILDBUILDER childBuilder = childDaoDescriptor.supplier().get();
         parentSetter.accept(childBuilder, parent);
