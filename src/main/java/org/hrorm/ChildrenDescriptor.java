@@ -128,11 +128,13 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
                 childId = DaoHelper.getNextSequenceValue(connection, daoDescriptor.primaryKey().getSequenceName());
                 daoDescriptor.primaryKey().optimisticSetKey(child, childId);
                 String sql = sqlBuilder.insert();
-                sqlRunner.insert(sql, child, childId, parentId);
+                Envelope<CHILD> childEnvelope = new Envelope<>(child, childId, parentId);
+                sqlRunner.insert(sql, childEnvelope);
             } else {
                 existingIds.remove(childId);
                 String sql = sqlBuilder.update();
-                sqlRunner.update(sql, child, parentId);
+                Envelope<CHILD> childEnvelope = new Envelope<>(child, childId, parentId);
+                sqlRunner.update(sql, childEnvelope);
             }
             for(ChildrenDescriptor<CHILD,?,?,?> grandchildrenDescriptor : grandChildrenDescriptors){
                 grandchildrenDescriptor.saveChildren(connection, new Envelope<>(child, childId));

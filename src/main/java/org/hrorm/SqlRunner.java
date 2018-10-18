@@ -101,19 +101,15 @@ public class SqlRunner<T,B> {
         }
     }
 
-    public void insert(String sql, T item, long id, long parentId) {
-        runInsertOrUpdate(sql, item, id, parentId,false);
+    public void insert(String sql, Envelope<T> envelope) {
+        runInsertOrUpdate(sql, envelope, false);
     }
 
-    public void update(String sql, T item,long parentId) {
-        Long id = primaryKey.getKey(item);
-        runInsertOrUpdate(sql, item, id, parentId, true);
+    public void update(String sql, Envelope<T> envelope) {
+        runInsertOrUpdate(sql, envelope, true);
     }
 
-    private void runInsertOrUpdate(String sql, T item, long id, long parentId, boolean isUpdate){
-        if( item == null ){
-            throw new HrormException("Cannot insert or update a null item");
-        }
+    private void runInsertOrUpdate(String sql, Envelope<T> envelope, boolean isUpdate){
 
         PreparedStatement preparedStatement = null;
 
@@ -124,19 +120,19 @@ public class SqlRunner<T,B> {
             for(Column<T,B> column : allColumns){
                 if( column.isPrimaryKey() ) {
                     if ( ! isUpdate ) {
-                        preparedStatement.setLong(idx, id);
+                        preparedStatement.setLong(idx, envelope.getId());
                         idx++;
                     }
                 } else if ( column.isParentColumn() ){
-                    preparedStatement.setLong(idx, parentId);
+                    preparedStatement.setLong(idx, envelope.getParentId());
                     idx++;
                 } else if ( ! column.isPrimaryKey()  ){
-                    column.setValue(item, idx, preparedStatement);
+                    column.setValue(envelope.getItem(), idx, preparedStatement);
                     idx++;
                 }
             }
             if( isUpdate ){
-                preparedStatement.setLong(idx, id);
+                preparedStatement.setLong(idx, envelope.getId());
             }
 
             logger.info(sql);
