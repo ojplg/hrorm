@@ -411,7 +411,7 @@
     Dao&lt;ImmutableThing&gt; immutableThingDao = immutableThingDaoBuilder.buildDao(connection);</pre>
 
                 <p>It works very similarly to the regular <code>DaoBuilder</code>, but some extra details
-                    are required. There are now two type parameters, one for the entity itself, and
+                    are required. There are now two type parameters: one for the entity itself and
                 one for its builder object. On construction, instead of simply showing how to create
                 a new entity instance, two parameters show how to make a new builder instance and
                 how to make a new entity instance from the builder. Finally, all the setters are
@@ -420,11 +420,11 @@
                 <p>With a regular <code>Dao</code> the object's primary key will be set on
                 the object during the <code>insert()</code>. This is not true for <code>Dao</code>
                 objects created from an <code>IndirectDaoBuilder</code>. The <code>insert</code>
-                method will return the newly issued ID.</p>
+                method will still return the newly issued ID.</p>
 
                 <p>Indirect Dao objects support all the mechanisms for child and sibling records
                 that regular Dao objects do. Due to the lack of population of IDs, some care
-                must be taken however. You cannot simply insert a sibling object and then
+                must be taken. You cannot simply insert a sibling object and then
                 immediately place it into a new entity instance, since it will not yet
                 have its ID set.</p>
 
