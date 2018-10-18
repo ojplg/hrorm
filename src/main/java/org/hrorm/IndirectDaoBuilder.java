@@ -254,7 +254,7 @@ public class IndirectDaoBuilder<ENTITY, BUILDER>  implements DaoDescriptor<ENTIT
             throw new HrormException("Children must have a parent column");
         }
         childrenDescriptors.add(
-                new ChildrenDescriptor<>(getter, setter, daoDescriptor, primaryKey, daoDescriptor.buildFunction(), buildFunction())
+                new ChildrenDescriptor<>(getter, setter, daoDescriptor, primaryKey, buildFunction())
         );
         return this;
     }

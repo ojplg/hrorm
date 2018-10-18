@@ -29,7 +29,6 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
     private final DaoDescriptor<CHILD,CHILDBUILDER> childDaoDescriptor;
     private final BiConsumer<CHILDBUILDER, PARENT> parentSetter;
 
-    private final Function<CHILDBUILDER, CHILD> childBuild;
     private final Function<PARENTBUILDER, PARENT> parentBuild;
 
     private final SqlBuilder<CHILD> sqlBuilder;
@@ -38,7 +37,6 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
                               BiConsumer<PARENTBUILDER, List<CHILD>> setter,
                               DaoDescriptor<CHILD,CHILDBUILDER> childDaoDescriptor,
                               PrimaryKey<PARENT,PARENTBUILDER> parentPrimaryKey,
-                              Function<CHILDBUILDER, CHILD> childBuild,
                               Function<PARENTBUILDER, PARENT> parentBuild) {
         this.getter = getter;
         this.setter = setter;
@@ -52,7 +50,6 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
 
         this.sqlBuilder = new SqlBuilder<>(childDaoDescriptor);
 
-        this.childBuild = childBuild;
         this.parentBuild = parentBuild;
     }
 
@@ -63,7 +60,7 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
 
         CHILDBUILDER childBuilder = childDaoDescriptor.supplier().get();
         parentSetter.accept(childBuilder, parent);
-        CHILD child = childBuild.apply(childBuilder);
+        CHILD child = childBuilder().apply(childBuilder);
 
         logger.info("Instantiated a child " + child);
 
@@ -91,7 +88,7 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
         }
 
         List<CHILD> children = childrenBuilders.stream()
-                .map (cb-> childBuild.apply(cb)).collect(Collectors.toList());
+                .map (cb-> childBuilder().apply(cb)).collect(Collectors.toList());
 
         setter.accept(parentBuilder, children);
     }
@@ -165,4 +162,7 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
         return childDaoDescriptor.childrenDescriptors();
     }
 
+    private Function<CHILDBUILDER, CHILD> childBuilder(){
+        return childDaoDescriptor.buildFunction();
+    }
 }
