@@ -1,10 +1,13 @@
 package org.hrorm;
 
 import org.hrorm.h2.H2Helper;
+import org.hrorm.util.TestLogConfig;
 import org.junit.Assert;
 import org.junit.Test;
 
 public class DaoBuilderTest {
+
+    static { TestLogConfig.load(); }
 
     private H2Helper h2Helper = new H2Helper("columns");
 

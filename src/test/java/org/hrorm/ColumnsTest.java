@@ -4,6 +4,7 @@ import org.hrorm.examples.Columns;
 import org.hrorm.examples.EnumeratedColor;
 import org.hrorm.examples.EnumeratedColorConverter;
 import org.hrorm.h2.H2Helper;
+import org.hrorm.util.TestLogConfig;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -13,8 +14,11 @@ import java.math.BigDecimal;
 import java.sql.Connection;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.logging.LogManager;
 
 public class ColumnsTest {
+
+    static { TestLogConfig.load(); }
 
     private static H2Helper helper = new H2Helper("columns");
 
