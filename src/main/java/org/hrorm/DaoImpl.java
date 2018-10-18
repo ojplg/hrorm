@@ -134,7 +134,6 @@ public class DaoImpl<T,P,B,PB> implements Dao<T>, DaoDescriptor<T,B> {
     @Override
     public void update(T item) {
         String sql = sqlBuilder.update();
-        // FIXME: this minus one is super suspicious
         Envelope<T> envelope = new Envelope<>(item, primaryKey.getKey(item));
         sqlRunner.update(sql, envelope);
         for(ChildrenDescriptor<T,?,B,?> childrenDescriptor : childrenDescriptors){
