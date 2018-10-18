@@ -51,14 +51,11 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
 
     public void populateChildren(Connection connection, PARENTBUILDER parentBuilder){
 
-        logger.info("Populating children for " + parentBuilder);
         PARENT parent = parentBuildFunction.apply(parentBuilder);
 
         CHILDBUILDER childBuilder = childDaoDescriptor.supplier().get();
         parentSetter.accept(childBuilder, parent);
         CHILD child = childBuilder().apply(childBuilder);
-
-        logger.info("Instantiated a child " + child);
 
         SortedMap<String, Column<CHILD, CHILDBUILDER>> columnNameMap = childDaoDescriptor.columnMap(parentChildColumnName());
 
@@ -93,13 +90,9 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
 
         PARENT item = envelope.getItem();
 
-        logger.info("Working to save " + item);
-
         SqlRunner<CHILD,CHILDBUILDER> sqlRunner = new SqlRunner<>(connection, childDaoDescriptor);
 
         List<CHILD> children = getter.apply(item);
-
-        logger.info(" has children " + children);
 
         if( children == null ){
             children = Collections.emptyList();
@@ -108,8 +101,6 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
 
         Set<Long> existingIds = findExistingChildrenIds(connection, parentId);
         for(CHILD child : children){
-            logger.info("SAVING CHILD " + child);
-//            parentSetter.accept(child, item);
             Long childId = childDaoDescriptor.primaryKey().getKey(child);
             if( childId == null ) {
                 childId = DaoHelper.getNextSequenceValue(connection, childDaoDescriptor.primaryKey().getSequenceName());
