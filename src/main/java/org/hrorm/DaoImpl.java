@@ -54,7 +54,7 @@ public class DaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> implements Dao<ENTI
         this.sqlBuilder = new SqlBuilder<>(tableName, this.dataColumnsWithParent(), this.joinColumns, this.primaryKey);
         this.sqlRunner = new SqlRunner<>(connection, this);
     }
-    
+
     @Override
     public String tableName(){
         return tableName;

@@ -25,7 +25,11 @@ public class H2Helper {
     private static final Pattern createSequencePattern = Pattern.compile(
             "create sequence ([a-zA-Z_]+);");
 
+    private static final Pattern createTablePattern = Pattern.compile(
+            "create table ([a-zA-Z_]+)\\s*\\(");
+
     private final List<String> sequenceNames = new ArrayList<>();
+    private final List<String> tableNames = new ArrayList<>();
 
     public H2Helper(String schemaName){
         this.schemaName = schemaName;
@@ -44,6 +48,12 @@ public class H2Helper {
                 if ( matcher.matches() ){
                     String seqName = matcher.group(1);
                     sequenceNames.add(seqName);
+                }
+
+                matcher = createTablePattern.matcher(line);
+                if ( matcher.matches()){
+                    String tableName = matcher.group(1);
+                    tableNames.add(tableName);
                 }
 
                 wholeFileBuffer.append(line);
@@ -66,6 +76,15 @@ public class H2Helper {
 
     public void dropSchema(){
         try {
+            Connection connection = connect();
+            Statement statement = connection.createStatement();
+            for(String sequence : sequenceNames){
+                statement.execute("drop sequence " + sequence);
+            }
+            for(String table : tableNames){
+                statement.execute("drop table " + table);
+            }
+
             Path path = Paths.get("./target/db/" + schemaName + ".mv.db");
             Files.deleteIfExists(path);
             path = Paths.get("./target/db/" + schemaName + ".trace.db");
