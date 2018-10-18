@@ -6,6 +6,13 @@ import java.sql.SQLException;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
+/**
+ * Represents a column in a database table.
+ *
+ * @param <TYPE> The Java type that this column should be translated to and from.
+ * @param <ENTITY> The entity this column belongs to.
+ * @param <BUILDER> The class that is used to build new entity instances.
+ */
 public abstract class AbstractColumn<TYPE,ENTITY,BUILDER> implements Column<ENTITY,BUILDER> {
 
     private final String name;
@@ -50,11 +57,6 @@ public abstract class AbstractColumn<TYPE,ENTITY,BUILDER> implements Column<ENTI
         } else {
             setPreparedStatement(preparedStatement, index, value);
         }
-    }
-
-    @Override
-    public boolean isPrimaryKey() {
-        return false;
     }
 
     @Override

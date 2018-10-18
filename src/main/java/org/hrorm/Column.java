@@ -4,6 +4,12 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+/**
+ * Represents a column in a table that holds entity values.
+ *
+ * @param <ENTITY> The type of the entity.
+ * @param <BUILDER> The class that is used to build new entity instances.
+ */
 public interface Column<ENTITY, BUILDER> {
     /**
      * @return The name of the column in the underlying database.
@@ -26,9 +32,13 @@ public interface Column<ENTITY, BUILDER> {
     void setValue(ENTITY item, int index, PreparedStatement preparedStatement) throws SQLException;
 
     /**
-     * @return true if this column represents the primary key of the table
+     * Flag indicating whether or not this column is the primary key of the table
+     *
+     * @return true if this column represents the primary key of the table, otherwise false
      */
-    boolean isPrimaryKey();
+    default boolean isPrimaryKey(){
+        return false;
+    }
 
     /**
      * Calling this method will enforce a not-null constraint on this column.
@@ -38,7 +48,6 @@ public interface Column<ENTITY, BUILDER> {
     default boolean isParentColumn() {
         return false;
     }
-
 
     /**
      * Populates the object with the data read from the database.

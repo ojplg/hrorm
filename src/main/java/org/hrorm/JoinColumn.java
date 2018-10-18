@@ -115,11 +115,6 @@ public class JoinColumn<ENTITY, JOINED, ENTITYBUILDER, JOINEDBUILDER> implements
     }
 
     @Override
-    public boolean isPrimaryKey() {
-        return false;
-    }
-
-    @Override
     public void notNull() {
         nullable = false;
     }

@@ -84,11 +84,6 @@ public class ParentColumnImpl<T, P,TBUILDER,PBUILDER> implements ParentColumn<T,
     }
 
     @Override
-    public boolean isPrimaryKey() {
-        return false;
-    }
-
-    @Override
     public void notNull() {
         this.nullable = false;
     }
