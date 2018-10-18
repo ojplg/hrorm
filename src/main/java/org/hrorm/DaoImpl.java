@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
  * @param <P> The type of the parent (if any) of type <code>T</code>.
  * @param <B> The type of the builder of type <code>B</code>
  */
-public class DaoImpl<T,P,B> implements Dao<T>, DaoDescriptor<T,B> {
+public class DaoImpl<T,P,B,PB> implements Dao<T>, DaoDescriptor<T,B> {
 
     private static final Logger logger = Logger.getLogger("org.hrorm");
 
@@ -35,7 +35,7 @@ public class DaoImpl<T,P,B> implements Dao<T>, DaoDescriptor<T,B> {
     private final List<ChildrenDescriptor<T,?,B,?>> childrenDescriptors;
     private final SqlBuilder<T> sqlBuilder;
     private final SqlRunner<T,B> sqlRunner;
-    private final ParentColumn<T,P,B,?> parentColumn;
+    private final ParentColumn<T,P,B,PB> parentColumn;
     private final Function<B, T> buildFunction;
 
     public DaoImpl(Connection connection,
@@ -45,7 +45,7 @@ public class DaoImpl<T,P,B> implements Dao<T>, DaoDescriptor<T,B> {
                    List<Column<T,B>> dataColumns,
                    List<JoinColumn<T,?,B,?>> joinColumns,
                    List<ChildrenDescriptor<T,?,B,?>> childrenDescriptors,
-                   ParentColumn<T,P,B,?> parentColumn,
+                   ParentColumn<T,P,B,PB> parentColumn,
                    Function<B,T> buildFunction){
         this.connection = connection;
         this.tableName = tableName;
@@ -87,7 +87,7 @@ public class DaoImpl<T,P,B> implements Dao<T>, DaoDescriptor<T,B> {
     }
 
     @Override
-    public ParentColumn<T, P, B, ?> parentColumn() {
+    public ParentColumn<T, P, B, PB> parentColumn() {
         return parentColumn;
     }
 
