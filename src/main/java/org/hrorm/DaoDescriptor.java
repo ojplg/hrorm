@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
  * Most users of hrorm will have no need to directly use this.
  *
  * @param <ENTITY> The type representing the enitity being persisted.
- * @param <ENTITYBUILDER> The type of object that can build a <code>ENTITY</code>.
+ * @param <ENTITYBUILDER> The type of object that can build an <code>ENTITY</code> instance.
  */
 public interface DaoDescriptor<ENTITY, ENTITYBUILDER> {
 

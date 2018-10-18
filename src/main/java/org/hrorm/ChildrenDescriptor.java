@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
  * <p>
  *
  * Most users of hrorm will have no need to directly use this.
-*/
+ */
 public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
 
 

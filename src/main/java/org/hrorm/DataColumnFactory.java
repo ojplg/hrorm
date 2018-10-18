@@ -10,6 +10,13 @@ import java.time.LocalDateTime;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
+/**
+ * Mechanisms for creating columns that can handle persistence of various Java types.
+ *
+ * <p>
+ *
+ * Most users of hrorm will have no need to directly use this.
+ */
 public class DataColumnFactory {
 
     public static <ENTITY,BUILDER> AbstractColumn<BigDecimal, ENTITY, BUILDER> bigDecimalColumn(

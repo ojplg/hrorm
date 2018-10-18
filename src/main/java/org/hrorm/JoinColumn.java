@@ -18,6 +18,8 @@ import java.util.function.Function;
  *
  * @param <ENTITY> the entity this column belongs to
  * @param <JOINED> the entity being joined
+ * @param <ENTITYBUILDER> the class that can construct new entity instances
+ * @param <JOINEDBUILDER> the class that can construct instances of the joined entity
  */
 public class JoinColumn<ENTITY, JOINED, ENTITYBUILDER, JOINEDBUILDER> implements Column<ENTITY, ENTITYBUILDER> {
 

@@ -13,6 +13,10 @@ import java.util.function.Supplier;
  * A DaoBuilder provides mechanisms for describing the relationship between
  * a Java type and the table(s) that will persist the data held in the class.
  *
+ * <p>
+ *     Also see {@link IndirectDaoBuilder}.
+ * </p>
+ *
  * @param <ENTITY> The class that the Dao will support.
  */
 public class DaoBuilder<ENTITY> implements DaoDescriptor<ENTITY, ENTITY> {

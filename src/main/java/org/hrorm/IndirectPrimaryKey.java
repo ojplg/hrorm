@@ -7,19 +7,30 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.logging.Logger;
 
-public class IndirectPrimaryKey<ENTITY, ENTITYBUILDER> implements PrimaryKey<ENTITY, ENTITYBUILDER> {
+/**
+ * Primary key for an entity whose construction is indirect, i.e. the
+ * entity is immutable and without setters.
+ *
+ * <p>
+ *
+ * Most users of hrorm will have no need to directly use this.
+ *
+ * @param <ENTITY> The type of the class being persisted.
+ * @param <BUILDER> The type of the class that can construct new <code>ENTITY</code> instances.
+ */
+public class IndirectPrimaryKey<ENTITY, BUILDER> implements PrimaryKey<ENTITY, BUILDER> {
 
     private final String prefix;
     private final String name;
     private final String sequenceName;
-    private final BiConsumer<ENTITYBUILDER, Long> setter;
+    private final BiConsumer<BUILDER, Long> setter;
     private final Function<ENTITY, Long> getter;
 
     public IndirectPrimaryKey(String prefix,
                               String name,
                               String sequenceName,
                               Function<ENTITY, Long> getter,
-                              BiConsumer<ENTITYBUILDER, Long> setter) {
+                              BiConsumer<BUILDER, Long> setter) {
         this.prefix = prefix;
         this.name = name;
         this.sequenceName = sequenceName;
@@ -41,7 +52,7 @@ public class IndirectPrimaryKey<ENTITY, ENTITYBUILDER> implements PrimaryKey<ENT
     }
 
     @Override
-    public void setKey(ENTITYBUILDER builder, Long id) {
+    public void setKey(BUILDER builder, Long id) {
         setter.accept(builder, id);
     }
 
@@ -63,7 +74,7 @@ public class IndirectPrimaryKey<ENTITY, ENTITYBUILDER> implements PrimaryKey<ENT
     }
 
     @Override
-    public PopulateResult populate(ENTITYBUILDER constructor, ResultSet resultSet) throws SQLException {
+    public PopulateResult populate(BUILDER constructor, ResultSet resultSet) throws SQLException {
         Long value = resultSet.getLong(prefix  + name);
         setter.accept(constructor, value);
         if (value == null || value == 0 ){
@@ -84,7 +95,7 @@ public class IndirectPrimaryKey<ENTITY, ENTITYBUILDER> implements PrimaryKey<ENT
     }
 
     @Override
-    public Column<ENTITY, ENTITYBUILDER> withPrefix(String newPrefix, Prefixer prefixer) {
+    public Column<ENTITY, BUILDER> withPrefix(String newPrefix, Prefixer prefixer) {
         return new IndirectPrimaryKey<>(newPrefix, name, sequenceName, getter, setter);
     }
 

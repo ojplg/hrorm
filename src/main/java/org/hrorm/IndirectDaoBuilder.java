@@ -10,6 +10,20 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+
+/**
+ * An <code>IndirectDaoBuilder</code> is used for times when the class representing
+ * the persisted entity is immutable. It allows the relationships between the database
+ * table, the entity class, and the entity's builder class to be defined.
+ *
+ * <p>
+ *     Also see {@link DaoBuilder}.
+ * </p>
+ *
+ * @param <ENTITY> The type of the class that the <code>Dao</code> will support.
+ * @param <BUILDER> The type of the class that can be used to construct new <code>ENTITY</code>
+ *                 instances and accept individual data elements.
+ */
 public class IndirectDaoBuilder<ENTITY, BUILDER>  implements DaoDescriptor<ENTITY, BUILDER> {
 
     private final String tableName;

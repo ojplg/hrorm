@@ -7,6 +7,10 @@ import java.sql.SQLException;
 /**
  * Represents a column in a table that holds entity values.
  *
+ * <p>
+ *
+ * Most users of hrorm will have no need to directly use this.
+ *
  * @param <ENTITY> The type of the entity.
  * @param <BUILDER> The class that is used to build new entity instances.
  */

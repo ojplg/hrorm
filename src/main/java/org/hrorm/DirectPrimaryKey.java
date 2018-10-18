@@ -6,6 +6,16 @@ import java.sql.SQLException;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
+/**
+ * Primary key for an entity whose construction is direct, i.e. the
+ * entity has setters.
+ *
+ * <p>
+ *
+ * Most users of hrorm will have no need to directly use this.
+ *
+ * @param <ENTITY> The type of the class being persisted.
+ */
 public class DirectPrimaryKey<ENTITY> implements PrimaryKey<ENTITY, ENTITY> {
 
     private final String prefix;

@@ -16,37 +16,38 @@ import java.util.stream.Collectors;
  * <p>
  *
  * There is no good reason to directly construct this class yourself.
- * Use a {@link DaoBuilder}.
+ * Use a {@link DaoBuilder} or {@link IndirectDaoBuilder}.
  *
- * @param <T> The type whose persistence is managed by this <code>Dao</code>
- * @param <P> The type of the parent (if any) of type <code>T</code>.
- * @param <B> The type of the builder of type <code>B</code>
+ * @param <ENTITY> The type whose persistence is managed by this <code>Dao</code>.
+ * @param <PARENT> The type of the parent (if any) of type <code>ENTITY</code>.
+ * @param <BUILDER> The type of object that can build an <code>ENTITY</code> instance.
+ * @param <PARENTBUILDER> The type of the object that can build a <code>PARENT</code> instance.
  */
-public class DaoImpl<T,P,B,PB> implements Dao<T>, DaoDescriptor<T,B> {
+public class DaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> implements Dao<ENTITY>, DaoDescriptor<ENTITY, BUILDER> {
 
     private static final Logger logger = Logger.getLogger("org.hrorm");
 
     private final Connection connection;
     private final String tableName;
-    private final List<Column<T,B>> dataColumns;
-    private final PrimaryKey<T,B> primaryKey;
-    private final Supplier<B> supplier;
-    private final List<JoinColumn<T,?,B,?>> joinColumns;
-    private final List<ChildrenDescriptor<T,?,B,?>> childrenDescriptors;
-    private final SqlBuilder<T> sqlBuilder;
-    private final SqlRunner<T,B> sqlRunner;
-    private final ParentColumn<T,P,B,PB> parentColumn;
-    private final Function<B, T> buildFunction;
+    private final List<Column<ENTITY, BUILDER>> dataColumns;
+    private final PrimaryKey<ENTITY, BUILDER> primaryKey;
+    private final Supplier<BUILDER> supplier;
+    private final List<JoinColumn<ENTITY,?, BUILDER,?>> joinColumns;
+    private final List<ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors;
+    private final SqlBuilder<ENTITY> sqlBuilder;
+    private final SqlRunner<ENTITY, BUILDER> sqlRunner;
+    private final ParentColumn<ENTITY, PARENT, BUILDER, PARENTBUILDER> parentColumn;
+    private final Function<BUILDER, ENTITY> buildFunction;
 
     public DaoImpl(Connection connection,
                    String tableName,
-                   Supplier<B> supplier,
-                   PrimaryKey<T,B> primaryKey,
-                   List<Column<T,B>> dataColumns,
-                   List<JoinColumn<T,?,B,?>> joinColumns,
-                   List<ChildrenDescriptor<T,?,B,?>> childrenDescriptors,
-                   ParentColumn<T,P,B,PB> parentColumn,
-                   Function<B,T> buildFunction){
+                   Supplier<BUILDER> supplier,
+                   PrimaryKey<ENTITY, BUILDER> primaryKey,
+                   List<Column<ENTITY, BUILDER>> dataColumns,
+                   List<JoinColumn<ENTITY,?, BUILDER,?>> joinColumns,
+                   List<ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors,
+                   ParentColumn<ENTITY, PARENT, BUILDER, PARENTBUILDER> parentColumn,
+                   Function<BUILDER, ENTITY> buildFunction){
         this.connection = connection;
         this.tableName = tableName;
         this.dataColumns = Collections.unmodifiableList(new ArrayList<>(dataColumns));
@@ -54,7 +55,7 @@ public class DaoImpl<T,P,B,PB> implements Dao<T>, DaoDescriptor<T,B> {
         this.supplier = supplier;
         this.joinColumns = Collections.unmodifiableList(new ArrayList<>(joinColumns));
         this.childrenDescriptors = Collections.unmodifiableList(new ArrayList<>(childrenDescriptors));
-        this.sqlBuilder = new SqlBuilder<T>(tableName, this.dataColumnsWithParent(), this.joinColumns, primaryKey);
+        this.sqlBuilder = new SqlBuilder<ENTITY>(tableName, this.dataColumnsWithParent(), this.joinColumns, primaryKey);
         this.sqlRunner = new SqlRunner<>(connection, this);
         this.parentColumn = parentColumn;
         this.buildFunction = buildFunction;
@@ -66,36 +67,36 @@ public class DaoImpl<T,P,B,PB> implements Dao<T>, DaoDescriptor<T,B> {
     }
 
     @Override
-    public List<Column<T,B>> dataColumns(){
+    public List<Column<ENTITY, BUILDER>> dataColumns(){
         return dataColumns;
     }
 
     @Override
-    public List<JoinColumn<T, ?, B, ?>> joinColumns(){
+    public List<JoinColumn<ENTITY, ?, BUILDER, ?>> joinColumns(){
         return joinColumns;
     }
 
     @Override
-    public Supplier<B> supplier() { return supplier; }
+    public Supplier<BUILDER> supplier() { return supplier; }
 
     @Override
-    public PrimaryKey<T,B> primaryKey() { return primaryKey; }
+    public PrimaryKey<ENTITY, BUILDER> primaryKey() { return primaryKey; }
 
     @Override
-    public List<ChildrenDescriptor<T, ?, B, ?>> childrenDescriptors() {
+    public List<ChildrenDescriptor<ENTITY, ?, BUILDER, ?>> childrenDescriptors() {
         return null;
     }
 
     @Override
-    public ParentColumn<T, P, B, PB> parentColumn() {
+    public ParentColumn<ENTITY, PARENT, BUILDER, PARENTBUILDER> parentColumn() {
         return parentColumn;
     }
 
     @Override
-    public Function<B,T> buildFunction() { return buildFunction; }
+    public Function<BUILDER, ENTITY> buildFunction() { return buildFunction; }
 
     @Override
-    public long atomicInsert(T item) {
+    public long atomicInsert(ENTITY item) {
         Transactor transactor = new Transactor(connection);
         return transactor.runAndCommit(
                con -> { return insert(item); }
@@ -103,7 +104,7 @@ public class DaoImpl<T,P,B,PB> implements Dao<T>, DaoDescriptor<T,B> {
     }
 
     @Override
-    public void atomicUpdate(T item) {
+    public void atomicUpdate(ENTITY item) {
         Transactor transactor = new Transactor(connection);
         transactor.runAndCommit(
                 con -> { update(item); }
@@ -111,7 +112,7 @@ public class DaoImpl<T,P,B,PB> implements Dao<T>, DaoDescriptor<T,B> {
     }
 
     @Override
-    public void atomicDelete(T item) {
+    public void atomicDelete(ENTITY item) {
         Transactor transactor = new Transactor(connection);
         transactor.runAndCommit(
                 con -> { delete(item); }
@@ -119,79 +120,79 @@ public class DaoImpl<T,P,B,PB> implements Dao<T>, DaoDescriptor<T,B> {
     }
 
     @Override
-    public long insert(T item) {
+    public long insert(ENTITY item) {
         String sql = sqlBuilder.insert();
         long id = DaoHelper.getNextSequenceValue(connection, primaryKey.getSequenceName());
         primaryKey.optimisticSetKey(item, id);
-        Envelope<T> envelope = new Envelope<>(item, id);
+        Envelope<ENTITY> envelope = new Envelope<>(item, id);
         sqlRunner.insert(sql, envelope);
-        for(ChildrenDescriptor<T,?,B,?> childrenDescriptor : childrenDescriptors){
+        for(ChildrenDescriptor<ENTITY,?, BUILDER,?> childrenDescriptor : childrenDescriptors){
             childrenDescriptor.saveChildren(connection, new Envelope<>(item, id));
         }
         return id;
     }
 
     @Override
-    public void update(T item) {
+    public void update(ENTITY item) {
         String sql = sqlBuilder.update();
-        Envelope<T> envelope = new Envelope<>(item, primaryKey.getKey(item));
+        Envelope<ENTITY> envelope = new Envelope<>(item, primaryKey.getKey(item));
         sqlRunner.update(sql, envelope);
-        for(ChildrenDescriptor<T,?,B,?> childrenDescriptor : childrenDescriptors){
+        for(ChildrenDescriptor<ENTITY,?, BUILDER,?> childrenDescriptor : childrenDescriptors){
             childrenDescriptor.saveChildren(connection, new Envelope<>(item, primaryKey.getKey(item)));
         }
     }
 
     @Override
-    public void delete(T item) {
+    public void delete(ENTITY item) {
         String sql = sqlBuilder.delete();
         DaoHelper.runPreparedDelete(connection, sql, primaryKey.getKey(item));
     }
 
-    private List<T> mapBuilders(List<B> bs){
+    private List<ENTITY> mapBuilders(List<BUILDER> bs){
         return bs.stream().map(b -> buildFunction.apply(b)).collect(Collectors.toList());
     }
 
     @Override
-    public T select(long id) {
+    public ENTITY select(long id) {
         String primaryKeyName = primaryKey.getName();
         String sql = sqlBuilder.selectByColumns(primaryKeyName);
-        B builder = supplier().get();
+        BUILDER builder = supplier().get();
         primaryKey.setKey(builder, id);
-        T item = buildFunction.apply(builder);
+        ENTITY item = buildFunction.apply(builder);
         logger.info("Searching by " + id + " for " + item);
-        List<B> items = sqlRunner.selectByColumns(sql, supplier,
+        List<BUILDER> items = sqlRunner.selectByColumns(sql, supplier,
                 Collections.singletonList(primaryKeyName), columnMap(primaryKeyName),
                 childrenDescriptors, item);
         return fromSingletonList(mapBuilders(items));
     }
 
     @Override
-    public List<T> selectMany(List<Long> ids) {
+    public List<ENTITY> selectMany(List<Long> ids) {
         String sql = sqlBuilder.select();
         List<String> idStrings = ids.stream().map(Object::toString).collect(Collectors.toList());
         String idsString = String.join(",", idStrings);
         sql = sql + " and a." + primaryKey.getName() + " in (" + idsString + ")";
-        List<B> bs = sqlRunner.select(sql, supplier, childrenDescriptors);
+        List<BUILDER> bs = sqlRunner.select(sql, supplier, childrenDescriptors);
         return mapBuilders(bs);
     }
 
     @Override
-    public List<T> selectAll() {
+    public List<ENTITY> selectAll() {
         String sql = sqlBuilder.select();
-        List<B> bs = sqlRunner.select(sql, supplier, childrenDescriptors);
+        List<BUILDER> bs = sqlRunner.select(sql, supplier, childrenDescriptors);
         return mapBuilders(bs);
     }
 
     @Override
-    public T selectByColumns(T item, String ... columnNames){
-        List<T> items = selectManyByColumns(item, columnNames);
+    public ENTITY selectByColumns(ENTITY item, String ... columnNames){
+        List<ENTITY> items = selectManyByColumns(item, columnNames);
         return fromSingletonList(items);
     }
 
     @Override
-    public List<T> selectManyByColumns(T item, String ... columnNames) {
+    public List<ENTITY> selectManyByColumns(ENTITY item, String ... columnNames) {
         String sql = sqlBuilder.selectByColumns(columnNames);
-        List<B> bs = sqlRunner.selectByColumns(sql, supplier, Arrays.asList(columnNames), columnMap(columnNames), childrenDescriptors, item);
+        List<BUILDER> bs = sqlRunner.selectByColumns(sql, supplier, Arrays.asList(columnNames), columnMap(columnNames), childrenDescriptors, item);
         return mapBuilders(bs);
     }
 

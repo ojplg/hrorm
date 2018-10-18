@@ -9,6 +9,10 @@ import java.util.function.Function;
 /**
  * Represents a column in a database table.
  *
+ * <p>
+ *
+ * Most users of hrorm will have no need to directly use this.
+ *
  * @param <TYPE> The Java type that this column should be translated to and from.
  * @param <ENTITY> The entity this column belongs to.
  * @param <BUILDER> The class that is used to build new entity instances.
