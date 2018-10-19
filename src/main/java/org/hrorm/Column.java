@@ -3,6 +3,7 @@ package org.hrorm;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Set;
 
 /**
  * Represents a column in a table that holds entity values.
@@ -49,6 +50,11 @@ public interface Column<ENTITY, BUILDER> {
      */
     void notNull();
 
+    /**
+     * Flag indicating whether this column represents a reference to a parent entity.
+     *
+     * @return true if it is a parent column, false otherwise
+     */
     default boolean isParentColumn() {
         return false;
     }
@@ -75,4 +81,9 @@ public interface Column<ENTITY, BUILDER> {
      */
     Column<ENTITY, BUILDER> withPrefix(String newPrefix, Prefixer prefixer);
 
+
+    /**
+     * The members of <code>java.sql.Types</code> that this column should support.
+     */
+    Set<Integer> supportedTypes();
 }

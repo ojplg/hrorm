@@ -5,6 +5,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.List;
+import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
@@ -124,4 +125,8 @@ public class JoinColumn<ENTITY, JOINED, ENTITYBUILDER, JOINEDBUILDER> implements
     public String getJoinedTablePrimaryKeyName() {
         return joinedTablePrimaryKeyName;
     }
+
+    @Override
+    public Set<Integer> supportedTypes() { return ColumnTypes.IntegerTypes; }
+
 }

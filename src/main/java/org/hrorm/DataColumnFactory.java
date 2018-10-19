@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.time.LocalDateTime;
+import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
@@ -41,6 +42,9 @@ public class DataColumnFactory {
             int sqlType() {
                 return Types.DECIMAL;
             }
+
+            @Override
+            public Set<Integer> supportedTypes() { return ColumnTypes.DecimalTypes; }
         };
     }
 
@@ -66,6 +70,9 @@ public class DataColumnFactory {
             int sqlType() {
                 return Types.INTEGER;
             }
+
+            @Override
+            public Set<Integer> supportedTypes() { return ColumnTypes.IntegerTypes; }
         };
     }
 
@@ -91,6 +98,9 @@ public class DataColumnFactory {
             int sqlType() {
                 return Types.VARCHAR;
             }
+
+            @Override
+            public Set<Integer> supportedTypes() { return ColumnTypes.StringTypes; }
         };
     }
 
@@ -122,6 +132,9 @@ public class DataColumnFactory {
             int sqlType() {
                 return Types.TIMESTAMP;
             }
+
+            @Override
+            public Set<Integer> supportedTypes() { return ColumnTypes.LocalDateTimeTypes; }
         };
     }
 
@@ -158,6 +171,9 @@ public class DataColumnFactory {
             int sqlType() {
                 return Types.VARCHAR;
             }
+
+            @Override
+            public Set<Integer> supportedTypes() { return ColumnTypes.StringTypes; }
         };
     }
 

@@ -4,6 +4,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.logging.Logger;
@@ -95,4 +96,8 @@ public class ParentColumnImpl<CHILD, PARENT, CHILDBUILDER, PARENTBUILDER> implem
     public void setParentPrimaryKey(PrimaryKey<PARENT, PARENTBUILDER> parentPrimaryKey) {
         this.parentPrimaryKey = parentPrimaryKey;
     }
+
+    @Override
+    public Set<Integer> supportedTypes() { return ColumnTypes.IntegerTypes; }
+
 }

@@ -140,25 +140,24 @@ public class TestValidator {
         } catch (HrormException expected){}
     }
 
-    // FIXME: need to make this work
-//    @Test
-//    public void testDetectsBadColumnType(){
-//
-//        DaoBuilder<Columns> daoBuilder = new DaoBuilder<>("columns_table", Columns::new)
-//                .withPrimaryKey("id", "columns_seq", Columns::getId, Columns::setId)
-//                .withStringColumn("string_column", Columns::getStringThing, Columns::setStringThing)
-//                .withStringColumn("integer_column", c -> "", (c,s) -> {})
-//                .withBigDecimalColumn("decimal_column", Columns::getDecimalThing, Columns::setDecimalThing)
-//                .withBooleanColumn("boolean_column", Columns::getBooleanThing, Columns::setBooleanThing)
-//                .withLocalDateTimeColumn("timestamp_column", Columns::getTimeStampThing, Columns::setTimeStampThing)
-//                .withConvertingStringColumn("color_column", Columns::getColorThing, Columns::setColorThing, new EnumeratedColorConverter());
-//
-//        Connection connection = helper.connect();
-//        try {
-//            Validator.validate(connection, daoBuilder);
-//            Assert.fail("Did not bad primary key name");
-//        } catch (HrormException expected){}
-//    }
+    @Test
+    public void testDetectsBadColumnType(){
+
+        DaoBuilder<Columns> daoBuilder = new DaoBuilder<>("columns_table", Columns::new)
+                .withPrimaryKey("id", "columns_seq", Columns::getId, Columns::setId)
+                .withStringColumn("string_column", Columns::getStringThing, Columns::setStringThing)
+                .withStringColumn("integer_column", c -> "", (c,s) -> {})
+                .withBigDecimalColumn("decimal_column", Columns::getDecimalThing, Columns::setDecimalThing)
+                .withBooleanColumn("boolean_column", Columns::getBooleanThing, Columns::setBooleanThing)
+                .withLocalDateTimeColumn("timestamp_column", Columns::getTimeStampThing, Columns::setTimeStampThing)
+                .withConvertingStringColumn("color_column", Columns::getColorThing, Columns::setColorThing, new EnumeratedColorConverter());
+
+        Connection connection = helper.connect();
+        try {
+            Validator.validate(connection, daoBuilder);
+            Assert.fail("Did not bad primary key name");
+        } catch (HrormException expected){}
+    }
 
 
 }

@@ -4,6 +4,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.util.Set;
 import java.util.concurrent.Semaphore;
 import java.util.function.BiConsumer;
 
@@ -101,4 +102,8 @@ public class NoBackReferenceParentColumn<ENTITY, PARENT, BUILDER, PARENTBUILDER>
     @Override
     public void notNull() {
     }
+
+    @Override
+    public Set<Integer> supportedTypes() { return ColumnTypes.IntegerTypes; }
+
 }

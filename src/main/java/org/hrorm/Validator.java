@@ -9,15 +9,13 @@ import java.util.List;
 
 public class Validator {
 
-
     public static void validate(Connection connection, DaoDescriptor daoDescriptor) {
         try {
             checkSequenceExists(connection, daoDescriptor);
             checkPrimaryKeyExists(connection, daoDescriptor);
             checkTableExists(connection, daoDescriptor);
             checkColumnNamesExist(connection, daoDescriptor);
-// FIXME this test does not do the right thing yet
-//            checkColumnTypesCorrect(connection, daoDescriptor);
+            checkColumnTypesCorrect(connection, daoDescriptor);
         } catch (SQLException ex){
             throw new HrormException(ex);
         }
@@ -62,7 +60,6 @@ public class Validator {
         }
     }
 
-
     private static void checkColumnTypesCorrect(Connection connection, DaoDescriptor daoDescriptor)
             throws SQLException {
         String tableName = daoDescriptor.tableName();
@@ -73,7 +70,9 @@ public class Validator {
             ResultSet resultSet = statement.executeQuery("select top 1 " + columnName + " from " + tableName);
             ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
             int columnType = resultSetMetaData.getColumnType(1);
-            System.out.println("Column type for " + columnName + " was " + columnType);
+            if ( ! column.supportedTypes().contains(columnType) ){
+                throw new HrormException("Column " + columnName + " does not support type " + columnType);
+            }
         }
     }
 
