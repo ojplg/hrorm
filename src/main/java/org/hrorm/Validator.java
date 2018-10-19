@@ -7,8 +7,30 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
 
+/**
+ * A utility for checking whether or not the configuration of a <code>Dao</code>
+ * matches the database schema.
+ */
 public class Validator {
 
+    /**
+     * Calling this method will attempt to check to make sure that certain basics of the
+     * <code>Dao</code> definition correctly match the database schema. The following will
+     * be checked.
+     *
+     * <ul>
+     *     <li>That the <code>Dao</code> has a <code>PrimaryKey</code> defined</li>
+     *     <li>That the sequence exists</li>
+     *     <li>That the table exists</li>
+     *     <li>That the columns are correctly named</li>
+     *     <li>That the columns are of correct type</li>
+     * </ul>
+     *
+     * This is no substitute for testing.
+     *
+     * @param connection A connection to the database with the schema for the passed <code>DaoDescriptor</code>
+     * @param daoDescriptor The definition of the <code>Dao</code> to be checked
+     */
     public static void validate(Connection connection, DaoDescriptor daoDescriptor) {
         try {
             checkSequenceExists(connection, daoDescriptor);

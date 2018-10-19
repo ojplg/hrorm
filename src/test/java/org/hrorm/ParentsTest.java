@@ -363,5 +363,13 @@ public class ParentsTest {
         }
     }
 
+    @Test
+    public void testDaoValidation(){
+        Connection connection = helper.connect();
+        Validator.validate(connection, ParentChildBuilders.ParentDaoBuilder);
+        Validator.validate(connection, ParentChildBuilders.ChildDaoBuilder);
+        Validator.validate(connection, ParentChildBuilders.GrandchildDaoBuilder);
+    }
+
 
 }

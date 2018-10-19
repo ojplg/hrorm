@@ -4,10 +4,12 @@ import net.bytebuddy.build.ToStringPlugin;
 import org.hrorm.examples.Cousin;
 import org.hrorm.examples.EnumeratedColor;
 import org.hrorm.examples.EnumeratedColorConverter;
+import org.hrorm.examples.ParentChildBuilders;
 import org.hrorm.examples.SecondCousin;
 import org.hrorm.examples.Sibling;
 import org.hrorm.examples.Thing;
 import org.hrorm.h2.H2Helper;
+import org.hrorm.util.TestLogConfig;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -17,6 +19,8 @@ import java.sql.Connection;
 import java.time.LocalDateTime;
 
 public class JoinsTest {
+
+    static { TestLogConfig.load(); }
 
     private static H2Helper helper = new H2Helper("joins");
 
@@ -222,6 +226,16 @@ public class JoinsTest {
             Assert.fail("Should not have inserted with a null sibling");
         } catch (HrormException expected){
         }
-
     }
+
+    @Test
+    public void testDaoValidation(){
+        Connection connection = helper.connect();
+        Validator.validate(connection, ThingDaoBuilder);
+        Validator.validate(connection, SecondCousinDaoBuilder);
+        Validator.validate(connection, CousinDaoBuilder);
+        Validator.validate(connection, SiblingDaoBuilder);
+        Validator.validate(connection, ThingDaoBuilderNotNullSibling);
+    }
+
 }

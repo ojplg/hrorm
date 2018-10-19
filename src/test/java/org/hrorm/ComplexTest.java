@@ -161,5 +161,19 @@ public class ComplexTest {
         }
     }
 
+    @Test
+    public void testDaoValidation(){
+        Connection connection = helper.connect();
+        Validator.validate(connection, annDaoBuilder);
+        Validator.validate(connection, bethDaoBuilder);
+        Validator.validate(connection, calDaoBuilder);
+        Validator.validate(connection, donDaoBuilder);
+        Validator.validate(connection, edithDaoBuilder);
+        Validator.validate(connection, fredDaoBuilder);
+        Validator.validate(connection, gapDaoBuilder);
+        Validator.validate(connection, henryDaoBuilder);
+        Validator.validate(connection, idaDaoBuilder);
+        Validator.validate(connection, julesDaoBuilder);
+    }
 
 }

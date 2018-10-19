@@ -4,6 +4,7 @@ import org.hrorm.examples.ImmutableChild;
 import org.hrorm.examples.ImmutableSibling;
 import org.hrorm.examples.ImmutableThing;
 import org.hrorm.h2.H2Helper;
+import org.hrorm.util.TestLogConfig;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -17,6 +18,8 @@ import java.util.Collections;
 import java.util.List;
 
 public class ImmutableThingTest {
+
+    static { TestLogConfig.load(); }
 
     private static H2Helper helper = new H2Helper("immutable_thing");
 
@@ -298,5 +301,12 @@ public class ImmutableThingTest {
         }
     }
 
+    @Test
+    public void testDaoValidation(){
+        Connection connection = helper.connect();
+        Validator.validate(connection, IMMUTABLE_CHILD_DAO_BUILDER);
+        Validator.validate(connection, IMMUTABLE_SIBLING_DAO_BUILDER);
+        Validator.validate(connection, IMMUTABLE_OBJECT_DAO_BUILDER);
+    }
 
 }
