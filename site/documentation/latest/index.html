@@ -19,6 +19,7 @@
                 <a href="#sibling_relations" class="sublink-1">Sibling Relations</a>
                 <a href="#parent_child_relations" class="sublink-1">Parent Child Relations</a>
                 <a href="#constraints" class="sublink-1">Constraints</a>
+                <a href="#validation" class="sublink-1">Validation</a>
                 <a href="#daos">Daos</a>
                 <a href="#insert" class="sublink-1">Insert</a>
                 <a href="#select" class="sublink-1">Select</a>
@@ -412,6 +413,46 @@
 
                 <p>Documentation on constraints to come.</p>
             </div>
+
+            <a name="validation"></a>
+            <div class="card fluid">
+                <h3>Validation</h3>
+                <hr>
+
+                <p>Hrorm provides a <a href="/javadocs/latest/org/hrorm/Validator.html"><code>Validator</code></a> to
+                    help in sure the database schema is in sync with the code.</p>
+
+                <p>The validation provided is not a substitute for testing that code works as intended. It simply
+                checks that the names of the tables, columns, and sequences provided in the <code>Dao</code>
+                descriptions exist as stated. As such, it can quickly find typos or other simple errors and
+                report them. This can be particularly useful in times of database refactoring.</p>
+
+                <p>To check that a particular <code>Dao</code> is correct, simply pass it, or its builder,
+                to the <code>Validator::validate</code> method with a live <code>Connection</code>.
+                If the validation fails, an exception will be raised whose message describes the problems
+                found.</p>
+
+                <pre>
+    DaoBuilder&lt;Entity&gt; daoBuilder = new DaoBuilder&lt;&gt;("TABLE", Entity::new)
+            .withPrimaryKey("id", "SEQUENCE", Entity::getId, Entity::setId)
+            .withStringColumn("STRING_COL", Entity::getStringThing, Entity::setStringThing)
+            .withIntegerColumn("INT_COL", Entity::getIntegerThing, Entity::setIntegerThing);
+
+    Connection connection = // create connection just as for your application
+
+    try {
+        Validator.validate(connection, daoBuilder);
+    } catch (HrormException ex){
+        System.out.println(ex.getMessage);
+    }</pre>
+
+                <p>The testing that this performs is light. It will <b>not</b> attempt to make any changes to the
+                state of the database. It will merely check to make sure the structures exist as expected.
+                Moreover, each <code>Dao</code> is tested individually. Related <code>Dao</code>
+                objects, even dependent child objects, are not checked by the <code>Validator</code>.</p>
+
+            </div>
+
 
             <a name="daos"></a>
             <h2>Daos</h2>
