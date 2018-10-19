@@ -411,7 +411,28 @@
                 <h3>Constraints</h3>
                 <hr>
 
-                <p>Documentation on constraints to come.</p>
+                <p>Hrorm provides little support for placing constraints on your object models or
+                    schema. The correct place for that is within your object model or schema.</p>
+
+                <p>The <code>DaoBuilder</code> does allow you to mark particular columns as not null,
+                by calling the <code>notNull</code> method. It will apply that constraint to the
+                last column added to the growing definition.</p>
+
+                <p>Where a not null condition is defined in hrorm, it will prevent the creation
+                of null entries in the particular field in question, either through inserts
+                or updates. However, hrorm will ignore the constraint when attempting load
+                records from the database, on the theory that loading questionable data is
+                better than not loading it.</p>
+
+                <p>Since a properly designed object model and database schema can easily replicate
+                this functionality and provide other much more significant invariant enforcement,
+                it must be admitted that this facility is of little practical use.</p>
+
+                <p>One case where this can be helpful is during periods of data migration. If some
+                element is moving from optional to required, Hrorm can at least help creating new
+                records without the newly required element, until such time as more robust
+                enforcement of constraints can be implemented by the application and database.</p>
+
             </div>
 
             <a name="validation"></a>
