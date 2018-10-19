@@ -84,6 +84,8 @@ public interface Column<ENTITY, BUILDER> {
 
     /**
      * The members of <code>java.sql.Types</code> that this column should support.
+     *
+     * @return The types that should be handled by this column type.
      */
     Set<Integer> supportedTypes();
 }

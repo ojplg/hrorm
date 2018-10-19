@@ -26,10 +26,14 @@ public class Validator {
      *     <li>That the columns are of correct type</li>
      * </ul>
      *
-     * This is no substitute for testing.
+     * <p>If a problem is found, an <code>HrormException</code> will be thrown
+     * describing the issue.</p>
+     *
+     * <p>This is no substitute for testing.</p>
      *
      * @param connection A connection to the database with the schema for the passed <code>DaoDescriptor</code>
      * @param daoDescriptor The definition of the <code>Dao</code> to be checked
+     * @throws HrormException if a problem is discovered
      */
     public static void validate(Connection connection, DaoDescriptor daoDescriptor) {
         try {
