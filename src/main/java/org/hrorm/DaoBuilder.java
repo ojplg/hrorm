@@ -173,16 +173,16 @@ public class DaoBuilder<ENTITY> implements DaoDescriptor<ENTITY, ENTITY> {
     }
 
     /**
-     * Describes a data element that is represented by an <code>Object</code> of some
-     * other type <code>U</code> with its own table for persistence.
+     * <p>Describes a data element that is represented by an <code>Object</code> of some
+     * other type <code>U</code> with its own table for persistence.</p>
      *
-     * Join columns describe entities that have their own independent existence and
-     * their persistence is a pre-requisite for the persistence of dependent objects.
+     * <p>Join columns describe entities that have their own independent existence and
+     * their persistence is a pre-requisite for the persistence of dependent objects.</p>
      *
-     * Imagine a schema that describes cities and states. Every city entity should
+     * <p>Imagine a schema that describes cities and states. Every city entity should
      * be assigned to exactly one state. If the city is modified or deleted, it
      * has no repercusions to the state entity. The only thing that can happen is
-     * that the city is assigned to a new state.
+     * that the city is assigned to a new state.</p>
      *
      * @param columnName The name of the column with the foreign key to the other table.
      *                   This column must be an integer type and must reference the primary
@@ -204,10 +204,11 @@ public class DaoBuilder<ENTITY> implements DaoDescriptor<ENTITY, ENTITY> {
      * Describes a relationship between the object <code>ENTITY</code> and its several
      * child objects of type <code>U</code>.
      *
+     * <p>
      * When hrorm inserts or updates objects with children it will attempt to
-     * create, update, or delete child elements as necessary.
+     * create, update, or delete child elements as necessary.</p>
      *
-     * The above should be emphasized. For the purposes of persistence, Hrorm
+     * <p>The above should be emphasized. For the purposes of persistence, Hrorm
      * treats child objects (and grandchild and further generations of objects
      * transitively) as wholly owned by the parent object. On an update or
      * delete of the parent, the child objects will be updated or deleted as
@@ -215,10 +216,10 @@ public class DaoBuilder<ENTITY> implements DaoDescriptor<ENTITY, ENTITY> {
      * entity. The ingredient entities are children of various recipes. If
      * the recipe for bechamel is deleted, it makes no sense to have an
      * orphaned ingredient entry for one cup of butter. It will therefore be
-     * deleted.
+     * deleted.</p>
      *
-     * Contrast this behavior with the join column functionality, which describes
-     * the situation wherein the object makes no sense without the joined relation.
+     * <p>Contrast this behavior with the join column functionality, which describes
+     * the situation wherein the object makes no sense without the joined relation.</p>
      *
      * @param getter The function on <code>ENTITY</code> that returns the children.
      * @param setter The function on <code>ENTITY</code> that consumes the children.

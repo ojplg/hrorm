@@ -10,7 +10,7 @@ import org.junit.Test;
 
 import java.sql.Connection;
 
-public class TestValidator {
+public class ValidatorTest {
 
     private static H2Helper helper = new H2Helper("columns");
 
