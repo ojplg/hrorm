@@ -57,7 +57,11 @@ public class ValidatorTest {
         try {
             Validator.validate(connection, daoBuilder);
             Assert.fail("Did not detect bad sequence name");
-        } catch (HrormException expected){}
+        } catch (HrormException expected){
+            String message = expected.getMessage();
+            String[] messageArray = message.split("\n");
+            Assert.assertEquals(1, messageArray.length);
+        }
     }
 
     @Test
@@ -72,13 +76,13 @@ public class ValidatorTest {
                 .withLocalDateTimeColumn("timestamp_column", Columns::getTimeStampThing, Columns::setTimeStampThing)
                 .withConvertingStringColumn("color_column", Columns::getColorThing, Columns::setColorThing, new EnumeratedColorConverter());
 
-
         Connection connection = helper.connect();
         try {
             Validator.validate(connection, daoBuilder);
             Assert.fail("Did not detect bad table name");
-        } catch (HrormException expected){}
-
+        } catch (HrormException expected){
+            // A bad table name means lots of errors, no point in trying to count
+        }
     }
 
     @Test
@@ -97,8 +101,9 @@ public class ValidatorTest {
         try {
             Validator.validate(connection, daoBuilder);
             Assert.fail("Did not detect missing primary key");
-        } catch (HrormException expected){}
-
+        } catch (HrormException expected){
+            // a bad primary key means several errors, no counting required
+        }
     }
 
     @Test
@@ -117,7 +122,11 @@ public class ValidatorTest {
         try {
             Validator.validate(connection, daoBuilder);
             Assert.fail("Did not bad primary key name");
-        } catch (HrormException expected){}
+        } catch (HrormException expected){
+            String message = expected.getMessage();
+            String[] messageArray = message.split("\n");
+            Assert.assertEquals(1, messageArray.length);
+        }
     }
 
 
@@ -137,7 +146,11 @@ public class ValidatorTest {
         try {
             Validator.validate(connection, daoBuilder);
             Assert.fail("Did not bad primary key name");
-        } catch (HrormException expected){}
+        } catch (HrormException expected){
+            String message = expected.getMessage();
+            String[] messageArray = message.split("\n");
+            Assert.assertEquals(1, messageArray.length);
+        }
     }
 
     @Test
@@ -156,12 +169,15 @@ public class ValidatorTest {
         try {
             Validator.validate(connection, daoBuilder);
             Assert.fail("Did not bad primary key name");
-        } catch (HrormException expected){}
+        } catch (HrormException expected){
+            String message = expected.getMessage();
+            String[] messageArray = message.split("\n");
+            Assert.assertEquals(1, messageArray.length);
+        }
     }
 
     @Test
     public void testDetectsMultipleErrors(){
-
         // four errors have been introduced
         DaoBuilder<Columns> daoBuilder = new DaoBuilder<>("columns_table", Columns::new)
                 .withPrimaryKey("id", "Wrong_Name", Columns::getId, Columns::setId)
@@ -180,7 +196,6 @@ public class ValidatorTest {
         } catch (HrormException expected){
             String message = expected.getMessage();
             String[] messageArray = message.split("\n");
-            System.out.println( message );
             Assert.assertEquals(4, messageArray.length);
         }
 
