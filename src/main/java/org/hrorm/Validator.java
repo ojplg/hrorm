@@ -5,7 +5,10 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * A utility for checking whether or not the configuration of a <code>Dao</code>
@@ -36,70 +39,90 @@ public class Validator {
      * @throws HrormException if a problem is discovered
      */
     public static void validate(Connection connection, DaoDescriptor daoDescriptor) {
-        try {
-            checkSequenceExists(connection, daoDescriptor);
-            checkPrimaryKeyExists(connection, daoDescriptor);
-            checkTableExists(connection, daoDescriptor);
-            checkColumnNamesExist(connection, daoDescriptor);
-            checkColumnTypesCorrect(connection, daoDescriptor);
-        } catch (SQLException ex){
-            throw new HrormException(ex);
+        List<String> errors = new ArrayList<>();
+        errors.addAll(checkSequenceExists(connection, daoDescriptor));
+        errors.addAll(checkPrimaryKeyExists(connection, daoDescriptor));
+        errors.addAll(checkTableExists(connection, daoDescriptor));
+        errors.addAll(checkColumnTypesCorrect(connection, daoDescriptor));
+        if ( errors.size() > 0 ){
+            List<String> oneLineErrors = errors.stream().map(s -> s.replaceAll("\n", " ")).collect(Collectors.toList());
+            String completeMessage = String.join("\n", oneLineErrors);
+            throw new HrormException(completeMessage);
         }
     }
 
-    private static void checkPrimaryKeyExists(Connection connection, DaoDescriptor daoDescriptor){
+    private static List<String> checkPrimaryKeyExists(Connection connection, DaoDescriptor daoDescriptor){
         if ( daoDescriptor.primaryKey() == null ){
-            throw new HrormException("No primary key set");
+            return Collections.singletonList("No primary key set");
         }
+        return Collections.emptyList();
     }
 
-    private static void checkSequenceExists(Connection connection, DaoDescriptor daoDescriptor)
-    throws SQLException {
-        PrimaryKey primaryKey = daoDescriptor.primaryKey();
-        if ( primaryKey != null) {
-            String sequenceName = primaryKey.getSequenceName();
-            Statement statement = connection.createStatement();
-            ResultSet resultSet = statement.executeQuery("select currval('" + sequenceName + "')");
-            while (resultSet.next()) {
-                resultSet.getLong(1);
+    private static List<String> checkSequenceExists(Connection connection, DaoDescriptor daoDescriptor) {
+        try {
+            PrimaryKey primaryKey = daoDescriptor.primaryKey();
+            if (primaryKey != null) {
+                String sequenceName = primaryKey.getSequenceName();
+                Statement statement = connection.createStatement();
+                ResultSet resultSet = statement.executeQuery("select currval('" + sequenceName + "')");
+                while (resultSet.next()) {
+                    resultSet.getLong(1);
+                }
             }
+        } catch (SQLException ex){
+            return Collections.singletonList(ex.getMessage());
         }
+        return Collections.emptyList();
     }
 
-    private static void checkTableExists(Connection connection, DaoDescriptor daoDescriptor)
-    throws SQLException {
-        String tableName = daoDescriptor.tableName();
-        Statement statement = connection.createStatement();
-        ResultSet resultSet = statement.executeQuery("select top 1 * from " + tableName);
-        resultSet.next();
-    }
-
-    private static void checkColumnNamesExist(Connection connection, DaoDescriptor daoDescriptor)
-    throws SQLException {
-        String tableName = daoDescriptor.tableName();
-        List<Column> columns = daoDescriptor.allColumns();
-        for(Column column : columns) {
+    private static List<String> checkTableExists(Connection connection, DaoDescriptor daoDescriptor) {
+        try {
+            String tableName = daoDescriptor.tableName();
             Statement statement = connection.createStatement();
-            String columnName = column.getName();
-            ResultSet resultSet = statement.executeQuery("select top 1 " + columnName + " from " + tableName);
+            ResultSet resultSet = statement.executeQuery("select top 1 * from " + tableName);
             resultSet.next();
+        } catch (SQLException ex){
+            return Collections.singletonList(ex.getMessage());
         }
+        return Collections.emptyList();
     }
 
-    private static void checkColumnTypesCorrect(Connection connection, DaoDescriptor daoDescriptor)
-            throws SQLException {
+    private static List<String> checkColumnNamesExist(Connection connection, DaoDescriptor daoDescriptor) {
         String tableName = daoDescriptor.tableName();
         List<Column> columns = daoDescriptor.allColumns();
+        List<String> errors = new ArrayList<>();
         for(Column column : columns) {
-            Statement statement = connection.createStatement();
-            String columnName = column.getName();
-            ResultSet resultSet = statement.executeQuery("select top 1 " + columnName + " from " + tableName);
-            ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
-            int columnType = resultSetMetaData.getColumnType(1);
-            if ( ! column.supportedTypes().contains(columnType) ){
-                throw new HrormException("Column " + columnName + " does not support type " + columnType);
+            try {
+                Statement statement = connection.createStatement();
+                String columnName = column.getName();
+                ResultSet resultSet = statement.executeQuery("select top 1 " + columnName + " from " + tableName);
+                resultSet.next();
+            } catch (SQLException ex){
+                errors.add(ex.getMessage());
             }
         }
+        return errors;
+    }
+
+    private static List<String> checkColumnTypesCorrect(Connection connection, DaoDescriptor daoDescriptor) {
+        String tableName = daoDescriptor.tableName();
+        List<Column> columns = daoDescriptor.allColumns();
+        List<String> errors = new ArrayList<>();
+        for(Column column : columns) {
+            try {
+                Statement statement = connection.createStatement();
+                String columnName = column.getName();
+                ResultSet resultSet = statement.executeQuery("select top 1 " + columnName + " from " + tableName);
+                ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
+                int columnType = resultSetMetaData.getColumnType(1);
+                if ( ! column.supportedTypes().contains(columnType) ){
+                    errors.add("Column " + columnName + " does not support type " + columnType);
+                }
+            } catch (SQLException ex){
+                errors.add(ex.getMessage());
+            }
+        }
+        return errors;
     }
 
 }

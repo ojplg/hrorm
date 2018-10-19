@@ -159,5 +159,31 @@ public class ValidatorTest {
         } catch (HrormException expected){}
     }
 
+    @Test
+    public void testDetectsMultipleErrors(){
+
+        // four errors have been introduced
+        DaoBuilder<Columns> daoBuilder = new DaoBuilder<>("columns_table", Columns::new)
+                .withPrimaryKey("id", "Wrong_Name", Columns::getId, Columns::setId)
+                .withStringColumn("bad_name", Columns::getStringThing, Columns::setStringThing)
+                .withIntegerColumn("integer_column", Columns::getIntegerThing, Columns::setIntegerThing)
+                .withStringColumn("decimal_column", Columns::getStringThing, Columns::setStringThing)
+                .withBooleanColumn("boolean_column", Columns::getBooleanThing, Columns::setBooleanThing)
+                .withLocalDateTimeColumn("timestamp_column", Columns::getTimeStampThing, Columns::setTimeStampThing)
+                .withConvertingStringColumn("Other_bad_name", Columns::getColorThing, Columns::setColorThing, new EnumeratedColorConverter());
+
+        Connection connection = helper.connect();
+
+        try {
+            Validator.validate(connection, daoBuilder);
+            Assert.fail("Should have found many errors");
+        } catch (HrormException expected){
+            String message = expected.getMessage();
+            String[] messageArray = message.split("\n");
+            System.out.println( message );
+            Assert.assertEquals(4, messageArray.length);
+        }
+
+    }
 
 }
