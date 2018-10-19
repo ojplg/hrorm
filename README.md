@@ -4,4 +4,4 @@ An opinionated ORM tool for Java.
 
 ### Ideas
 
-* Schema and DaoBuilder validation
+* Move some of the dense matter from the home page to the documentation page
