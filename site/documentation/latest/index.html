@@ -503,7 +503,7 @@
     connection.commit();</pre>
 
                 <p>After that code runs, the record will be stored in the database. Hrorm will have pulled
-                a new sequence value and set it on the object. The following assertions will be true.</p>
+                a new sequence value and set it on the object. The following assertions will be true. Note that for immutable objects whose <code>Dao</code> implementations were created using an <code>IndirectDaoBuilder</code> the ID will not be set.</p>
 
                 <pre>
     Assert.assertNotNull(person.getId());
