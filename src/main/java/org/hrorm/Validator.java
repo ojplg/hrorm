@@ -86,7 +86,7 @@ public class Validator {
         }
         return Collections.emptyList();
     }
-    
+
     private static List<String> checkColumnTypesCorrect(Connection connection, DaoDescriptor daoDescriptor) {
         String tableName = daoDescriptor.tableName();
         List<Column> columns = daoDescriptor.allColumns();
