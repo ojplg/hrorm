@@ -9,7 +9,6 @@ import java.util.SortedMap;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 /**
@@ -20,9 +19,6 @@ import java.util.stream.Collectors;
  * Most users of hrorm will have no need to directly use this.
  */
 public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
-
-
-    private static final Logger logger = Logger.getLogger("org.hrorm");
 
     private final Function<PARENT, List<CHILD>> getter;
     private final BiConsumer<PARENTBUILDER, List<CHILD>> setter;
@@ -124,9 +120,7 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
     public Set<Long> findExistingChildrenIds(Connection connection, Long parentId){
         String sql = sqlBuilder.selectChildIds(parentChildColumnName());
         List<Long> ids = DaoHelper.readLongs(connection, sql, parentId);
-        Set<Long> idSet = new HashSet<>();
-        idSet.addAll(ids);
-        return idSet;
+        return new HashSet<>(ids);
     }
 
     private void deleteOrphans(Connection connection, Set<Long> badChildrenIds) {

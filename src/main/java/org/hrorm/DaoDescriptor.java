@@ -88,8 +88,7 @@ public interface DaoDescriptor<ENTITY, ENTITYBUILDER> {
     }
 
     default List<Column<ENTITY, ENTITYBUILDER>> dataColumnsWithParent(){
-        List<Column<ENTITY, ENTITYBUILDER>> allColumns = new ArrayList<>();
-        allColumns.addAll(dataColumns());
+        List<Column<ENTITY, ENTITYBUILDER>> allColumns = new ArrayList<>(dataColumns());
         if ( hasParent()) {
             allColumns.add(parentColumn());
         }
@@ -98,7 +97,7 @@ public interface DaoDescriptor<ENTITY, ENTITYBUILDER> {
 
     default SortedMap<String, Column<ENTITY,ENTITYBUILDER>> columnMap(String... columnNames){
         SortedMap<String, Column<ENTITY,ENTITYBUILDER>> map = new TreeMap<>();
-        Set<String> nameSet = Arrays.asList(columnNames).stream()
+        Set<String> nameSet = Arrays.stream(columnNames)
                 .map(String::toUpperCase).collect(Collectors.toSet());
         for(Column<ENTITY,ENTITYBUILDER> column : allColumns()){
             if (nameSet.contains(column.getName().toUpperCase())) {

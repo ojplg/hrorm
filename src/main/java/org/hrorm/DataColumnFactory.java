@@ -149,8 +149,7 @@ public class DataColumnFactory {
                 if ( code == null ) {
                     return null;
                 }
-                E value = converter.to(code);
-                return value;
+                return converter.to(code);
             }
 
             @Override

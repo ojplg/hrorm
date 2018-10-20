@@ -6,7 +6,6 @@ import java.sql.SQLException;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
-import java.util.logging.Logger;
 
 /**
  * Primary key for an entity whose construction is indirect, i.e. the

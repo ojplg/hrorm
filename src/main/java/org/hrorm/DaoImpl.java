@@ -143,7 +143,7 @@ public class DaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> implements Dao<ENTI
     }
 
     private List<ENTITY> mapBuilders(List<BUILDER> bs){
-        return bs.stream().map(b -> buildFunction.apply(b)).collect(Collectors.toList());
+        return bs.stream().map(buildFunction).collect(Collectors.toList());
     }
 
     @Override

@@ -65,7 +65,7 @@ public class NoBackReferenceParentColumn<ENTITY, PARENT, BUILDER, PARENTBUILDER>
     }
 
     @Override
-    public PopulateResult populate(BUILDER item, ResultSet resultSet) throws SQLException {
+    public PopulateResult populate(BUILDER item, ResultSet resultSet) {
         return PopulateResult.ParentColumn;
     }
 

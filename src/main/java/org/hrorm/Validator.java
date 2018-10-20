@@ -41,7 +41,7 @@ public class Validator {
     public static void validate(Connection connection, DaoDescriptor daoDescriptor) {
         List<String> errors = new ArrayList<>();
         errors.addAll(checkSequenceExists(connection, daoDescriptor));
-        errors.addAll(checkPrimaryKeyExists(connection, daoDescriptor));
+        errors.addAll(checkPrimaryKeyExists(daoDescriptor));
         errors.addAll(checkTableExists(connection, daoDescriptor));
         errors.addAll(checkColumnTypesCorrect(connection, daoDescriptor));
         if ( errors.size() > 0 ){
@@ -51,7 +51,7 @@ public class Validator {
         }
     }
 
-    private static List<String> checkPrimaryKeyExists(Connection connection, DaoDescriptor daoDescriptor){
+    private static List<String> checkPrimaryKeyExists(DaoDescriptor daoDescriptor){
         if ( daoDescriptor.primaryKey() == null ){
             return Collections.singletonList("No primary key set");
         }
@@ -86,24 +86,7 @@ public class Validator {
         }
         return Collections.emptyList();
     }
-
-    private static List<String> checkColumnNamesExist(Connection connection, DaoDescriptor daoDescriptor) {
-        String tableName = daoDescriptor.tableName();
-        List<Column> columns = daoDescriptor.allColumns();
-        List<String> errors = new ArrayList<>();
-        for(Column column : columns) {
-            try {
-                Statement statement = connection.createStatement();
-                String columnName = column.getName();
-                ResultSet resultSet = statement.executeQuery("select top 1 " + columnName + " from " + tableName);
-                resultSet.next();
-            } catch (SQLException ex){
-                errors.add(ex.getMessage());
-            }
-        }
-        return errors;
-    }
-
+    
     private static List<String> checkColumnTypesCorrect(Connection connection, DaoDescriptor daoDescriptor) {
         String tableName = daoDescriptor.tableName();
         List<Column> columns = daoDescriptor.allColumns();

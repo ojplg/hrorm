@@ -74,7 +74,7 @@ public class DirectPrimaryKey<ENTITY> implements PrimaryKey<ENTITY, ENTITY> {
     public PopulateResult populate(ENTITY constructor, ResultSet resultSet) throws SQLException {
         Long value = resultSet.getLong(prefix  + name);
         setter.accept(constructor, value);
-        if (value == null || value == 0 ){
+        if (value == 0){
             return PopulateResult.NoPrimaryKey;
         }
         return PopulateResult.PrimaryKey;

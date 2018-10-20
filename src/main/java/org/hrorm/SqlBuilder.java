@@ -137,8 +137,7 @@ public class SqlBuilder<ENTITY> {
                 .map(c -> c.getName() + "= ?")
                 .collect(Collectors.toList());
         sql.append(String.join(", ", dataColumnEntries));
-        for(int idx=0; idx<joinColumns.size(); idx++){
-            JoinColumn joinColumn = joinColumns.get(idx);
+        for(JoinColumn joinColumn : joinColumns){
             sql.append(", ");
             sql.append(joinColumn.getName());
             sql.append(" = ? ");

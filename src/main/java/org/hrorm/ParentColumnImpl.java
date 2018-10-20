@@ -7,7 +7,6 @@ import java.sql.Types;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
-import java.util.logging.Logger;
 
 /**
  * Represents a reference from a child entity to its parent where
@@ -60,7 +59,7 @@ public class ParentColumnImpl<CHILD, PARENT, CHILDBUILDER, PARENTBUILDER> implem
     }
 
     @Override
-    public PopulateResult populate(CHILDBUILDER item, ResultSet resultSet) throws SQLException {
+    public PopulateResult populate(CHILDBUILDER item, ResultSet resultSet) {
         return PopulateResult.ParentColumn;
     }
 
