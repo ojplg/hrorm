@@ -6,6 +6,17 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * Container for some static data regarding what <code>Column</code> implementations are
+ * suitable for what SQL types.
+ *
+ * <p>
+ *     The {@link java.sql.Types} class enumerates all the SQL types supported by the
+ *     JDBC. These types are exposed on the {@link java.sql.ResultSetMetaData} class.
+ *     By inspecting these values, hrorm can attempt to determine if the types of the
+ *     database are correct for the mappings it intendes to do.
+ * </p>
+ */
 public class ColumnTypes {
 
     public static final Set<Integer> IntegerTypes =

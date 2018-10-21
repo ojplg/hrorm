@@ -16,12 +16,19 @@ import java.util.Set;
  * @param <BUILDER> The class that is used to build new entity instances.
  */
 public interface Column<ENTITY, BUILDER> {
+
     /**
+     * The name of the database column this instance represents.
+     *
      * @return The name of the column in the underlying database.
      */
     String getName();
 
     /**
+     * The prefix that should be used for this column when generating
+     * SQL. This is necessary to prevent name clashes between columns of
+     * other tables that might be joined with this one.
+     *
      * @return The prefix to use when generating SQL with this column instance.
      */
     String getPrefix();

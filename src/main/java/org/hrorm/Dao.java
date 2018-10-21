@@ -41,7 +41,7 @@ public interface Dao<ENTITY> {
     void delete(ENTITY item);
 
     /**
-     * Read a record from the database.
+     * Read a record from the database by its primary key.
      *
      * @param id The primary key of the record desired.
      * @return The populated instance of type ENTITY.
@@ -49,7 +49,7 @@ public interface Dao<ENTITY> {
     ENTITY select(long id);
 
     /**
-     * Read several records from the database.
+     * Read several records from the database by their primary keys.
      *
      * @param ids The primary keys of the records desired.
      * @return A list of populated instances of type ENTITY.
@@ -58,6 +58,9 @@ public interface Dao<ENTITY> {
 
     /**
      * Read all the records in the database of type ENTITY.
+     *
+     * <p>No laziness or caching is involved here. This simply tries to
+     * instantiate all the records it can based on the full table.</p>
      *
      * @return A list of populated instances of type ENTITY.
      */
@@ -113,7 +116,8 @@ public interface Dao<ENTITY> {
     void atomicUpdate(ENTITY item);
 
     /**
-     * Run a delete statement in the database. Deletion is done by primary key.
+     * Run a delete statement in the database within a transaction.
+     * Deletion is done by primary key.
      * The delete will occur within a transaction that is
      * managed within the Dao. The Dao will either commit or rollback
      * the transaction and <b>close the underlying <code>Connection</code></b>

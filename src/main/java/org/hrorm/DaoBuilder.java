@@ -10,7 +10,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
- * A DaoBuilder provides mechanisms for describing the relationship between
+ * A DaoBuilder provides mechanisms for defining the relationship between
  * a Java type and the table(s) that will persist the data held in the class.
  *
  * <p>
