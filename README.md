@@ -26,4 +26,5 @@ Hrorm requires Java 8.
 * Expose generated SQL in an interface
 * Expose fields in addition to columns in select statements (either set on columns at
 create time, or derive from get/set method names)
-* Add support for more Java types for columns
+* Add support for more Java types
+
