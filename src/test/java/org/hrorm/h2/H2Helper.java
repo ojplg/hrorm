@@ -1,5 +1,7 @@
 package org.hrorm.h2;
 
+import org.hrorm.util.TestLogConfig;
+
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -23,10 +25,10 @@ public class H2Helper {
     private boolean initialized = false;
 
     private static final Pattern createSequencePattern = Pattern.compile(
-            "create sequence ([a-zA-Z_]+);");
+            "create sequence ([a-zA-Z_]+);", Pattern.CASE_INSENSITIVE);
 
     private static final Pattern createTablePattern = Pattern.compile(
-            "create table ([a-zA-Z_]+)\\s*\\(");
+            "create table ([a-zA-Z_]+)\\s*\\(", Pattern.CASE_INSENSITIVE);
 
     private final List<String> sequenceNames = new ArrayList<>();
     private final List<String> tableNames = new ArrayList<>();
