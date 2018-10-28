@@ -88,6 +88,11 @@ public class DaoBuilder<ENTITY> implements DaoDescriptor<ENTITY, ENTITY> {
         return internalDaoBuilder.buildDao(connection);
     }
 
+    /**
+     * Build the SQL that will be used by <code>DAO</code> objects created by this builder.
+     *
+     * @return A container for the SQL
+     */
     public Queries buildQueries() { return internalDaoBuilder.buildQueries(); }
 
     /**
