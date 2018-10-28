@@ -88,6 +88,8 @@ public class DaoBuilder<ENTITY> implements DaoDescriptor<ENTITY, ENTITY> {
         return internalDaoBuilder.buildDao(connection);
     }
 
+    public Queries buildQueries() { return internalDaoBuilder.buildQueries(); }
+
     /**
      * Describes a text or string data element.
      *

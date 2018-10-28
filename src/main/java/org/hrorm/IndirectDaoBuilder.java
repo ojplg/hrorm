@@ -131,6 +131,10 @@ public class IndirectDaoBuilder<ENTITY, BUILDER>  implements DaoDescriptor<ENTIT
         return new DaoImpl<>(connection, this);
     }
 
+    public Queries buildQueries(){
+        return new SqlBuilder<>(this);
+    }
+
     /**
      * Describes a text or string data element.
      *

@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
  *
  * @param <ENTITY> The type of the entity being persisted.
  */
-public class SqlBuilder<ENTITY> {
+public class SqlBuilder<ENTITY> implements Queries {
 
     private final String table;
     private final List<? extends Column<ENTITY,?>> dataColumns;
