@@ -23,7 +23,6 @@ Hrorm requires Java 8.
 
 * Move some of the dense matter from the home page to the documentation page
 * Improve deployment scripts: automatically set versions correctly
-* Expose generated SQL in an interface
 * Expose fields in addition to columns in select statements (either set on columns at
 create time, or derive from get/set method names)
 * Add support for more Java types
