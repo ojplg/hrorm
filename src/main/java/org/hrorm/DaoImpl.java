@@ -192,6 +192,7 @@ public class DaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> implements Dao<ENTI
         return mapBuilders(bs);
     }
 
+    @Override
     public <T> T foldingSelect(ENTITY item, T identity, BiFunction<T,ENTITY,T> accumulator, String ... columnNames){
         String sql = sqlBuilder.selectByColumns(columnNames);
         return sqlRunner.foldingSelect(sql, supplier, Arrays.asList(columnNames), columnMap(columnNames), childrenDescriptors, item, buildFunction, identity, accumulator);
