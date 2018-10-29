@@ -261,4 +261,33 @@ public class ColumnsTest {
             Assert.assertEquals(itemId, (long) readFromDb.getId());
         }
     }
+
+    @Test
+    public void testFoldingSelect(){
+        {
+            Connection connection = helper.connect();
+            Dao<Columns> dao = daoBuilder().buildDao(connection);
+
+            for (long idx=1; idx<=100; idx++) {
+                Columns c = new Columns();
+                c.setIntegerThing(idx);
+                String label = idx % 2 == 0 ? "Include" : "Exclude";
+                c.setStringThing(label);
+                dao.insert(c);
+            }
+        }
+        {
+            Columns template = new Columns();
+            template.setStringThing("Include");
+
+            Connection connection = helper.connect();
+            Dao<Columns> dao = daoBuilder().buildDao(connection);
+
+            Long result = dao.foldingSelect(template, 0L,
+                    (accumulator, columns) -> accumulator+columns.getIntegerThing(),
+                    "STRING_COLUMN");
+
+            Assert.assertEquals(2550L, (long) result);
+        }
+    }
 }

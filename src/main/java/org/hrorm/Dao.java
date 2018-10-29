@@ -1,6 +1,7 @@
 package org.hrorm;
 
 import java.util.List;
+import java.util.function.BiFunction;
 
 /**
  * A <code>Dao</code> is an interface that allows basic CRUD operations to be performed.
@@ -126,5 +127,7 @@ public interface Dao<ENTITY> {
      * @param item An instance of type ENTITY with a populated primary key.
      */
     void atomicDelete(ENTITY item);
+
+    <T> T foldingSelect(ENTITY item, T identity, BiFunction<T,ENTITY,T> accumulator, String ... columnNames);
 
 }

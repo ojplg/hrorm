@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
 
@@ -68,6 +70,60 @@ public class SqlRunner<ENTITY, BUILDER> {
             }
 
             return results;
+
+        } catch (SQLException ex){
+            throw new HrormException(ex, sql);
+        } finally {
+            try {
+                if (resultSet != null) {
+                    resultSet.close();
+                }
+                if (statement != null) {
+                    statement.close();
+                }
+            } catch (SQLException se){
+                throw new HrormException(se);
+            }
+        }
+    }
+
+    public <T> T foldingSelect(String sql,
+                               Supplier<BUILDER> supplier,
+                               List<String> columnNames,
+                               Map<String, ? extends Column<ENTITY,?>> columnNameMap,
+                               List<? extends ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors,
+                               ENTITY template,
+                               Function<BUILDER, ENTITY> buildFunction,
+                               T identity,
+                               BiFunction<T,ENTITY,T> accumulator){
+
+        ResultSet resultSet = null;
+        PreparedStatement statement = null;
+        try {
+            statement = connection.prepareStatement(sql);
+            int idx = 1;
+            for(String columnName : columnNames){
+
+                Column<ENTITY,?> column = columnNameMap.get(columnName.toUpperCase());
+                column.setValue(template, idx, statement);
+                idx++;
+            }
+
+            logger.info(sql);
+            resultSet = statement.executeQuery();
+
+            T result = identity;
+
+            while (resultSet.next()) {
+                BUILDER bldr = populate(resultSet, supplier);
+                for(ChildrenDescriptor<ENTITY,?, BUILDER,?> descriptor : childrenDescriptors){
+                    descriptor.populateChildren(connection, bldr);
+                }
+                ENTITY item = buildFunction.apply(bldr);
+                result = accumulator.apply(result, item);
+            }
+
+            return result;
 
         } catch (SQLException ex){
             throw new HrormException(ex, sql);

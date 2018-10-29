@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.BiFunction;
+import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
@@ -188,6 +190,11 @@ public class DaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> implements Dao<ENTI
         String sql = sqlBuilder.selectByColumns(columnNames);
         List<BUILDER> bs = sqlRunner.selectByColumns(sql, supplier, Arrays.asList(columnNames), columnMap(columnNames), childrenDescriptors, item);
         return mapBuilders(bs);
+    }
+
+    public <T> T foldingSelect(ENTITY item, T identity, BiFunction<T,ENTITY,T> accumulator, String ... columnNames){
+        String sql = sqlBuilder.selectByColumns(columnNames);
+        return sqlRunner.foldingSelect(sql, supplier, Arrays.asList(columnNames), columnMap(columnNames), childrenDescriptors, item, buildFunction, identity, accumulator);
     }
 
     private <A> A fromSingletonList(List<A> items) {
