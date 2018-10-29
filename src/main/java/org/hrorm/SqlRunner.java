@@ -44,58 +44,30 @@ public class SqlRunner<ENTITY, BUILDER> {
     }
 
     public List<BUILDER> selectByColumns(String sql, Supplier<BUILDER> supplier, List<String> columnNames, Map<String, ? extends Column<ENTITY,?>> columnNameMap, List<? extends ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors, ENTITY item){
-        ResultSet resultSet = null;
-        PreparedStatement statement = null;
-        try {
-            statement = connection.prepareStatement(sql);
-            int idx = 1;
-            for(String columnName : columnNames){
-
-                Column<ENTITY,?> column = columnNameMap.get(columnName.toUpperCase());
-                column.setValue(item, idx, statement);
-                idx++;
-            }
-
-            logger.info(sql);
-            resultSet = statement.executeQuery();
-
-            List<BUILDER> results = new ArrayList<>();
-
-            while (resultSet.next()) {
-                BUILDER result = populate(resultSet, supplier);
-                for(ChildrenDescriptor<ENTITY,?, BUILDER,?> descriptor : childrenDescriptors){
-                    descriptor.populateChildren(connection, result);
-                }
-                results.add(result);
-            }
-
-            return results;
-
-        } catch (SQLException ex){
-            throw new HrormException(ex, sql);
-        } finally {
-            try {
-                if (resultSet != null) {
-                    resultSet.close();
-                }
-                if (statement != null) {
-                    statement.close();
-                }
-            } catch (SQLException se){
-                throw new HrormException(se);
-            }
-        }
+        BiFunction<List<BUILDER>, BUILDER, List<BUILDER>> accumulator =
+                (list, b) -> { list.add(b); return list; };
+        return foldingSelect(
+                sql,
+                supplier,
+                columnNames,
+                columnNameMap,
+                childrenDescriptors,
+                item,
+                b -> b,
+                new ArrayList<>(),
+                accumulator
+        );
     }
 
-    public <T> T foldingSelect(String sql,
+    public <T,X> T foldingSelect(String sql,
                                Supplier<BUILDER> supplier,
                                List<String> columnNames,
                                Map<String, ? extends Column<ENTITY,?>> columnNameMap,
                                List<? extends ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors,
                                ENTITY template,
-                               Function<BUILDER, ENTITY> buildFunction,
+                               Function<BUILDER, X> buildFunction,
                                T identity,
-                               BiFunction<T,ENTITY,T> accumulator){
+                               BiFunction<T,X,T> accumulator){
 
         ResultSet resultSet = null;
         PreparedStatement statement = null;
@@ -119,7 +91,7 @@ public class SqlRunner<ENTITY, BUILDER> {
                 for(ChildrenDescriptor<ENTITY,?, BUILDER,?> descriptor : childrenDescriptors){
                     descriptor.populateChildren(connection, bldr);
                 }
-                ENTITY item = buildFunction.apply(bldr);
+                X item = buildFunction.apply(bldr);
                 result = accumulator.apply(result, item);
             }
 
