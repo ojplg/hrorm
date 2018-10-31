@@ -30,12 +30,7 @@
                 <a href="#designing_with_hrorm">Designing with hrorm</a>
                 <a href="#java_objects" class="sublink-1">Java Objects</a>
                 <a href="#sql_schema" class="sublink-1">SQL Schema</a>
-                <a href="#how_hrorm_handles_relations">How hrorm Handles Relations</a>
-                <a href="#parent_child_relations" class="sublink-1">Parent-Child Relations</a>
-                <a href="#sibling_relations" class="sublink-1">Sibling Relations</a>
                 <a href="#things_hrorm_does_not_do">Things hrorm does not do</a>
-                <a href="#hrorm_and_immutability">Hrorm and Immutability</a>
-                <a href="#hrorm_and_exceptions">Hrorm and Exceptions</a>
                 <a href="#hrorm_and_transactions">Horm and Transactions</a>
                 <a href="#hrorm_and_logging">Hrorm and Logging</a>
                 <a href="#hrorm_visibility">Hrorm Visibility</a>
@@ -275,63 +270,6 @@
 
             <div class="card fluid">
 
-                <a name="how_hrorm_handles_relations"></a>
-                <h2>How hrorm Handles Relations</h2>
-
-                <hr>
-
-                <p>One point of a relational database is to preserve the structure of relations between entities.
-                    Hrorm supports two kinds of relationships: a parent-child relation where one object contains a list
-                    of children, and a sibling relationship, where one object expresses a connection with another
-                    entity.</p>
-
-                <a name="parent_child_relations"></a>
-                <h4>Parent-Child Relations</h4>
-
-                <p>These relations are defined by using the <code>DaoBuilder.withParent()</code> and
-                    <code>DaoBuilder.withChildren()</code> methods.</p>
-
-                <p>In a parent-child relationship, the child is assumed to be completely dependent on the parent, so
-                    that its very existence depends on the existence of the parent.</p>
-
-                <p>Think of the recipe example above. If a recipe is deleted, it makes no sense to preserve the
-                    ingredient rows. So, if a call is made on the recipe <code>Dao.delete()</code> method, all
-                    the ingredients will be deleted too. Likewise, on an update hrorm will make the necessary inserts,
-                    updates, and deletes to the ingredients table to synchronize the object state.</p>
-
-                <p>In fact, you would rarely want to instantiate an ingredients <code>Dao</code> directly.
-                    Hrorm will do the work for you.</p>
-
-                <p>One tricky thing about these relationships is the reversal in how ownership is expressed between
-                    the database schema and the object model. In the object model, the Hand object has Finger objects.
-                    In the database, the FINGER table has foreign key references to the HAND table. With hrorm, the
-                    <code>DaoBuilder</code> object of both the parent and child need to understand
-                    the relationship, not just one or the other.</p>
-
-                <a name="sibling_relations"></a>
-                <h4>Sibling Relations</h4>
-
-                <p>These relations are defined by using the <code>DaoBuilder.withJoinColumn()</code> method.</p>
-
-                <p>These are relations between two objects where one object refers in a dependent, but not
-                    controlling, way.</p>
-
-                <p>In the example above, the relationship between an Author and a Recipe is of this type.
-                    A Recipe requires and Author, but neither owns the other.
-                </p>
-
-                <p>Hrorm requires that sibling objects be persisted first, and will not handle transitive persistence
-                    automatically. Likewise, deleting a Recipe will not cause a cascading delete of an Author
-                    record.</p>
-
-                <p>Note well: Hrorm will do nothing to prevent a dependent sibling from being deleted. The application
-                    code, or database schema constraints, (or both!) must be in place to prevent orphaned records of
-                    that type.</p>
-
-            </div>
-
-            <div class="card fluid">
-
                 <a name="things_hrorm_does_not_do"></a>
                 <h2>Things hrorm Does Not Do</h2>
 
@@ -374,93 +312,6 @@
 
             </div>
 
-            <div class="card fluid">
-
-                <a name="hrorm_and_immutability"></a>
-                <h2>Hrorm and Immutability</h2>
-
-                <hr>
-
-                <p>If you prefer that your Java entity model be made up of immutable classes, hrorm can support that.</p>
-
-                <p>Hrorm works well with immutable objects that have distinct builder classes for managing their setters.
-                To allow this, hrorm provides an <a href="/javadocs/latest/org/hrorm/IndirectDaoBuilder.html"><code>IndirectDaoBuilder</code></a>
-                class. The indirect moniker is intended to suggest that the entities will not be directly constructed,
-                but that will be handled by the builder objects.</p>
-
-                <p>The following example uses lombok style builders, but you can roll your own if that's what you prefer.</p>
-
-                <pre>
-    @lombok.Builder
-    @lombok.Data
-    public class ImmutableThing {
-        private final Long id;
-        private final String word;
-        private final BigDecimal amount;
-    }
-
-    IndirectDaoBuilder&lt;ImmutableThing, ImmutableThing.ImmutableThingBuilder&gt; immutableThingDaoBuilder =
-            new IndirectDaoBuilder&lt;&gt;("immutable_thing", ImmutableThing::builder, ImmutableThing.ImmutableThingBuilder::build)
-            .withPrimaryKey("id", "immutable_thing_seq", ImmutableThing::getId, ImmutableThing.ImmutableThingBuilder::id)
-            .withBigDecimalColumn("amount", ImmutableThing::getAmount, ImmutableThing.ImmutableThingBuilder::amount)
-            .withStringColumn("word", ImmutableThing::getWord, ImmutableThing.ImmutableThingBuilder::word);
-
-    Connection connection = // comes from somewhere
-
-    // this retured object implements the identical interface as any other hrorm Dao
-    Dao&lt;ImmutableThing&gt; immutableThingDao = immutableThingDaoBuilder.buildDao(connection);</pre>
-
-                <p>It works very similarly to the regular <code>DaoBuilder</code>, but some extra details
-                    are required. There are now two type parameters: one for the entity itself and
-                one for its builder object. On construction, instead of simply showing how to create
-                a new entity instance, two parameters show how to make a new builder instance and
-                how to make a new entity instance from the builder. Finally, all the setters are
-                specified on the builder class, not the entity instance.</p>
-
-                <p>With a regular <code>Dao</code> the object's primary key will be set on
-                the object during the <code>insert()</code>. This is not true for <code>Dao</code>
-                objects created from an <code>IndirectDaoBuilder</code>. The <code>insert</code>
-                method will still return the newly issued ID.</p>
-
-                <p>Indirect Dao objects support all the mechanisms for child and sibling records
-                that regular Dao objects do. Due to the lack of population of IDs, some care
-                must be taken. You cannot simply insert a sibling object and then
-                immediately place it into a new entity instance, since it will not yet
-                have its ID set.</p>
-
-            </div>
-
-                <div class="card fluid">
-
-                <a name="hrorm_and_exceptions"></a>
-                <h2>Hrorm and Exceptions</h2>
-
-                <hr>
-
-                <p>Hrorm thinks that checked exceptions are a mistake. In an application with a database dependency,
-                    you have three choices:</p>
-
-                <ol>
-                    <li>Have <code>SQLException</code> declared in most methods all over your application.</li>
-                    <li>Try to handle <code>SQLException</code> somehow when doing interactions with
-                        <code>Connection</code>,
-                        <code>Statement</code>, and <code>ResultSet</code> objects, defeating the purpose of
-                        exception handling being centralized and removed from normal application flow.
-                    </li>
-                    <li>Convert <code>SQLException</code> to some other type, descended from
-                        <code>RuntimeException</code>.
-                    </li>
-                </ol>
-
-                <p>
-                    Hrorm opts for method 3.
-                </p>
-
-                <p>Hrorm will throw a <code>HrormException</code> when it has a problem, generally wrapping <code>SQLException</code>.
-                    You can pull the underlying exception from it.
-                </p>
-
-            </div>
 
             <div class="card fluid">
 
