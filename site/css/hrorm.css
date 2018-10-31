@@ -1,7 +1,14 @@
-#navigation {
+#home_navigation {
     background-color: LightGreen;
     position: fixed;
     overflow: auto;
+}
+
+#documentation_navigation {
+    background-color: LightGreen;
+    position: fixed;
+    overflow-y: scroll;
+    height: 90%;
 }
 
 div.disclaimer {

@@ -12,7 +12,7 @@
     <div class="row">
 
         <div class="col-sm-3">
-            <nav id="navigation">
+            <nav id="documentation_navigation">
                 <a href="#introduction">Introduction&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a>
 
                 <a href="#concepts">Concepts</a>
@@ -809,89 +809,87 @@
             </div>
 
 
-
-
-        </div>
-
-        <a name="miscellaneous"></a>
-        <h2>Miscellaneous</h2>
-        <hr>
-
-        <div class="card fluid">
-
-            <a name="exceptions"></a>
-            <h3>Exceptions</h3>
-
+            <a name="miscellaneous"></a>
+            <h2>Miscellaneous</h2>
             <hr>
 
-            <p>Hrorm thinks that checked exceptions are a mistake. In an application with a database dependency,
-                you have three choices:</p>
+            <div class="card fluid">
 
-            <ol>
-                <li>Have <code>SQLException</code> declared in most methods all over your application.</li>
-                <li>Try to handle <code>SQLException</code> somehow when doing interactions with
-                    <code>Connection</code>,
-                    <code>Statement</code>, and <code>ResultSet</code> objects, defeating the purpose of
-                    exception handling being centralized and removed from normal application flow.
-                </li>
-                <li>Convert <code>SQLException</code> to some other type, descended from
-                    <code>RuntimeException</code>.
-                </li>
-            </ol>
+                <a name="exceptions"></a>
+                <h3>Exceptions</h3>
 
-            <p>
-                Hrorm opts for method 3.
-            </p>
+                <hr>
 
-            <p>Hrorm will throw a <code>HrormException</code> when it has a problem. If there was an underlying
-                <code>SQLException</code> that will be exposed on the <code>HrormException</code>.
-            </p>
+                <p>Hrorm thinks that checked exceptions are a mistake. In an application with a database dependency,
+                    you have three choices:</p>
 
-        </div>
+                <ol>
+                    <li>Have <code>SQLException</code> declared in most methods all over your application.</li>
+                    <li>Try to handle <code>SQLException</code> somehow when doing interactions with
+                        <code>Connection</code>,
+                        <code>Statement</code>, and <code>ResultSet</code> objects, defeating the purpose of
+                        exception handling being centralized and removed from normal application flow.
+                    </li>
+                    <li>Convert <code>SQLException</code> to some other type, descended from
+                        <code>RuntimeException</code>.
+                    </li>
+                </ol>
+
+                <p>
+                    Hrorm opts for method 3.
+                </p>
+
+                <p>Hrorm will throw a <code>HrormException</code> when it has a problem. If there was an underlying
+                    <code>SQLException</code> that will be exposed on the <code>HrormException</code>.
+                </p>
+
+            </div>
 
 
-        <div class="card fluid">
+            <div class="card fluid">
 
-            <a name="logging"></a>
-            <h3>Logging</h3>
+                <a name="logging"></a>
+                <h3>Logging</h3>
 
-            <hr>
+                <hr>
 
-            <p>The state of Java logging is a tiny bit unfortunate.</p>
+                <p>The state of Java logging is a tiny bit unfortunate.</p>
 
-            <p>The <code>java.util.logging</code> package in the standard library is not widely
-                used. Unfortunately, rather than a set of pluggable interfaces, they provided a concrete
-                implementation.</p>
+                <p>The <code>java.util.logging</code> package in the standard library is not widely
+                    used. Unfortunately, rather than a set of pluggable interfaces, they provided a concrete
+                    implementation.</p>
 
-            <p>Log4j is pretty ubiquitous, but not universal. Additionally, hrorm currently has
-                no dependencies. It would be a shame to add one.</p>
+                <p>Log4j is pretty ubiquitous, but not universal. Additionally, hrorm currently has
+                    no dependencies. It would be a shame to add one.</p>
 
-            <p>Hrorm therefore uses <code>java.util.logging</code> implementation.
-                There are ways to redirect that to log4j and other logging frameworks.</p>
+                <p>Hrorm therefore uses <code>java.util.logging</code> implementation.
+                    There are ways to redirect that to log4j and other logging frameworks.</p>
 
-            <p>Hrorm logs to a logger named "org.hrorm" all the SQL it issues at INFO level.</p>
+                <p>Hrorm logs to a logger named "org.hrorm" all the SQL it issues at INFO level.</p>
 
-        </div>
+            </div>
 
-        <div class="card fluid">
+            <div class="card fluid">
 
-            <a name="visibility"></a>
-            <h3>Visibility</h3>
+                <a name="visibility"></a>
+                <h3>Visibility</h3>
 
-            <hr>
+                <hr>
 
-            <p>Hrorm is designed to have a small surface area for clients. Most of the time, clients should only
-                need to interact with three hrorm types: <code>DaoBuilder</code>, <code>Dao</code>, and
-                <code>HrormException</code>. Clients might also be expected to create a few instances of
-                <code>Converter</code> objects and perhaps to use a <code>Transactor</code>. After that,
-                there is nothing in Hrorm that is designed to be used in client code.</p>
+                <p>Hrorm is designed to have a small surface area for clients. Most of the time, clients should only
+                    need to interact with three hrorm types: <code>DaoBuilder</code>, <code>Dao</code>, and
+                    <code>HrormException</code>. Clients might also be expected to create a few instances of
+                    <code>Converter</code> objects and perhaps to use a <code>Transactor</code>. After that,
+                    there is nothing in Hrorm that is designed to be used in client code.</p>
 
-            <p>In spite of this, almost all the classes in hrorm are public and contain public constructors
-                and methods. If you feel like instantiating a <code>StringColumn</code> object, hrorm feels
-                no need to try to stop you.</p>
+                <p>In spite of this, almost all the classes in hrorm are public and contain public constructors
+                    and methods. If you feel like instantiating a <code>StringColumn</code> object, hrorm feels
+                    no need to try to stop you.</p>
 
-            <p>Most of the time, hrorm will point out in the Javadocs where classes are not
-                intended for clients to use directly.</p>
+                <p>Most of the time, hrorm will point out in the Javadocs where classes are not
+                    intended for clients to use directly.</p>
+
+            </div>
 
         </div>
 
