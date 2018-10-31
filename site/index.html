@@ -31,8 +31,6 @@
                 <a href="#java_objects" class="sublink-1">Java Objects</a>
                 <a href="#sql_schema" class="sublink-1">SQL Schema</a>
                 <a href="#things_hrorm_does_not_do">Things hrorm does not do</a>
-                <a href="#hrorm_and_logging">Hrorm and Logging</a>
-                <a href="#hrorm_visibility">Hrorm Visibility</a>
                 <a href="#orm_comparison">ORM Comparison</a>
                 <a href="#falling_off_a_cliff">Falling Off a Cliff</a>
             </nav>
@@ -289,7 +287,7 @@
                         database.
                     </li>
                     <li>Transaction management. Transactions are for applications, not for hrorm.
-                        <a href="#hrorm_and_transactions">(Mostly.)</a>
+                        <a href="/documentation/latest#transactions">(Mostly.)</a>
                     </li>
                     <li>Pollute your code with vexing annotations.</li>
                     <li>Involve itself with any XML or other configuration. Hrorm thinks Java is a better language than
@@ -303,60 +301,15 @@
                     <li>Reflection.</li>
                     <li>Invent its own query language.</li>
                     <li>Expect you to write SQL yourself.</li>
-                    <li>Manage integrity constraints to your schema or object model. (Mostly.)</li>
-                    <li>Declare checked exceptions in its client facing interfaces.</li>
+                    <li>Manage integrity constraints to your schema or object model.
+                        <a href="/documentation/latest#constraints">(Mostly.)</a></li>
+                    <li>Declare <a href="/documentation/latest#exceptions">checked exceptions</a> in its client facing interfaces.</li>
                     <li>Have left pad as a dependency.</li>
                     <li>Mine cryptocurrencies.</li>
                 </ul>
 
             </div>
 
-
-
-            <div class="card fluid">
-
-                <a name="hrorm_and_logging"></a>
-                <h2>Hrorm and Logging</h2>
-
-                <hr>
-
-                <p>The state of Java logging is a tiny bit unfortunate.</p>
-
-                <p>The <code>java.util.logging</code> package in the standard library is not widely
-                used. Unfortunately, rather than a set of pluggable interfaces, they provided a concrete
-                implementation.</p>
-
-                <p>Log4j is pretty ubiquitous, but not universal. Additionally, hrorm currently has
-                no dependencies. It would be a shame to add one.</p>
-
-                <p>Hrorm therefore uses <code>java.util.logging</code> implementation.
-                There are ways to redirect that to log4j and other logging frameworks.</p>
-
-                <p>Hrorm logs to a logger named "org.hrorm" all the SQL it issues at INFO level.</p>
-
-            </div>
-
-            <div class="card fluid">
-
-                <a name="hrorm_visibility"></a>
-                <h2>Hrorm Visibility</h2>
-
-                <hr>
-
-                <p>Hrorm is designed to have a small surface area for clients. Most of the time, clients should only
-                    need to interact with three hrorm types: <code>DaoBuilder</code>, <code>Dao</code>, and
-                    <code>HrormException</code>. Clients might also be expected to create a few instances of
-                    <code>Converter</code> objects and perhaps to use a <code>Transactor</code>. After that,
-                    there is nothing in Hrorm that is designed to be used in client code.</p>
-
-                <p>In spite of this, almost all the classes in hrorm are public and contain public constructors
-                    and methods. If you feel like instantiating a <code>StringColumn</code> object, hrorm feels
-                    no need to try to stop you.</p>
-
-                <p>Most of the time, hrorm will point out in the Javadocs where classes are not
-                    intended for clients to use directly.</p>
-
-            </div>
 
             <div class="card fluid">
 

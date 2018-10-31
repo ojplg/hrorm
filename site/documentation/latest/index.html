@@ -20,7 +20,6 @@
                 <a href="#parent_child_relations" class="sublink-2">Parent-Child Relations</a>
                 <a href="#sibling_relations" class="sublink-2">Sibling Relations</a>
                 <a href="#transactions" class="sublink-1">Transactions</a>
-                <a href="#exceptions" class="sublink-1">Exceptions</a>
 
                 <a href="#daobuilders">DaoBuilders</a>
                 <a href="#one_table" class="sublink-1">One Table</a>
@@ -36,6 +35,12 @@
                 <a href="#update" class="sublink-1">Update</a>
                 <a href="#delete" class="sublink-1">Delete</a>
                 <a href="#atomic" class="sublink-1">Atomic</a>
+
+                <a href="#miscellaneous">Miscellaneous</a>
+                <a href="#exceptions" class="sublink-1">Exceptions</a>
+                <a href="#logging" class="sublink-1">Logging</a>
+                <a href="#visibility" class="sublink-1">Visibility</a>
+
             </nav>
         </div>
 
@@ -173,37 +178,6 @@
             </div>
 
 
-            <div class="card fluid">
-
-                <a name="exceptions"></a>
-                <h3>Exceptions</h3>
-
-                <hr>
-
-                <p>Hrorm thinks that checked exceptions are a mistake. In an application with a database dependency,
-                    you have three choices:</p>
-
-                <ol>
-                    <li>Have <code>SQLException</code> declared in most methods all over your application.</li>
-                    <li>Try to handle <code>SQLException</code> somehow when doing interactions with
-                        <code>Connection</code>,
-                        <code>Statement</code>, and <code>ResultSet</code> objects, defeating the purpose of
-                        exception handling being centralized and removed from normal application flow.
-                    </li>
-                    <li>Convert <code>SQLException</code> to some other type, descended from
-                        <code>RuntimeException</code>.
-                    </li>
-                </ol>
-
-                <p>
-                    Hrorm opts for method 3.
-                </p>
-
-                <p>Hrorm will throw a <code>HrormException</code> when it has a problem. If there was an underlying
-                    <code>SQLException</code> that will be exposed on the <code>HrormException</code>.
-                </p>
-
-            </div>
 
             <a name="daobuilders"></a>
             <h2>Dao Builders</h2>
@@ -616,7 +590,8 @@
                 <hr>
 
                 <p>Hrorm provides little support for placing constraints on your object models or
-                    schema. The correct place for that is within your object model or schema.</p>
+                    schema. The correct place for that is within your object model or schema or, best
+                    of all, both.</p>
 
                 <p>The <code>DaoBuilder</code> does allow you to mark particular columns as not null,
                 by calling the <code>notNull</code> method. It will apply that constraint to the
@@ -834,7 +809,92 @@
             </div>
 
 
+
+
         </div>
+
+        <a name="miscellaneous"></a>
+        <h2>Miscellaneous</h2>
+        <hr>
+
+        <div class="card fluid">
+
+            <a name="exceptions"></a>
+            <h3>Exceptions</h3>
+
+            <hr>
+
+            <p>Hrorm thinks that checked exceptions are a mistake. In an application with a database dependency,
+                you have three choices:</p>
+
+            <ol>
+                <li>Have <code>SQLException</code> declared in most methods all over your application.</li>
+                <li>Try to handle <code>SQLException</code> somehow when doing interactions with
+                    <code>Connection</code>,
+                    <code>Statement</code>, and <code>ResultSet</code> objects, defeating the purpose of
+                    exception handling being centralized and removed from normal application flow.
+                </li>
+                <li>Convert <code>SQLException</code> to some other type, descended from
+                    <code>RuntimeException</code>.
+                </li>
+            </ol>
+
+            <p>
+                Hrorm opts for method 3.
+            </p>
+
+            <p>Hrorm will throw a <code>HrormException</code> when it has a problem. If there was an underlying
+                <code>SQLException</code> that will be exposed on the <code>HrormException</code>.
+            </p>
+
+        </div>
+
+
+        <div class="card fluid">
+
+            <a name="logging"></a>
+            <h3>Logging</h3>
+
+            <hr>
+
+            <p>The state of Java logging is a tiny bit unfortunate.</p>
+
+            <p>The <code>java.util.logging</code> package in the standard library is not widely
+                used. Unfortunately, rather than a set of pluggable interfaces, they provided a concrete
+                implementation.</p>
+
+            <p>Log4j is pretty ubiquitous, but not universal. Additionally, hrorm currently has
+                no dependencies. It would be a shame to add one.</p>
+
+            <p>Hrorm therefore uses <code>java.util.logging</code> implementation.
+                There are ways to redirect that to log4j and other logging frameworks.</p>
+
+            <p>Hrorm logs to a logger named "org.hrorm" all the SQL it issues at INFO level.</p>
+
+        </div>
+
+        <div class="card fluid">
+
+            <a name="visibility"></a>
+            <h3>Visibility</h3>
+
+            <hr>
+
+            <p>Hrorm is designed to have a small surface area for clients. Most of the time, clients should only
+                need to interact with three hrorm types: <code>DaoBuilder</code>, <code>Dao</code>, and
+                <code>HrormException</code>. Clients might also be expected to create a few instances of
+                <code>Converter</code> objects and perhaps to use a <code>Transactor</code>. After that,
+                there is nothing in Hrorm that is designed to be used in client code.</p>
+
+            <p>In spite of this, almost all the classes in hrorm are public and contain public constructors
+                and methods. If you feel like instantiating a <code>StringColumn</code> object, hrorm feels
+                no need to try to stop you.</p>
+
+            <p>Most of the time, hrorm will point out in the Javadocs where classes are not
+                intended for clients to use directly.</p>
+
+        </div>
+
     </div>
 </div>
 
