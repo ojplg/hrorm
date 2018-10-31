@@ -6,17 +6,19 @@
 </p>
 
 <p>
-    Hrorm provides a simple, declarative mechanism to describe
-    the relationship between an object model in Java code and a relational
-    model described in a SQL schema of tables and sequences.
-</p>
-
-<p>
     Hrorm is an opinionated tool. To use it requires that your database schema
     and Java object model are set up in a particular way. Additionally, hrorm lacks many
     features (like caching and lazy-loading) that some ORM tools provide. Hrorm's
     philosophy is to make the easy stuff easy, and get out of the way in
     other cases.
+</p>
+
+<p>
+    To use hrorm the relationship between an entity's Java representation and database
+    representation is defined using a {@link org.hrorm.DaoBuilder}
+    (or {@link org.hrorm.RelativeDaoDescriptor} for immutable models)
+    in order to create a {@link org.hrorm.Dao}
+    that can handle basic persistence and querying tasks.
 </p>
 
 <p>

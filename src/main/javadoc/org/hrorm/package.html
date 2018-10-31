@@ -2,32 +2,35 @@
 <body>
 
 <p>
-    Hrorm provides a mechanism for building {@link Dao} objects.
+    Hrorm provides a mechanism for building {@link org.hrorm.Dao} objects.
 </p>
 
 <p>
-    Hrorm facilitates the creation of <code>Dao</code> objects: which support
+    Hrorm <code>Dao</code> objects support
     basic CRUD operations on a relational (SQL) database: <code>insert</code>,
     <code>select</code>, <code>update</code>, and <code>delete</code>.
 </p>
 
 <p>
-    <code>Dao</code> objects are created by using a {@link DaoBuilder} object. The <code>DaoBuilder</code>
-    provides a declarative, fluent interface for describing the relationship between
+    <code>Dao</code> objects are created by using a {@link org.hrorm.DaoBuilder} or
+    {@link org.hrorm.IndirectDaoBuilder}. These classes
+    provide a simple, declarative, fluent interface for describing the relationship between
     the Java object to be persisted and the underlying schema that supports it.
 </p>
 
 <p>
     While almost all the classes and methods in this package are public, there is little need to
-    use them directly. Other than the <code>DaoBuilder</code>, <code>Dao</code>,
-    <code>Converter</code>, and <code>HrormException</code>
-    clients should not have to reference anything in this package.
+    use them directly. Other than the <code>DaoBuilder</code>, <code>IndirectDaoBuilder</code>,
+    <code>Dao</code>, <code>Converter</code>, <code>Transactor</code> and <code>HrormException</code>
+    most clients should not have to directly reference anything in this package.
 </p>
 
 <p>
     Hrorm intentionally converts all checked <code>SQLException</code> instances that arise to
-    <code>HrormException</code> objects, which extend <code>RuntimeException</code>. Do not be
-    fooled, Hrorm is not magical and exceptions can happen.
+    <code>HrormException</code> which extends <code>RuntimeException</code> in its
+    client interfaces. Of course,
+    proper exception handling is essential to a sound persistence policy in an application,
+    regardless of whether the particular exceptions are checked or unchecked.
 </p>
 
 </body>
