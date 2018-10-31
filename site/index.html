@@ -31,7 +31,6 @@
                 <a href="#java_objects" class="sublink-1">Java Objects</a>
                 <a href="#sql_schema" class="sublink-1">SQL Schema</a>
                 <a href="#things_hrorm_does_not_do">Things hrorm does not do</a>
-                <a href="#hrorm_and_transactions">Horm and Transactions</a>
                 <a href="#hrorm_and_logging">Hrorm and Logging</a>
                 <a href="#hrorm_visibility">Hrorm Visibility</a>
                 <a href="#orm_comparison">ORM Comparison</a>
@@ -313,46 +312,6 @@
             </div>
 
 
-            <div class="card fluid">
-
-                <a name="hrorm_and_transactions"></a>
-                <h2>Hrorm and Transactions</h2>
-
-                <hr>
-
-                <p>For the most part, hrorm tries to stay out of the transaction handling business.
-                    Applications know what changes must be transactions, hrorm does not. However, hrorm's
-                    commands to insert, update, and delete records can lead to multiple SQL statements
-                    being run, due to the handling of parent-child relationships. This means in the case
-                    of an error, the database is at risk of coming to an illegal state.</p>
-
-                <p>If nested transactions were supported natively by every database provider,
-                    it would probably be correct to wrap database mutations in an internally nested transaction
-                    and commit or rollback on completion. This is not possible for every provider,
-                    and mechanisms for how to accomplish this are not identical even for databases that
-                    do provide for transaction nesting.</p>
-
-                <p>Hrorm does give a minimal amount of support to attempt to alleviate these issues. Hrorm provides
-                    a <a href="/javadocs/latest/org/hrorm/Transactor.html"><code>Transactor</code></a> class
-                    with a couple of methods to elminate the boilerplate <code>try ... catch ... finally</code>
-                    blocks necessary for doing transactions. In keeping with the hrorm ethos, these methods
-                    do not declare any checked exceptions. Keep in mind that a <code>Transactor</code> will
-                    <b>automatically close its connection</b> whether or not it completes with a commit or a rollback.
-                </p>
-
-                <p>In addition, the <code>Dao</code> interface provides cognate methods for <code>insert</code>,
-                    <code>update</code>, and <code>delete</code> named <code>atomicInsert</code>,
-                    <code>atomicUpdate</code>, and <code>atomicDelete</code>. These methods provide
-                    a no-fuss way to do mutations of parent-child relations. However, these methods
-                    must be used with care! In addition to a possibly unexpected early commit if these methods
-                    are accidentally used in a larger transaction, remember that, as above, these methods
-                    will also <b>close the connection</b> they use when complete.</p>
-
-                <p>There is no one-size-fits-all solution to how to marry the problem of database
-                    to object mapping with the problems of transactions and atomicity. For this reason,
-                    hrorm mostly just tries to stay out of the way.</p>
-
-            </div>
 
             <div class="card fluid">
 
