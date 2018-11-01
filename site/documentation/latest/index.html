@@ -16,12 +16,12 @@
                 <a href="#introduction">Introduction&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a>
 
                 <a href="#concepts">Concepts</a>
-                <a href="#designing_entities">Designing Entities</a>
-                <a href="#java_objects" class="sublink-1">Java Objects</a>
-                <a href="#sql_schema" class="sublink-1">SQL Schema</a>
+                <a href="#designing_entities" class="sublink-1">Designing Entities</a>
+                <a href="#java_objects" class="sublink-2">Java Objects</a>
+                <a href="#sql_schema" class="sublink-2">SQL Schema</a>
                 <a href="#relationships" class="sublink-1">Relationships</a>
-                <a href="#parent_child_relations_concept" class="sublink-1">Parent-Child Relations</a>
-                <a href="#sibling_relations_concept" class="sublink-1">Sibling Relations</a>
+                <a href="#parent_child_relations_concept" class="sublink-2">Parent-Child Relations</a>
+                <a href="#sibling_relations_concept" class="sublink-2">Sibling Relations</a>
                 <a href="#transactions" class="sublink-1">Transactions</a>
 
                 <a href="#daobuilders">DaoBuilders</a>
@@ -77,13 +77,12 @@
             <p>Also take a look at the <a href="/#quick_start">Quick Start</a> and <a
                     href="/javadocs/latest">Javadocs</a>.</p>
 
-            <p>This page contains more nuts and bolts about what and how hrorm does what it does. For more
-                on the why, return to the <a href="/">hrorm home page</a>.</p>
-
             <a name="concepts"></a>
             <h2>Concepts</h2>
             <hr>
 
+            <p>Before diving into the nuts-and-bolts of how to use hrorm, it is helpful to understand the
+            ideas it implements.</p>
 
             <div class="card fluid">
 
@@ -92,8 +91,9 @@
 
                 <hr>
 
-                <p>Hrorm only works on a restricted entity model. It expects your Java object model and your SQL schema
-                    to work a particular way. If this does not work for you, than neither will hrorm.</p>
+                <p>Using hrorm means accepting some restrictions on how your entities (both the Java classes
+                and the SQL schema) are designed. Some of these restrictions are good practices regardless of
+                how database and object models are built.</p>
 
                 <a name="java_objects"></a>
                 <h4>Java Objects</h4>
@@ -103,7 +103,8 @@
                         primary key.
                         Hrorm expects that this is a nullable field and that null means unpersisted.
                         Hrorm will populate this field from a sequence (see restrictions on
-                        schema below) and will use it when issuing updates.
+                        schema below), unless you use an <a href="#immutable_models" class="sublink-1">immutable model</a>.
+                        The primary key will be used it when hrorm performs updates.
                     </li>
                     <li>Hrorm expects to work with Javabean like entities with public getters and setters or
                         with entities with public getters for fields and related builder objects with setters
@@ -124,8 +125,7 @@
                     </li>
                     <li>Hrorm will populate the primary keys on inserts with values it pulls from a sequence. You can
                         create a separate sequence for each table, or just have one overall sequence if you want. Hrorm
-                        does not
-                        care, but it wants a sequence for inserts.
+                        does not care, but it wants a sequence for inserts.
                     </li>
                 </ul>
 
@@ -136,11 +136,10 @@
                     for persisting values that can be converted to and from <code>String</code>,
                     which is intended primarily for enumerated types. Adding supports for new datatypes
                     that are supported by the <code>ResultSet</code> interface should not be particularly
-                    difficult if you're a hacker. And if you are using hrorm, you better be.
+                    difficult if you're a hacker.
                 </p>
 
             </div>
-
 
             <div class="card fluid">
 
@@ -164,7 +163,8 @@
                 <p>In a parent-child relationship, the child is assumed to be completely dependent on the parent, so
                     that its very existence depends on the existence of the parent.</p>
 
-                <p>Think of the recipe example above. If a recipe is deleted, it makes no sense to preserve the
+                <p>Take a look at the <a href="/#quick_start">recipe example</a>.
+                    If a recipe is deleted, it makes no sense to preserve the
                     ingredient rows. So, if a call is made on the recipe <code>Dao.delete()</code> method, all
                     the ingredients will be deleted too. Likewise, on an update hrorm will make the necessary inserts,
                     updates, and deletes to the ingredients table to synchronize the object state.</p>
@@ -186,7 +186,7 @@
                 <p>These are relations between two objects where one object refers in a dependent, but not
                     controlling, way.</p>
 
-                <p>In the example above, the relationship between an Author and a Recipe is of this type.
+                <p>In the  <a href="/#quick_start">recipe example</a>, the relationship between an Author and a Recipe is of this type.
                     A Recipe requires and Author, but neither owns the other.
                 </p>
 
