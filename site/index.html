@@ -28,8 +28,6 @@
                 <a href="#basics">Basics</a>
                 <a href="#quick_start">Quick Start</a>
                 <a href="#designing_with_hrorm">Designing with hrorm</a>
-                <a href="#java_objects" class="sublink-1">Java Objects</a>
-                <a href="#sql_schema" class="sublink-1">SQL Schema</a>
                 <a href="#things_hrorm_does_not_do">Things hrorm does not do</a>
                 <a href="#orm_comparison">ORM Comparison</a>
                 <a href="#falling_off_a_cliff">Falling Off a Cliff</a>
@@ -217,51 +215,28 @@
 
                 <hr>
 
-                <p>Hrorm only works on a restricted entity model. It expects your Java object model and your SQL schema
-                    to work a particular way. If this does not work for you, than neither will hrorm.</p>
+                <p>Hrorm is opinionated about how entities should be built. It will not work with any object model
+                or schema. However, many of the opinions that hrorm has are good practices to follow, regardless
+                of how database records are translated to and from objects.</p>
 
-                <a name="java_objects"></a>
-                <h4>Java Objects</h4>
-
-                <ul>
-                    <li>Every entity class should have a <code>Long</code> identifier field that will be used as a
-                        primary key.
-                        Hrorm expects that this is a nullable field and that null means unpersisted.
-                        Hrorm will populate this field from a sequence (see restrictions on
-                        schema below) and will use it when issuing updates.
-                    </li>
-                    <li>Hrorm expects to work with Javabean like entities with public getters and setters or
-                        with entities with public getters for fields and related builder objects with setters
-                        for the individual fields. (See documentation for <a href="/documentation/latest#immutable_models">Immutable Models</a>.)
-                    </li>
-                    <li>Hrorm expects child relationships to be modeled as <code>List</code> types exclusively. No sets
-                        or arrays or other collections.
-                    </li>
-                </ul>
-
-                <a name="sql_schema"></a>
-                <h4>SQL Schema</h4>
+                <p>Here's the skinny about hrorm entities. (By entities, we refer to the things being modeled,
+                that can refer to either its Java class representation, or its database table representation.)</p>
 
                 <ul>
-                    <li>Hrorm expects every table to have a numeric primary key. No string keys or multiple column keys.
-                        Hrorm is not really appropriate for a time-series database.
-                    </li>
-                    <li>Hrorm will populate the primary keys on inserts with values it pulls from a sequence. You can
-                        create a separate sequence for each table, or just have one overall sequence if you want. Hrorm
-                        does not
-                        care, but it wants a sequence for inserts.
-                    </li>
+                    <li>Entities should have a numeric, primary key.</li>
+                    <li>That primary key should be created from values issued from a database sequence.</li>
+                    <li>Entities can contain lists of other entities. In this case, the object containing the
+                        other entities is referred to as a parent, and the entities in its list, its children.
+                        Parent-child relationships in hrorm are <b>owning</b> relationships. The persistence
+                        of children is dependent upon the persistence of parents.</li>
+                    <li>Entities can contain references to other entities without ownership, but in this case,
+                        the relationships should be one-to-one. Hrorm refers to these cases as sibling relationships.</li>
+                    <li>References between entities are accomplished through their primary keys in the database,
+                        but through object references in Java.</li>
                 </ul>
 
-                <p>
-                    At the moment Hrorm supports a limited number of (Java) datatypes:
-                    <code>Long</code>, <code>BigDecimal</code>, <code>String</code>, <code>Boolean</code>,
-                    and <code>LocalDateTime</code>. Additionally, hrorm supports a mechanism
-                    for persisting values that can be converted to and from <code>String</code>,
-                    which is intended primarily for enumerated types. Adding supports for new datatypes
-                    that are supported by the <code>ResultSet</code> interface should not be particularly
-                    difficult if you're a hacker. And if you are using hrorm, you better be.
-                </p>
+                <p>Entity models that do not follow the practices above will be difficult or impossible to
+                support using hrorm.</p>
 
             </div>
 
@@ -289,8 +264,9 @@
                         <a href="/documentation/latest#transactions">(Mostly.)</a>
                     </li>
                     <li>Pollute your code with vexing annotations.</li>
-                    <li>Involve itself with any XML or other configuration. Hrorm thinks Java is a better language than
-                        XML.
+                    <li>Involve itself with any XML or other configuration. Or anything else that cannot support
+                        the type information your entities deserve. Hrorm thinks Java is a better language than
+                        XML. <a href="/documentation/latest#validation">(Yep.)</a>
                     </li>
                     <li>Take over your application with background threads or expect some kind of container to exist.
                         Hrorm is a library,
@@ -316,6 +292,9 @@
                 <a name="orm_comparison"></a>
                 <h2>ORM Comparison</h2>
 
+                <p>As mentioned above, many ORM tools are packed with features. Some of them are even useful.
+                Here's a comparison with some well-known ORM tools.</p>
+
                 <table  style="max-height: 100%;">
                     <thead>
                     <tr>
@@ -328,19 +307,13 @@
 
                     <tbody>
                     <tr>
-                        <td>Fully-featured</td>
+                        <td>Packed with features</td>
                         <td>Yes</td>
                         <td>Yes</td>
                         <td>No</td>
                     </tr>
                     <tr>
                         <td>Wide community support</td>
-                        <td>Yes</td>
-                        <td>Yes</td>
-                        <td>No</td>
-                    </tr>
-                    <tr>
-                        <td>Rich documentation</td>
                         <td>Yes</td>
                         <td>Yes</td>
                         <td>No</td>

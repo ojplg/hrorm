@@ -80,6 +80,63 @@
             <h2>Concepts</h2>
             <hr>
 
+
+            <div class="card fluid">
+
+                <a name="designing_with_hrorm"></a>
+                <h2>Designing with hrorm</h2>
+
+                <hr>
+
+                <p>Hrorm only works on a restricted entity model. It expects your Java object model and your SQL schema
+                    to work a particular way. If this does not work for you, than neither will hrorm.</p>
+
+                <a name="java_objects"></a>
+                <h4>Java Objects</h4>
+
+                <ul>
+                    <li>Every entity class should have a <code>Long</code> identifier field that will be used as a
+                        primary key.
+                        Hrorm expects that this is a nullable field and that null means unpersisted.
+                        Hrorm will populate this field from a sequence (see restrictions on
+                        schema below) and will use it when issuing updates.
+                    </li>
+                    <li>Hrorm expects to work with Javabean like entities with public getters and setters or
+                        with entities with public getters for fields and related builder objects with setters
+                        for the individual fields. (See documentation for <a href="/documentation/latest#immutable_models">Immutable Models</a>.)
+                    </li>
+                    <li>Hrorm expects child relationships to be modeled as <code>List</code> types exclusively. No sets
+                        or arrays or other collections.
+                    </li>
+                </ul>
+
+                <a name="sql_schema"></a>
+                <h4>SQL Schema</h4>
+
+                <ul>
+                    <li>Hrorm expects every table to have a numeric primary key. No string keys or multiple column keys.
+                        Hrorm is not really appropriate for a time-series database.
+                    </li>
+                    <li>Hrorm will populate the primary keys on inserts with values it pulls from a sequence. You can
+                        create a separate sequence for each table, or just have one overall sequence if you want. Hrorm
+                        does not
+                        care, but it wants a sequence for inserts.
+                    </li>
+                </ul>
+
+                <p>
+                    At the moment Hrorm supports a limited number of (Java) datatypes:
+                    <code>Long</code>, <code>BigDecimal</code>, <code>String</code>, <code>Boolean</code>,
+                    and <code>LocalDateTime</code>. Additionally, hrorm supports a mechanism
+                    for persisting values that can be converted to and from <code>String</code>,
+                    which is intended primarily for enumerated types. Adding supports for new datatypes
+                    that are supported by the <code>ResultSet</code> interface should not be particularly
+                    difficult if you're a hacker. And if you are using hrorm, you better be.
+                </p>
+
+            </div>
+
+
             <div class="card fluid">
 
                 <a name="relationships"></a>
@@ -627,7 +684,8 @@
 
                 <p>The validation provided is not a substitute for testing that code works as intended. It simply
                 checks that the names of the tables, columns, and sequences provided in the <code>Dao</code>
-                descriptions exist as stated. As such, it can quickly find typos or other simple errors and
+                descriptions exist as stated. Columns are checked to make sure they are
+                    of a correct type. As such, it can quickly find typos or other simple errors and
                 report them. This can be particularly useful in times of database refactoring.</p>
 
                 <p>To check that a particular <code>Dao</code> is correct, simply pass it, or its builder,
