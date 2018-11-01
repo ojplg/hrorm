@@ -16,9 +16,12 @@
                 <a href="#introduction">Introduction&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a>
 
                 <a href="#concepts">Concepts</a>
+                <a href="#designing_entities">Designing Entities</a>
+                <a href="#java_objects" class="sublink-1">Java Objects</a>
+                <a href="#sql_schema" class="sublink-1">SQL Schema</a>
                 <a href="#relationships" class="sublink-1">Relationships</a>
-                <a href="#parent_child_relations" class="sublink-2">Parent-Child Relations</a>
-                <a href="#sibling_relations" class="sublink-2">Sibling Relations</a>
+                <a href="#parent_child_relations_concept" class="sublink-1">Parent-Child Relations</a>
+                <a href="#sibling_relations_concept" class="sublink-1">Sibling Relations</a>
                 <a href="#transactions" class="sublink-1">Transactions</a>
 
                 <a href="#daobuilders">DaoBuilders</a>
@@ -64,17 +67,18 @@
             </p>
 
             <p><code>Dao</code> objects themselves are what perform the actual tasks of persisting and
-            instantiating entity objects. To make a <code>Dao</code> requires a <code>Connection</code>
-            object. Since a <code>Dao</code> keeps a stateful <code>Connection</code> to the underlying
-            data store, it is dangerous to share instances across threads. Generally, the idea is to
-            instantiate a <code>Dao</code> when you need it, and then allow it to be garbage collected.
-            It is up the application itself to deal with reaping the <code>Connection</code>, with some exceptions
-            noted below.</p>
+                instantiating entity objects. To make a <code>Dao</code> requires a <code>Connection</code>
+                object. Since a <code>Dao</code> keeps a stateful <code>Connection</code> to the underlying
+                data store, it is dangerous to share instances across threads. Generally, the idea is to
+                instantiate a <code>Dao</code> when you need it, and then allow it to be garbage collected.
+                It is up the application itself to deal with reaping the <code>Connection</code>, with some exceptions
+                noted below.</p>
 
-            <p>Also take a look at the <a href="/#quick_start">Quick Start</a> and <a href="/javadocs/latest">Javadocs</a>.</p>
+            <p>Also take a look at the <a href="/#quick_start">Quick Start</a> and <a
+                    href="/javadocs/latest">Javadocs</a>.</p>
 
             <p>This page contains more nuts and bolts about what and how hrorm does what it does. For more
-            on the why, return to the <a href="/">hrorm home page</a>.</p>
+                on the why, return to the <a href="/">hrorm home page</a>.</p>
 
             <a name="concepts"></a>
             <h2>Concepts</h2>
@@ -83,8 +87,8 @@
 
             <div class="card fluid">
 
-                <a name="designing_with_hrorm"></a>
-                <h2>Designing with hrorm</h2>
+                <a name="designing_entities"></a>
+                <h2>Designing Entities</h2>
 
                 <hr>
 
@@ -103,7 +107,8 @@
                     </li>
                     <li>Hrorm expects to work with Javabean like entities with public getters and setters or
                         with entities with public getters for fields and related builder objects with setters
-                        for the individual fields. (See documentation for <a href="/documentation/latest#immutable_models">Immutable Models</a>.)
+                        for the individual fields. (See documentation for <a
+                                href="/documentation/latest#immutable_models">Immutable Models</a>.)
                     </li>
                     <li>Hrorm expects child relationships to be modeled as <code>List</code> types exclusively. No sets
                         or arrays or other collections.
@@ -150,7 +155,7 @@
                     of children, and a sibling relationship, where one object expresses a connection with another
                     entity.</p>
 
-                <a name="parent_child_relations"></a>
+                <a name="parent_child_relations_concept"></a>
                 <h4>Parent-Child Relations</h4>
 
                 <p>These relations are defined by using the <code>DaoBuilder.withParent()</code> and
@@ -173,7 +178,7 @@
                     <code>DaoBuilder</code> object of both the parent and child need to understand
                     the relationship, not just one or the other.</p>
 
-                <a name="sibling_relations"></a>
+                <a name="sibling_relations_concept"></a>
                 <h4>Sibling Relations</h4>
 
                 <p>These relations are defined by using the <code>DaoBuilder.withJoinColumn()</code> method.</p>
@@ -238,7 +243,6 @@
             </div>
 
 
-
             <a name="daobuilders"></a>
             <h2>Dao Builders</h2>
 
@@ -247,7 +251,7 @@
                 <h3>One Table</h3>
                 <hr>
                 <p>The easiest case for any ORM tool is persisting a single object backed by a single table.
-                Let's work on persisting a model for a person that includes the following elements:</p>
+                    Let's work on persisting a model for a person that includes the following elements:</p>
                 <ul>
                     <li>Name (a string or text)</li>
                     <li>Weight in kilograms (an integer)</li>
@@ -274,13 +278,17 @@
 
                 <ul>
                     <li>Use your imagination to fill in getters, setters, equals, hashCode, etc.</li>
-                    <li>We have one extra field that we did not have in our logical model: an id field that is to be used
-                        for persistence.</li>
-                    <li>Assume that there is an enumerated type for hair color: <code>HairColor.Black</code>, <code>HairColor.Brown</code>, etc.</li>
+                    <li>We have one extra field that we did not have in our logical model: an id field that is to be
+                        used
+                        for persistence.
+                    </li>
+                    <li>Assume that there is an enumerated type for hair color: <code>HairColor.Black</code>, <code>HairColor.Brown</code>,
+                        etc.
+                    </li>
                 </ul>
 
                 <p>In the database we will create two structures for persisting this class: a table to store the data
-                and a sequence to issue the IDs.</p>
+                    and a sequence to issue the IDs.</p>
 
                 <pre>
     CREATE SEQUENCE PERSON_SEQUENCE;
@@ -296,20 +304,20 @@
     );</pre>
 
                 <p>Note the somewhat different types than in the Java code. In particular, the boolean and
-                enumeration values have become text fields. SQL has a more limited palate for the expression
-                of types than Java.</p>
+                    enumeration values have become text fields. SQL has a more limited palate for the expression
+                    of types than Java.</p>
 
                 <p>To translate between the database reprentation and the Java representation, we plan to use
-                a <code>Dao</code> object. We could build that directly, but hrorm provides a DaoBuilder
-                class that makes things much easier. In hrorm, both <code>Dao</code> objects and their builders
-                are parameterized on the type of thing they persist. We start off by simply calling the
-                <code>DaoBuilder</code> constructor.</p>
+                    a <code>Dao</code> object. We could build that directly, but hrorm provides a DaoBuilder
+                    class that makes things much easier. In hrorm, both <code>Dao</code> objects and their builders
+                    are parameterized on the type of thing they persist. We start off by simply calling the
+                    <code>DaoBuilder</code> constructor.</p>
 
                 <pre>
     DaoBuilder&lt;Person&gt; daoBuilder = new DaoBuilder&lt;&gt;("PERSON_TABLE", Person::new);</pre>
 
                 <p>The constructor takes two arguments: the name of the table and a no-argument method for
-                creating a new instance of the parameterized type.</p>
+                    creating a new instance of the parameterized type.</p>
 
                 <p>Next, we need to define the primary key for this entity.</p>
 
@@ -321,35 +329,38 @@
                 <ol>
                     <li>The name of the primary key column in the table ("ID")</li>
                     <li>The name of the sequence that populates the primary keys ("PERSON_SEQUENCE")</li>
-                    <li>A function that retrieves the primary key (of type <code>Long</code>) from the <code>Person</code> object.</li>
+                    <li>A function that retrieves the primary key (of type <code>Long</code>) from the
+                        <code>Person</code> object.
+                    </li>
                     <li>A function that can set the primary key onto the object.</li>
                 </ol>
 
                 <p>With that covered, we can being to teach the <code>DaoBuilder</code> about the individual data
-                elements. First, we will teach it about the name field.</p>
+                    elements. First, we will teach it about the name field.</p>
 
                 <pre>
     daoBuilder.withStringColumn("NAME", Person::getName, Person::setName);</pre>
 
                 <p>This explains that that table has a column named "NAME" and that the value in the table can
-                be populated from calling <code>getName()</code> on a <code>Person</code>, and that value
-                can be set by calling <code>setName()</code>. There are other methods on the <code>DaoBuilder</code>
-                for other Java types.</p>
+                    be populated from calling <code>getName()</code> on a <code>Person</code>, and that value
+                    can be set by calling <code>setName()</code>. There are other methods on the <code>DaoBuilder</code>
+                    for other Java types.</p>
 
                 <p>For the integer weight value (which should actually be a <code>Long</code> or <code>long</code>,
-                not an <code>int</code> or <code>short</code>).</p>
+                    not an <code>int</code> or <code>short</code>).</p>
 
                 <pre>
     daoBuilder.withIntegerColumn("WEIGHT", Person::getWeight, Person::setWeight);</pre>
 
-                <p>For fractional, decimal, or floating point values, hrorm supports the <code>java.math.BigDecimal</code> type.</p>
+                <p>For fractional, decimal, or floating point values, hrorm supports the
+                    <code>java.math.BigDecimal</code> type.</p>
 
                 <pre>
     daoBuilder.withBigDecimalColumn("HEIGHT", Person::getHeight, Person::setHeight);</pre>
 
                 <p>For dates and times, hrorm supports the <code>java.time.LocalDateTime</code> type.</p>
 
-<pre>
+                <pre>
     daoBuilder.withLocalDateTimeColumn("BIRTHDAY", Person::getBirthday, Person::setBirthday);</pre>
 
                 <p>And similarly for boolean values. Note that the table should declare a text or string value.
@@ -361,7 +372,7 @@
     daoBuilder.withBooleanColumn("IS_HIGH_SCHOOL_GRADUATE", Person::isHighSchoolGraduate, Person::setHighSchoolGraduate);</pre>
 
                 <p>For the enumerated <code>HairColor</code> type, hrorm needs a bit more help, via an implementation
-                of its <code>Converter</code> interface. We need a simple class that looks like this:</p>
+                    of its <code>Converter</code> interface. We need a simple class that looks like this:</p>
 
                 <pre>
     class HairColorConverter implements Converter&lt;HairColor, String&gt; {
@@ -377,19 +388,20 @@
     }</pre>
 
                 <p>Once the <code>Converter</code> exists, we can teach the <code>DaoBuilder</code> about it
-                and the hair color field.</p>
+                    and the hair color field.</p>
 
                 <pre>
     daoBuilder.withConvertingStringColumn("HAIR_COLOR", Person::getHairColor, Person::setHairColor, new HairColorConverter());</pre>
 
                 <p>Notice that in addition to the usual fields for column name, getter, and setter, we additionally
-                must specify the conversion mechanism.</p>
+                    must specify the conversion mechanism.</p>
 
-                <p>That completes the <code>DaoBuilder</code>. Now we can actually build a <code>Dao&lt;Person&gt;</code>
+                <p>That completes the <code>DaoBuilder</code>. Now we can actually build a
+                    <code>Dao&lt;Person&gt;</code>
                     object, assuming we have a <code>java.sql.Connection</code>.</p>
 
                 <p>But before that, we should note that the <code>DaoBuilder</code> supports a fluent interface,
-                so we could write all of the above as:</p>
+                    so we could write all of the above as:</p>
 
                 <pre>
     DaoBuilder&lt;Person&gt; daoBuilder = new DaoBuilder<>("PERSON_TABLE", Person::new)
@@ -402,7 +414,7 @@
                 .withConvertingStringColumn("HAIR_COLOR", Person::getHairColor, Person::setHairColor, new HairColorConverter());</pre>
 
                 <p>In just 8 lines of code, we have taught hrorm everything it needs to know to CRUD <code>Person</code>
-                objects.</p>
+                    objects.</p>
             </div>
 
             <a name="sibling_relations"></a>
@@ -411,7 +423,7 @@
                 <hr>
 
                 <p>When one entity object contains a reference to another entity object, hrorm calls that a
-                sibling or join relationship.</p>
+                    sibling or join relationship.</p>
 
                 <p>Consider a model of cities and states, where each city contains a reference to a state.</p>
 
@@ -444,46 +456,49 @@
     CREATE SEQUENCE STATE_SEQUENCE;
     CREATE SEQUENCE CITY_SEQUENCE;</pre>
 
-            <p>Creating the <code>State</code> <code>DaoBuilder</code> is trivial.</p>
+                <p>Creating the <code>State</code> <code>DaoBuilder</code> is trivial.</p>
 
-            <pre>
+                <pre>
     DaoBuilder&lt;State&gt; stateDaoBuilder = new DaoBuilder&lt;&gt;("STATE", State::new)
             .withPrimaryKey("ID", "STATE_SEQUENCE", State::getId, State::setId)
             .withStringColumn("NAME", State::getName, State::setName);</pre>
 
-            <p>There is one new trick to creating the <code>City</code> <code>DaoBuilder</code>: using the
-            <code>DaoBuilder.joinColumn()</code> method which will refer to the <code>stateDaoBuilder</code>
-            we just defined.</p>
+                <p>There is one new trick to creating the <code>City</code> <code>DaoBuilder</code>: using the
+                    <code>DaoBuilder.joinColumn()</code> method which will refer to the <code>stateDaoBuilder</code>
+                    we just defined.</p>
 
-            <pre>
+                <pre>
      DaoBuilder&lt;City&gt; cityDaoBuilder = new DaoBuilder&lt;&gt;("CITY", City::new)
             .withPrimaryKey("ID", "CITY_SEQUENCE", City::getId, City::setId)
             .withStringColumn("NAME", City::getName, City::setName)
             .withJoinColumn("STATE_ID", City::getState, City::setState, stateDaoBuilder);</pre>
 
-            <p>The <code>withJoinColumn</code> method accepts an extra parameter: a <code>DaoDescriptor</code>.
-            Both <code>DaoBuilder</code> and the <code>Dao</code> class implement this interface. Generally,
-            it's much more convenient to create all the builder objects together.</p>
+                <p>The <code>withJoinColumn</code> method accepts an extra parameter: a <code>DaoDescriptor</code>.
+                    Both <code>DaoBuilder</code> and the <code>Dao</code> class implement this interface. Generally,
+                    it's much more convenient to create all the builder objects together.</p>
 
-            <p><b>Sibling or join relationships in hrorm are one-way.</b> One object declares that it has a reference
-            to another. Trying to make a circular relationship will lead to errors.</p>
+                <p><b>Sibling or join relationships in hrorm are one-way.</b> One object declares that it has a
+                    reference
+                    to another. Trying to make a circular relationship will lead to errors.</p>
 
-            <p>When hrorm instantiates objects like <code>City</code> from the database, it automatically
-            instantiates the appropriate sibling <code>State</code> objects and sets the field in the
-            <code>City</code> object.</p>
+                <p>When hrorm instantiates objects like <code>City</code> from the database, it automatically
+                    instantiates the appropriate sibling <code>State</code> objects and sets the field in the
+                    <code>City</code> object.</p>
 
-            <p>Of course, you could just treat these as two one-table <code>Dao</code> objects, and then
-            right some code to glue things together. In addition to being inconvenient, this will likely
-            have poorer performance, since hrorm will issue a SQL left join to load the <code>City</code>
-            and <code>State</code> objects with one query.</p>
+                <p>Of course, you could just treat these as two one-table <code>Dao</code> objects, and then
+                    right some code to glue things together. In addition to being inconvenient, this will likely
+                    have poorer performance, since hrorm will issue a SQL left join to load the <code>City</code>
+                    and <code>State</code> objects with one query.</p>
 
-            <p>Objects can have several join columns, and those objects can have their own join columns.
-            Hrorm will attempt to transitively load the entire object graph when a <code>select()</code> method is called
-            on the <code>Dao</code>. There is a limit to how many joins hrorm can perform. Additionally, there
-                is a limit to how many joins a database engine will allow. Consider this when designing <code>Dao</code>
-                objects.
-                Also remember, sibling relationships are for reading and populating objects,
-            not for making saves or updates. If a sibling object is mutated, it must be saved itself.</p>
+                <p>Objects can have several join columns, and those objects can have their own join columns.
+                    Hrorm will attempt to transitively load the entire object graph when a <code>select()</code> method
+                    is called
+                    on the <code>Dao</code>. There is a limit to how many joins hrorm can perform. Additionally, there
+                    is a limit to how many joins a database engine will allow. Consider this when designing
+                    <code>Dao</code>
+                    objects.
+                    Also remember, sibling relationships are for reading and populating objects,
+                    not for making saves or updates. If a sibling object is mutated, it must be saved itself.</p>
 
             </div>
 
@@ -492,10 +507,11 @@
                 <h3>Parent Child Relations</h3>
                 <hr>
 
-                <p>When one entity contains a collection of other entities, hrorm calls that a parent child relation.</p>
+                <p>When one entity contains a collection of other entities, hrorm calls that a parent child
+                    relation.</p>
 
                 <p>Here is a simple model for tracking inventories of stocks of things through time. At each instant
-                that we measure, we want to know what quantity of each product we have.</p>
+                    that we measure, we want to know what quantity of each product we have.</p>
 
                 <pre>
     public class Inventory {
@@ -511,12 +527,13 @@
     }</pre>
 
                 <p>The <code>Inventory</code> class represents a snapshot in time of what was available in inventory,
-                modeled as a <code>List</code> of <code>Stock</code> items, each of which contains a product name
-                and a decimal quantity of how much of that thing is available. Notice that the <code>Stock</code> model
-                includes a reference to the inventory ID, but not the inventory object itself.</p>
+                    modeled as a <code>List</code> of <code>Stock</code> items, each of which contains a product name
+                    and a decimal quantity of how much of that thing is available. Notice that the <code>Stock</code>
+                    model
+                    includes a reference to the inventory ID, but not the inventory object itself.</p>
 
                 <p>To model this in the database, we make each item in the <code>STOCK</code> table point back to
-                an <code>INVENTORY</code> record, as follows.</p>
+                    an <code>INVENTORY</code> record, as follows.</p>
 
                 <pre>
     CREATE TABLE INVENTORY (
@@ -534,8 +551,10 @@
     CREATE SEQUENCE INVENTORY_SEQUENCE;
     CREATE SEQUENCE STOCK_SEQUENCE;</pre>
 
-                <p>To model this in hrorm, we need to teach it about the parent-child relationship between the two entities
-                    using the <code>DaoBuilder.withParentColumn()</code> and <code>DaoBuilder.withChildren()</code> methods.
+                <p>To model this in hrorm, we need to teach it about the parent-child relationship between the two
+                    entities
+                    using the <code>DaoBuilder.withParentColumn()</code> and <code>DaoBuilder.withChildren()</code>
+                    methods.
                     First we make a Dao for the <code>Stock</code> entity.</p>
 
                 <pre>
@@ -558,23 +577,23 @@
             .withChildren(Inventory::getStocks, Inventory::setStocks, stockDaoBuilder);</pre>
 
                 <p>When we create a <code>Dao</code> in this fashion we create a category of entity, the child,
-                that is wholly dependent upon another, the parent. Whenever we insert, update, delete, or
-                select the parent entity, the changes we make flow through the children and transitively
-                to their children.</p>
+                    that is wholly dependent upon another, the parent. Whenever we insert, update, delete, or
+                    select the parent entity, the changes we make flow through the children and transitively
+                    to their children.</p>
 
                 <p>Be careful, if you do not want the children to be deleted, this is not the relationship
-                you want to build. In particular, remember that issuing an <code>update</code>
-                will result not just in a SQL <code>UPDATE</code> in the database, but possibly
-                a whole series of <CODE>INSERT</CODE>, <code>UPDATE</code>, and <code>DELETE</code>
-                queries being run.</p>
+                    you want to build. In particular, remember that issuing an <code>update</code>
+                    will result not just in a SQL <code>UPDATE</code> in the database, but possibly
+                    a whole series of <CODE>INSERT</CODE>, <code>UPDATE</code>, and <code>DELETE</code>
+                    queries being run.</p>
 
                 <p>Hrorm always understands child objects to be members of type <code>List</code>.
-                No other collection type is supported.</p>
+                    No other collection type is supported.</p>
 
                 <h5>Back-References</h5>
 
                 <p>If your object model for includes a back-reference from the child to the parent,
-                Hrorm will populate it for you. If in the model above, the <code>Stock</code>
+                    Hrorm will populate it for you. If in the model above, the <code>Stock</code>
                     class had a reference to its parent <code>Inventory</code> we could use an
                     overloaded <code>withParentColumn()</code> method call on its <code>DaoBuilder</code>
                     as follows:</p>
@@ -583,7 +602,7 @@
     .withParentColumn("INVENTORY_ID", Stock::getInventory, Stock::setInventory)</pre>
 
                 <p>That will cause the reference to the parent object to be automatically
-                set when using any of the <code>Dao</code> <code>select</code> methods.</p>
+                    set when using any of the <code>Dao</code> <code>select</code> methods.</p>
 
             </div>
 
@@ -594,14 +613,18 @@
 
                 <hr>
 
-                <p>If you prefer that your Java entity model be made up of immutable classes, hrorm can support that.</p>
+                <p>If you prefer that your Java entity model be made up of immutable classes, hrorm can support
+                    that.</p>
 
-                <p>Hrorm works well with immutable objects that have distinct builder classes for managing their setters.
+                <p>Hrorm works well with immutable objects that have distinct builder classes for managing their
+                    setters.
                     To allow this, hrorm provides an <a href="/javadocs/latest/org/hrorm/IndirectDaoBuilder.html"><code>IndirectDaoBuilder</code></a>
-                    class. The indirect moniker is intended to suggest that the entities will not be directly constructed,
+                    class. The indirect moniker is intended to suggest that the entities will not be directly
+                    constructed,
                     but that will be handled by the builder objects.</p>
 
-                <p>The following example uses lombok style builders, but you can roll your own if that's what you prefer.</p>
+                <p>The following example uses lombok style builders, but you can roll your own if that's what you
+                    prefer.</p>
 
                 <pre>
     @lombok.Builder
@@ -654,23 +677,23 @@
                     of all, both.</p>
 
                 <p>The <code>DaoBuilder</code> does allow you to mark particular columns as not null,
-                by calling the <code>notNull</code> method. It will apply that constraint to the
-                last column added to the growing definition.</p>
+                    by calling the <code>notNull</code> method. It will apply that constraint to the
+                    last column added to the growing definition.</p>
 
                 <p>Where a not null condition is defined in hrorm, it will prevent the creation
-                of null entries in the particular field in question, either through inserts
-                or updates. However, hrorm will ignore the constraint when attempting load
-                records from the database, on the theory that loading questionable data is
-                better than not loading it.</p>
+                    of null entries in the particular field in question, either through inserts
+                    or updates. However, hrorm will ignore the constraint when attempting load
+                    records from the database, on the theory that loading questionable data is
+                    better than not loading it.</p>
 
                 <p>Since a properly designed object model and database schema can easily replicate
-                this functionality and provide other much more significant invariant enforcement,
-                it must be admitted that this facility is of little practical use.</p>
+                    this functionality and provide other much more significant invariant enforcement,
+                    it must be admitted that this facility is of little practical use.</p>
 
                 <p>One case where this can be helpful is during periods of data migration. If some
-                element is moving from optional to required, Hrorm can at least help creating new
-                records without the newly required element, until such time as more robust
-                enforcement of constraints can be implemented by the application and database.</p>
+                    element is moving from optional to required, Hrorm can at least help creating new
+                    records without the newly required element, until such time as more robust
+                    enforcement of constraints can be implemented by the application and database.</p>
 
             </div>
 
@@ -683,15 +706,15 @@
                     help in sure the database schema is in sync with the code.</p>
 
                 <p>The validation provided is not a substitute for testing that code works as intended. It simply
-                checks that the names of the tables, columns, and sequences provided in the <code>Dao</code>
-                descriptions exist as stated. Columns are checked to make sure they are
+                    checks that the names of the tables, columns, and sequences provided in the <code>Dao</code>
+                    descriptions exist as stated. Columns are checked to make sure they are
                     of a correct type. As such, it can quickly find typos or other simple errors and
-                report them. This can be particularly useful in times of database refactoring.</p>
+                    report them. This can be particularly useful in times of database refactoring.</p>
 
                 <p>To check that a particular <code>Dao</code> is correct, simply pass it, or its builder,
-                to the <code>Validator::validate</code> method with a live <code>Connection</code>.
-                If the validation fails, an exception will be raised whose message describes the problems
-                found.</p>
+                    to the <code>Validator::validate</code> method with a live <code>Connection</code>.
+                    If the validation fails, an exception will be raised whose message describes the problems
+                    found.</p>
 
                 <pre>
     DaoBuilder&lt;Entity&gt; daoBuilder = new DaoBuilder&lt;&gt;("TABLE", Entity::new)
@@ -708,9 +731,9 @@
     }</pre>
 
                 <p>The testing that this performs is light. It will <b>not</b> attempt to make any changes to the
-                state of the database. It will merely check to make sure the structures exist as expected.
-                Moreover, each <code>Dao</code> is tested individually. Related <code>Dao</code>
-                objects, even dependent child objects, are not checked by the <code>Validator</code>.</p>
+                    state of the database. It will merely check to make sure the structures exist as expected.
+                    Moreover, each <code>Dao</code> is tested individually. Related <code>Dao</code>
+                    objects, even dependent child objects, are not checked by the <code>Validator</code>.</p>
 
             </div>
 
@@ -718,7 +741,8 @@
             <a name="daos"></a>
             <h2>Daos</h2>
 
-            <p>To create a <code>Dao</code> from a <code>DaoBuilder</code>, just pass it a <code>java.sql.Connection</code>:</p>
+            <p>To create a <code>Dao</code> from a <code>DaoBuilder</code>, just pass it a
+                <code>java.sql.Connection</code>:</p>
 
             <pre>
     // Assume the existence of some ConnectionPool
@@ -727,7 +751,7 @@
 
             <a name="insert"></a>
             <div class="card fluid">
-            <h3>Insert</h3>
+                <h3>Insert</h3>
                 <hr>
 
                 <p>To create a new record in the database, we create a new instance of the class and pass it
@@ -743,7 +767,9 @@
     connection.commit();</pre>
 
                 <p>After that code runs, the record will be stored in the database. Hrorm will have pulled
-                a new sequence value and set it on the object. The following assertions will be true. Note that for immutable objects whose <code>Dao</code> implementations were created using an <code>IndirectDaoBuilder</code> the ID will not be set.</p>
+                    a new sequence value and set it on the object. The following assertions will be true. Note that for
+                    immutable objects whose <code>Dao</code> implementations were created using an <code>IndirectDaoBuilder</code>
+                    the ID will not be set.</p>
 
                 <pre>
     Assert.assertNotNull(person.getId());
@@ -756,7 +782,7 @@
                 <h5>Siblings</h5>
 
                 <p>If the record has sibling entities, references to those will be persisted. But be careful,
-                those sibling references must be persisted first. Sibling inserts and updates do not cascade.</p>
+                    those sibling references must be persisted first. Sibling inserts and updates do not cascade.</p>
 
             </div>
 
@@ -766,10 +792,10 @@
                 <hr>
 
                 <p>Hrorm provides a few methods for reading data out of the database and instantiating entity
-                objects.</p>
+                    objects.</p>
 
                 <p>All of the selection mechanisms below will fully read and populate the entire relevant object graph
-                including all children and siblings and all their transitive references.</p>
+                    including all children and siblings and all their transitive references.</p>
 
                 <h5>Primary Key</h5>
 
@@ -793,10 +819,10 @@
                 <h5>By Columns</h5>
 
                 <p>Most of the time, you do not know up front what ID or IDs you are intersted in, so
-                hrorm allows you to select by columns. To do this, we make an instance of the entity
-                we are searching for and populate it with the values we want to match. Suppose we want
-                to find all the people who are high school graduates that weigh 100 kilograms. Here's what
-                we can do.</p>
+                    hrorm allows you to select by columns. To do this, we make an instance of the entity
+                    we are searching for and populate it with the values we want to match. Suppose we want
+                    to find all the people who are high school graduates that weigh 100 kilograms. Here's what
+                    we can do.</p>
 
                 <pre>
     Person personTemplate = new Person();
@@ -808,7 +834,7 @@
                 <p>Notice that hrorm wants the names of the database <b>columns</b>, not the fields on the object.</p>
 
                 <p>If we know that a particular query will only return 0 or 1 results (for instance, if there is
-                a uniqueness constraint on the name field), hrorm provides a convenience method for that.</p>
+                    a uniqueness constraint on the name field), hrorm provides a convenience method for that.</p>
 
                 <pre>
     Person personTemplate = new Person();
@@ -827,7 +853,7 @@
                 <h3>Update</h3>
                 <hr>
 
-                    <p>After making changes to the state of the object, we can call</p>
+                <p>After making changes to the state of the object, we can call</p>
 
                 <pre>
     dao.update(person);
@@ -861,11 +887,11 @@
                 <h3>Atomic</h3>
 
                 <p>In addition to the <code>insert</code>, <code>update</code>, and <code>delete</code>
-                methods, hrorm <code>Dao</code> objects provide variants of those methods
-                called <code>atomicInsert</code>, <code>atomicUpdate</code>, and <code>atomicDelete</code>.
-                These are useful if you do not mind your changes being committed automatically. But they
-                cannot be used inside larger transactions. Additionally, these methods will close the
-                <code>Connection</code> object their enclosing <code>Dao</code> was built with.</p>
+                    methods, hrorm <code>Dao</code> objects provide variants of those methods
+                    called <code>atomicInsert</code>, <code>atomicUpdate</code>, and <code>atomicDelete</code>.
+                    These are useful if you do not mind your changes being committed automatically. But they
+                    cannot be used inside larger transactions. Additionally, these methods will close the
+                    <code>Connection</code> object their enclosing <code>Dao</code> was built with.</p>
 
             </div>
 
@@ -903,13 +929,13 @@
                 <h3>SQL</h3>
 
                 <p>The <code>SQL</code> that hrorm generates to make a <code>Dao</code> can be accessed by
-                calling the <code>queries()</code> method. The <code>SQL</code> is formatted
-                in a way suitable for passing to a <code>PreparedStatement</code> with embedded
-                question marks for variable substitution.</p>
+                    calling the <code>queries()</code> method. The <code>SQL</code> is formatted
+                    in a way suitable for passing to a <code>PreparedStatement</code> with embedded
+                    question marks for variable substitution.</p>
 
                 <p>You can also access a <code>Queries</code> object by calling <code>buildQueries()</code>
-                on a <code>DaoBuilder</code> object. This provides an identical instance, but does not
-                require a <code>Connection</code>, which building a <code>Dao</code> does.</p>
+                    on a <code>DaoBuilder</code> object. This provides an identical instance, but does not
+                    require a <code>Connection</code>, which building a <code>Dao</code> does.</p>
 
             </div>
 
