@@ -24,6 +24,7 @@ ln -s $VERSION latest
 
 cd $WEB_HOME/documentation
 mkdir $VERSION
+cp $GIT_HOME/site/css/hrorm.css .
 cp $GIT_HOME/site/documentation/index.html .
 cp $GIT_HOME/site/documentation/latest/index.html $VERSION/index.html
 rm latest
