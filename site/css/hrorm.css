@@ -15,3 +15,8 @@ div.disclaimer {
     background-color: LightGrey;
     color: DarkBlue;
 }
+
+hr.thin {
+    padding: 0px 0px 0px 0px;
+    size: 1px;
+}
