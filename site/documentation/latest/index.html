@@ -814,10 +814,29 @@
             <div class="card fluid">
                 <h3>Folding</h3>
 
-                <p></p>
+                <p>Many ORMs (and other database connectivity tools) provide some mechanism for lazily
+                    loading data. This is a useful feature since it's quite common to work on data sets
+                    in your application that are too large for it.
+                </p>
+
+                <p>The biggest problem with this approach is that it can lead to peculiar bugs when
+                    a connection is closed too early and something that was to be lazily loaded cannot be.
+                </p>
+
+                <p>
+                    Hrorm's select methods are not lazy and so are only suitable for selecting limited
+                    quantities of data. But, Hrorm does provide a way to run a select without instantiating
+                    a list of all the found objects with the <code>Dao::foldingSelect</code> method.
+                    This method allows a general select to be done, and then a flexible folding operation
+                    to take place on the database's returned result set.
+                </p>
+
+                <p>At times, it might be more sensible to write the logic required as a select with a
+                    group by clause. But at other times you cannot express the application logic necessary
+                    in the database, and this facility exists for those times.
+                </p>
 
             </div>
-
 
 
             <a name="sql"></a>
