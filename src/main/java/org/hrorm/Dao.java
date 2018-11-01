@@ -144,4 +144,14 @@ public interface Dao<ENTITY> {
      */
     <T> T foldingSelect(ENTITY template, T identity, BiFunction<T,ENTITY,T> accumulator, String ... columnNames);
 
+    /**
+     * Access the <code>SQL</code> this <code>Dao</code> is using.
+     *
+     * <p>The <code>SQL</code> provided is suitable for being passed to a
+     * <code>PreparedStatement</code>.</p>
+     *
+     * @return An object containing the literal <code>SQL</code>.
+     */
+    Queries queries();
+
 }

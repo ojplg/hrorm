@@ -198,6 +198,11 @@ public class DaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> implements Dao<ENTI
         return sqlRunner.foldingSelect(sql, supplier, Arrays.asList(columnNames), columnMap(columnNames), childrenDescriptors, item, buildFunction, identity, accumulator);
     }
 
+    @Override
+    public Queries queries() {
+        return this.sqlBuilder;
+    }
+
     private <A> A fromSingletonList(List<A> items) {
         if (items.isEmpty()) {
             return null;

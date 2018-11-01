@@ -35,6 +35,8 @@
                 <a href="#update" class="sublink-1">Update</a>
                 <a href="#delete" class="sublink-1">Delete</a>
                 <a href="#atomic" class="sublink-1">Atomic</a>
+                <a href="#sql" class="sublink-1">SQL</a>
+
 
                 <a href="#miscellaneous">Miscellaneous</a>
                 <a href="#exceptions" class="sublink-1">Exceptions</a>
@@ -805,6 +807,22 @@
                 These are useful if you do not mind your changes being committed automatically. But they
                 cannot be used inside larger transactions. Additionally, these methods will close the
                 <code>Connection</code> object their enclosing <code>Dao</code> was built with.</p>
+
+            </div>
+
+
+            <a name="sql"></a>
+            <div class="card fluid">
+                <h3>SQL</h3>
+
+                <p>The <code>SQL</code> that hrorm generates to make a <code>Dao</code> can be accessed by
+                calling the <code>queries()</code> method. The <code>SQL</code> is formatted
+                in a way suitable for passing to a <code>PreparedStatement</code> with embedded
+                question marks for variable substitution.</p>
+
+                <p>You can also access a <code>Queries</code> object by calling <code>buildQueries()</code>
+                on a <code>DaoBuilder</code> object. This provides an identical instance, but does not
+                require a <code>Connection</code>, which building a <code>Dao</code> does.</p>
 
             </div>
 
