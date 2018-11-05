@@ -141,7 +141,7 @@ public class DaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> implements Dao<ENTI
     @Override
     public void update(ENTITY item) {
         String sql = sqlBuilder.update();
-        Envelope<ENTITY> envelope = new Envelope<>(item, primaryKey.getKey(item));
+        Envelope<ENTITY> envelope = newEnvelope(item, primaryKey.getKey(item));
         sqlRunner.update(sql, envelope);
         for(ChildrenDescriptor<ENTITY,?, BUILDER,?> childrenDescriptor : childrenDescriptors){
             childrenDescriptor.saveChildren(connection, new Envelope<>(item, primaryKey.getKey(item)));

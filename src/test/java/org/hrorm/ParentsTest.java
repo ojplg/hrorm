@@ -372,7 +372,7 @@ public class ParentsTest {
     }
 
     @Test
-    public void testCanSaveSomethingWithParentDirectly(){
+    public void testCanInsertSomethingWithParentDirectly(){
         Parent parent;
         {
             parent = new Parent();
@@ -404,9 +404,50 @@ public class ParentsTest {
         {
             Dao<Child> childDao = ParentChildBuilders.ChildDaoBuilder.buildDao(helper.connect());
             Child child = childDao.select(childId);
-//            Assert.assertEquals(parent, child.getParent());
             Assert.assertEquals(2, child.getGrandchildList().size());
             Assert.assertEquals(123L, (long) child.getNumber());
+            Assert.assertNull(child.getParent());
+        }
+
+    }
+
+
+    @Test
+    public void testCanUpdateSomethingWithParentDirectly(){
+        long childId;
+        Parent parent;
+        {
+            Grandchild grandchild = new Grandchild();
+            grandchild.setColor(EnumeratedColor.Blue);
+
+            Child child = new Child();
+            child.setNumber(4321L);
+            child.setGrandchildList(Collections.singletonList(grandchild));
+
+            parent = new Parent();
+            parent.setName("Directly Update Child Test");
+            parent.setChildList(Collections.singletonList(child));
+
+            Dao<Parent> parentDao = ParentChildBuilders.ParentDaoBuilder.buildDao(helper.connect());
+            parentDao.insert(parent);
+
+            childId = child.getId();
+        }
+        {
+            Dao<Child> childDao = ParentChildBuilders.ChildDaoBuilder.buildDao(helper.connect());
+            Child child = childDao.select(childId);
+
+            Assert.assertNull(child.getParent());
+
+            child.setNumber(45325L);
+            child.setParent(parent);
+
+            childDao.update(child);
+        }
+        {
+            Dao<Child> childDao = ParentChildBuilders.ChildDaoBuilder.buildDao(helper.connect());
+            Child child = childDao.select(childId);
+            Assert.assertEquals(45325L, (long) child.getNumber());
         }
 
     }
