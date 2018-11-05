@@ -371,5 +371,44 @@ public class ParentsTest {
         Validator.validate(connection, ParentChildBuilders.GrandchildDaoBuilder);
     }
 
+    @Test
+    public void testCanSaveSomethingWithParentDirectly(){
+        Parent parent;
+        {
+            parent = new Parent();
+            parent.setName("DirectlySaveChildTest");
+
+            Dao<Parent> parentDao = ParentChildBuilders.ParentDaoBuilder.buildDao(helper.connect());
+            parentDao.insert(parent);
+
+        }
+        Assert.assertNotNull(parent.getId());
+        long childId;
+        {
+            Child child = new Child();
+            child.setParent(parent);
+            child.setNumber(123L);
+
+            Grandchild g1 = new Grandchild();
+            g1.setColor(EnumeratedColor.Blue);
+
+            Grandchild g2 = new Grandchild();
+            g2.setColor(EnumeratedColor.Red);
+
+            child.setGrandchildList(Arrays.asList(g1, g2));
+
+            Dao<Child> childDao = ParentChildBuilders.ChildDaoBuilder.buildDao(helper.connect());
+
+            childId = childDao.insert(child);
+        }
+        {
+            Dao<Child> childDao = ParentChildBuilders.ChildDaoBuilder.buildDao(helper.connect());
+            Child child = childDao.select(childId);
+//            Assert.assertEquals(parent, child.getParent());
+            Assert.assertEquals(2, child.getGrandchildList().size());
+            Assert.assertEquals(123L, (long) child.getNumber());
+        }
+
+    }
 
 }

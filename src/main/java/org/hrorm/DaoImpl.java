@@ -120,12 +120,22 @@ public class DaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> implements Dao<ENTI
         String sql = sqlBuilder.insert();
         long id = DaoHelper.getNextSequenceValue(connection, primaryKey.getSequenceName());
         primaryKey.optimisticSetKey(item, id);
-        Envelope<ENTITY> envelope = new Envelope<>(item, id);
+        Envelope<ENTITY> envelope = newEnvelope(item, id);
         sqlRunner.insert(sql, envelope);
         for(ChildrenDescriptor<ENTITY,?, BUILDER,?> childrenDescriptor : childrenDescriptors){
             childrenDescriptor.saveChildren(connection, new Envelope<>(item, id));
         }
         return id;
+    }
+
+    private Envelope<ENTITY> newEnvelope(ENTITY item, long id){
+        if( parentColumn != null ){
+            Long parentId = parentColumn.getParentId(item);
+            if ( parentId != null ){
+                return new Envelope<>(item, id, parentId);
+            }
+        }
+        return new Envelope<>(item, id);
     }
 
     @Override

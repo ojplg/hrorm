@@ -99,4 +99,9 @@ public class ParentColumnImpl<CHILD, PARENT, CHILDBUILDER, PARENTBUILDER> implem
     @Override
     public Set<Integer> supportedTypes() { return ColumnTypes.IntegerTypes; }
 
+    @Override
+    public Long getParentId(CHILD child) {
+        PARENT parent = getter.apply(child);
+        return parentPrimaryKey.getKey(parent);
+    }
 }

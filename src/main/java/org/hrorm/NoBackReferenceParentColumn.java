@@ -106,4 +106,8 @@ public class NoBackReferenceParentColumn<ENTITY, PARENT, BUILDER, PARENTBUILDER>
     @Override
     public Set<Integer> supportedTypes() { return ColumnTypes.IntegerTypes; }
 
+    @Override
+    public Long getParentId(ENTITY entity) {
+        return null;
+    }
 }

@@ -22,4 +22,6 @@ public interface ParentColumn<CHILD,PARENT,CHILDBUILDER,PARENTBUILDER> extends C
     default boolean isParentColumn() {
         return true;
     }
+
+    Long getParentId(CHILD child);
 }
