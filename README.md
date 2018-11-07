@@ -21,7 +21,6 @@ Hrorm requires Java 8.
 
 ### Improvement Ideas
 
-* Improve deployment scripts: automatically set versions correctly
 * Expose fields in addition to columns in select statements (either set on columns at
 create time, or derive from get/set method names)
 * Add support for more Java types

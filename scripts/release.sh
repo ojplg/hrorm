@@ -14,11 +14,11 @@ function printstep {
     echo $((STEPNUMBER++))")" $1
 }
 
-printstep "Run the update_files.sh script"
 printstep "Run the dumb_check.sh script"
+printstep "Run the update_files.sh script"
 printstep "Run mvn deploy (requires gpg passphrase) to publish to oss.sonatype.org"
 printstep "Push artifact from oss.sonatype.org to maven central (requires login)"
+printstep "Wait a while"
+printstep "Run download_artifacts.sh script to grab jars for tag"
 printstep "Create tag in git"
-printstep "Put jar file artifacts on downloads page https://github.com/ojplg/hrorm/releases"
-printstep "Update website on hrorm.org (aws)"
-printstep "Update javadocs and docs on hrorm.org (preserve old versions)"
+printstep "Log onto aws and git pull and run deploy_site.sh script"
