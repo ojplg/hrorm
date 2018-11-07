@@ -14,10 +14,8 @@ function printstep {
     echo $((STEPNUMBER++))")" $1
 }
 
-printstep "Correct version number in pom.xml"
-printstep "Update latest version maven link on site/index.html"
-printstep "Add latest version to site/documentation/index.html"
-printstep "Add latest version to site/javadocs/index.html"
+printstep "Run the update_files.sh script"
+printstep "Run the dumb_check.sh script"
 printstep "Run mvn deploy (requires gpg passphrase) to publish to oss.sonatype.org"
 printstep "Push artifact from oss.sonatype.org to maven central (requires login)"
 printstep "Create tag in git"
