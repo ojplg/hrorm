@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Introducing Hrorm</title>
+</head>
+<body>
+
+<p>
+    * introduction/critique of ORM tools
+    * simple demonstration of hrorm
+    * statement of what restrictions hrorm imposes
+    * why that doesn't matter too much for many projects
+</p>
+
+<p>A lot of cyber ink has been spilled about the problem of connecting the models in Java code
+with models in relational (SQL) databases. The topic of object relational mappings (ORMs), is
+indeed rich and the full scope of things you might want to do to transfer information between
+an application and a database is enormous. Many ORM tools attempt to cover as much of that
+space as they possibly can: their designs and implementations provide for a great deal of
+flexibility and they are packed with features.</p>
+
+<p>Of course, to achieve that power and flexibility, they are burdened with complexity. This
+is not their fault: Java and SQL are quite different worlds and covering all (or even many) the ways to
+pull them together is intrisically complex. What about a different approach? What if instead
+of designing an ORM tool to handle a wide variety of object and schema models and all
+the accompanying use-cases, an ORM tool was designed with some assumptions in mind
+about how objects and schemas look and work and how they are used? How simple could an
+ORM tool be?</p>
+
+<p>For many projects, a domain model of Java-bean like classes can be backed with a store
+of tables one-to-one. For projects like that the primary job of an ORM is as a substitute
+to writing tedious boilerplate code manipulating the JDBC interfaces. Such code is very
+repetitive to write, boring to maintain, and irritating to debug since the problems usually
+boil down to cut-and-paste problems or off-by-one errors when counting question marks in
+prepared statements.</p>
+
+<p>Hrorm is a library that exists to make it easy to create data access objects (DAOs) that
+can perform the basic CRUD operations for Java-bean like classes. It has some restrictions
+on how your object model and schema are designed and it won't do everything you can possibly
+want when communicating from your application to your database, but you won't have to
+invest in a library of O'Reilly books to use it.</p>
+
+<p>Hrorm allows the easy creation of <code>Dao&lt;T&gt;</code> objects, which allow
+you to insert, select, update, and delete instances of type <code>T</code>. To create
+a Dao object, you use the DaoBuilder class, which provides a declarative, fluent
+interface for describing the relationship between a database schema and a Java
+object model. It looks like this.</p>
+
+DaoBuilder&lt;Ingredient&gt; ingredientDaoBuilder = new DaoBuilder&lt;&gt;("INGREDIENT", Ingredient::new)
+.withPrimaryKey("ID", "INGREDIENT_SEQUENCE", Ingredient::getId, Ingredient::setId)
+.withParentColumn("RECIPE_ID")
+.withStringColumn("NAME", Ingredient::getName, Ingredient::setName)
+.withIntegerColumn("AMOUNT", Ingredient::getAmount, Ingredient::setAmount);
+
+<p></p>
+
+</body>
+</html>
