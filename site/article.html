@@ -47,13 +47,26 @@ a Dao object, you use the DaoBuilder class, which provides a declarative, fluent
 interface for describing the relationship between a database schema and a Java
 object model. It looks like this.</p>
 
+<pre>
 DaoBuilder&lt;Ingredient&gt; ingredientDaoBuilder = new DaoBuilder&lt;&gt;("INGREDIENT", Ingredient::new)
 .withPrimaryKey("ID", "INGREDIENT_SEQUENCE", Ingredient::getId, Ingredient::setId)
 .withParentColumn("RECIPE_ID")
 .withStringColumn("NAME", Ingredient::getName, Ingredient::setName)
 .withIntegerColumn("AMOUNT", Ingredient::getAmount, Ingredient::setAmount);
+</pre>
 
-<p></p>
+<p>Using a DaoBuilder and a java.sql.Connection object, you can create a <code>Dao</code>,
+like this.</p>
+
+<pre>
+Dao&lt;Ingredient&gt; ingredientDao = ingredientDaoBuilder.build(connection);
+</pre>
+
+<p>The <code>Dao&lt;T&gt;</code> interface has methods for doing the standard CRUD operations
+<code>insert()</code>, <code>update()</code>, and <code>delete()</code> that
+act on objects of type <code>T</code>. In addition, there are a variety of <code>select()</code>
+methods for reading data from the database that return individual <code>T</code>
+instances or <code>List&lt;T&gt;</code>.</p>
 
 </body>
 </html>
