@@ -68,5 +68,77 @@ act on objects of type <code>T</code>. In addition, there are a variety of <code
 methods for reading data from the database that return individual <code>T</code>
 instances or <code>List&lt;T&gt;</code>.</p>
 
+
+<h4>The JDBC</h4>
+
+<p>The Java Database Connectivity (JDBC) API defines how almost all interactions between
+relational databases and Java applications happen. Database makers provide and implementation
+of the interfaces defined in the java.sql package and clients can do a great many
+database tasks through those interfaces, short of actually starting the database.</p>
+
+<p>In greatly over-simplified terms, the JDBC defines three interfaces:
+<code>java.sql.Connection</code>,
+<code>java.sql.Statement</code>, and <code>java.sql.ResultSet</code>. A
+<code>Connection</code> represents a pipe or socket between the application
+and the database engine. Messages can be passed through the pipe and responses
+read. The <code>Statement</code> is a way to pass a chunk of SQL to the database.
+The <code>ResultSet</code> is essentially a two dimensional array representing
+results from the database. On one dimenstion, the the <code>ResultSet</code>
+is an iterator through returned records or rows, on the other dimension,
+the <code>ResultSet</code> provides accessors to retrieve atomic values
+from the database record by column name.</p>
+
+<p>The JDBC is a low-level interface, but it actually specifies very little of
+how applications and databases interact, since it takes no position on what form
+the SQL being sent to the database takes. You can use the JDBC to send arbitrary
+strings of SQL to the database. It is entirely up to the database to parse and
+execute it, assuming it is SQL. So, databases that provide quite different dialects
+of SQL with wildly varying extensions are all supported by the JDBC, so long
+as they conform to the basic pattern of accepting queries as strings of SQL
+and responding with tabular data.</p>
+
+<p>Depending on how you look at it this makes the JDBC tremendously powerful
+(you can do almost anything) or terribly anemic (the abstractions are not suitable
+for high-level programming). In theory though, simply by using the JDBC interfaces
+almost any interaction a Java application needs to have with a relational database
+can be managed. It just might take a lot of repetitive code to get there.</p>
+
+<p>The repetitive nature of the code cannot be over-stated. First, you have
+to write all the SQL, generally as literal strings, and SQL is not the most
+terse language for this job. The selects, inserts, updates, and deletes all
+have to be written to some extent separately. Then each must be passed down
+a <code>Connection</code> within a <code>Statement</code> and the <code>ResultSet</code>
+    (if relevant)
+handled slightly differently. And that is before one gets to the issue of multiple
+selects, the joins one might want, etc. Then the results must be parsed into
+the applications object model. Throughout this, care must be taken to correctly
+release resources lest the database run out of connections or cursors or what
+have you. And of course, even the <code>close()</code> methods all throw
+the checked <code>SQLException</code>, so everything has to be wrapped in,
+possibly nested, try-catch-finally blocks.</p>
+
+<p>It's tedious code to write and inevitably cut-and-paste errors or worse end up
+in anyone's work.</p>
+
+<h4>ORMs</h4>
+
+<p>One of the primary reasons to use an ORM is simply to avoid writing and maintaining all the
+boilerplate code that directly using the JDBC requires.</p>
+
+<p>The JDBC is a direct modeling of database concepts as Java classes
+and interfaces. The code that results is therefore somewhat stilted, in
+addition to being quite verbose. One approach to improving matters is
+to provide a more modern, idiomatic set of classes for clients to use.
+Libraries like JDBI take this approach. Everything is still in the application
+developer's hands, in fact, the JDBI webpage claims it is not an ORM since
+it does not provide for caching or state tracking and the like. It still requires
+developers to write SQL themselves. It greatly diminishes the amount of code
+applications contain compared with raw JDBC though.</p>
+
+
+<p>Library-like things provide classes and methods that client code can instantiate
+and call. Frameworks require configuration in languages outside of Java, launch
+background threads or require runtime containers.</p>
+
 </body>
 </html>
