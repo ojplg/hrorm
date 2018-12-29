@@ -89,33 +89,40 @@ ORM tool be?</p>
     and interfaces. The code that results is therefore somewhat stilted, in
     addition to being quite verbose. One approach to improving matters is
     to provide a more modern, idiomatic set of classes for clients to use.
-    Libraries like JDBI take this approach. Everything is still in the application
+    Libraries like <a href="http://jdbi.org/">JDBI</a> take this approach.
+    Everything is still in the application
     developer's hands, in fact, the JDBI webpage claims it is not an ORM since
     it does not provide for caching or state tracking and the like. It still requires
     developers to write SQL themselves. It greatly diminishes the amount of code
-    applications contain compared with raw JDBC though.</p>
+    applications contain compared with raw JDBC though. Sometimes, JDBI is
+    referred to as "a better JDBC".</p>
 
-<p>Library-like things provide classes and methods that client code can instantiate
-    and call. Frameworks require configuration in languages outside of Java, launch
-    background threads or require runtime containers.</p>
+<p>Other ORMs (assuming we can call JDBI an ORM, meaning no offense to the
+authors), have more ambition in terms of managing the how an application manages
+    interactions with the database. The granddaddy of Java ORM tools is
+    <a href="http://hibernate.org">Hibernate</a>, which
+    actually helped to define how the javax.persistence package was built.</p>
 
-<p>In some sense, the mere existence of books about how to use an ORM tool
-    indicates a failure in those tools. Why the heck should I read a whole book
-    about how to avoid writing some boilerplate code? Fundamentally, ORMs exist
-    to prevent you from writing boilerplate code using JDBC directly. The time
-    you spend reading the book might be better spent writing the custom code you
-    need. At least that way you can be sure of exactly what it is doing. And so
-    will any maintenance developers.</p>
+    <p>Hibernate is now an extensive ecosystem of tools that reach far beyond
+    the original goal of reducing the boilerplate code needed to write applications
+    directly using the JDBC. There are tutorials and documentation and conferences
+    and books about Hibernate. And for some, that's the problem. What started out
+    as a straight-forward problem of a mass of repetitive code being shaved down
+    to size is now a whole domain problem in itself, requiring study and the
+    investment of time. Learning all about Hibernate presumably has rewards of
+    its own, but it does come with (at least) two problems. First, Hibernate's power and
+    flexibility mean that even the simple things are actually complicated under
+    the hood. Unexpected behaviors like caching can be introduced when you do not
+    want them. Second, when it comes time to do some optimization (pass a query
+    hint to the DB, create a join in a particular way, etc) it can be hard to know
+    how to get Hibernate to cooperate with that effort. Gone are the days when
+    you could just pass strings of SQL directly to the database.</p>
 
+<h4>Introducing Hrorm</h4>
 
 <p>For many projects, a domain model of Java-bean like classes can be backed with a store
-of tables one-to-one. For projects like that the primary job of an ORM is as a substitute
-to writing tedious boilerplate code manipulating the JDBC interfaces. Such code is very
-repetitive to write, boring to maintain, and irritating to debug since the problems usually
-boil down to cut-and-paste problems or off-by-one errors when counting question marks in
-prepared statements.</p>
-
-<p>Hrorm is a library that exists to make it easy to create data access objects (DAOs) that
+    of tables one-to-one. <a href="http://hrorm.org">Hrorm</a>
+    is a library that exists to make it easy to create data access objects (DAOs) that
 can perform the basic CRUD operations for Java-bean like classes. It has some restrictions
 on how your object model and schema are designed and it won't do everything you can possibly
 want when communicating from your application to your database, but you won't have to
@@ -123,19 +130,41 @@ invest in a library of O'Reilly books to use it.</p>
 
 <p>Hrorm allows the easy creation of <code>Dao&lt;T&gt;</code> objects, which allow
 you to insert, select, update, and delete instances of type <code>T</code>. To create
-a Dao object, you use the DaoBuilder class, which provides a declarative, fluent
+a Dao object, you use the DaoBuilder class, which provides a declarative, fluent, type-safe
 interface for describing the relationship between a database schema and a Java
-object model. It looks like this.</p>
+object model. An application with an ingredient domain model like this:</p>
+
+<pre>
+    class Ingredient {
+        long id;
+        long recipeId;
+        String name;
+        int amount;
+    }
+</pre>
+
+<p>That was backed by a database table that looks like this:</p>
+
+<pre>
+    TABLE INGREDIENT (
+        ID INTEGER PRIMARY KEY,
+        RECIPE_ID INTEGER,
+        NAME VARCHAR,
+        AMOUNT INTEGER
+    );
+</pre>
+
+<p>Could have its persistence managed by a hrorm <code>Dao</code> that was defined like this:</p>
 
 <pre>
 DaoBuilder&lt;Ingredient&gt; ingredientDaoBuilder = new DaoBuilder&lt;&gt;("INGREDIENT", Ingredient::new)
-.withPrimaryKey("ID", "INGREDIENT_SEQUENCE", Ingredient::getId, Ingredient::setId)
-.withParentColumn("RECIPE_ID")
-.withStringColumn("NAME", Ingredient::getName, Ingredient::setName)
-.withIntegerColumn("AMOUNT", Ingredient::getAmount, Ingredient::setAmount);
+    .withPrimaryKey("ID", "INGREDIENT_SEQUENCE", Ingredient::getId, Ingredient::setId)
+    .withParentColumn("RECIPE_ID")
+    .withStringColumn("NAME", Ingredient::getName, Ingredient::setName)
+    .withIntegerColumn("AMOUNT", Ingredient::getAmount, Ingredient::setAmount);
 </pre>
 
-<p>Using a DaoBuilder and a java.sql.Connection object, you can create a <code>Dao</code>,
+<p>Using a DaoBuilder and a <code>java.sql.Connection</code> object, you can create a <code>Dao</code>,
 like this.</p>
 
 <pre>
@@ -148,8 +177,24 @@ act on objects of type <code>T</code>. In addition, there are a variety of <code
 methods for reading data from the database that return individual <code>T</code>
 instances or <code>List&lt;T&gt;</code>.</p>
 
+<p>To say that's all there is to hrorm would be untrue. There is some more to learn,
+primarily about how to handle one-to-one and many-to-one relations within your
+code and schema, but it's really not that difficult. But really, you've already learned
+most of what you need to know to start using hrorm. It's a library, not a framework: it
+does not require any configuration, have any external dependencies, start any background
+threads, or pollute your domain model with annotations.</p>
 
+<p>And since hrorm only needs a standard JDBC <code>Connection</code> object, it's easy
+to outgrow. You can replace hrorm generated <code>Dao</code> objects with your custom,
+optimized code piece by piece, and only as necessary. Since hrorm takes a quasi-functional
+approach to its implementation (no hidden caching or state tracking) there is no perplexing
+behavior to debug. Calling a hrorm method results in SQL being sent to the database on
+the calling thread.</p>
 
+<p>Hrorm does not even try to manage the full scope of things that you might want to do
+with your database or application. But it quickly get your objects persisted with the
+minimum fuss. For many of us, modern ORM tools provide functionality we do not need at
+a price that we should not be required to pay.</p>
 
 </body>
 </html>
