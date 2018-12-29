@@ -65,8 +65,8 @@
     the application's object model. Throughout this, care must be taken to correctly
     release resources lest the database run out of connections or cursors or what
     have you. And of course, even the <code>close()</code> methods all throw
-    the checked <code>SQLException</code>, so everything has to be wrapped in,
-    possibly nested, try-catch-finally blocks. All this before things like
+    the checked <code>SQLException</code>, so everything has to be wrapped in
+    (possibly nested) try-catch-finally blocks. All this before things like
     joins and the whole universe of other possible optimizations have been considered.</p>
 
 <p>It's tedious code to write and inevitably cut-and-paste errors or worse end up
@@ -99,10 +99,10 @@
 <p>Hibernate is now an extensive ecosystem of tools that reach far beyond
     the original goal of reducing the boilerplate code needed to write applications
     directly using the JDBC. There are tutorials and documentation and conferences
-    and books about Hibernate. And for some, that's the problem. What started out
+    and books about Hibernate. And for some, that itself is the problem. What started out
     as a straight-forward problem of a mass of repetitive code being shaved down
-    to size is now a whole domain problem in itself, requiring study and the
-    investment of time. Learning all about Hibernate presumably has rewards of
+    to size is now a whole domain problem in itself, requiring the
+    investment of time and study. Learning all about Hibernate presumably has rewards of
     its own, but it does come with (at least) two problems. First, Hibernate's power and
     flexibility mean that even the simple things are actually complicated under
     the hood. Unexpected behaviors like caching can be introduced when you do not
@@ -129,6 +129,7 @@
 
 <pre>
     class Ingredient {
+        // getters and setters omitted, use your imagination
         long id;
         long recipeId;
         String name;
@@ -178,7 +179,8 @@
 
 <p>To say that's all there is to hrorm would be untrue. There is some more to learn,
     primarily about how to handle one-to-one and many-to-one relations within your
-    code and schema. But really, you've already learned
+    code and schema. You can read about that in the <a href="http://hrorm.org/documentation/latest/">hrorm
+        documentation</a>. But really, you've already learned
     most of what you need to know to start using hrorm. It's a library, not a framework: it
     does not require any configuration, have any external dependencies, start any background
     threads, or pollute your domain model with annotations.</p>
