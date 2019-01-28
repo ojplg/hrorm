@@ -5,6 +5,7 @@ import java.sql.Connection;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -96,8 +97,8 @@ public class IndirectDaoBuilder<ENTITY, BUILDER>  implements DaoDescriptor<ENTIT
     }
 
     @Override
-    public PrimaryKey<ENTITY, BUILDER> primaryKey() {
-        return primaryKey;
+    public Optional<PrimaryKey<ENTITY, BUILDER>> primaryKey() {
+        return Optional.ofNullable(primaryKey);
     }
 
     @Override
@@ -125,10 +126,24 @@ public class IndirectDaoBuilder<ENTITY, BUILDER>  implements DaoDescriptor<ENTIT
      * @return The newly created <code>Dao</code>.
      */
     public Dao<ENTITY> buildDao(Connection connection){
-        if( primaryKey == null ){
+        if( primaryKey == null){
             throw new HrormException("Cannot create a Dao without a primary key.");
         }
         return new DaoImpl<>(connection, this);
+    }
+
+    /**
+     * Creates a {@link Dao} for performing CRUD operations of type <code>ENTITY</code>.
+     *
+     * @param connection The SQL connection this <code>Dao</code> will use
+     *                   for its operations.
+     * @return The newly created <code>Dao</code>.
+     */
+    public KeylessDao<ENTITY> buildKeylessDao(Connection connection){
+        if( primaryKey == null){
+            return new KeylessDaoImpl<>(connection, this);
+        }
+        return buildDao(connection);
     }
 
     /**

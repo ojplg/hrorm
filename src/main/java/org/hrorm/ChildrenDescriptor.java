@@ -82,7 +82,12 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
         setter.accept(parentBuilder, children);
     }
 
-    public void saveChildren(Connection connection, Envelope<PARENT> envelope){
+    public void saveChildren(Connection connection, Envelope<PARENT> envelope) {
+        childDaoDescriptor.primaryKey().ifPresent(childchildbuilderPrimaryKey ->
+                saveChildren(connection, envelope, childchildbuilderPrimaryKey));
+    }
+
+    public void saveChildren(Connection connection, Envelope<PARENT> envelope, PrimaryKey<CHILD, CHILDBUILDER> childPrimaryKey){
 
         PARENT item = envelope.getItem();
 
@@ -96,11 +101,12 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
         Long parentId = envelope.getId();
 
         Set<Long> existingIds = findExistingChildrenIds(connection, parentId);
-        for(CHILD child : children){
-            Long childId = childDaoDescriptor.primaryKey().getKey(child);
+
+       for(CHILD child : children){
+            Long childId = childPrimaryKey.getKey(child);
             if( childId == null ) {
-                childId = DaoHelper.getNextSequenceValue(connection, childDaoDescriptor.primaryKey().getSequenceName());
-                childDaoDescriptor.primaryKey().optimisticSetKey(child, childId);
+                childId = DaoHelper.getNextSequenceValue(connection, childPrimaryKey.getSequenceName());
+                childPrimaryKey.optimisticSetKey(child, childId);
                 String sql = sqlBuilder.insert();
                 Envelope<CHILD> childEnvelope = new Envelope<>(child, childId, parentId);
                 sqlRunner.insert(sql, childEnvelope);
@@ -115,6 +121,7 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
             }
         }
         deleteOrphans(connection, existingIds);
+
     }
 
     public Set<Long> findExistingChildrenIds(Connection connection, Long parentId){

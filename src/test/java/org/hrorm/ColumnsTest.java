@@ -14,7 +14,7 @@ import java.math.BigDecimal;
 import java.sql.Connection;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.logging.LogManager;
+import java.util.Optional;
 
 public class ColumnsTest {
 
@@ -58,13 +58,14 @@ public class ColumnsTest {
         columns.setTimeStampThing(time);
         columns.setColorThing(EnumeratedColor.Red);
 
-        long id = dao.insert(columns);
+        Optional<Long> id = dao.insert(columns);
+        Assert.assertTrue(id.isPresent());
 
-        Columns dbInstance = dao.select(id);
+        Columns dbInstance = dao.select(id.get());
 
         Assert.assertEquals(columns, dbInstance);
         Assert.assertNotNull(columns.getId());
-        Assert.assertTrue(id == columns.getId());
+        Assert.assertTrue(id.get() == columns.getId());
     }
 
     @Test
@@ -195,31 +196,32 @@ public class ColumnsTest {
 
     @Test
     public void testDelete(){
-        long itemId;
+        Optional<Long> itemId = Optional.empty();
         {
             Connection connection = helper.connect();
             Dao<Columns> dao = daoBuilder().buildDao(connection);
             Columns columns = new Columns();
             itemId = dao.insert(columns);
+            Assert.assertTrue(itemId.isPresent());
         }
         {
             Connection connection = helper.connect();
             Dao<Columns> dao = daoBuilder().buildDao(connection);
-            Columns columns = dao.select(itemId);
+            Columns columns = dao.select(itemId.get());
             Assert.assertNotNull(columns);
             dao.delete(columns);
         }
         {
             Connection connection = helper.connect();
             Dao<Columns> dao = daoBuilder().buildDao(connection);
-            Columns columns = dao.select(itemId);
+            Columns columns = dao.select(itemId.get());
             Assert.assertNull(columns);
         }
     }
 
     @Test
     public void testSelectByColumnsIsCaseInsensitive(){
-        long itemId;
+        Optional<Long> itemId = Optional.empty();
         {
             Connection connection = helper.connect();
             Dao<Columns> dao = daoBuilder().buildDao(connection);
@@ -229,6 +231,7 @@ public class ColumnsTest {
             columns.setStringThing("CASE INSENSITIVE");
             columns.setBooleanThing(true);
             itemId = dao.insert(columns);
+            Assert.assertTrue(itemId.isPresent());
         }
         {
             Connection connection = helper.connect();
@@ -238,7 +241,7 @@ public class ColumnsTest {
             columns.setIntegerThing(1234L);
 
             Columns readFromDb = dao.selectByColumns(columns, "decimal_column", "integer_column");
-            Assert.assertEquals(itemId, (long) readFromDb.getId());
+            Assert.assertEquals((long) itemId.get(), (long) readFromDb.getId());
         }
         {
             Connection connection = helper.connect();
@@ -248,7 +251,7 @@ public class ColumnsTest {
             columns.setIntegerThing(1234L);
 
             Columns readFromDb = dao.selectByColumns(columns, "DECIMAL_COLUMN", "INTEGER_COLUMN");
-            Assert.assertEquals(itemId, (long) readFromDb.getId());
+            Assert.assertEquals((long) itemId.get(), (long) readFromDb.getId());
         }
         {
             Connection connection = helper.connect();
@@ -258,7 +261,7 @@ public class ColumnsTest {
             columns.setIntegerThing(1234L);
 
             Columns readFromDb = dao.selectByColumns(columns, "DECIMal_colUMN", "InTEGeR_COlUmn");
-            Assert.assertEquals(itemId, (long) readFromDb.getId());
+            Assert.assertEquals((long) itemId.get(), (long) readFromDb.getId());
         }
     }
 

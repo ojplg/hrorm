@@ -11,6 +11,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class NoBackReferenceParentsTest {
@@ -54,7 +55,7 @@ public class NoBackReferenceParentsTest {
 
     @Test
     public void testPersistAndLoad() throws SQLException {
-        long parentId;
+        Optional<Long> parentId = Optional.empty();
         {
             SimpleParent parent = new SimpleParent();
             parent.setName("testPersistAndLoad");
@@ -74,9 +75,11 @@ public class NoBackReferenceParentsTest {
             connection.commit();
         }
         {
+            Assert.assertTrue(parentId.isPresent());
+
             Connection connection = helper.connect();
             Dao<SimpleParent> dao = simpleParentDaoBuilder.buildDao(connection);
-            SimpleParent parent = dao.select(parentId);
+            SimpleParent parent = dao.select(parentId.get());
 
             Assert.assertEquals(100, parent.getSimpleChildList().size());
 
@@ -91,7 +94,7 @@ public class NoBackReferenceParentsTest {
 
     @Test
     public void testUpdateChildren(){
-        long parentId;
+        Optional<Long> parentId = Optional.empty();
         {
             SimpleParent parent = new SimpleParent();
             parent.setName("testUpdateChildren");
@@ -110,9 +113,11 @@ public class NoBackReferenceParentsTest {
             parentId = dao.insert(parent);
         }
         {
+            Assert.assertTrue(parentId.isPresent());
+
             Connection connection = helper.connect();
             Dao<SimpleParent> dao = simpleParentDaoBuilder.buildDao(connection);
-            SimpleParent parent = dao.select(parentId);
+            SimpleParent parent = dao.select(parentId.get());
 
             Assert.assertEquals(10, parent.getSimpleChildList().size());
 
@@ -124,9 +129,11 @@ public class NoBackReferenceParentsTest {
             dao.update(parent);
         }
         {
+            Assert.assertTrue(parentId.isPresent());
+
             Connection connection = helper.connect();
             Dao<SimpleParent> dao = simpleParentDaoBuilder.buildDao(connection);
-            SimpleParent parent = dao.select(parentId);
+            SimpleParent parent = dao.select(parentId.get());
 
             Assert.assertEquals(10, parent.getSimpleChildList().size());
 

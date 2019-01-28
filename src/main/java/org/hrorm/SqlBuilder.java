@@ -2,6 +2,7 @@ package org.hrorm;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -20,13 +21,13 @@ public class SqlBuilder<ENTITY> implements Queries {
     private final String table;
     private final List<? extends Column<ENTITY,?>> dataColumns;
     private final List<? extends JoinColumn<ENTITY, ?, ?, ?>> joinColumns;
-    private final PrimaryKey<ENTITY,?> primaryKey;
+    private final Optional<PrimaryKey<ENTITY,?>> primaryKey;
 
     public SqlBuilder(DaoDescriptor<ENTITY,?> daoDescriptor){
         this.table = daoDescriptor.tableName();
         this.dataColumns = daoDescriptor.dataColumnsWithParent();
         this.joinColumns = daoDescriptor.joinColumns();
-        this.primaryKey = daoDescriptor.primaryKey();
+        this.primaryKey = Optional.ofNullable(daoDescriptor.primaryKey().orElse(null));
     }
 
     public SqlBuilder(String table,
@@ -36,7 +37,7 @@ public class SqlBuilder<ENTITY> implements Queries {
         this.table = table;
         this.dataColumns = dataColumns;
         this.joinColumns = joinColumns;
-        this.primaryKey = primaryKey;
+        this.primaryKey = Optional.ofNullable(primaryKey);
     }
 
     private String columnsAsString(String prefix, boolean withAliases, List<? extends Column> columns){
@@ -115,10 +116,11 @@ public class SqlBuilder<ENTITY> implements Queries {
     }
 
     public String selectChildIds(String parentColumn){
+
         StringBuilder buf = new StringBuilder();
 
         buf.append("select ");
-        buf.append(primaryKey.getName());
+        buf.append(primaryKey.orElseThrow(() -> new UnsupportedOperationException("DAO does not support Singular operations")).getName());
         buf.append(" from ");
         buf.append(table);
         buf.append(" where ");
@@ -143,7 +145,7 @@ public class SqlBuilder<ENTITY> implements Queries {
             sql.append(" = ? ");
         }
         sql.append(" where ");
-        sql.append(primaryKey.getName());
+        sql.append(primaryKey.orElseThrow(() -> new UnsupportedOperationException("DAO does not support Singular operations")).getName());
         sql.append( " = ?");
         return sql.toString();
     }
@@ -178,7 +180,7 @@ public class SqlBuilder<ENTITY> implements Queries {
         buf.append("delete from ");
         buf.append(table);
         buf.append(" where ");
-        buf.append(primaryKey.getName());
+        buf.append(primaryKey.orElseThrow(() -> new UnsupportedOperationException("DAO does not support Singular operations")).getName());
         buf.append(" = ?");
 
         return buf.toString();

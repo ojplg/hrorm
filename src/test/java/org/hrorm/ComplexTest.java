@@ -1,7 +1,5 @@
 package org.hrorm;
 
-import static org.hrorm.examples.Complex.*;
-
 import org.hrorm.h2.H2Helper;
 import org.hrorm.util.TestLogConfig;
 import org.junit.AfterClass;
@@ -13,6 +11,9 @@ import java.math.BigDecimal;
 import java.sql.Connection;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+
+import static org.hrorm.examples.Complex.*;
 
 public class ComplexTest {
 
@@ -32,7 +33,7 @@ public class ComplexTest {
 
     @Test
     public void testSaveAndReadBeth(){
-        long bethId;
+        Optional<Long> bethId = Optional.empty();
         Boolean fredFlag;
         String gapInsignia;
         Long julesMagnitude;
@@ -68,11 +69,12 @@ public class ComplexTest {
 
             Beth beth = newBeth(Arrays.asList(don), Arrays.asList(edith));
             bethId = bethDao.insert(beth);
+            Assert.assertTrue(bethId.isPresent());
         }
         {
             Connection connection = helper.connect();
             Dao<Beth> bethDao = bethDaoBuilder.buildDao(connection);
-            Beth beth = bethDao.select(bethId);
+            Beth beth = bethDao.select(bethId.get());
 
             Assert.assertNotNull(beth);
 
@@ -90,7 +92,7 @@ public class ComplexTest {
 
     @Test
     public void testSaveAndReadAnn(){
-        long annId;
+        Optional<Long> annId = Optional.empty();
         Boolean fredFlag;
         String gapInsignia;
         BigDecimal calAmount;
@@ -134,11 +136,12 @@ public class ComplexTest {
             Ann ann = newAnn(beth, cal);
 
             annId = annDao.insert(ann);
+            Assert.assertTrue(annId.isPresent());
         }
         {
             Connection connection = helper.connect();
             Dao<Ann> annDao = annDaoBuilder.buildDao(connection);
-            Ann ann = annDao.select(annId);
+            Ann ann = annDao.select(annId.get());
 
             Beth beth = ann.getBeth();
 

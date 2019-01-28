@@ -1,13 +1,13 @@
 package org.hrorm.examples;
 
+import lombok.Data;
+import org.hrorm.DaoBuilder;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
-
-import lombok.Data;
-import org.hrorm.DaoBuilder;
 
 public class Complex {
 

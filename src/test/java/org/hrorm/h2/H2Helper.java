@@ -1,7 +1,5 @@
 package org.hrorm.h2;
 
-import org.hrorm.util.TestLogConfig;
-
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;

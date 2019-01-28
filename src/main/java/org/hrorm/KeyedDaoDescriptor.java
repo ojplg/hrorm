@@ -23,29 +23,7 @@ import java.util.stream.Collectors;
  * @param <ENTITY> The type representing the enitity being persisted.
  * @param <ENTITYBUILDER> The type of object that can build an <code>ENTITY</code> instance.
  */
-public interface DaoDescriptor<ENTITY, ENTITYBUILDER> {
-
-    /**
-     * The name of the table that is used to persist type <code>ENTITY</code>
-     *
-     * @return the table name
-     */
-    String tableName();
-
-    /**
-     * The mechanism to use to instantiate a new instance of type <code>ENTITY</code>,
-     * generally a no-argument constructor of the class.
-     *
-     * @return A function pointer to the instantiation mechanism
-     */
-    Supplier<ENTITYBUILDER> supplier();
-
-    /**
-     * The columns that contain the data that make up the object
-     *
-     * @return all the data columns supported
-     */
-    List<Column<ENTITY, ENTITYBUILDER>> dataColumns();
+public interface KeyedDaoDescriptor<ENTITY, ENTITYBUILDER> extends DaoDescriptor<ENTITY, ENTITYBUILDER> {
 
     /**
      * The columns that contain references to foreign keys to other objects

@@ -1,7 +1,6 @@
 package org.hrorm.examples;
 
 import lombok.Data;
-import org.hrorm.ColumnsTest;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

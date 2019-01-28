@@ -1,7 +1,5 @@
 package org.hrorm.examples;
 
-import org.hrorm.ColumnsTest;
-
 import java.util.Objects;
 
 public class EnumeratedColor {

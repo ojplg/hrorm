@@ -13,6 +13,7 @@ import java.math.BigDecimal;
 import java.sql.Connection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 public class MixedMutabilityTest {
 
@@ -40,7 +41,7 @@ public class MixedMutabilityTest {
 
     @Test
     public void testInsertAndSelect(){
-        long id;
+        Optional<Long> id = Optional.empty();
         {
             Connection connection = helper.connect();
 
@@ -50,9 +51,11 @@ public class MixedMutabilityTest {
 
             Dao<Fork> forkDao = forkBuilder.buildDao(connection);
 
-            long forkId = forkDao.insert(fork);
+            Optional<Long> forkId = forkDao.insert(fork);
 
-            fork = forkDao.select(forkId);
+            Assert.assertTrue(forkId.isPresent());
+
+            fork = forkDao.select(forkId.get());
 
             Stuck stuck = Stuck.builder()
                     .name("FooBar")
@@ -70,7 +73,9 @@ public class MixedMutabilityTest {
             Connection connection = helper.connect();
             Dao<Mover> moverDao = moverBuilder.buildDao(connection);
 
-            Mover mover = moverDao.select(id);
+            Assert.assertTrue(id.isPresent());
+
+            Mover mover = moverDao.select(id.get());
 
             Assert.assertNotNull(mover);
 

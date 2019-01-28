@@ -17,6 +17,7 @@ import java.sql.Statement;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class ParentsTest {
@@ -85,9 +86,11 @@ public class ParentsTest {
         parent.setName("propagated deletes test");
         parent.setChildList(Arrays.asList(child));
 
-        long id = parentDao.insert(parent);
+        Optional<Long> id = parentDao.insert(parent);
 
-        Parent readParent = parentDao.select(id);
+        Assert.assertTrue(id.isPresent());
+
+        Parent readParent = parentDao.select(id.get());
 
         Assert.assertEquals(1, readParent.getChildList().size());
 
@@ -95,7 +98,7 @@ public class ParentsTest {
 
         parentDao.update(readParent);
 
-        Parent readAfterUpdate = parentDao.select(id);
+        Parent readAfterUpdate = parentDao.select(id.get());
 
         Assert.assertEquals(0, readAfterUpdate.getChildList().size());
     }
@@ -112,9 +115,11 @@ public class ParentsTest {
         parent.setName("propagated updates test");
         parent.setChildList(Arrays.asList(child));
 
-        long id = parentDao.insert(parent);
+        Optional<Long> id = parentDao.insert(parent);
 
-        Parent readParent = parentDao.select(id);
+        Assert.assertTrue(id.isPresent());
+
+        Parent readParent = parentDao.select(id.get());
 
         Assert.assertEquals(1, readParent.getChildList().size());
         Assert.assertEquals(123L, (long) readParent.getChildList().get(0).getNumber());
@@ -123,7 +128,7 @@ public class ParentsTest {
 
         parentDao.update(readParent);
 
-        Parent readAfterUpdate = parentDao.select(id);
+        Parent readAfterUpdate = parentDao.select(id.get());
 
         Assert.assertEquals(55L, (long) readAfterUpdate.getChildList().get(0).getNumber());
     }
@@ -158,7 +163,7 @@ public class ParentsTest {
 
     @Test
     public void testUpdatesPropagatesToGrandChildren(){
-        long parentId;
+        Optional<Long> parentId = Optional.empty();
         {
             Grandchild grandchild = new Grandchild();
             grandchild.setColor(EnumeratedColor.Green);
@@ -175,11 +180,12 @@ public class ParentsTest {
             Dao<Parent> parentDao = ParentChildBuilders.ParentDaoBuilder.buildDao(connection);
 
             parentId = parentDao.insert(parent);
+            Assert.assertTrue(parentId.isPresent());
         }
         {
             Connection connection = helper.connect();
             Dao<Parent> parentDao = ParentChildBuilders.ParentDaoBuilder.buildDao(connection);
-            Parent readItem = parentDao.select(parentId);
+            Parent readItem = parentDao.select(parentId.get());
 
             Assert.assertEquals(1, readItem.getChildList().get(0).getGrandchildList().size());
             Assert.assertEquals(EnumeratedColor.Green, readItem.getChildList().get(0).getGrandchildList().get(0).getColor());
@@ -191,7 +197,7 @@ public class ParentsTest {
         {
             Connection connection = helper.connect();
             Dao<Parent> parentDao = ParentChildBuilders.ParentDaoBuilder.buildDao(connection);
-            Parent secondReadItem = parentDao.select(parentId);
+            Parent secondReadItem = parentDao.select(parentId.get());
 
             Assert.assertNotNull(secondReadItem);
             Assert.assertEquals(1, secondReadItem.getChildList().size());
@@ -383,7 +389,7 @@ public class ParentsTest {
 
         }
         Assert.assertNotNull(parent.getId());
-        long childId;
+        Optional<Long> childId = Optional.empty();
         {
             Child child = new Child();
             child.setParent(parent);
@@ -400,10 +406,11 @@ public class ParentsTest {
             Dao<Child> childDao = ParentChildBuilders.ChildDaoBuilder.buildDao(helper.connect());
 
             childId = childDao.insert(child);
+            Assert.assertTrue(childId.isPresent());
         }
         {
             Dao<Child> childDao = ParentChildBuilders.ChildDaoBuilder.buildDao(helper.connect());
-            Child child = childDao.select(childId);
+            Child child = childDao.select(childId.get());
             Assert.assertEquals(2, child.getGrandchildList().size());
             Assert.assertEquals(123L, (long) child.getNumber());
             Assert.assertNull(child.getParent());
