@@ -27,7 +27,7 @@ public class SqlBuilder<ENTITY> implements Queries {
         this.table = daoDescriptor.tableName();
         this.dataColumns = daoDescriptor.dataColumnsWithParent();
         this.joinColumns = daoDescriptor.joinColumns();
-        this.primaryKey = Optional.ofNullable(daoDescriptor.primaryKey().orElse(null));
+        this.primaryKey = Optional.ofNullable(daoDescriptor.primaryKey());
     }
 
     public SqlBuilder(String table,

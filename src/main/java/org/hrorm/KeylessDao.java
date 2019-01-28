@@ -56,7 +56,7 @@ public interface KeylessDao<ENTITY> {
      * @param columnNames The names of the database columns
      *
      */
-    List<ENTITY> deleteManyByColumns(ENTITY item, String... columnNames);
+    // List<ENTITY> deleteManyByColumns(ENTITY item, String... columnNames);
 
     /**
      * Update multiple records from the database by some search criteria.
@@ -69,7 +69,7 @@ public interface KeylessDao<ENTITY> {
      *             column names to update to.
      * @param updateColumnNames The names of the database columns to update.
      */
-    List<ENTITY> updateManyByColumns(ENTITY selectionItem, String[] selectionColumnNames, ENTITY updateItem, String[] updateColumnNames);
+    // List<ENTITY> updateManyByColumns(ENTITY selectionItem, String[] selectionColumnNames, ENTITY updateItem, String[] updateColumnNames);
 
     /**
      * Insert a record into the database within a transaction that is

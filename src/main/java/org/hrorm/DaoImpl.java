@@ -26,7 +26,7 @@ public class DaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> extends KeylessDaoI
     public DaoImpl(Connection connection,
                    DaoDescriptor<ENTITY, BUILDER> daoDescriptor){
         super(connection, daoDescriptor);
-        if (!daoDescriptor.primaryKey().isPresent()) {
+        if (daoDescriptor.primaryKey() == null) {
             throw new IllegalArgumentException("Must have a Primary Key");
         }
     }

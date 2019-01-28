@@ -83,8 +83,7 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
     }
 
     public void saveChildren(Connection connection, Envelope<PARENT> envelope) {
-        childDaoDescriptor.primaryKey().ifPresent(childchildbuilderPrimaryKey ->
-                saveChildren(connection, envelope, childchildbuilderPrimaryKey));
+        saveChildren(connection, envelope, childDaoDescriptor.primaryKey());
     }
 
     public void saveChildren(Connection connection, Envelope<PARENT> envelope, PrimaryKey<CHILD, CHILDBUILDER> childPrimaryKey){

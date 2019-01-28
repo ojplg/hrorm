@@ -4,9 +4,7 @@ import java.math.BigDecimal;
 import java.sql.Connection;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -20,7 +18,7 @@ import java.util.function.Supplier;
  *
  * @param <ENTITY> The class that the Dao will support.
  */
-public class KeylessDaoBuilder<ENTITY> implements DaoDescriptor<ENTITY, ENTITY> {
+public class KeylessDaoBuilder<ENTITY> implements KeylessDaoDescriptor<ENTITY, ENTITY> {
 
     protected final IndirectDaoBuilder<ENTITY, ENTITY> internalDaoBuilder;
     protected final String myPrefix;
@@ -53,11 +51,6 @@ public class KeylessDaoBuilder<ENTITY> implements DaoDescriptor<ENTITY, ENTITY> 
     @Override
     public List<Column<ENTITY, ENTITY>> dataColumns() {
         return internalDaoBuilder.dataColumns();
-    }
-
-    @Override
-    public Optional<PrimaryKey<ENTITY, ENTITY>> primaryKey() {
-        return internalDaoBuilder.primaryKey();
     }
 
     @Override

@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 import java.sql.Connection;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -55,7 +54,7 @@ public class DaoBuilder<ENTITY> extends KeylessDaoBuilder<ENTITY> implements Dao
     }
 
     @Override
-    public Optional<PrimaryKey<ENTITY, ENTITY>> primaryKey() {
+    public PrimaryKey<ENTITY, ENTITY> primaryKey() {
         return internalDaoBuilder.primaryKey();
     }
 

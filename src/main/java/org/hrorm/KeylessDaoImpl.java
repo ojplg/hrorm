@@ -46,7 +46,7 @@ public class KeylessDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> implements K
         this.connection = connection;
         this.tableName = daoDescriptor.tableName();
         this.dataColumns = Collections.unmodifiableList(new ArrayList<>(daoDescriptor.dataColumns()));
-        this.primaryKey = daoDescriptor.primaryKey().orElse(null);
+        this.primaryKey = daoDescriptor.primaryKey();
         this.supplier = daoDescriptor.supplier();
         this.joinColumns = Collections.unmodifiableList(new ArrayList<>(daoDescriptor.joinColumns()));
         this.childrenDescriptors = Collections.unmodifiableList(new ArrayList<>(daoDescriptor.childrenDescriptors()));
@@ -76,7 +76,7 @@ public class KeylessDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> implements K
     public Supplier<BUILDER> supplier() { return supplier; }
 
     @Override
-    public Optional<PrimaryKey<ENTITY, BUILDER>> primaryKey() { return Optional.ofNullable(primaryKey); }
+    public PrimaryKey<ENTITY, BUILDER> primaryKey() { return primaryKey; }
 
     @Override
     public List<ChildrenDescriptor<ENTITY, ?, BUILDER, ?>> childrenDescriptors() {
@@ -144,15 +144,15 @@ public class KeylessDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> implements K
     }
 
     // TODO
-    @Override
-    public List<ENTITY> deleteManyByColumns(ENTITY item, String... columnNames) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public List<ENTITY> updateManyByColumns(ENTITY selectionItem, String[] selectionColumnNames, ENTITY updateItem, String[] updateColumnNames) {
-        throw new UnsupportedOperationException();
-    }
+//    @Override
+//    public List<ENTITY> deleteManyByColumns(ENTITY item, String... columnNames) {
+//        throw new UnsupportedOperationException();
+//    }
+//
+//    @Override
+//    public List<ENTITY> updateManyByColumns(ENTITY selectionItem, String[] selectionColumnNames, ENTITY updateItem, String[] updateColumnNames) {
+//        throw new UnsupportedOperationException();
+//    }
 
     @Override
     public <T> T foldingSelect(ENTITY item, T identity, BiFunction<T,ENTITY,T> accumulator, String ... columnNames){
