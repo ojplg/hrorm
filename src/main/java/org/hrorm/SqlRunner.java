@@ -12,6 +12,8 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * This class does the heavy lifting of creating <code>Statement</code>s,
@@ -31,12 +33,20 @@ public class SqlRunner<ENTITY, BUILDER> {
     private final Connection connection;
     private final List<Column<ENTITY, BUILDER>> allColumns;
 
-    public SqlRunner(Connection connection, DaoDescriptor<ENTITY, BUILDER> daoDescriptor) {
+    protected SqlRunner(Connection connection, List<Column<ENTITY, BUILDER>> allColumns) {
         this.connection = connection;
-        List<Column<ENTITY, BUILDER>> columns = new ArrayList<>();
-        columns.addAll(daoDescriptor.dataColumnsWithParent());
-        columns.addAll(daoDescriptor.joinColumns());
-        this.allColumns = Collections.unmodifiableList(columns);
+        this.allColumns = allColumns;
+    }
+
+    public SqlRunner(Connection connection, KeylessDaoDescriptor<ENTITY, BUILDER> daoDescriptor) {
+        this(
+                connection,
+                Collections.unmodifiableList(
+                        Stream.concat(
+                                daoDescriptor.dataColumnsWithParent().stream(),
+                                daoDescriptor.joinColumns().stream()
+                        ).collect(Collectors.toList())
+                ));
     }
 
     public List<BUILDER> select(String sql, Supplier<BUILDER> supplier, List<ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors){

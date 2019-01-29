@@ -80,12 +80,18 @@ public interface KeylessDaoDescriptor<ENTITY, ENTITYBUILDER> {
         return Collections.unmodifiableList(allColumns);
     }
 
-    default List<Column<ENTITY, ENTITYBUILDER>> dataColumnsWithParent(){
-        List<Column<ENTITY, ENTITYBUILDER>> allColumns = new ArrayList<>(dataColumns());
-        if ( hasParent()) {
-            allColumns.add(parentColumn());
+    static <ENTITY, ENTITYBUILDER, P, PB> List<Column<ENTITY, ENTITYBUILDER>> dataColumnsWithParent(
+            List<Column<ENTITY, ENTITYBUILDER>> dataColumns, ParentColumn<ENTITY, P, ENTITYBUILDER, PB> parentColumn,
+            boolean hasParent){
+        List<Column<ENTITY, ENTITYBUILDER>> allColumns = new ArrayList<>(dataColumns);
+        if ( hasParent ) {
+            allColumns.add(parentColumn);
         }
         return Collections.unmodifiableList(allColumns);
+    }
+
+    default List<Column<ENTITY, ENTITYBUILDER>> dataColumnsWithParent(){
+        return KeylessDaoDescriptor.dataColumnsWithParent(dataColumns(), parentColumn(), hasParent());
     }
 
     default SortedMap<String, Column<ENTITY,ENTITYBUILDER>> columnMap(String... columnNames){

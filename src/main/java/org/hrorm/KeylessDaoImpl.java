@@ -25,37 +25,58 @@ import java.util.stream.Collectors;
  * @param <BUILDER> The type of object that can build an <code>ENTITY</code> instance.
  * @param <PARENTBUILDER> The type of the object that can build a <code>PARENT</code> instance.
  */
-public class KeylessDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> implements KeylessDao<ENTITY>, DaoDescriptor<ENTITY, BUILDER> {
+public class KeylessDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> implements KeylessDao<ENTITY>, KeylessDaoDescriptor<ENTITY, BUILDER> {
 
     private static final Logger logger = Logger.getLogger("org.hrorm");
 
     protected final Connection connection;
     protected final String tableName;
-    private final List<Column<ENTITY, BUILDER>> dataColumns;
-    protected final PrimaryKey<ENTITY, BUILDER> primaryKey;
+    protected final List<Column<ENTITY, BUILDER>> dataColumns;
     protected final Supplier<BUILDER> supplier;
-    private final List<JoinColumn<ENTITY,?, BUILDER,?>> joinColumns;
+    protected final List<JoinColumn<ENTITY,?, BUILDER,?>> joinColumns;
     protected final List<ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors;
+    protected final ParentColumn<ENTITY, PARENT, BUILDER, PARENTBUILDER> parentColumn;
+    protected final Function<BUILDER, ENTITY> buildFunction;
     protected final SqlBuilder<ENTITY> sqlBuilder;
     protected final SqlRunner<ENTITY, BUILDER> sqlRunner;
-    protected  final ParentColumn<ENTITY, PARENT, BUILDER, PARENTBUILDER> parentColumn;
-    protected final Function<BUILDER, ENTITY> buildFunction;
+
+
+    public KeylessDaoImpl(Connection connection, String tableName, List<Column<ENTITY, BUILDER>> dataColumns, Supplier<BUILDER> supplier, List<JoinColumn<ENTITY, ?, BUILDER, ?>> joinColumns, List<ChildrenDescriptor<ENTITY, ?, BUILDER, ?>> childrenDescriptors, ParentColumn<ENTITY, PARENT, BUILDER, PARENTBUILDER> parentColumn, Function<BUILDER, ENTITY> buildFunction, SqlBuilder<ENTITY> sqlBuilder) {
+        this.connection = connection;
+        this.tableName = tableName;
+        this.dataColumns = Collections.unmodifiableList(new ArrayList<>(dataColumns));
+        this.supplier = supplier;
+        this.joinColumns = Collections.unmodifiableList(new ArrayList<>(joinColumns));
+        this.childrenDescriptors = Collections.unmodifiableList(new ArrayList<>(childrenDescriptors));
+        this.parentColumn = parentColumn;
+        this.buildFunction = buildFunction;
+        this.sqlBuilder = sqlBuilder;
+        this.sqlRunner = new SqlRunner<>(connection, this);
+    }
 
     public KeylessDaoImpl(Connection connection,
                           DaoDescriptor<ENTITY, BUILDER> daoDescriptor){
-        this.connection = connection;
-        this.tableName = daoDescriptor.tableName();
-        this.dataColumns = Collections.unmodifiableList(new ArrayList<>(daoDescriptor.dataColumns()));
-        this.primaryKey = daoDescriptor.primaryKey();
-        this.supplier = daoDescriptor.supplier();
-        this.joinColumns = Collections.unmodifiableList(new ArrayList<>(daoDescriptor.joinColumns()));
-        this.childrenDescriptors = Collections.unmodifiableList(new ArrayList<>(daoDescriptor.childrenDescriptors()));
-        this.parentColumn = daoDescriptor.parentColumn();
-        this.buildFunction = daoDescriptor.buildFunction();
-
-        this.sqlBuilder = new SqlBuilder<>(tableName, this.dataColumnsWithParent(), this.joinColumns, this.primaryKey);
-        this.sqlRunner = new SqlRunner<>(connection, this);
+        this(
+                connection,
+                daoDescriptor.tableName(),
+                daoDescriptor.dataColumns(),
+                daoDescriptor.supplier(),
+                daoDescriptor.joinColumns(),
+                daoDescriptor.childrenDescriptors(),
+                daoDescriptor.parentColumn(),
+                daoDescriptor.buildFunction(),
+                new SqlBuilder<>(
+                        daoDescriptor.tableName(),
+                        KeylessDaoDescriptor.dataColumnsWithParent(
+                                Collections.unmodifiableList(new ArrayList<>(daoDescriptor.dataColumns())),
+                                daoDescriptor.parentColumn(),
+                                daoDescriptor.parentColumn() != null
+                        ),
+                        Collections.unmodifiableList(new ArrayList<>(daoDescriptor.joinColumns())),
+                        daoDescriptor.primaryKey())
+        );
     }
+
 
     @Override
     public String tableName(){
@@ -75,8 +96,8 @@ public class KeylessDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> implements K
     @Override
     public Supplier<BUILDER> supplier() { return supplier; }
 
-    @Override
-    public PrimaryKey<ENTITY, BUILDER> primaryKey() { return primaryKey; }
+    //@Override
+    //public PrimaryKey<ENTITY, BUILDER> primaryKey() { return primaryKey; }
 
     @Override
     public List<ChildrenDescriptor<ENTITY, ?, BUILDER, ?>> childrenDescriptors() {

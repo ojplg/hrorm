@@ -5,7 +5,7 @@
   <groupId>org.hrorm</groupId>
   <artifactId>hrorm</artifactId>
   <packaging>jar</packaging>
-  <version>0.5.2-keyless</version>
+  <version>0.5.2</version>
   <name>hrorm</name>
   <url>http://hrorm.org</url>
   <description>Hrorm is a simple, declarative ORM library.</description>
@@ -114,7 +114,7 @@
     <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
-      <version>1.16.4</version>
+      <version>1.18.0</version>
       <scope>test</scope>
     </dependency>
     <dependency>
