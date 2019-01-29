@@ -31,7 +31,7 @@ public class SqlRunner<ENTITY, BUILDER> {
     private final Connection connection;
     private final List<Column<ENTITY, BUILDER>> allColumns;
 
-    public SqlRunner(Connection connection, DaoDescriptor<ENTITY, BUILDER> daoDescriptor) {
+    public SqlRunner(Connection connection, KeylessDaoDescriptor<ENTITY, BUILDER> daoDescriptor) {
         this.connection = connection;
         List<Column<ENTITY, BUILDER>> columns = new ArrayList<>();
         columns.addAll(daoDescriptor.dataColumnsWithParent());

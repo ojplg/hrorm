@@ -25,18 +25,17 @@ import java.util.stream.Collectors;
  * @param <BUILDER> The type of object that can build an <code>ENTITY</code> instance.
  * @param <PARENTBUILDER> The type of the object that can build a <code>PARENT</code> instance.
  */
-public class KeylessDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> implements KeylessDao<ENTITY>, DaoDescriptor<ENTITY, BUILDER> {
+public class KeylessDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> implements KeylessDao<ENTITY>, KeylessDaoDescriptor<ENTITY, BUILDER> {
 
     private static final Logger logger = Logger.getLogger("org.hrorm");
 
     protected final Connection connection;
     protected final String tableName;
     private final List<Column<ENTITY, BUILDER>> dataColumns;
-    protected final PrimaryKey<ENTITY, BUILDER> primaryKey;
     protected final Supplier<BUILDER> supplier;
     private final List<JoinColumn<ENTITY,?, BUILDER,?>> joinColumns;
     protected final List<ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors;
-    protected final SqlBuilder<ENTITY> sqlBuilder;
+    protected final KeylessSqlBuilder<ENTITY> keylessSqlBuilder;
     protected final SqlRunner<ENTITY, BUILDER> sqlRunner;
     protected  final ParentColumn<ENTITY, PARENT, BUILDER, PARENTBUILDER> parentColumn;
     protected final Function<BUILDER, ENTITY> buildFunction;
@@ -46,14 +45,13 @@ public class KeylessDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> implements K
         this.connection = connection;
         this.tableName = daoDescriptor.tableName();
         this.dataColumns = Collections.unmodifiableList(new ArrayList<>(daoDescriptor.dataColumns()));
-        this.primaryKey = daoDescriptor.primaryKey();
         this.supplier = daoDescriptor.supplier();
         this.joinColumns = Collections.unmodifiableList(new ArrayList<>(daoDescriptor.joinColumns()));
         this.childrenDescriptors = Collections.unmodifiableList(new ArrayList<>(daoDescriptor.childrenDescriptors()));
         this.parentColumn = daoDescriptor.parentColumn();
         this.buildFunction = daoDescriptor.buildFunction();
 
-        this.sqlBuilder = new SqlBuilder<>(tableName, this.dataColumnsWithParent(), this.joinColumns, this.primaryKey);
+        this.keylessSqlBuilder = new KeylessSqlBuilder<>(tableName, this.dataColumnsWithParent(), this.joinColumns);
         this.sqlRunner = new SqlRunner<>(connection, this);
     }
 
@@ -74,9 +72,6 @@ public class KeylessDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> implements K
 
     @Override
     public Supplier<BUILDER> supplier() { return supplier; }
-
-    @Override
-    public PrimaryKey<ENTITY, BUILDER> primaryKey() { return primaryKey; }
 
     @Override
     public List<ChildrenDescriptor<ENTITY, ?, BUILDER, ?>> childrenDescriptors() {
@@ -102,7 +97,7 @@ public class KeylessDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> implements K
 
     @Override
     public Optional<Long> insert(ENTITY item) {
-        String sql = sqlBuilder.insert();
+        String sql = keylessSqlBuilder.insert();
         Envelope<ENTITY> envelope = new Envelope(item);
         sqlRunner.insert(sql, envelope);
         for(ChildrenDescriptor<ENTITY,?, BUILDER,?> childrenDescriptor : childrenDescriptors){
@@ -129,7 +124,7 @@ public class KeylessDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> implements K
 
     @Override
     public List<ENTITY> selectAll() {
-        String sql = sqlBuilder.select();
+        String sql = keylessSqlBuilder.select();
         List<BUILDER> bs = sqlRunner.select(sql, supplier, childrenDescriptors);
         return mapBuilders(bs);
     }
@@ -142,7 +137,7 @@ public class KeylessDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> implements K
 
     @Override
     public List<ENTITY> selectManyByColumns(ENTITY item, String ... columnNames) {
-        String sql = sqlBuilder.selectByColumns(columnNames);
+        String sql = keylessSqlBuilder.selectByColumns(columnNames);
         List<BUILDER> bs = sqlRunner.selectByColumns(sql, supplier, Arrays.asList(columnNames), columnMap(columnNames), childrenDescriptors, item);
         return mapBuilders(bs);
     }
@@ -160,14 +155,14 @@ public class KeylessDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> implements K
 
     @Override
     public <T> T foldingSelect(ENTITY item, T identity, BiFunction<T,ENTITY,T> accumulator, String ... columnNames){
-        String sql = sqlBuilder.selectByColumns(columnNames);
+        String sql = keylessSqlBuilder.selectByColumns(columnNames);
         return sqlRunner.foldingSelect(sql, supplier, Arrays.asList(columnNames), columnMap(columnNames), childrenDescriptors, item, buildFunction, identity, accumulator);
     }
 
-    @Override
-    public Queries queries() {
-        return this.sqlBuilder;
-    }
+//    @Override
+//    public Queries queries() {
+//        return this.keylessSqlBuilder;
+//    }
 
     protected <A> A fromSingletonList(List<A> items) {
         if (items.isEmpty()) {

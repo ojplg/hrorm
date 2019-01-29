@@ -24,12 +24,17 @@ public class DaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> extends KeylessDaoI
 
     private static final Logger logger = Logger.getLogger("org.hrorm");
 
+    private final PrimaryKey<ENTITY, BUILDER> primaryKey;
+    private final SqlBuilder<ENTITY> sqlBuilder;
+
     public DaoImpl(Connection connection,
                    DaoDescriptor<ENTITY, BUILDER> daoDescriptor){
         super(connection, daoDescriptor);
         if (daoDescriptor.primaryKey() == null) {
             throw new IllegalArgumentException("Must have a Primary Key");
         }
+        this.primaryKey = daoDescriptor.primaryKey();
+        this.sqlBuilder = new SqlBuilder<>(daoDescriptor);
     }
 
     @Override
@@ -121,10 +126,12 @@ public class DaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> extends KeylessDaoI
 
     @Override
     public Supplier<BUILDER> supplier() { return supplier; }
+    */
 
     @Override
     public PrimaryKey<ENTITY, BUILDER> primaryKey() { return primaryKey; }
 
+    /*
     @Override
     public List<ChildrenDescriptor<ENTITY, ?, BUILDER, ?>> childrenDescriptors() {
         return null;
@@ -149,7 +156,7 @@ public class DaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> extends KeylessDaoI
 
     @Override
     public Optional<Long> insert(ENTITY item) {
-        String sql = sqlBuilder.insert();
+        String sql = keylessSqlBuilder.insert();
         long id = DaoHelper.getNextSequenceValue(connection, primaryKey.getSequenceName());
         primaryKey.optimisticSetKey(item, id);
         Envelope<ENTITY> envelope = newEnvelope(item, id);
@@ -172,7 +179,7 @@ public class DaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> extends KeylessDaoI
 
     @Override
     public void update(ENTITY item) {
-        String sql = sqlBuilder.update();
+        String sql = keylessSqlBuilder.update();
         Envelope<ENTITY> envelope = newEnvelope(item, primaryKey.getKey(item));
         sqlRunner.update(sql, envelope);
         for(ChildrenDescriptor<ENTITY,?, BUILDER,?> childrenDescriptor : childrenDescriptors){
@@ -182,7 +189,7 @@ public class DaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> extends KeylessDaoI
 
     @Override
     public void delete(ENTITY item) {
-        String sql = sqlBuilder.delete();
+        String sql = keylessSqlBuilder.delete();
         DaoHelper.runPreparedDelete(connection, sql, primaryKey.getKey(item));
     }
 
@@ -193,7 +200,7 @@ public class DaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> extends KeylessDaoI
     @Override
     public ENTITY select(long id) {
         String primaryKeyName = primaryKey.getName();
-        String sql = sqlBuilder.selectByColumns(primaryKeyName);
+        String sql = keylessSqlBuilder.selectByColumns(primaryKeyName);
         BUILDER builder = supplier().get();
         primaryKey.setKey(builder, id);
         ENTITY item = buildFunction.apply(builder);
@@ -206,7 +213,7 @@ public class DaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> extends KeylessDaoI
 
     @Override
     public List<ENTITY> selectMany(List<Long> ids) {
-        String sql = sqlBuilder.select();
+        String sql = keylessSqlBuilder.select();
         List<String> idStrings = ids.stream().map(Object::toString).collect(Collectors.toList());
         String idsString = String.join(",", idStrings);
         sql = sql + " and a." + primaryKey.getName() + " in (" + idsString + ")";
@@ -216,7 +223,7 @@ public class DaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> extends KeylessDaoI
 
     @Override
     public List<ENTITY> selectAll() {
-        String sql = sqlBuilder.select();
+        String sql = keylessSqlBuilder.select();
         List<BUILDER> bs = sqlRunner.select(sql, supplier, childrenDescriptors);
         return mapBuilders(bs);
     }
@@ -229,7 +236,7 @@ public class DaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> extends KeylessDaoI
 
     @Override
     public List<ENTITY> selectManyByColumns(ENTITY item, String ... columnNames) {
-        String sql = sqlBuilder.selectByColumns(columnNames);
+        String sql = keylessSqlBuilder.selectByColumns(columnNames);
         List<BUILDER> bs = sqlRunner.selectByColumns(sql, supplier, Arrays.asList(columnNames), columnMap(columnNames), childrenDescriptors, item);
         return mapBuilders(bs);
     }
@@ -247,24 +254,25 @@ public class DaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> extends KeylessDaoI
 
     @Override
     public <T> T foldingSelect(ENTITY item, T identity, BiFunction<T,ENTITY,T> accumulator, String ... columnNames){
-        String sql = sqlBuilder.selectByColumns(columnNames);
+        String sql = keylessSqlBuilder.selectByColumns(columnNames);
         return sqlRunner.foldingSelect(sql, supplier, Arrays.asList(columnNames), columnMap(columnNames), childrenDescriptors, item, buildFunction, identity, accumulator);
     }
+    */
 
     @Override
     public Queries queries() {
         return this.sqlBuilder;
     }
 
-    private <A> A fromSingletonList(List<A> items) {
-        if (items.isEmpty()) {
-            return null;
-        }
-        if (items.size() == 1) {
-            return items.get(0);
-        }
-        throw new HrormException("Found " + items.size() + " items.");
-    }
 
-    */
+//    private <A> A fromSingletonList(List<A> items) {
+//        if (items.isEmpty()) {
+//            return null;
+//        }
+//        if (items.size() == 1) {
+//            return items.get(0);
+//        }
+//        throw new HrormException("Found " + items.size() + " items.");
+//    }
+
 }
