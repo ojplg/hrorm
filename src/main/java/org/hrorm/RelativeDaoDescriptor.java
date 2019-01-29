@@ -35,7 +35,7 @@ public class RelativeDaoDescriptor<ENTITY, PARENT, ENTITYBUILDER> implements Dao
         this.supplier = originalDaoDescriptor.supplier();
         this.dataColumns = originalDaoDescriptor.dataColumns().stream().map(c -> c.withPrefix(newPrefix, prefixer)).collect(Collectors.toList());
         this.joinColumns = resetColumnPrefixes(prefixer, newPrefix, originalDaoDescriptor.joinColumns());
-        this.primaryKey = originalDaoDescriptor.primaryKey().orElse(null);
+        this.primaryKey = originalDaoDescriptor.primaryKey();
         this.childrenDescriptors = originalDaoDescriptor.childrenDescriptors();
         this.parentColumn = originalDaoDescriptor.parentColumn();
         this.buildFunction = originalDaoDescriptor.buildFunction();
@@ -71,8 +71,8 @@ public class RelativeDaoDescriptor<ENTITY, PARENT, ENTITYBUILDER> implements Dao
     }
 
     @Override
-    public Optional<PrimaryKey<ENTITY, ENTITYBUILDER>> primaryKey() {
-        return Optional.ofNullable(primaryKey);
+    public PrimaryKey<ENTITY, ENTITYBUILDER> primaryKey() {
+        return primaryKey;
     }
 
     @Override

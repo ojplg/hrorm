@@ -46,7 +46,7 @@ public class KeylessDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> implements K
         this.connection = connection;
         this.tableName = daoDescriptor.tableName();
         this.dataColumns = Collections.unmodifiableList(new ArrayList<>(daoDescriptor.dataColumns()));
-        this.primaryKey = daoDescriptor.primaryKey().orElse(null);
+        this.primaryKey = daoDescriptor.primaryKey();
         this.supplier = daoDescriptor.supplier();
         this.joinColumns = Collections.unmodifiableList(new ArrayList<>(daoDescriptor.joinColumns()));
         this.childrenDescriptors = Collections.unmodifiableList(new ArrayList<>(daoDescriptor.childrenDescriptors()));
@@ -76,7 +76,7 @@ public class KeylessDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> implements K
     public Supplier<BUILDER> supplier() { return supplier; }
 
     @Override
-    public Optional<PrimaryKey<ENTITY, BUILDER>> primaryKey() { return Optional.ofNullable(primaryKey); }
+    public PrimaryKey<ENTITY, BUILDER> primaryKey() { return primaryKey; }
 
     @Override
     public List<ChildrenDescriptor<ENTITY, ?, BUILDER, ?>> childrenDescriptors() {
@@ -103,14 +103,12 @@ public class KeylessDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> implements K
     @Override
     public Optional<Long> insert(ENTITY item) {
         String sql = sqlBuilder.insert();
-        long id = DaoHelper.getNextSequenceValue(connection, primaryKey.getSequenceName());
-        primaryKey.optimisticSetKey(item, id);
-        Envelope<ENTITY> envelope = newEnvelope(item, id);
+        Envelope<ENTITY> envelope = new Envelope(item);
         sqlRunner.insert(sql, envelope);
         for(ChildrenDescriptor<ENTITY,?, BUILDER,?> childrenDescriptor : childrenDescriptors){
-            childrenDescriptor.saveChildren(connection, new Envelope<>(item, id));
+            childrenDescriptor.saveChildren(connection, new Envelope<>(item));
         }
-        return Optional.of(id);
+        return null;
     }
 
     protected Envelope<ENTITY> newEnvelope(ENTITY item, long id){
@@ -137,6 +135,12 @@ public class KeylessDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> implements K
     }
 
     @Override
+    public ENTITY selectByColumns(ENTITY item, String ... columnNames){
+        List<ENTITY> items = selectManyByColumns(item, columnNames);
+        return fromSingletonList(items);
+    }
+
+    @Override
     public List<ENTITY> selectManyByColumns(ENTITY item, String ... columnNames) {
         String sql = sqlBuilder.selectByColumns(columnNames);
         List<BUILDER> bs = sqlRunner.selectByColumns(sql, supplier, Arrays.asList(columnNames), columnMap(columnNames), childrenDescriptors, item);
@@ -144,15 +148,15 @@ public class KeylessDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> implements K
     }
 
     // TODO
-    @Override
-    public List<ENTITY> deleteManyByColumns(ENTITY item, String... columnNames) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public List<ENTITY> updateManyByColumns(ENTITY selectionItem, String[] selectionColumnNames, ENTITY updateItem, String[] updateColumnNames) {
-        throw new UnsupportedOperationException();
-    }
+//    @Override
+//    public List<ENTITY> deleteManyByColumns(ENTITY item, String... columnNames) {
+//        throw new UnsupportedOperationException();
+//    }
+//
+//    @Override
+//    public List<ENTITY> updateManyByColumns(ENTITY selectionItem, String[] selectionColumnNames, ENTITY updateItem, String[] updateColumnNames) {
+//        throw new UnsupportedOperationException();
+//    }
 
     @Override
     public <T> T foldingSelect(ENTITY item, T identity, BiFunction<T,ENTITY,T> accumulator, String ... columnNames){

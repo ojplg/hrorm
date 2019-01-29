@@ -89,6 +89,7 @@ public class ValidatorTest {
     public void testDetectsMissingPrimaryKey(){
 
         DaoBuilder<Columns> daoBuilder = new DaoBuilder<>("bad_table_name", Columns::new)
+                .withPrimaryKey("pk", "seq", Columns::getId, Columns::setId)
                 .withStringColumn("string_column", Columns::getStringThing, Columns::setStringThing)
                 .withIntegerColumn("integer_column", Columns::getIntegerThing, Columns::setIntegerThing)
                 .withBigDecimalColumn("decimal_column", Columns::getDecimalThing, Columns::setDecimalThing)

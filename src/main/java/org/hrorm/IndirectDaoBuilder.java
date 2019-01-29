@@ -97,8 +97,8 @@ public class IndirectDaoBuilder<ENTITY, BUILDER>  implements DaoDescriptor<ENTIT
     }
 
     @Override
-    public Optional<PrimaryKey<ENTITY, BUILDER>> primaryKey() {
-        return Optional.ofNullable(primaryKey);
+    public PrimaryKey<ENTITY, BUILDER> primaryKey() {
+        return primaryKey;
     }
 
     @Override

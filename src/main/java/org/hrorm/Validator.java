@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -53,28 +54,25 @@ public class Validator extends KeylessValidator {
     }
 
     private static List<String> checkPrimaryKeyExists(DaoDescriptor daoDescriptor){
-        if (!daoDescriptor.primaryKey().isPresent()){
+        if (daoDescriptor.primaryKey() == null ){
             return Collections.singletonList("No primary key set");
         }
         return Collections.emptyList();
     }
 
     private static List<String> checkSequenceExists(Connection connection, DaoDescriptor<?, ?> daoDescriptor) {
-        return daoDescriptor.primaryKey().map(primaryKey -> {
-            try {
-                String sequenceName = primaryKey.getSequenceName();
-                Statement statement = connection.createStatement();
-                ResultSet resultSet = statement.executeQuery("select currval('" + sequenceName + "')");
-                while (resultSet.next()) {
-                    resultSet.getLong(1);
-                }
-            } catch (SQLException ex){
-                return ex.getMessage();
+        List<String> errors = new ArrayList<>();
+        try {
+            String sequenceName = daoDescriptor.primaryKey().getSequenceName();
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery("select currval('" + sequenceName + "')");
+            while (resultSet.next()) {
+                resultSet.getLong(1);
             }
-            return null;
-        })
-                .map(Collections::singletonList)
-                .orElse(Collections.emptyList());
+        } catch (SQLException ex){
+            errors.add(ex.getMessage());
+        }
+        return errors;
     }
 
     /*

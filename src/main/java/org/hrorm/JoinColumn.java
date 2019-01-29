@@ -43,7 +43,7 @@ public class JoinColumn<ENTITY, JOINED, ENTITYBUILDER, JOINEDBUILDER> implements
         this.setter = setter;
         this.daoDescriptor = new RelativeDaoDescriptor<>(daoDescriptor, prefix, prefixer);
         this.nullable = nullable;
-        this.joinedTablePrimaryKeyName = daoDescriptor.primaryKey().orElseThrow(() -> new IllegalArgumentException("JoinColumns must have a PrimaryKey to reference")).getName();
+        this.joinedTablePrimaryKeyName = daoDescriptor.primaryKey().getName();
         this.joinBuilder = daoDescriptor.buildFunction();
     }
 
@@ -103,7 +103,7 @@ public class JoinColumn<ENTITY, JOINED, ENTITYBUILDER, JOINEDBUILDER> implements
                 throw new HrormException("Tried to set a null value for " + prefix + "." + name + " which was set not nullable.");
             }
         } else {
-            Long id = daoDescriptor.primaryKey().orElseThrow(() -> new IllegalArgumentException("JoinColumns must have PrimaryKey to reference")).getKey(value);
+            Long id = daoDescriptor.primaryKey().getKey(value);
             preparedStatement.setLong(index, id);
         }
     }

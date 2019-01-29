@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**
@@ -21,7 +22,29 @@ import java.util.stream.Collectors;
  * @param <ENTITY> The type representing the enitity being persisted.
  * @param <ENTITYBUILDER> The type of object that can build an <code>ENTITY</code> instance.
  */
-public interface KeyedDaoDescriptor<ENTITY, ENTITYBUILDER> extends DaoDescriptor<ENTITY, ENTITYBUILDER> {
+public interface KeylessDaoDescriptor<ENTITY, ENTITYBUILDER> {
+
+    /**
+     * The name of the table that is used to persist type <code>ENTITY</code>
+     *
+     * @return the table name
+     */
+    String tableName();
+
+    /**
+     * The mechanism to use to instantiate a new instance of type <code>ENTITY</code>,
+     * generally a no-argument constructor of the class.
+     *
+     * @return A function pointer to the instantiation mechanism
+     */
+    Supplier<ENTITYBUILDER> supplier();
+
+    /**
+     * The columns that contain the data that make up the object
+     *
+     * @return all the data columns supported
+     */
+    List<Column<ENTITY, ENTITYBUILDER>> dataColumns();
 
     /**
      * The columns that contain references to foreign keys to other objects
@@ -29,13 +52,6 @@ public interface KeyedDaoDescriptor<ENTITY, ENTITYBUILDER> extends DaoDescriptor
      * @return all the reference columns supported
      */
     List<JoinColumn<ENTITY,?, ENTITYBUILDER,?>> joinColumns();
-
-    /**
-     * The primary key for objects of type <code>ENTITY</code>
-     *
-     * @return the primary key
-     */
-    PrimaryKey<ENTITY, ENTITYBUILDER> primaryKey();
 
     /**
      * The definitions of any entities that are owned by type <code>ENTITY</code>
@@ -84,4 +100,5 @@ public interface KeyedDaoDescriptor<ENTITY, ENTITYBUILDER> extends DaoDescriptor
         }
         return Collections.unmodifiableSortedMap(map);
     }
+
 }
