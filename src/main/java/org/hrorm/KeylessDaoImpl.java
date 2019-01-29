@@ -103,14 +103,12 @@ public class KeylessDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> implements K
     @Override
     public Optional<Long> insert(ENTITY item) {
         String sql = sqlBuilder.insert();
-        long id = DaoHelper.getNextSequenceValue(connection, primaryKey.getSequenceName());
-        primaryKey.optimisticSetKey(item, id);
-        Envelope<ENTITY> envelope = newEnvelope(item, id);
+        Envelope<ENTITY> envelope = new Envelope(item);
         sqlRunner.insert(sql, envelope);
         for(ChildrenDescriptor<ENTITY,?, BUILDER,?> childrenDescriptor : childrenDescriptors){
-            childrenDescriptor.saveChildren(connection, new Envelope<>(item, id));
+            childrenDescriptor.saveChildren(connection, new Envelope<>(item));
         }
-        return Optional.of(id);
+        return null;
     }
 
     protected Envelope<ENTITY> newEnvelope(ENTITY item, long id){
@@ -134,6 +132,12 @@ public class KeylessDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> implements K
         String sql = sqlBuilder.select();
         List<BUILDER> bs = sqlRunner.select(sql, supplier, childrenDescriptors);
         return mapBuilders(bs);
+    }
+
+    @Override
+    public ENTITY selectByColumns(ENTITY item, String ... columnNames){
+        List<ENTITY> items = selectManyByColumns(item, columnNames);
+        return fromSingletonList(items);
     }
 
     @Override

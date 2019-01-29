@@ -49,6 +49,19 @@ public interface KeylessDao<ENTITY> {
     List<ENTITY> selectManyByColumns(ENTITY item, String... columnNames);
 
     /**
+     * Select a single record from the database by some search criteria.
+     *
+     * If multiple records are found that match the passed item, an exception will be thrown.
+     *
+     * @param item An instance of type ENTITY with populated values corresponding to the
+     *             column names to select by.
+     * @param columnNames The names of the database columns
+     * @return The populated instance of type ENTITY with matching values with the passed item for
+     *         the indicated columnNames.
+     */
+    ENTITY selectByColumns(ENTITY item, String... columnNames);
+
+    /**
      * Deletes multiple records from the database by some search criteria.
      *
      * @param item An instance of type ENTITY with populated values corresponding to the

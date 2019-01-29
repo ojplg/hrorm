@@ -42,18 +42,6 @@ public interface Dao<ENTITY> extends KeylessDao<ENTITY> {
      */
     List<ENTITY> selectMany(List<Long> ids);
 
-    /**
-     * Select a single record from the database by some search criteria.
-     *
-     * If multiple records are found that match the passed item, an exception will be thrown.
-     *
-     * @param item An instance of type ENTITY with populated values corresponding to the
-     *             column names to select by.
-     * @param columnNames The names of the database columns
-     * @return The populated instance of type ENTITY with matching values with the passed item for
-     *         the indicated columnNames.
-     */
-    ENTITY selectByColumns(ENTITY item, String... columnNames);
 
     /**
      * Run an update statement to change the values in the database associated

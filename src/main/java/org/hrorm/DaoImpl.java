@@ -3,6 +3,7 @@ package org.hrorm;
 import java.sql.Connection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -30,6 +31,20 @@ public class DaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> extends KeylessDaoI
             throw new IllegalArgumentException("Must have a Primary Key");
         }
     }
+
+    @Override
+    public Optional<Long> insert(ENTITY item) {
+        String sql = sqlBuilder.insert();
+        long id = DaoHelper.getNextSequenceValue(connection, primaryKey.getSequenceName());
+        primaryKey.optimisticSetKey(item, id);
+        Envelope<ENTITY> envelope = newEnvelope(item, id);
+        sqlRunner.insert(sql, envelope);
+        for(ChildrenDescriptor<ENTITY,?, BUILDER,?> childrenDescriptor : childrenDescriptors){
+            childrenDescriptor.saveChildren(connection, new Envelope<>(item, id));
+        }
+        return Optional.of(id);
+    }
+
 
     @Override
     public void update(ENTITY item) {
@@ -70,12 +85,6 @@ public class DaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> extends KeylessDaoI
         sql = sql + " and a." + primaryKey.getName() + " in (" + idsString + ")";
         List<BUILDER> bs = sqlRunner.select(sql, supplier, childrenDescriptors);
         return mapBuilders(bs);
-    }
-
-    @Override
-    public ENTITY selectByColumns(ENTITY item, String ... columnNames){
-        List<ENTITY> items = selectManyByColumns(item, columnNames);
-        return fromSingletonList(items);
     }
 
     @Override
