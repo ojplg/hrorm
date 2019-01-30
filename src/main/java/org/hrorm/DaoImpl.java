@@ -117,5 +117,5 @@ public class DaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> extends KeylessDaoI
     public Queries queries() {
         return this.sqlBuilder;
     }
-    
+
 }

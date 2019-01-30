@@ -142,27 +142,11 @@ public class KeylessDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> implements K
         return mapBuilders(bs);
     }
 
-    // TODO
-//    @Override
-//    public List<ENTITY> deleteManyByColumns(ENTITY item, String... columnNames) {
-//        throw new UnsupportedOperationException();
-//    }
-//
-//    @Override
-//    public List<ENTITY> updateManyByColumns(ENTITY selectionItem, String[] selectionColumnNames, ENTITY updateItem, String[] updateColumnNames) {
-//        throw new UnsupportedOperationException();
-//    }
-
     @Override
     public <T> T foldingSelect(ENTITY item, T identity, BiFunction<T,ENTITY,T> accumulator, String ... columnNames){
         String sql = keylessSqlBuilder.selectByColumns(columnNames);
         return sqlRunner.foldingSelect(sql, supplier, Arrays.asList(columnNames), columnMap(columnNames), childrenDescriptors, item, buildFunction, identity, accumulator);
     }
-
-//    @Override
-//    public Queries queries() {
-//        return this.keylessSqlBuilder;
-//    }
 
     protected <A> A fromSingletonList(List<A> items) {
         if (items.isEmpty()) {
