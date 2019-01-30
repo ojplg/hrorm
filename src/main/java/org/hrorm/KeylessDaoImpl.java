@@ -27,8 +27,6 @@ import java.util.stream.Collectors;
  */
 public class KeylessDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> implements KeylessDao<ENTITY>, KeylessDaoDescriptor<ENTITY, BUILDER> {
 
-    private static final Logger logger = Logger.getLogger("org.hrorm");
-
     protected final Connection connection;
     protected final String tableName;
     private final List<Column<ENTITY, BUILDER>> dataColumns;
