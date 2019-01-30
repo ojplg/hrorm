@@ -1,7 +1,5 @@
 package org.hrorm;
 
-import org.hrorm.examples.Columns;
-import org.hrorm.examples.EnumeratedColor;
 import org.hrorm.examples.Keyless;
 import org.hrorm.h2.H2Helper;
 import org.hrorm.util.TestLogConfig;
@@ -14,8 +12,10 @@ import java.math.BigDecimal;
 import java.sql.Connection;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
+/**
+ * Test operations for tables without primary keys, and KeylessDao.
+ */
 public class KeylessTest {
 
     static { TestLogConfig.load(); }
@@ -48,7 +48,16 @@ public class KeylessTest {
             keyless.setDecimalColumn(new BigDecimal("4.567"));
             keyless.setTimeStampColumn(time);
 
+            Keyless keyless2 = new Keyless();
+            keyless2.setStringColumn("MultiInsertSelectTest");
+            keyless2.setIntegerColumn(763L);
+            keyless2.setBooleanColumn(true);
+            keyless2.setDecimalColumn(new BigDecimal("4.567"));
+            keyless2.setTimeStampColumn(time);
+
             dao.insert(keyless);
+            dao.insert(keyless2);
+            dao.insert(keyless2);
         }
         {
             KeylessDao<Keyless> dao = Keyless.DAO_BUILDER.buildDao(connection);
@@ -60,6 +69,13 @@ public class KeylessTest {
 
             Assert.assertNotNull(dbInstance);
             Assert.assertEquals(762L, dbInstance.getIntegerColumn());
+
+            Keyless template2 = new Keyless();
+            template2.setStringColumn("MultiInsertSelectTest");
+
+            List<Keyless> dbInstances = dao.selectManyByColumns(template2, "string_column");
+            Assert.assertEquals(2, dbInstances.size());
+            Assert.assertEquals(1, dbInstances.stream().distinct().count());
         }
     }
 

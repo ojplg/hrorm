@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 
 /**
  * This class generates SQL strings suitable to be used in
- * {@link java.sql.PreparedStatement}s.
+ * {@link java.sql.PreparedStatement}s used by {@link KeylessDao}s.
  *
  * <p>
  *

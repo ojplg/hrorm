@@ -14,6 +14,8 @@ import java.util.stream.Collectors;
  * Implementers of this interface completely describe all the information
  * necessary to persisting objects of type <code>ENTITY</code>.
  *
+ * KeyedDaos are able to persist, update and select records uniquely, by Primary Key.
+ *
  * <p>
  *
  * Most users of hrorm will have no need to directly use this.

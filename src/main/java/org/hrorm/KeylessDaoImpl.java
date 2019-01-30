@@ -13,12 +13,12 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 /**
- * The {@link Dao} implementation.
+ * The {@link KeylessDao} implementation.
  *
  * <p>
  *
  * There is no good reason to directly construct this class yourself.
- * Use a {@link DaoBuilder} or {@link IndirectDaoBuilder}.
+ * Use a {@link KeylessDaoBuilder} or {@link IndirectDaoBuilder}.
  *
  * @param <ENTITY> The type whose persistence is managed by this <code>Dao</code>.
  * @param <PARENT> The type of the parent (if any) of type <code>ENTITY</code>.

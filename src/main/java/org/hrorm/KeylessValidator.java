@@ -11,8 +11,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * A utility for checking whether or not the configuration of a <code>Dao</code>
+ * A utility for checking whether or not the configuration of a <code>KeylessDao</code>
  * matches the database schema.
+ * See also: {@link Validator}
  */
 public class KeylessValidator {
 

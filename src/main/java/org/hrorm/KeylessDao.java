@@ -5,8 +5,9 @@ import java.util.Optional;
 import java.util.function.BiFunction;
 
 /**
- * A <code>Dao</code> is an interface that allows basic CRUD operations to be performed.
- * Using a <code>Dao</code>, you can insert, select, update, and delete records.
+ * A <code>KeylessDao</code> is an interface that allows basic, non-singular CRUD operations to be performed.
+ * Using a <code>KeylessDao</code>, you can insert, records individually, but select, update, and delete all are limited
+ * to multi-row operations, as there is no Primary Key defined.
  *
  * @param <ENTITY> The type of the data to be persisted.
  */
