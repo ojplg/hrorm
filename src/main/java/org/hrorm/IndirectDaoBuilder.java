@@ -392,4 +392,8 @@ public class IndirectDaoBuilder<ENTITY, BUILDER>  implements DaoDescriptor<ENTIT
         return this;
     }
 
+    public String getMyPrefix(){
+        return myPrefix;
+    }
+
 }

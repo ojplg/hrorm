@@ -9,8 +9,8 @@ import java.time.LocalDateTime;
 @Data
 public class Keyless {
 
-    public static final KeylessDaoBuilder<Keyless> DAO_BUILDER =
-            new KeylessDaoBuilder<>("keyless_table", Keyless::new)
+    public static final KeylessDaoBuilder<Keyless, Keyless> DAO_BUILDER =
+            new KeylessDaoBuilder<>("keyless_table", Keyless::new, x->x)
                     .withStringColumn("string_column", Keyless::getStringColumn, Keyless::setStringColumn)
                     .withIntegerColumn("integer_column", Keyless::getIntegerColumn, Keyless::setIntegerColumn)
                     .withBigDecimalColumn("decimal_column", Keyless::getDecimalColumn, Keyless::setDecimalColumn)

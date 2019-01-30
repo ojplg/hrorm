@@ -19,7 +19,7 @@ import java.util.function.Supplier;
  *
  * @param <ENTITY> The class that the Dao will support.
  */
-public class DaoBuilder<ENTITY> extends KeylessDaoBuilder<ENTITY> implements DaoDescriptor<ENTITY, ENTITY> {
+public class DaoBuilder<ENTITY> extends KeylessDaoBuilder<ENTITY, ENTITY> implements DaoDescriptor<ENTITY, ENTITY> {
 
     private final Consumer<PrimaryKey<ENTITY,ENTITY>> primaryKeyConsumer;
 
@@ -252,7 +252,7 @@ public class DaoBuilder<ENTITY> extends KeylessDaoBuilder<ENTITY> implements Dao
      * @return This instance.
      */
     public DaoBuilder<ENTITY> withPrimaryKey(String columnName, String sequenceName, Function<ENTITY, Long> getter, BiConsumer<ENTITY, Long> setter){
-        PrimaryKey<ENTITY,ENTITY> primaryKey = new DirectPrimaryKey<>(myPrefix, columnName, sequenceName, getter, setter);
+        PrimaryKey<ENTITY,ENTITY> primaryKey = new DirectPrimaryKey<>(internalDaoBuilder.getMyPrefix(), columnName, sequenceName, getter, setter);
         primaryKeyConsumer.accept(primaryKey);
         return this;
     }

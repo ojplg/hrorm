@@ -1,5 +1,7 @@
 package org.hrorm;
 
+import javafx.util.Builder;
+
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.time.LocalDateTime;
@@ -20,24 +22,16 @@ import java.util.function.Supplier;
  *
  * @param <ENTITY> The class that the Dao will support.
  */
-public class KeylessDaoBuilder<ENTITY> implements KeylessDaoDescriptor<ENTITY, ENTITY> {
+public class KeylessDaoBuilder<ENTITY, BUILDER> implements KeylessDaoDescriptor<ENTITY, BUILDER> {
 
-    protected final IndirectDaoBuilder<ENTITY, ENTITY> internalDaoBuilder;
-    protected final String myPrefix;
+    protected final IndirectDaoBuilder<ENTITY, BUILDER> internalDaoBuilder;
 
-    /**
-     * Create a new DaoBuilder instance.
-     *
-     * @param tableName The name of the table in the database.
-     * @param supplier A mechanism (generally a constructor) for creating a new instance.
-     */
-    public KeylessDaoBuilder(String tableName, Supplier<ENTITY> supplier){
-        this(IndirectDaoBuilder.forDirectDaoBuilder(tableName, supplier));
+    public KeylessDaoBuilder(String table, Supplier<BUILDER> supplier, Function<BUILDER, ENTITY> buildFunction) {
+        this.internalDaoBuilder = new IndirectDaoBuilder<>(table, supplier, buildFunction);
     }
 
-    protected KeylessDaoBuilder(IndirectDaoBuilder.BuilderHolder<ENTITY, ENTITY> builderHolder) {
+    public KeylessDaoBuilder(IndirectDaoBuilder.BuilderHolder<ENTITY, BUILDER> builderHolder){
         this.internalDaoBuilder = builderHolder.daoBuilder;
-        this.myPrefix = builderHolder.myPrefix;
     }
 
     @Override
@@ -46,29 +40,29 @@ public class KeylessDaoBuilder<ENTITY> implements KeylessDaoDescriptor<ENTITY, E
     }
 
     @Override
-    public Supplier<ENTITY> supplier() {
+    public Supplier<BUILDER> supplier() {
         return internalDaoBuilder.supplier();
     }
 
     @Override
-    public List<Column<ENTITY, ENTITY>> dataColumns() {
+    public List<Column<ENTITY, BUILDER>> dataColumns() {
         return internalDaoBuilder.dataColumns();
     }
 
     @Override
-    public List<ChildrenDescriptor<ENTITY, ?, ENTITY, ?>> childrenDescriptors() {
+    public List<ChildrenDescriptor<ENTITY, ?, BUILDER, ?>> childrenDescriptors() {
         return internalDaoBuilder.childrenDescriptors();
     }
 
     @Override
-    public ParentColumn<ENTITY, ?, ENTITY, ?> parentColumn() {
+    public ParentColumn<ENTITY, ?, BUILDER, ?> parentColumn() {
         return internalDaoBuilder.parentColumn();
     }
 
-    public List<JoinColumn<ENTITY, ?, ENTITY, ?>> joinColumns() { return internalDaoBuilder.joinColumns(); }
+    public List<JoinColumn<ENTITY, ?, BUILDER, ?>> joinColumns() { return internalDaoBuilder.joinColumns(); }
 
     @Override
-    public Function<ENTITY, ENTITY> buildFunction() {
+    public Function<BUILDER, ENTITY> buildFunction() {
         return internalDaoBuilder.buildFunction();
     }
 
@@ -98,7 +92,7 @@ public class KeylessDaoBuilder<ENTITY> implements KeylessDaoDescriptor<ENTITY, E
      * @param setter The function on <code>ENTITY</code> that consumes the data element.
      * @return This instance.
      */
-    public KeylessDaoBuilder<ENTITY> withStringColumn(String columnName, Function<ENTITY, String> getter, BiConsumer<ENTITY, String> setter){
+    public KeylessDaoBuilder<ENTITY, BUILDER> withStringColumn(String columnName, Function<ENTITY, String> getter, BiConsumer<BUILDER, String> setter){
         internalDaoBuilder.withStringColumn(columnName, getter, setter);
         return this;
     }
@@ -111,7 +105,7 @@ public class KeylessDaoBuilder<ENTITY> implements KeylessDaoDescriptor<ENTITY, E
      * @param setter The function on <code>ENTITY</code> that consumes the data element.
      * @return This instance.
      */
-    public KeylessDaoBuilder<ENTITY> withIntegerColumn(String columnName, Function<ENTITY, Long> getter, BiConsumer<ENTITY, Long> setter){
+    public KeylessDaoBuilder<ENTITY, BUILDER> withIntegerColumn(String columnName, Function<ENTITY, Long> getter, BiConsumer<BUILDER, Long> setter){
         internalDaoBuilder.withIntegerColumn(columnName, getter, setter);
         return this;
     }
@@ -124,7 +118,7 @@ public class KeylessDaoBuilder<ENTITY> implements KeylessDaoDescriptor<ENTITY, E
      * @param setter The function on <code>ENTITY</code> that consumes the data element.
      * @return This instance.
      */
-    public KeylessDaoBuilder<ENTITY> withBigDecimalColumn(String columnName, Function<ENTITY, BigDecimal> getter, BiConsumer<ENTITY, BigDecimal> setter){
+    public KeylessDaoBuilder<ENTITY, BUILDER> withBigDecimalColumn(String columnName, Function<ENTITY, BigDecimal> getter, BiConsumer<BUILDER, BigDecimal> setter){
         internalDaoBuilder.withBigDecimalColumn(columnName, getter, setter);
         return this;
     }
@@ -141,7 +135,7 @@ public class KeylessDaoBuilder<ENTITY> implements KeylessDaoDescriptor<ENTITY, E
      * @param <E> The type being converted for persistence.
      * @return This instance.
      */
-    public <E> KeylessDaoBuilder<ENTITY> withConvertingStringColumn(String columnName, Function<ENTITY, E> getter, BiConsumer<ENTITY, E> setter, Converter<E, String> converter){
+    public <E> KeylessDaoBuilder<ENTITY, BUILDER> withConvertingStringColumn(String columnName, Function<ENTITY, E> getter, BiConsumer<BUILDER, E> setter, Converter<E, String> converter){
         internalDaoBuilder.withConvertingStringColumn(columnName, getter, setter, converter);
         return this;
     }
@@ -154,7 +148,7 @@ public class KeylessDaoBuilder<ENTITY> implements KeylessDaoDescriptor<ENTITY, E
      * @param setter The function on <code>ENTITY</code> that consumes the data element.
      * @return This instance.
      */
-    public KeylessDaoBuilder<ENTITY> withLocalDateTimeColumn(String columnName, Function<ENTITY, LocalDateTime> getter, BiConsumer<ENTITY, LocalDateTime> setter){
+    public KeylessDaoBuilder<ENTITY, BUILDER> withLocalDateTimeColumn(String columnName, Function<ENTITY, LocalDateTime> getter, BiConsumer<BUILDER, LocalDateTime> setter){
         internalDaoBuilder.withLocalDateTimeColumn(columnName, getter, setter);
         return this;
     }
@@ -169,7 +163,7 @@ public class KeylessDaoBuilder<ENTITY> implements KeylessDaoDescriptor<ENTITY, E
      * @param setter The function on <code>ENTITY</code> that consumes the data element.
      * @return This instance.
      */
-    public KeylessDaoBuilder<ENTITY> withBooleanColumn(String columnName, Function<ENTITY, Boolean> getter, BiConsumer<ENTITY, Boolean> setter){
+    public KeylessDaoBuilder<ENTITY, BUILDER> withBooleanColumn(String columnName, Function<ENTITY, Boolean> getter, BiConsumer<BUILDER, Boolean> setter){
         internalDaoBuilder.withBooleanColumn(columnName, getter, setter);
         return this;
     }
@@ -197,7 +191,7 @@ public class KeylessDaoBuilder<ENTITY> implements KeylessDaoDescriptor<ENTITY, E
      * @param <U> The type of the data element.
      * @return This instance.
      */
-    public <U> KeylessDaoBuilder<ENTITY> withJoinColumn(String columnName, Function<ENTITY, U> getter, BiConsumer<ENTITY,U> setter, DaoDescriptor<U,?> daoDescriptor){
+    public <U> KeylessDaoBuilder<ENTITY, BUILDER> withJoinColumn(String columnName, Function<ENTITY, U> getter, BiConsumer<BUILDER,U> setter, DaoDescriptor<U,?> daoDescriptor){
         internalDaoBuilder.withJoinColumn(columnName, getter, setter, daoDescriptor);
         return this;
     }
@@ -232,7 +226,7 @@ public class KeylessDaoBuilder<ENTITY> implements KeylessDaoDescriptor<ENTITY, E
      * @param <UB> The type of the builder of child data elements
      * @return This instance.
      */
-    public <U,UB> KeylessDaoBuilder<ENTITY> withChildren(Function<ENTITY, List<U>> getter, BiConsumer<ENTITY, List<U>> setter, DaoDescriptor<U,UB> daoDescriptor){
+    public <U,UB> KeylessDaoBuilder<ENTITY, BUILDER> withChildren(Function<ENTITY, List<U>> getter, BiConsumer<BUILDER, List<U>> setter, DaoDescriptor<U,UB> daoDescriptor){
         internalDaoBuilder.withChildren(getter, setter, daoDescriptor);
         return this;
     }
@@ -246,7 +240,7 @@ public class KeylessDaoBuilder<ENTITY> implements KeylessDaoDescriptor<ENTITY, E
      * @param <P> The type of the parent object.
      * @return This instance.
      */
-    public <P> KeylessDaoBuilder<ENTITY> withParentColumn(String columnName, Function<ENTITY,P> getter, BiConsumer<ENTITY,P> setter){
+    public <P> KeylessDaoBuilder<ENTITY, BUILDER> withParentColumn(String columnName, Function<ENTITY,P> getter, BiConsumer<BUILDER,P> setter){
         internalDaoBuilder.withParentColumn(columnName, getter, setter);
         return this;
     }
@@ -258,7 +252,7 @@ public class KeylessDaoBuilder<ENTITY> implements KeylessDaoDescriptor<ENTITY, E
      * @param <P> The type of the parent object.
      * @return This instance.
      */
-    public <P> KeylessDaoBuilder<ENTITY> withParentColumn(String columnName){
+    public <P> KeylessDaoBuilder<ENTITY, BUILDER> withParentColumn(String columnName){
         internalDaoBuilder.withParentColumn(columnName);
         return this;
     }
@@ -270,7 +264,7 @@ public class KeylessDaoBuilder<ENTITY> implements KeylessDaoDescriptor<ENTITY, E
      *
      * @return This instance.
      */
-    public KeylessDaoBuilder<ENTITY> notNull(){
+    public KeylessDaoBuilder<ENTITY, BUILDER> notNull(){
         internalDaoBuilder.notNull();
         return this;
     }

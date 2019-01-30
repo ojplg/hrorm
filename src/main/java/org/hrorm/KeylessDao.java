@@ -61,7 +61,7 @@ public interface KeylessDao<ENTITY> {
      *         the indicated columnNames.
      */
     ENTITY selectByColumns(ENTITY item, String... columnNames);
-    
+
     /**
      * Insert a record into the database within a transaction that is
      * managed within the Dao. The Dao will either commit or rollback
