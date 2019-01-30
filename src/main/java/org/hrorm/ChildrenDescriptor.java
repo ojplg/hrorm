@@ -83,10 +83,7 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
     }
 
     public void saveChildren(Connection connection, Envelope<PARENT> envelope) {
-        saveChildren(connection, envelope, childDaoDescriptor.primaryKey());
-    }
-
-    public void saveChildren(Connection connection, Envelope<PARENT> envelope, PrimaryKey<CHILD, CHILDBUILDER> childPrimaryKey){
+        PrimaryKey<CHILD, CHILDBUILDER> childPrimaryKey = childDaoDescriptor.primaryKey();
 
         PARENT item = envelope.getItem();
 
@@ -101,7 +98,7 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
 
         Set<Long> existingIds = findExistingChildrenIds(connection, parentId);
 
-       for(CHILD child : children){
+        for(CHILD child : children){
             Long childId = childPrimaryKey.getKey(child);
             if( childId == null ) {
                 childId = DaoHelper.getNextSequenceValue(connection, childPrimaryKey.getSequenceName());
