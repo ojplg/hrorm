@@ -1,7 +1,5 @@
 package org.hrorm;
 
-import javafx.util.Builder;
-
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.time.LocalDateTime;
@@ -11,7 +9,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
- * A KeylessDaoBuilder provides mechanisms for defining the relationship between
+ * A <code>KeylessDaoBuilder</code> provides mechanisms for defining the relationship between
  * a Java type and the table(s) that will persist the data held in the class, where the
  * specified table does not have a unique Primary Key. This allows for operations on a table that
  * do not require a unique key.
@@ -76,13 +74,6 @@ public class KeylessDaoBuilder<ENTITY, BUILDER> implements KeylessDaoDescriptor<
     public KeylessDao<ENTITY> buildDao(Connection connection){
         return internalDaoBuilder.buildKeylessDao(connection);
     }
-
-    /**
-     * Build the SQL that will be used by <code>DAO</code> objects created by this builder.
-     *
-     * @return A container for the SQL
-     */
-    public Queries buildQueries() { return internalDaoBuilder.buildQueries(); }
 
     /**
      * Describes a text or string data element.
@@ -249,10 +240,9 @@ public class KeylessDaoBuilder<ENTITY, BUILDER> implements KeylessDaoDescriptor<
      * Indicator that the column is a reference to an owning parent object.
      *
      * @param columnName The name of the column that holds the foreign key reference.
-     * @param <P> The type of the parent object.
      * @return This instance.
      */
-    public <P> KeylessDaoBuilder<ENTITY, BUILDER> withParentColumn(String columnName){
+    public KeylessDaoBuilder<ENTITY, BUILDER> withParentColumn(String columnName){
         internalDaoBuilder.withParentColumn(columnName);
         return this;
     }
