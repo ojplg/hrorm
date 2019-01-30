@@ -61,30 +61,7 @@ public interface KeylessDao<ENTITY> {
      *         the indicated columnNames.
      */
     ENTITY selectByColumns(ENTITY item, String... columnNames);
-
-    /**
-     * Deletes multiple records from the database by some search criteria.
-     *
-     * @param item An instance of type ENTITY with populated values corresponding to the
-     *             column names to select by.
-     * @param columnNames The names of the database columns
-     *
-     */
-    // List<ENTITY> deleteManyByColumns(ENTITY item, String... columnNames);
-
-    /**
-     * Update multiple records from the database by some search criteria.
-     *
-     * @param selectionItem An instance of type ENTITY with populated values corresponding to the
-     *             column names to select by.
-     * @param selectionColumnNames The names of the database columns to select by.
-     *
-     * @param updateItem An instance of type ENTITY with populated values corresponding to the
-     *             column names to update to.
-     * @param updateColumnNames The names of the database columns to update.
-     */
-    // List<ENTITY> updateManyByColumns(ENTITY selectionItem, String[] selectionColumnNames, ENTITY updateItem, String[] updateColumnNames);
-
+    
     /**
      * Insert a record into the database within a transaction that is
      * managed within the Dao. The Dao will either commit or rollback
