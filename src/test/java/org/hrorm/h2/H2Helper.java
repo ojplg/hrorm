@@ -74,6 +74,16 @@ public class H2Helper {
         }
     }
 
+    public void clearTable(String tableName){
+        try {
+            Connection connection = connect();
+            Statement statement = connection.createStatement();
+            statement.execute("delete from " + tableName);
+        } catch (Exception ex){
+            throw new RuntimeException(ex);
+        }
+    }
+
     public void dropSchema(){
         try {
             Connection connection = connect();

@@ -2,6 +2,7 @@ package org.hrorm;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -109,14 +110,21 @@ public class KeylessSqlBuilder<ENTITY> {
         listToBuild.add(0, columnToAdd);
     }
 
-    public String selectByColumns(String ... columnNames){
+    public String selectByColumns(Map<String, Operator> operatorMap, String ... columnNames){
         StringBuilder buf = new StringBuilder();
         buf.append(select());
         for(String columnName : columnNames){
             buf.append(" and ");
             buf.append("a.");
             buf.append(columnName);
-            buf.append(" = ? ");
+            buf.append(" ");
+            Operator operator = operatorMap.get(columnName);
+            if( operator == null ){
+                buf.append(Operator.EQUALS.getSqlString());
+            } else {
+                buf.append(operator.getSqlString());
+            }
+            buf.append(" ? ");
         }
 
         return buf.toString();

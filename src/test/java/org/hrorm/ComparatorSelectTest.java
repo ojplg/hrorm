@@ -5,6 +5,7 @@ import org.hrorm.examples.EnumeratedColor;
 import org.hrorm.examples.EnumeratedColorConverter;
 import org.hrorm.h2.H2Helper;
 import org.hrorm.util.TestLogConfig;
+import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -32,6 +33,9 @@ public class ComparatorSelectTest {
     public static void cleanUpDb(){
         helper.dropSchema();
     }
+
+    @After
+    public void clearTable() { helper.clearTable("columns_table");}
 
     private DaoBuilder<Columns> daoBuilder(){
         return new DaoBuilder<>("columns_table", Columns::new)
@@ -88,7 +92,7 @@ public class ComparatorSelectTest {
         }
         {
             Columns template = new Columns();
-            template.setStringThing("LIKE");
+            template.setStringThing("LIKE%");
 
             Map<String, Operator> map = new HashMap<>();
             map.put("string_column", Operator.LIKE);
@@ -142,6 +146,7 @@ public class ComparatorSelectTest {
             columns.setDecimalThing(new BigDecimal("4.567"));
             columns.setTimeStampThing(time);
             columns.setColorThing(EnumeratedColor.Red);
+
             id = dao.insert(columns);
         }
         {
@@ -157,4 +162,196 @@ public class ComparatorSelectTest {
         }
 
     }
+
+    @Test
+    public void testLessThanInteger_Fails(){
+        Connection connection = helper.connect();
+        Dao<Columns> dao = daoBuilder().buildDao(connection);
+
+        LocalDateTime time = LocalDateTime.now();
+        {
+            Columns columns = new Columns();
+            columns.setStringThing("Less than test fails");
+            columns.setIntegerThing(762L);
+            columns.setBooleanThing(true);
+            columns.setDecimalThing(new BigDecimal("4.567"));
+            columns.setTimeStampThing(time);
+            columns.setColorThing(EnumeratedColor.Red);
+
+            dao.insert(columns);
+        }
+        {
+            Columns template = new Columns();
+            template.setIntegerThing(123L);
+
+            Map<String, Operator> map = new HashMap<>();
+            map.put("integer_column", Operator.LESS_THAN);
+
+            List<Columns> found = dao.selectManyByColumns(template, map);
+            Assert.assertEquals(0, found.size());
+        }
+
+    }
+
+
+    @Test
+    public void testLessThanDecimal(){
+        Connection connection = helper.connect();
+        Dao<Columns> dao = daoBuilder().buildDao(connection);
+        Long id;
+
+        LocalDateTime time = LocalDateTime.now();
+        {
+            Columns columns = new Columns();
+            columns.setStringThing("Less than decimal test");
+            columns.setIntegerThing(762L);
+            columns.setBooleanThing(true);
+            columns.setDecimalThing(new BigDecimal("4.567"));
+            columns.setTimeStampThing(time);
+            columns.setColorThing(EnumeratedColor.Red);
+            id = dao.insert(columns);
+        }
+        {
+            Columns template = new Columns();
+            template.setDecimalThing(new BigDecimal("5.03"));
+
+            Map<String, Operator> map = new HashMap<>();
+            map.put("decimal_column", Operator.LESS_THAN);
+
+            List<Columns> found = dao.selectManyByColumns(template, map);
+            Assert.assertEquals(1, found.size());
+            Assert.assertEquals(id, found.get(0).getId());
+        }
+
+    }
+
+    @Test
+    public void testLessThanDecimal_Fails(){
+        Connection connection = helper.connect();
+        Dao<Columns> dao = daoBuilder().buildDao(connection);
+
+        LocalDateTime time = LocalDateTime.now();
+        {
+            Columns columns = new Columns();
+            columns.setStringThing("Less than decimal test fails");
+            columns.setIntegerThing(762L);
+            columns.setBooleanThing(true);
+            columns.setDecimalThing(new BigDecimal("4.567"));
+            columns.setTimeStampThing(time);
+            columns.setColorThing(EnumeratedColor.Red);
+
+            dao.insert(columns);
+        }
+        {
+            Columns template = new Columns();
+            template.setDecimalThing(new BigDecimal("3.12"));
+
+            Map<String, Operator> map = new HashMap<>();
+            map.put("integer_column", Operator.LESS_THAN);
+
+            List<Columns> found = dao.selectManyByColumns(template, map);
+            Assert.assertEquals(0, found.size());
+        }
+
+    }
+
+    @Test
+    public void testWorksWithAnds(){
+        Connection connection = helper.connect();
+        Dao<Columns> dao = daoBuilder().buildDao(connection);
+        Long id;
+
+        LocalDateTime time = LocalDateTime.now();
+        {
+            Columns columns = new Columns();
+            columns.setStringThing("BigAndTest");
+            columns.setIntegerThing(762L);
+            columns.setBooleanThing(true);
+            columns.setDecimalThing(new BigDecimal("4.567"));
+            columns.setTimeStampThing(time);
+            columns.setColorThing(EnumeratedColor.Red);
+
+            id = dao.insert(columns);
+        }
+        {
+            Columns template = new Columns();
+            template.setDecimalThing(new BigDecimal("3.12"));
+            template.setStringThing("%And%");
+            template.setIntegerThing(1234L);
+
+            Map<String, Operator> map = new HashMap<>();
+            map.put("integer_column", Operator.LESS_THAN);
+            map.put("decimal_column", Operator.GREATER_THAN);
+            map.put("string_column", Operator.LIKE);
+
+            List<Columns> found = dao.selectManyByColumns(template, map);
+            Assert.assertEquals(1, found.size());
+            Assert.assertEquals(id, found.get(0).getId());
+        }
+
+
+    }
+
+    @Test
+    public void testAnyFailedComparisonFails(){
+        Connection connection = helper.connect();
+        Dao<Columns> dao = daoBuilder().buildDao(connection);
+
+        LocalDateTime time = LocalDateTime.now();
+        {
+            Columns columns = new Columns();
+            columns.setStringThing("BigAndTestFails");
+            columns.setIntegerThing(762L);
+            columns.setBooleanThing(true);
+            columns.setDecimalThing(new BigDecimal("4.567"));
+            columns.setTimeStampThing(time);
+            columns.setColorThing(EnumeratedColor.Red);
+
+            dao.insert(columns);
+        }
+        {
+            Columns template = new Columns();
+            template.setDecimalThing(new BigDecimal("3.12"));
+            template.setStringThing("%Foo%");
+            template.setIntegerThing(1234L);
+
+            Map<String, Operator> map = new HashMap<>();
+            map.put("integer_column", Operator.LESS_THAN);
+            map.put("decimal_column", Operator.GREATER_THAN);
+            map.put("string_column", Operator.LIKE);
+
+            List<Columns> found = dao.selectManyByColumns(template, map);
+            Assert.assertEquals(0, found.size());
+        }
+        {
+            Columns template = new Columns();
+            template.setDecimalThing(new BigDecimal("6.212"));
+            template.setStringThing("%And%");
+            template.setIntegerThing(1234L);
+
+            Map<String, Operator> map = new HashMap<>();
+            map.put("integer_column", Operator.LESS_THAN);
+            map.put("decimal_column", Operator.GREATER_THAN);
+            map.put("string_column", Operator.LIKE);
+
+            List<Columns> found = dao.selectManyByColumns(template, map);
+            Assert.assertEquals(0, found.size());
+        }
+        {
+            Columns template = new Columns();
+            template.setDecimalThing(new BigDecimal("3.12"));
+            template.setStringThing("%And%");
+            template.setIntegerThing(3L);
+
+            Map<String, Operator> map = new HashMap<>();
+            map.put("integer_column", Operator.LESS_THAN);
+            map.put("decimal_column", Operator.GREATER_THAN);
+            map.put("string_column", Operator.LIKE);
+
+            List<Columns> found = dao.selectManyByColumns(template, map);
+            Assert.assertEquals(0, found.size());
+        }
+    }
+
+
 }

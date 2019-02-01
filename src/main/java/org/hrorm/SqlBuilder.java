@@ -1,5 +1,6 @@
 package org.hrorm;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -28,7 +29,7 @@ public class SqlBuilder<ENTITY> implements Queries {
     }
 
     public String selectByColumns(String ... columnNames){
-        return keylessSqlBuilder.selectByColumns(columnNames);
+        return keylessSqlBuilder.selectByColumns(Collections.emptyMap(), columnNames);
     }
 
     public String selectChildIds(String parentColumn){

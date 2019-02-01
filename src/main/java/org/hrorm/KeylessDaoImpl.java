@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
  * <p>
  *
  * There is no good reason to directly construct this class yourself.
- * Use a {@link KeylessDaoBuilder} or {@link IndirectDaoBuilder}.
+ * Use a {@link IndirectKeylessDaoBuilder} or {@link IndirectDaoBuilder}.
  *
  * @param <ENTITY> The type whose persistence is managed by this <code>Dao</code>.
  * @param <PARENT> The type of the parent (if any) of type <code>ENTITY</code>.
@@ -133,19 +133,22 @@ public class KeylessDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> implements K
 
     @Override
     public List<ENTITY> selectManyByColumns(ENTITY item, String ... columnNames) {
-        String sql = keylessSqlBuilder.selectByColumns(columnNames);
+        String sql = keylessSqlBuilder.selectByColumns(Collections.emptyMap(), columnNames);
         List<BUILDER> bs = sqlRunner.selectByColumns(sql, supplier, Arrays.asList(columnNames), columnMap(columnNames), childrenDescriptors, item);
         return mapBuilders(bs);
     }
 
     @Override
     public List<ENTITY> selectManyByColumns(ENTITY template, Map<String, Operator> columnNamesMap) {
-        return Collections.emptyList();
+        String[] columnNames = columnNamesMap.keySet().stream().toArray(String[]::new);
+        String sql = keylessSqlBuilder.selectByColumns(columnNamesMap, columnNames);
+        List<BUILDER> bs = sqlRunner.selectByColumns(sql, supplier, Arrays.asList(columnNames), columnMap(columnNames), childrenDescriptors, template);
+        return mapBuilders(bs);
     }
 
     @Override
     public <T> T foldingSelect(ENTITY item, T identity, BiFunction<T,ENTITY,T> accumulator, String ... columnNames){
-        String sql = keylessSqlBuilder.selectByColumns(columnNames);
+        String sql = keylessSqlBuilder.selectByColumns(Collections.emptyMap(), columnNames);
         return sqlRunner.foldingSelect(sql, supplier, Arrays.asList(columnNames), columnMap(columnNames), childrenDescriptors, item, buildFunction, identity, accumulator);
     }
 
