@@ -8,17 +8,20 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-/**
- * A <code>KeylessDaoBuilder</code> provides mechanisms for defining the relationship between
- * a Java type and the table(s) that will persist the data held in the class, where the
- * specified table does not have a unique Primary Key. This allows for operations on a table that
- * do not require a unique key.
+/***
+ * An <code>IndirectKeylessDaoBuilder</code> provides mechanisms for defining the relationship between
+ * a Java type and the table that backs it.
  *
  * <p>
- *     Also see {@link DaoBuilder} for tables with Primary Keys, and {@link IndirectDaoBuilder}.
+ *    Using this builder (as opposed to the {@link DaoBuilder} or {@link IndirectDaoBuilder}
+ *    will allow support for entities that do not have primary keys, but that support comes at
+ *    a price. A <code>KeylessDao</code> supports fewer methods than a standard <code>Dao</code>
+ *    and these entities cannot be joined to other objects or be children to other objects.
+ *    In general, the regular variants should be preferred
  * </p>
  *
- * @param <ENTITY> The class that the Dao will support.
+ * @param <ENTITY> The class that the <code>KeylessDao</code> will support.
+ * @param <BUILDER> The class that builds the <code>ENTITY</code> type.
  */
 public class IndirectKeylessDaoBuilder<ENTITY, BUILDER> implements KeylessDaoDescriptor<ENTITY, BUILDER> {
 

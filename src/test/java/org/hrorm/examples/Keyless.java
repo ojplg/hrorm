@@ -2,7 +2,6 @@ package org.hrorm.examples;
 
 import lombok.Data;
 import org.hrorm.IndirectKeylessDaoBuilder;
-import org.hrorm.KeylessDaoBuilder;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -12,7 +11,7 @@ import java.util.Objects;
 public class Keyless {
 
     public static final IndirectKeylessDaoBuilder<Keyless, Keyless> DAO_BUILDER =
-            new KeylessDaoBuilder<>("keyless_table", Keyless::new, x->x)
+            new IndirectKeylessDaoBuilder<>("keyless_table", Keyless::new, x->x)
                     .withStringColumn("string_column", Keyless::getStringColumn, Keyless::setStringColumn)
                     .withIntegerColumn("integer_column", Keyless::getIntegerColumn, Keyless::setIntegerColumn)
                     .withBigDecimalColumn("decimal_column", Keyless::getDecimalColumn, Keyless::setDecimalColumn)
