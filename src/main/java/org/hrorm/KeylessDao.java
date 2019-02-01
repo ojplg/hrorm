@@ -1,7 +1,6 @@
 package org.hrorm;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.function.BiFunction;
 
 /**
@@ -25,7 +24,7 @@ public interface KeylessDao<ENTITY> {
      * @param item The instance to be inserted.
      * @return The newly issued primary key of the record, if there is one. Else, Optional.empty()
      */
-    Optional<Long> insert(ENTITY item);
+    Long insert(ENTITY item);
 
 
     /**
@@ -71,7 +70,7 @@ public interface KeylessDao<ENTITY> {
      * @param item The instance to be inserted.
      * @return The newly issued primary key of the record, if there is one. Else, Optional.empty()
      */
-    Optional<Long> atomicInsert(ENTITY item);
+    Long atomicInsert(ENTITY item);
 
 
     /**

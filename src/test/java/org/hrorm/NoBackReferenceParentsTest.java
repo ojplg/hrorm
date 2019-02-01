@@ -11,7 +11,6 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class NoBackReferenceParentsTest {
@@ -43,19 +42,19 @@ public class NoBackReferenceParentsTest {
 
     static final DaoBuilder<SimpleChild> simpleChildDaoBuilder =
             new DaoBuilder<>("simple_child", SimpleChild::new)
-            .withPrimaryKey("id","no_back_sequence", SimpleChild::getId, SimpleChild::setId)
-            .withIntegerColumn("number", SimpleChild::getNumber, SimpleChild::setNumber)
-            .withParentColumn("simple_parent_id");
+                    .withPrimaryKey("id","no_back_sequence", SimpleChild::getId, SimpleChild::setId)
+                    .withIntegerColumn("number", SimpleChild::getNumber, SimpleChild::setNumber)
+                    .withParentColumn("simple_parent_id");
 
     static final DaoBuilder<SimpleParent> simpleParentDaoBuilder =
             new DaoBuilder<>("simple_parent", SimpleParent::new)
-            .withPrimaryKey("id", "no_back_sequence", SimpleParent::getId, SimpleParent::setId)
-            .withStringColumn("name", SimpleParent::getName, SimpleParent::setName)
-            .withChildren(SimpleParent::getSimpleChildList, SimpleParent::setSimpleChildList, simpleChildDaoBuilder);
+                    .withPrimaryKey("id", "no_back_sequence", SimpleParent::getId, SimpleParent::setId)
+                    .withStringColumn("name", SimpleParent::getName, SimpleParent::setName)
+                    .withChildren(SimpleParent::getSimpleChildList, SimpleParent::setSimpleChildList, simpleChildDaoBuilder);
 
     @Test
     public void testPersistAndLoad() throws SQLException {
-        Optional<Long> parentId = Optional.empty();
+        long parentId;
         {
             SimpleParent parent = new SimpleParent();
             parent.setName("testPersistAndLoad");
@@ -75,11 +74,9 @@ public class NoBackReferenceParentsTest {
             connection.commit();
         }
         {
-            Assert.assertTrue(parentId.isPresent());
-
             Connection connection = helper.connect();
             Dao<SimpleParent> dao = simpleParentDaoBuilder.buildDao(connection);
-            SimpleParent parent = dao.select(parentId.get());
+            SimpleParent parent = dao.select(parentId);
 
             Assert.assertEquals(100, parent.getSimpleChildList().size());
 
@@ -94,7 +91,7 @@ public class NoBackReferenceParentsTest {
 
     @Test
     public void testUpdateChildren(){
-        Optional<Long> parentId = Optional.empty();
+        long parentId;
         {
             SimpleParent parent = new SimpleParent();
             parent.setName("testUpdateChildren");
@@ -113,11 +110,9 @@ public class NoBackReferenceParentsTest {
             parentId = dao.insert(parent);
         }
         {
-            Assert.assertTrue(parentId.isPresent());
-
             Connection connection = helper.connect();
             Dao<SimpleParent> dao = simpleParentDaoBuilder.buildDao(connection);
-            SimpleParent parent = dao.select(parentId.get());
+            SimpleParent parent = dao.select(parentId);
 
             Assert.assertEquals(10, parent.getSimpleChildList().size());
 
@@ -129,11 +124,9 @@ public class NoBackReferenceParentsTest {
             dao.update(parent);
         }
         {
-            Assert.assertTrue(parentId.isPresent());
-
             Connection connection = helper.connect();
             Dao<SimpleParent> dao = simpleParentDaoBuilder.buildDao(connection);
-            SimpleParent parent = dao.select(parentId.get());
+            SimpleParent parent = dao.select(parentId);
 
             Assert.assertEquals(10, parent.getSimpleChildList().size());
 

@@ -1,6 +1,7 @@
 package org.hrorm.examples;
 
 import lombok.Data;
+import org.hrorm.Converter;
 import org.hrorm.Dao;
 import org.hrorm.DaoBuilder;
 import org.junit.Assert;
@@ -10,7 +11,6 @@ import java.math.BigDecimal;
 import java.sql.Connection;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Data
 class Person {
@@ -55,13 +55,10 @@ class Person {
         Dao<Person> personDao = daoBuilder.buildDao(connection);
 
         Person person = new Person();
-
-        // set values on the fields but leave the ID null - only if we have a PK.
-        Optional<Long> id = personDao.insert(person);
-        id.ifPresent(personId -> {
-            Assert.assertNotNull(person.getId());
-            Assert.assertTrue(personId == person.getId());
-        });
+        // set values on the fields but leave the ID null
+        long id = personDao.insert(person);
+        Assert.assertNotNull(person.getId());
+        Assert.assertTrue(id == person.getId());
 
 
         Person personTemplate = new Person();

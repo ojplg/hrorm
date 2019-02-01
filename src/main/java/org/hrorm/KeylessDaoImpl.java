@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -84,7 +83,7 @@ public class KeylessDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> implements K
     public Function<BUILDER, ENTITY> buildFunction() { return buildFunction; }
 
     @Override
-    public Optional<Long> atomicInsert(ENTITY item) {
+    public Long atomicInsert(ENTITY item) {
         Transactor transactor = new Transactor(connection);
         return transactor.runAndCommit(
                con -> { return insert(item); }
@@ -93,7 +92,7 @@ public class KeylessDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> implements K
 
 
     @Override
-    public Optional<Long> insert(ENTITY item) {
+    public Long insert(ENTITY item) {
         String sql = keylessSqlBuilder.insert();
         Envelope<ENTITY> envelope = new Envelope(item);
         sqlRunner.insert(sql, envelope);

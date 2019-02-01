@@ -1,8 +1,10 @@
 package org.hrorm;
 
+import net.bytebuddy.build.ToStringPlugin;
 import org.hrorm.examples.Cousin;
 import org.hrorm.examples.EnumeratedColor;
 import org.hrorm.examples.EnumeratedColorConverter;
+import org.hrorm.examples.ParentChildBuilders;
 import org.hrorm.examples.SecondCousin;
 import org.hrorm.examples.Sibling;
 import org.hrorm.examples.Thing;
@@ -15,7 +17,6 @@ import org.junit.Test;
 
 import java.sql.Connection;
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 public class JoinsTest {
 
@@ -91,11 +92,9 @@ public class JoinsTest {
         Thing thing = new Thing();
         thing.setName("sibling load test");
         thing.setSibling(sibling);
-        Optional<Long> thingId = thingDao.insert(thing);
+        long thingId = thingDao.insert(thing);
 
-        Assert.assertTrue(thingId.isPresent());
-
-        Thing readFromDb = thingDao.select(thingId.get());
+        Thing readFromDb = thingDao.select(thingId);
 
         Assert.assertEquals(44L, (long) readFromDb.getSibling().getNumber());
         Assert.assertEquals(EnumeratedColor.Green, readFromDb.getSibling().getCousin().getColor());
@@ -131,11 +130,9 @@ public class JoinsTest {
         Thing thing = new Thing();
         thing.setName("sibling load test");
         thing.setSibling(sibling);
-        Optional<Long> thingId = thingDao.insert(thing);
+        long thingId = thingDao.insert(thing);
 
-        Assert.assertTrue(thingId.isPresent());
-
-        Thing readFromDb = thingDao.select(thingId.get());
+        Thing readFromDb = thingDao.select(thingId);
 
         Sibling newSibling = new Sibling();
         newSibling.setNumber(58L);
@@ -146,7 +143,7 @@ public class JoinsTest {
 
         thingDao.update(readFromDb);
 
-        Thing secondReadFromDb = thingDao.select(thingId.get());
+        Thing secondReadFromDb = thingDao.select(thingId);
 
         Assert.assertEquals(58L, (long) secondReadFromDb.getSibling().getNumber());
         Assert.assertEquals(now, secondReadFromDb.getSibling().getCousin().getSecondCousin().getDateTime());
@@ -180,17 +177,15 @@ public class JoinsTest {
         Thing thing = new Thing();
         thing.setName("sibling load test");
         thing.setSibling(sibling);
-        Optional<Long> thingId = thingDao.insert(thing);
+        long thingId = thingDao.insert(thing);
 
-        Assert.assertTrue(thingId.isPresent());
-
-        Thing readFromDb = thingDao.select(thingId.get());
+        Thing readFromDb = thingDao.select(thingId);
 
         Assert.assertNotNull(readFromDb);
 
         thingDao.delete(readFromDb);
 
-        Thing secondFromDb = thingDao.select(thingId.get());
+        Thing secondFromDb = thingDao.select(thingId);
 
         Assert.assertNull(secondFromDb);
 
@@ -209,11 +204,9 @@ public class JoinsTest {
         Thing thing = new Thing();
         thing.setName("only child");
 
-        Optional<Long> id = thingDao.insert(thing);
+        long id = thingDao.insert(thing);
 
-        Assert.assertTrue(id.isPresent());
-
-        Thing readThing = thingDao.select(id.get());
+        Thing readThing = thingDao.select(id);
 
         Assert.assertEquals("only child", readThing.getName());
         Assert.assertNull(readThing.getSibling());

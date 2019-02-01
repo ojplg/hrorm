@@ -38,7 +38,7 @@ public class DaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> extends KeylessDaoI
     }
 
     @Override
-    public Optional<Long> insert(ENTITY item) {
+    public Long insert(ENTITY item) {
         String sql = sqlBuilder.insert();
         long id = DaoHelper.getNextSequenceValue(connection, primaryKey.getSequenceName());
         primaryKey.optimisticSetKey(item, id);
@@ -47,7 +47,7 @@ public class DaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> extends KeylessDaoI
         for(ChildrenDescriptor<ENTITY,?, BUILDER,?> childrenDescriptor : childrenDescriptors){
             childrenDescriptor.saveChildren(connection, new Envelope<>(item, id));
         }
-        return Optional.of(id);
+        return id;
     }
 
 

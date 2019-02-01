@@ -16,7 +16,6 @@ import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 public class ImmutableThingTest {
 
@@ -36,28 +35,28 @@ public class ImmutableThingTest {
 
     static final IndirectDaoBuilder<ImmutableSibling, ImmutableSibling.ImmutableSiblingBuilder> IMMUTABLE_SIBLING_DAO_BUILDER =
             new IndirectDaoBuilder<>("immutable_sibling", ImmutableSibling::builder, ImmutableSibling.ImmutableSiblingBuilder::build )
-            .withPrimaryKey("id", "immutable_sibling_seq", ImmutableSibling::getId, ImmutableSibling.ImmutableSiblingBuilder::id)
-            .withStringColumn("data", ImmutableSibling::getData, ImmutableSibling.ImmutableSiblingBuilder::data);
+                    .withPrimaryKey("id", "immutable_sibling_seq", ImmutableSibling::getId, ImmutableSibling.ImmutableSiblingBuilder::id)
+                    .withStringColumn("data", ImmutableSibling::getData, ImmutableSibling.ImmutableSiblingBuilder::data);
 
     static final IndirectDaoBuilder<ImmutableChild, ImmutableChild.ImmutableChildBuilder> IMMUTABLE_CHILD_DAO_BUILDER =
             new IndirectDaoBuilder<>("immutable_child", ImmutableChild::builder, ImmutableChild.ImmutableChildBuilder::build)
-            .withPrimaryKey("id", "immutable_child_seq", ImmutableChild::getId, ImmutableChild.ImmutableChildBuilder::id)
-            .withBooleanColumn("flag", ImmutableChild::getFlag, ImmutableChild.ImmutableChildBuilder::flag)
-            .withLocalDateTimeColumn("birthday", ImmutableChild::getBirthday, ImmutableChild.ImmutableChildBuilder::birthday)
-            .withJoinColumn("sibling_id", ImmutableChild::getImmutableSibling, ImmutableChild.ImmutableChildBuilder::immutableSibling, IMMUTABLE_SIBLING_DAO_BUILDER)
-            .withParentColumn("thing_id");
+                    .withPrimaryKey("id", "immutable_child_seq", ImmutableChild::getId, ImmutableChild.ImmutableChildBuilder::id)
+                    .withBooleanColumn("flag", ImmutableChild::getFlag, ImmutableChild.ImmutableChildBuilder::flag)
+                    .withLocalDateTimeColumn("birthday", ImmutableChild::getBirthday, ImmutableChild.ImmutableChildBuilder::birthday)
+                    .withJoinColumn("sibling_id", ImmutableChild::getImmutableSibling, ImmutableChild.ImmutableChildBuilder::immutableSibling, IMMUTABLE_SIBLING_DAO_BUILDER)
+                    .withParentColumn("thing_id");
 
     static final IndirectDaoBuilder<ImmutableThing, ImmutableThing.ImmutableThingBuilder> IMMUTABLE_OBJECT_DAO_BUILDER =
             new IndirectDaoBuilder<>("immutable_thing", ImmutableThing::builder, ImmutableThing.ImmutableThingBuilder::build)
-            .withPrimaryKey("id", "immutable_thing_seq", ImmutableThing::getId, ImmutableThing.ImmutableThingBuilder::id)
-            .withBigDecimalColumn("amount", ImmutableThing::getAmount, ImmutableThing.ImmutableThingBuilder::amount )
-            .withStringColumn("word", ImmutableThing::getWord, ImmutableThing.ImmutableThingBuilder::word)
-            .withChildren(ImmutableThing::getChildren, ImmutableThing.ImmutableThingBuilder::children, IMMUTABLE_CHILD_DAO_BUILDER);
+                    .withPrimaryKey("id", "immutable_thing_seq", ImmutableThing::getId, ImmutableThing.ImmutableThingBuilder::id)
+                    .withBigDecimalColumn("amount", ImmutableThing::getAmount, ImmutableThing.ImmutableThingBuilder::amount )
+                    .withStringColumn("word", ImmutableThing::getWord, ImmutableThing.ImmutableThingBuilder::word)
+                    .withChildren(ImmutableThing::getChildren, ImmutableThing.ImmutableThingBuilder::children, IMMUTABLE_CHILD_DAO_BUILDER);
 
     @Test
     public void insertAndSelectImmutableThing(){
 
-        Optional<Long> id = Optional.empty();
+        long id;
         {
             Connection connection = helper.connect();
             Dao<ImmutableThing> dao = IMMUTABLE_OBJECT_DAO_BUILDER.buildDao(connection);
@@ -69,13 +68,12 @@ public class ImmutableThingTest {
                     .build();
 
             id = dao.insert(it);
-            Assert.assertTrue(id.isPresent());
         }
         {
             Connection connection = helper.connect();
             Dao<ImmutableThing> dao = IMMUTABLE_OBJECT_DAO_BUILDER.buildDao(connection);
 
-            ImmutableThing it = dao.select(id.get());
+            ImmutableThing it = dao.select(id);
 
             Assert.assertNotNull(it.getId());
             Assert.assertEquals("test one", it.getWord());
@@ -86,7 +84,7 @@ public class ImmutableThingTest {
     @Test
     public void insertAndSelectImmutableThingWithAChild(){
 
-        Optional<Long> id = Optional.empty();
+        long id;
         LocalDateTime bday = LocalDateTime.now();
         {
             Connection connection = helper.connect();
@@ -104,13 +102,12 @@ public class ImmutableThingTest {
                     .build();
 
             id = dao.insert(it);
-            Assert.assertTrue(id.isPresent());
         }
         {
             Connection connection = helper.connect();
             Dao<ImmutableThing> dao = IMMUTABLE_OBJECT_DAO_BUILDER.buildDao(connection);
 
-            ImmutableThing it = dao.select(id.get());
+            ImmutableThing it = dao.select(id);
 
             Assert.assertNotNull(it.getId());
             Assert.assertEquals("test one", it.getWord());
@@ -127,8 +124,8 @@ public class ImmutableThingTest {
     @Test
     public void insertAndSelectImmutableThingWithAChildAndSibling(){
 
-        Optional<Long> id = Optional.empty();
-        Optional<Long> siblingId = Optional.empty();
+        long id;
+        long siblingId;
         LocalDateTime bday = LocalDateTime.now();
         {
             Connection connection = helper.connect();
@@ -139,12 +136,11 @@ public class ImmutableThingTest {
                     .build();
 
             siblingId = siblingDao.insert(sibling);
-            Assert.assertTrue(siblingId.isPresent());
         }
         {
             Connection connection = helper.connect();
             Dao<ImmutableSibling> siblingDao = IMMUTABLE_SIBLING_DAO_BUILDER.buildDao(connection);
-            ImmutableSibling sibling = siblingDao.select(siblingId.get());
+            ImmutableSibling sibling = siblingDao.select(siblingId);
 
             Dao<ImmutableThing> dao = IMMUTABLE_OBJECT_DAO_BUILDER.buildDao(connection);
 
@@ -161,13 +157,12 @@ public class ImmutableThingTest {
                     .build();
 
             id = dao.insert(it);
-            Assert.assertTrue(id.isPresent());
         }
         {
             Connection connection = helper.connect();
             Dao<ImmutableThing> dao = IMMUTABLE_OBJECT_DAO_BUILDER.buildDao(connection);
 
-            ImmutableThing it = dao.select(id.get());
+            ImmutableThing it = dao.select(id);
 
             Assert.assertNotNull(it.getId());
             Assert.assertEquals("something or other", it.getWord());
@@ -190,10 +185,10 @@ public class ImmutableThingTest {
     @Test
     public void testCascadingUpdate(){
 
-        Optional<Long> id = Optional.empty();
-        Optional<Long> firstSiblingId = Optional.empty();
-        Optional<Long> secondSiblingId = Optional.empty();
-        Optional<Long> thirdSiblingId = Optional.empty();
+        long id;
+        long firstSiblingId;
+        long secondSiblingId;
+        long thirdSiblingId;
         LocalDateTime bday = LocalDateTime.now();
         LocalDateTime otherDay = LocalDateTime.of(2018, 10, 7, 3, 34);
         {
@@ -211,17 +206,14 @@ public class ImmutableThingTest {
                     .build();
 
             firstSiblingId = siblingDao.insert(sibling1);
-            Assert.assertTrue(firstSiblingId.isPresent());
             secondSiblingId = siblingDao.insert(sibling2);
-            Assert.assertTrue(secondSiblingId.isPresent());
             thirdSiblingId = siblingDao.insert(sibling3);
-            Assert.assertTrue(thirdSiblingId.isPresent());
         }
         {
             Connection connection = helper.connect();
             Dao<ImmutableSibling> siblingDao = IMMUTABLE_SIBLING_DAO_BUILDER.buildDao(connection);
-            ImmutableSibling secondSibling = siblingDao.select(secondSiblingId.get());
-            ImmutableSibling thirdSibling = siblingDao.select(thirdSiblingId.get());
+            ImmutableSibling secondSibling = siblingDao.select(secondSiblingId);
+            ImmutableSibling thirdSibling = siblingDao.select(thirdSiblingId);
 
             Dao<ImmutableThing> dao = IMMUTABLE_OBJECT_DAO_BUILDER.buildDao(connection);
 
@@ -244,17 +236,16 @@ public class ImmutableThingTest {
                     .build();
 
             id = dao.insert(it);
-            Assert.assertTrue(id.isPresent());
         }
         {
             Connection connection = helper.connect();
             Dao<ImmutableSibling> siblingDao = IMMUTABLE_SIBLING_DAO_BUILDER.buildDao(connection);
 
-            ImmutableSibling firstSibling = siblingDao.select(firstSiblingId.get());
+            ImmutableSibling firstSibling = siblingDao.select(firstSiblingId);
 
             Dao<ImmutableThing> dao = IMMUTABLE_OBJECT_DAO_BUILDER.buildDao(connection);
 
-            ImmutableThing it = dao.select(id.get());
+            ImmutableThing it = dao.select(id);
 
             Assert.assertNotNull(it.getId());
             Assert.assertEquals("chirp", it.getWord());
@@ -288,7 +279,7 @@ public class ImmutableThingTest {
         {
             Connection connection = helper.connect();
             Dao<ImmutableThing> dao = IMMUTABLE_OBJECT_DAO_BUILDER.buildDao(connection);
-            ImmutableThing it = dao.select(id.get());
+            ImmutableThing it = dao.select(id);
 
             Assert.assertEquals("cheap", it.getWord());
             List<ImmutableChild> children = it.getChildren();
