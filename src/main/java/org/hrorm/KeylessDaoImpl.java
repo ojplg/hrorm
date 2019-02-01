@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -135,6 +136,11 @@ public class KeylessDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> implements K
         String sql = keylessSqlBuilder.selectByColumns(columnNames);
         List<BUILDER> bs = sqlRunner.selectByColumns(sql, supplier, Arrays.asList(columnNames), columnMap(columnNames), childrenDescriptors, item);
         return mapBuilders(bs);
+    }
+
+    @Override
+    public List<ENTITY> selectManyByColumns(ENTITY template, Map<String, Operator> columnNamesMap) {
+        return Collections.emptyList();
     }
 
     @Override

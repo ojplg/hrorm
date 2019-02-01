@@ -1,6 +1,7 @@
 package org.hrorm;
 
 import java.util.List;
+import java.util.Map;
 import java.util.function.BiFunction;
 
 /**
@@ -47,6 +48,8 @@ public interface KeylessDao<ENTITY> {
      *         the indicated columnNames.
      */
     List<ENTITY> selectManyByColumns(ENTITY item, String... columnNames);
+
+    List<ENTITY> selectManyByColumns(ENTITY template, Map<String, Operator> columnNamesMap);
 
     /**
      * Select a single record from the database by some search criteria.
