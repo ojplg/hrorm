@@ -19,9 +19,12 @@ import java.util.function.Supplier;
  *
  * @param <ENTITY> The class that the Dao will support.
  */
-public class DaoBuilder<ENTITY> extends KeylessDaoBuilder<ENTITY> implements DaoDescriptor<ENTITY, ENTITY> {
+public class DaoBuilder<ENTITY> implements DaoDescriptor<ENTITY, ENTITY> {
+
+    private final IndirectDaoBuilder<ENTITY, ENTITY> internalDaoBuilder;
 
     private final Consumer<PrimaryKey<ENTITY,ENTITY>> primaryKeyConsumer;
+    private final String myPrefix;
 
     /**
      * Create a new DaoBuilder instance.
@@ -30,12 +33,11 @@ public class DaoBuilder<ENTITY> extends KeylessDaoBuilder<ENTITY> implements Dao
      * @param supplier A mechanism (generally a constructor) for creating a new instance.
      */
     public DaoBuilder(String tableName, Supplier<ENTITY> supplier){
-        this(IndirectDaoBuilder.forDirectDaoBuilder(tableName, supplier));
-    }
-
-    private DaoBuilder(IndirectDaoBuilder.BuilderHolder<ENTITY,ENTITY> builderHolder) {
-        super(builderHolder);
+        IndirectDaoBuilder.BuilderHolder<ENTITY,ENTITY> builderHolder =
+                IndirectDaoBuilder.forDirectDaoBuilder(tableName, supplier);
+        internalDaoBuilder = builderHolder.daoBuilder;
         primaryKeyConsumer = builderHolder.primaryKeyConsumer;
+        myPrefix = builderHolder.myPrefix;
     }
 
     @Override
@@ -85,6 +87,13 @@ public class DaoBuilder<ENTITY> extends KeylessDaoBuilder<ENTITY> implements Dao
     public Dao<ENTITY> buildDao(Connection connection){
         return internalDaoBuilder.buildDao(connection);
     }
+
+    /**
+     * Build the SQL that will be used by <code>DAO</code> objects created by this builder.
+     *
+     * @return A container for the SQL
+     */
+    public Queries buildQueries() { return internalDaoBuilder.buildQueries(); }
 
     /**
      * Describes a text or string data element.
@@ -245,7 +254,7 @@ public class DaoBuilder<ENTITY> extends KeylessDaoBuilder<ENTITY> implements Dao
      * @return This instance.
      */
     public DaoBuilder<ENTITY> withPrimaryKey(String columnName, String sequenceName, Function<ENTITY, Long> getter, BiConsumer<ENTITY, Long> setter){
-        PrimaryKey<ENTITY,ENTITY> primaryKey = new DirectPrimaryKey<>(internalDaoBuilder.getMyPrefix(), columnName, sequenceName, getter, setter);
+        PrimaryKey<ENTITY,ENTITY> primaryKey = new DirectPrimaryKey<>(myPrefix, columnName, sequenceName, getter, setter);
         primaryKeyConsumer.accept(primaryKey);
         return this;
     }
@@ -268,9 +277,10 @@ public class DaoBuilder<ENTITY> extends KeylessDaoBuilder<ENTITY> implements Dao
      * Indicator that the column is a reference to an owning parent object.
      *
      * @param columnName The name of the column that holds the foreign key reference.
+     * @param <P> The type of the parent object.
      * @return This instance.
      */
-    public DaoBuilder<ENTITY> withParentColumn(String columnName){
+    public <P> DaoBuilder<ENTITY> withParentColumn(String columnName){
         internalDaoBuilder.withParentColumn(columnName);
         return this;
     }
