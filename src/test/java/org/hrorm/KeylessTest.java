@@ -156,6 +156,6 @@ public class KeylessTest {
         } catch( HrormException ex) {
             Assert.fail(ex.getMessage());
         }
-;    }
+    }
 
 }
