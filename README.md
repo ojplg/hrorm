@@ -24,4 +24,8 @@ Hrorm requires Java 8.
 * Expose fields in addition to columns in select statements (either set on columns at
 create time, or derive from get/set method names)
 * Add support for more Java types
-
+* Perhaps add a KeylessDaoBuilder: but need to think about how best to share code among 
+all the DAO builder classes while still supporting the clean types
+* Add tests:
+  * Failed keyless validations
+  * Keyless entities with children and siblings
