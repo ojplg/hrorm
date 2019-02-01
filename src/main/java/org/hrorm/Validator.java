@@ -75,39 +75,4 @@ public class Validator extends KeylessValidator {
         return errors;
     }
 
-    /*
-    private static List<String> checkTableExists(Connection connection, DaoDescriptor daoDescriptor) {
-        try {
-            String tableName = daoDescriptor.tableName();
-            Statement statement = connection.createStatement();
-            ResultSet resultSet = statement.executeQuery("select top 1 * from " + tableName);
-            resultSet.next();
-        } catch (SQLException ex){
-            return Collections.singletonList(ex.getMessage());
-        }
-        return Collections.emptyList();
-    }
-
-    private static List<String> checkColumnTypesCorrect(Connection connection, DaoDescriptor daoDescriptor) {
-        String tableName = daoDescriptor.tableName();
-        List<Column> columns = daoDescriptor.allColumns();
-        List<String> errors = new ArrayList<>();
-        for(Column column : columns) {
-            try {
-                Statement statement = connection.createStatement();
-                String columnName = column.getName();
-                ResultSet resultSet = statement.executeQuery("select top 1 " + columnName + " from " + tableName);
-                ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
-                int columnType = resultSetMetaData.getColumnType(1);
-                if ( ! column.supportedTypes().contains(columnType) ){
-                    errors.add("Column " + columnName + " does not support type " + columnType);
-                }
-            } catch (SQLException ex){
-                errors.add(ex.getMessage());
-            }
-        }
-        return errors;
-    }
-    */
-
 }
