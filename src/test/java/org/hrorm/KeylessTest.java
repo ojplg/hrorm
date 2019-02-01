@@ -149,5 +149,13 @@ public class KeylessTest {
         return keyless;
     }
 
+    @Test
+    public void testValidate(){
+        try {
+            KeylessValidator.validate(helper.connect(), Keyless.DAO_BUILDER);
+        } catch( HrormException ex) {
+            Assert.fail(ex.getMessage());
+        }
+;    }
 
 }

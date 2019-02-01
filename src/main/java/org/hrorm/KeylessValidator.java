@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
  * See also: {@link Validator}
  */
 public class KeylessValidator {
-    
+
     /**
      * Calling this method will attempt to check to make sure that certain basics of the
      * <code>Dao</code> definition correctly match the database schema. The following will
@@ -39,7 +39,7 @@ public class KeylessValidator {
      * @param daoDescriptor The definition of the <code>Dao</code> to be checked
      * @throws HrormException if a problem is discovered
      */
-    public static void validate(Connection connection, DaoDescriptor daoDescriptor) {
+    public static void validate(Connection connection, KeylessDaoDescriptor daoDescriptor) {
         List<String> errors = findErrors(connection, daoDescriptor);
         if ( errors.size() > 0 ){
             List<String> oneLineErrors = errors.stream().map(s -> s.replaceAll("\n", " ")).collect(Collectors.toList());
@@ -48,14 +48,14 @@ public class KeylessValidator {
         }
     }
 
-    public static List<String> findErrors(Connection connection, DaoDescriptor daoDescriptor) {
+    public static List<String> findErrors(Connection connection, KeylessDaoDescriptor daoDescriptor) {
         List<String> errors = new ArrayList<>();
         errors.addAll(checkTableExists(connection, daoDescriptor));
         errors.addAll(checkColumnTypesCorrect(connection, daoDescriptor));
         return errors;
     }
 
-    private static List<String> checkTableExists(Connection connection, DaoDescriptor daoDescriptor) {
+    private static List<String> checkTableExists(Connection connection, KeylessDaoDescriptor daoDescriptor) {
         try {
             String tableName = daoDescriptor.tableName();
             Statement statement = connection.createStatement();
@@ -67,7 +67,7 @@ public class KeylessValidator {
         return Collections.emptyList();
     }
 
-    private static List<String> checkColumnTypesCorrect(Connection connection, DaoDescriptor daoDescriptor) {
+    private static List<String> checkColumnTypesCorrect(Connection connection, KeylessDaoDescriptor daoDescriptor) {
         String tableName = daoDescriptor.tableName();
         List<Column> columns = daoDescriptor.allColumns();
         List<String> errors = new ArrayList<>();
