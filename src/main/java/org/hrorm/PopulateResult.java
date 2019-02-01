@@ -37,4 +37,10 @@ public class PopulateResult {
         this.connectionUser.accept(connection);
     }
 
+    @Override
+    public String toString() {
+        return "PopulateResult{" +
+                "code='" + code + '\'' +
+                '}';
+    }
 }

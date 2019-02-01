@@ -1,8 +1,6 @@
 package org.hrorm;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -23,14 +21,6 @@ public class SqlBuilder<ENTITY> implements Queries {
     public SqlBuilder(DaoDescriptor<ENTITY,?> daoDescriptor){
         this.keylessSqlBuilder = new KeylessSqlBuilder<>(daoDescriptor);
         this.primaryKey = daoDescriptor.primaryKey();
-    }
-
-    public SqlBuilder(String table,
-                      List<? extends Column<ENTITY,?>> dataColumns,
-                      List<? extends JoinColumn<ENTITY, ?, ?, ?>> joinColumns,
-                      PrimaryKey<ENTITY, ?> primaryKey) {
-        this.keylessSqlBuilder = new KeylessSqlBuilder<>(table, dataColumns, joinColumns);
-        this.primaryKey = primaryKey;
     }
 
     public String select(){

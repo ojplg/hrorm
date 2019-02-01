@@ -33,7 +33,7 @@ public class KeylessDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> implements K
     protected final List<ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors;
     protected final KeylessSqlBuilder<ENTITY> keylessSqlBuilder;
     protected final SqlRunner<ENTITY, BUILDER> sqlRunner;
-    protected  final ParentColumn<ENTITY, PARENT, BUILDER, PARENTBUILDER> parentColumn;
+    protected final ParentColumn<ENTITY, PARENT, BUILDER, PARENTBUILDER> parentColumn;
     protected final Function<BUILDER, ENTITY> buildFunction;
 
     public KeylessDaoImpl(Connection connection,
@@ -89,7 +89,6 @@ public class KeylessDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> implements K
                con -> { return insert(item); }
         );
     }
-
 
     @Override
     public Long insert(ENTITY item) {

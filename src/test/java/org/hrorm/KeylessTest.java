@@ -6,19 +6,13 @@ import org.hrorm.util.RandomUtils;
 import org.hrorm.util.TestLogConfig;
 import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.math.BigDecimal;
 import java.sql.Connection;
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Random;
 import java.util.UUID;
-import java.util.function.BiFunction;
 import java.util.function.Function;
-import java.util.logging.Logger;
 
 /**
  * Test operations for tables without primary keys, and KeylessDao.

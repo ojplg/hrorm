@@ -16,13 +16,6 @@ public class Envelope<T> {
     private final Long id;
     private final Long parentId;
 
-    public Envelope(T item){
-        this.item = item;
-        this.id = null;
-        this.parentId = null;
-    }
-
-
     public Envelope(T item, Long id, Long parentId){
         if( item == null ){
             throw new HrormException("Cannot persist a null item");
@@ -34,6 +27,10 @@ public class Envelope<T> {
 
     public Envelope(T item, Long id) {
         this(item, id, null);
+    }
+
+    public Envelope(T item){
+        this(item, null, null);
     }
 
     public T getItem() {

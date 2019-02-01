@@ -87,13 +87,6 @@ public class DaoBuilder<ENTITY> extends KeylessDaoBuilder<ENTITY> implements Dao
     }
 
     /**
-     * Build the SQL that will be used by <code>DAO</code> objects created by this builder.
-     *
-     * @return A container for the SQL
-     */
-    public Queries buildQueries() { return internalDaoBuilder.buildQueries(); }
-
-    /**
      * Describes a text or string data element.
      *
      * @param columnName The name of the column that holds the data element.
