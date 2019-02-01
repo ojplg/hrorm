@@ -14,7 +14,6 @@ import java.math.BigDecimal;
 import java.sql.Connection;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.logging.LogManager;
 
 public class ColumnsTest {
 
@@ -58,13 +57,13 @@ public class ColumnsTest {
         columns.setTimeStampThing(time);
         columns.setColorThing(EnumeratedColor.Red);
 
-        long id = dao.insert(columns);
+        Long id = dao.insert(columns);
 
         Columns dbInstance = dao.select(id);
 
         Assert.assertEquals(columns, dbInstance);
         Assert.assertNotNull(columns.getId());
-        Assert.assertTrue(id == columns.getId());
+        Assert.assertEquals(id, columns.getId());
     }
 
     @Test
