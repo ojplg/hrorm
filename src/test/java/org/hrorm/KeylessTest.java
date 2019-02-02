@@ -13,6 +13,7 @@ import java.sql.Connection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -143,6 +144,15 @@ public class KeylessTest {
     }
 
 
+    @Test
+    public void testValidate(){
+        try {
+            KeylessValidator.validate(helper.connect(), Keyless.DAO_BUILDER);
+        } catch( HrormException ex) {
+            Assert.fail(ex.getMessage());
+        }
+    }
+
 
     @Test
     public void likeOperatorTest() {
@@ -176,14 +186,156 @@ public class KeylessTest {
             Assert.assertEquals(matching.size(), fromDatabase.size());
             matching.forEach(keyless -> Assert.assertTrue(fromDatabase.contains(keyless)));
 
-
-
-
-
         }
     }
 
+    @Test
+    public void decimalOperatorTests() {
+        {
+            // Build a template using a known used value.
+            final Keyless template = new Keyless();
+            template.setDecimalColumn(RandomUtils.randomDistinctFieldValue(fakeEntities, Keyless::getDecimalColumn));
 
+            predicateTest(
+                    template,
+                    Operator.EQUALS,
+                    equalTo(template, Keyless::getDecimalColumn),
+                    "decimal_column");
+
+            predicateTest(
+                    template,
+                    Operator.LESS_THAN,
+                    lessThan(template, Keyless::getDecimalColumn),
+                    "decimal_column");
+
+            predicateTest(
+                    template,
+                    Operator.LESS_THAN_OR_EQUALS,
+                    lessThanOrEqual(template, Keyless::getDecimalColumn),
+                    "decimal_column");
+
+            predicateTest(
+                    template,
+                    Operator.GREATER_THAN,
+                    greaterThan(template, Keyless::getDecimalColumn),
+                    "decimal_column");
+
+            predicateTest(
+                    template,
+                    Operator.GREATER_THAN_OR_EQUALS,
+                    greaterThanOrEqual(template, Keyless::getDecimalColumn),
+                    "decimal_column");
+        }
+    }
+
+    @Test
+    public void integerOperatorTests() {
+        {
+            // Build a template using a known used value.
+            final Keyless template = new Keyless();
+            template.setIntegerColumn(RandomUtils.randomDistinctFieldValue(fakeEntities, Keyless::getIntegerColumn));
+
+            predicateTest(
+                    template,
+                    Operator.EQUALS,
+                    equalTo(template, Keyless::getIntegerColumn),
+                    "integer_column");
+
+            predicateTest(
+                    template,
+                    Operator.LESS_THAN,
+                    lessThan(template, Keyless::getIntegerColumn),
+                    "integer_column");
+
+            predicateTest(
+                    template,
+                    Operator.LESS_THAN_OR_EQUALS,
+                    lessThanOrEqual(template, Keyless::getIntegerColumn),
+                    "integer_column");
+
+            predicateTest(
+                    template,
+                    Operator.GREATER_THAN,
+                    greaterThan(template, Keyless::getIntegerColumn),
+                    "integer_column");
+
+            predicateTest(
+                    template,
+                    Operator.GREATER_THAN_OR_EQUALS,
+                    greaterThanOrEqual(template, Keyless::getIntegerColumn),
+                    "integer_column");
+        }
+    }
+
+    @Test
+    public void timestampOperatorTests() {
+        {
+            // Build a template using a known used value.
+            final Keyless template = new Keyless();
+            template.setTimeStampColumn(RandomUtils.randomDistinctFieldValue(fakeEntities, Keyless::getTimeStampColumn));
+
+            predicateTest(
+                    template,
+                    Operator.EQUALS,
+                    equalTo(template, Keyless::getTimeStampColumn),
+                    "timestamp_column");
+
+            predicateTest(
+                    template,
+                    Operator.LESS_THAN,
+                    lessThan(template, Keyless::getTimeStampColumn),
+                    "timestamp_column");
+
+            predicateTest(
+                    template,
+                    Operator.LESS_THAN_OR_EQUALS,
+                    lessThanOrEqual(template, Keyless::getTimeStampColumn),
+                    "timestamp_column");
+
+            predicateTest(
+                    template,
+                    Operator.GREATER_THAN,
+                    greaterThan(template, Keyless::getTimeStampColumn),
+                    "timestamp_column");
+
+            predicateTest(
+                    template,
+                    Operator.GREATER_THAN_OR_EQUALS,
+                    greaterThanOrEqual(template, Keyless::getTimeStampColumn),
+                    "timestamp_column");
+        }
+    }
+
+    /**
+     * Filters fakeEntities by a streamFilter Predicate equivalent to Operator, using template and column_name
+     * to do the actual query.
+     */
+    private <F> void predicateTest(
+            Keyless template,
+            Operator operator, 
+            Predicate<Keyless> streamFilter,
+            String columnName) {
+
+        // DAO Setup
+        Connection connection = helper.connect();
+        KeylessDao<Keyless> dao = Keyless.DAO_BUILDER.buildDao(connection);
+
+        // Filter our dataset by the predicate.
+        List<Keyless> matching = fakeEntities.stream()
+                .filter(streamFilter)
+                .collect(Collectors.toList());
+
+        // Setup and exec query
+        Map<String, Operator> columnOperatorMap = new HashMap<>();
+        columnOperatorMap.put(columnName, operator);
+        List<Keyless> fromDatabase = dao.selectManyByColumns(template, columnOperatorMap);
+
+        // Verify
+        Assert.assertEquals(matching.size(), fromDatabase.size());
+        matching.forEach(keyless -> Assert.assertTrue(fromDatabase.contains(keyless)));
+    }
+    
+    
     /**
      * Test that selectManyByColumns works as intended by taking a sample dataset and comparing it
      * to entities fetched from the database by the sample's field value.
@@ -221,36 +373,31 @@ public class KeylessTest {
     }
 
     /**
-     * Predicates to simulate SQL Behavior in Streams.
+     * Predicates to simulate SQL Behavior in Streams. For use with fakeEntities.
      */
-
-    public static <F extends Comparable<F>> Predicate<Keyless> greaterThan(final F comparable, final Function<Keyless, F> getter) {
-        return keyless -> getter.apply(keyless).compareTo(comparable) < 0;
+    public static <F extends Comparable<F>> Predicate<Keyless> equalTo(Keyless template, final Function<Keyless, F> getter) {
+        return keyless -> Objects.equals(getter.apply(template), getter.apply(keyless));
     }
 
-    public static <F extends Comparable<F>> Predicate<Keyless> lessThan(final F comparable, final Function<Keyless, F> getter) {
-        return keyless -> getter.apply(keyless).compareTo(comparable) > 0;
+    public static <F extends Comparable<F>> Predicate<Keyless> greaterThan(Keyless template, final Function<Keyless, F> getter) {
+        return keyless -> getter.apply(keyless).compareTo(getter.apply(template)) > 0;
     }
 
-    public static <F extends Comparable<F>> Predicate<Keyless> greaterThanOrEqual(final F comparable, final Function<Keyless, F> getter) {
-        return keyless -> getter.apply(keyless).compareTo(comparable) <= 0;
+    public static <F extends Comparable<F>> Predicate<Keyless> lessThan(Keyless template, final Function<Keyless, F> getter) {
+        return keyless -> getter.apply(keyless).compareTo(getter.apply(template)) < 0;
     }
 
-    public static <F extends Comparable<F>> Predicate<Keyless> lessThanOrEqual(final F comparable, final Function<Keyless, F> getter) {
-        return keyless -> getter.apply(keyless).compareTo(comparable) >= 0;
+    public static <F extends Comparable<F>> Predicate<Keyless> greaterThanOrEqual(Keyless template, final Function<Keyless, F> getter) {
+        return keyless -> getter.apply(keyless).compareTo(getter.apply(template)) >= 0;
+    }
+
+    public static <F extends Comparable<F>> Predicate<Keyless> lessThanOrEqual(Keyless template, final Function<Keyless, F> getter) {
+        return keyless -> getter.apply(keyless).compareTo(getter.apply(template)) <= 0;
     }
 
     public static Predicate<Keyless> like(final String stringColumn) {
         return keyless -> keyless.getStringColumn().toLowerCase().contains(stringColumn.toLowerCase());
     }
 
-    @Test
-    public void testValidate(){
-        try {
-            KeylessValidator.validate(helper.connect(), Keyless.DAO_BUILDER);
-        } catch( HrormException ex) {
-            Assert.fail(ex.getMessage());
-        }
-    }
 
 }
