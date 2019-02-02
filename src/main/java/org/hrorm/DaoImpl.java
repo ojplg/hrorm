@@ -75,10 +75,11 @@ public class DaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> extends KeylessDaoI
         primaryKey.setKey(builder, id);
         ENTITY item = buildFunction.apply(builder);
         logger.info("Searching by " + id + " for " + item);
-        Stream<BUILDER> items = sqlRunner.selectByColumns(sql, supplier,
+        return fromSingletonList(sqlRunner.selectByColumns(sql, supplier,
                 Collections.singletonList(primaryKeyName), columnMap(primaryKeyName),
-                childrenDescriptors, item);
-        return fromSingletonList(mapBuilders(items).collect(Collectors.toList()));
+                childrenDescriptors, item)
+                    .map(buildFunction)
+                    .collect(Collectors.toList()));
     }
 
 
@@ -88,8 +89,8 @@ public class DaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> extends KeylessDaoI
         List<String> idStrings = ids.stream().map(Object::toString).collect(Collectors.toList());
         String idsString = String.join(",", idStrings);
         sql = sql + " and a." + primaryKey.getName() + " in (" + idsString + ")";
-        Stream<BUILDER> bs = sqlRunner.select(sql, supplier, childrenDescriptors);
-        return mapBuilders(bs);
+        return sqlRunner.select(sql, supplier, childrenDescriptors)
+                .map(buildFunction);
     }
 
     @Override

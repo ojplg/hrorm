@@ -33,7 +33,8 @@ public interface KeylessDao<ENTITY> {
     /**
      * Read all the records in the database of type ENTITY.
      *
-     * <p>Stream</p>
+     * <p>This Streams the data out of the table and maps it to ENTITY on
+     * the fly. </p>
      *
      * @return A Stream yielding all type ENTITY retrieved from the paired table.
      */
