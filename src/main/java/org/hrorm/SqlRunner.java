@@ -6,14 +6,19 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Spliterator;
+import java.util.Spliterators;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 /**
  * This class does the heavy lifting of creating <code>Statement</code>s,
@@ -49,79 +54,72 @@ public class SqlRunner<ENTITY, BUILDER> {
                 ));
     }
 
-    public List<BUILDER> select(String sql, Supplier<BUILDER> supplier, List<ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors){
+    public Stream<BUILDER> select(String sql, Supplier<BUILDER> supplier, List<ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors){
         return selectByColumns(sql, supplier, Collections.emptyList(), Collections.emptyMap(), childrenDescriptors, null);
     }
 
-    public List<BUILDER> selectByColumns(String sql, Supplier<BUILDER> supplier, List<String> columnNames, Map<String, ? extends Column<ENTITY,?>> columnNameMap, List<? extends ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors, ENTITY item){
-        BiFunction<List<BUILDER>, BUILDER, List<BUILDER>> accumulator =
-                (list, b) -> { list.add(b); return list; };
+    public Stream<BUILDER> selectByColumns(String sql, Supplier<BUILDER> supplier, List<String> columnNames, Map<String, ? extends Column<ENTITY,?>> columnNameMap, List<? extends ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors, ENTITY item){
         return foldingSelect(
                 sql,
                 supplier,
                 columnNames,
                 columnNameMap,
                 childrenDescriptors,
-                item,
-                b -> b,
-                new ArrayList<>(),
-                accumulator
+                item
         );
     }
 
-    public <T,X> T foldingSelect(String sql,
+    public Stream<BUILDER> foldingSelect(String sql,
                                Supplier<BUILDER> supplier,
                                List<String> columnNames,
                                Map<String, ? extends Column<ENTITY,?>> columnNameMap,
                                List<? extends ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors,
-                               ENTITY template,
-                               Function<BUILDER, X> buildFunction,
-                               T identity,
-                               BiFunction<T,X,T> accumulator){
+                               ENTITY template) {
 
-        ResultSet resultSet = null;
-        PreparedStatement statement = null;
+        UncheckedCloseable close = UncheckedCloseable.wrap(connection);
         try {
-            statement = connection.prepareStatement(sql);
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setFetchSize(5000);
+            close = close.nest(statement);
             int idx = 1;
-            for(String columnName : columnNames){
-
-                Column<ENTITY,?> column = columnNameMap.get(columnName.toUpperCase());
+            for (String columnName : columnNames) {
+                Column<ENTITY, ?> column = columnNameMap.get(columnName.toUpperCase());
                 column.setValue(template, idx, statement);
                 idx++;
             }
 
             logger.info(sql);
-            resultSet = statement.executeQuery();
+            ResultSet resultSet = statement.executeQuery();
+            close = close.nest(resultSet);
 
-            T result = identity;
-
-            while (resultSet.next()) {
-                BUILDER bldr = populate(resultSet, supplier);
-                for(ChildrenDescriptor<ENTITY,?, BUILDER,?> descriptor : childrenDescriptors){
-                    descriptor.populateChildren(connection, bldr);
+            return StreamSupport.stream(new Spliterators.AbstractSpliterator<BUILDER>(
+                    Long.MAX_VALUE,Spliterator.ORDERED) {
+                @Override
+                public boolean tryAdvance(Consumer<? super BUILDER> action) {
+                    try {
+                        if (resultSet.isClosed() || !resultSet.next()) return false;
+                        BUILDER bldr = populate(resultSet, supplier);
+                        for (ChildrenDescriptor<ENTITY, ?, BUILDER, ?> descriptor : childrenDescriptors) {
+                            descriptor.populateChildren(connection, bldr);
+                        }
+                        if (bldr == null) return false;
+                        action.accept(bldr);
+                        return true;
+                    } catch (SQLException ex) {
+                        throw new RuntimeException(ex);
+                    }
                 }
-                X item = buildFunction.apply(bldr);
-                result = accumulator.apply(result, item);
-            }
+            }, false).onClose(close);
 
-            return result;
-
-        } catch (SQLException ex){
-            throw new HrormException(ex, sql);
-        } finally {
-            try {
-                if (resultSet != null) {
-                    resultSet.close();
-                }
-                if (statement != null) {
-                    statement.close();
-                }
-            } catch (SQLException se){
-                throw new HrormException(se);
-            }
+        } catch (SQLException e) {
+            if(close!=null)
+                try { close.close(); } catch(Exception ex) { e.addSuppressed(ex); }
+            throw new HrormException(e, sql);
         }
     }
+
+
+
 
     public void insert(String sql, Envelope<ENTITY> envelope) {
         runInsertOrUpdate(sql, envelope, false);

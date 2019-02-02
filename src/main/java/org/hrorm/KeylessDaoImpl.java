@@ -7,9 +7,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
+import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * The {@link KeylessDao} implementation.
@@ -113,15 +115,15 @@ public class KeylessDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> implements K
     }
 
 
-    protected List<ENTITY> mapBuilders(List<BUILDER> bs){
-        return bs.stream().map(buildFunction).collect(Collectors.toList());
+    protected Stream<ENTITY> mapBuilders(Stream<BUILDER> bs){
+        return bs.map(buildFunction);
     }
 
 
     @Override
-    public List<ENTITY> selectAll() {
+    public Stream<ENTITY> streamAll() {
         String sql = keylessSqlBuilder.select();
-        List<BUILDER> bs = sqlRunner.select(sql, supplier, childrenDescriptors);
+        Stream<BUILDER> bs = sqlRunner.select(sql, supplier, childrenDescriptors);
         return mapBuilders(bs);
     }
 
@@ -132,24 +134,26 @@ public class KeylessDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> implements K
     }
 
     @Override
-    public List<ENTITY> selectManyByColumns(ENTITY item, String ... columnNames) {
+    public Stream<ENTITY> streamManyByColumns(ENTITY item, String ... columnNames) {
         String sql = keylessSqlBuilder.selectByColumns(Collections.emptyMap(), columnNames);
-        List<BUILDER> bs = sqlRunner.selectByColumns(sql, supplier, Arrays.asList(columnNames), columnMap(columnNames), childrenDescriptors, item);
+        Stream<BUILDER> bs = sqlRunner.selectByColumns(sql, supplier, Arrays.asList(columnNames), columnMap(columnNames), childrenDescriptors, item);
         return mapBuilders(bs);
     }
 
     @Override
-    public List<ENTITY> selectManyByColumns(ENTITY template, Map<String, Operator> columnNamesMap) {
+    public Stream<ENTITY> streamManyByColumns(ENTITY template, Map<String, Operator> columnNamesMap) {
         String[] columnNames = columnNamesMap.keySet().stream().toArray(String[]::new);
         String sql = keylessSqlBuilder.selectByColumns(columnNamesMap, columnNames);
-        List<BUILDER> bs = sqlRunner.selectByColumns(sql, supplier, Arrays.asList(columnNames), columnMap(columnNames), childrenDescriptors, template);
+        Stream<BUILDER> bs = sqlRunner.selectByColumns(sql, supplier, Arrays.asList(columnNames), columnMap(columnNames), childrenDescriptors, template);
         return mapBuilders(bs);
     }
 
     @Override
     public <T> T foldingSelect(ENTITY item, T identity, BiFunction<T,ENTITY,T> accumulator, String ... columnNames){
         String sql = keylessSqlBuilder.selectByColumns(Collections.emptyMap(), columnNames);
-        return sqlRunner.foldingSelect(sql, supplier, Arrays.asList(columnNames), columnMap(columnNames), childrenDescriptors, item, buildFunction, identity, accumulator);
+        return sqlRunner.foldingSelect(sql, supplier, Arrays.asList(columnNames), columnMap(columnNames), childrenDescriptors, item)
+            .map(buildFunction)
+            .reduce(identity, accumulator, (a, b) -> a);
     }
 
     protected <A> A fromSingletonList(List<A> items) {

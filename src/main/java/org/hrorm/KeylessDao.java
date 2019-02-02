@@ -3,6 +3,8 @@ package org.hrorm;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * A <code>KeylessDao</code> is an interface that allows basic, non-singular CRUD operations to be performed.
@@ -31,12 +33,34 @@ public interface KeylessDao<ENTITY> {
     /**
      * Read all the records in the database of type ENTITY.
      *
+     * <p>Stream</p>
+     *
+     * @return A Stream yielding all type ENTITY retrieved from the paired table.
+     */
+    Stream<ENTITY> streamAll();
+
+    /**
+     * Read all the records in the database of type ENTITY.
+     *
      * <p>No laziness or caching is involved here. This simply tries to
      * instantiate all the records it can based on the full table.</p>
      *
      * @return A list of populated instances of type ENTITY.
      */
-    List<ENTITY> selectAll();
+    default List<ENTITY> selectAll() {
+        return streamAll().collect(Collectors.toList());
+    }
+
+    /**
+     * Select multiple records from the database by some search criteria.
+     *
+     * @param item An instance of type ENTITY with populated values corresponding to the
+     *             column names to select by.
+     * @param columnNames The names of the database columns
+     * @return Stream of type ENTITY with matching values with the passed item for
+     *         the indicated columnNames.
+     */
+    Stream<ENTITY> streamManyByColumns(ENTITY item, String... columnNames);
 
     /**
      * Select multiple records from the database by some search criteria.
@@ -47,9 +71,34 @@ public interface KeylessDao<ENTITY> {
      * @return The populated instances of type ENTITY with matching values with the passed item for
      *         the indicated columnNames.
      */
-    List<ENTITY> selectManyByColumns(ENTITY item, String... columnNames);
+    default List<ENTITY> selectManyByColumns(ENTITY item, String... columnNames) {
+        return streamManyByColumns(item, columnNames).collect(Collectors.toList());
+    }
 
-    List<ENTITY> selectManyByColumns(ENTITY template, Map<String, Operator> columnNamesMap);
+
+    /**
+     * Select multiple records from the database by some search criteria.
+     *
+     * @param template An instance of type ENTITY with populated values corresponding to the
+     *             column names to select by.
+     * @param columnNamesMap The names of the database columns, paired with an Operation dictating
+     *                       the comparison to execute.
+     * @return Stream of type ENTITY with values that match the specified columns/operations.
+     */
+    Stream<ENTITY> streamManyByColumns(ENTITY template, Map<String, Operator> columnNamesMap);
+
+    /**
+     * Select multiple records from the database by some search criteria.
+     *
+     * @param template An instance of type ENTITY with populated values corresponding to the
+     *             column names to select by.
+     * @param columnNamesMap The names of the database columns, paired with an Operation dictating
+     *                       the comparison to execute.
+     * @return The populated instances of type ENTITY with values that match the specified columns/operations.
+     */
+    default List<ENTITY> selectManyByColumns(ENTITY template, Map<String, Operator> columnNamesMap) {
+        return streamManyByColumns(template, columnNamesMap).collect(Collectors.toList());
+    }
 
     /**
      * Select a single record from the database by some search criteria.

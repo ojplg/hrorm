@@ -68,7 +68,7 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
                 parentChildColumnNameList,
                 columnNameMap,
                 childrenDescriptorsList,
-                child);
+                child).collect(Collectors.toList());
 
         for( CHILDBUILDER childrenBuilder : childrenBuilders ){
             for( ChildrenDescriptor<CHILD,?,CHILDBUILDER,?> grandChildDescriptor : grandChildrenDescriptors() ){

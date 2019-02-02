@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * The {@link Dao} implementation.
@@ -74,20 +75,20 @@ public class DaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> extends KeylessDaoI
         primaryKey.setKey(builder, id);
         ENTITY item = buildFunction.apply(builder);
         logger.info("Searching by " + id + " for " + item);
-        List<BUILDER> items = sqlRunner.selectByColumns(sql, supplier,
+        Stream<BUILDER> items = sqlRunner.selectByColumns(sql, supplier,
                 Collections.singletonList(primaryKeyName), columnMap(primaryKeyName),
                 childrenDescriptors, item);
-        return fromSingletonList(mapBuilders(items));
+        return fromSingletonList(mapBuilders(items).collect(Collectors.toList()));
     }
 
 
     @Override
-    public List<ENTITY> selectMany(List<Long> ids) {
+    public Stream<ENTITY> streamMany(List<Long> ids) {
         String sql = sqlBuilder.select();
         List<String> idStrings = ids.stream().map(Object::toString).collect(Collectors.toList());
         String idsString = String.join(",", idStrings);
         sql = sql + " and a." + primaryKey.getName() + " in (" + idsString + ")";
-        List<BUILDER> bs = sqlRunner.select(sql, supplier, childrenDescriptors);
+        Stream<BUILDER> bs = sqlRunner.select(sql, supplier, childrenDescriptors);
         return mapBuilders(bs);
     }
 

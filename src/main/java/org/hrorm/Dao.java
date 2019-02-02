@@ -1,6 +1,8 @@
 package org.hrorm;
 
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * A <code>Dao</code> is an interface that allows basic CRUD operations to be performed.
@@ -38,9 +40,19 @@ public interface Dao<ENTITY> extends KeylessDao<ENTITY> {
      * Read several records from the database by their primary keys.
      *
      * @param ids The primary keys of the records desired.
+     * @return A Stream of instances of type ENTITY.
+     */
+    Stream<ENTITY> streamMany(List<Long> ids);
+
+    /**
+     * Read several records from the database by their primary keys.
+     *
+     * @param ids The primary keys of the records desired.
      * @return A list of populated instances of type ENTITY.
      */
-    List<ENTITY> selectMany(List<Long> ids);
+    default List<ENTITY> selectMany(List<Long> ids) {
+        return streamMany(ids).collect(Collectors.toList());
+    }
 
 
     /**

@@ -30,12 +30,11 @@ public class RandomUtils {
      * @param max The maximum number of items
      * @param endlessSupplier The supplier of items. Should be able to call this indefinitely.
      * @param <E> The type of thing returned.
-     * @return Returns a random sized List of E, with between min and max number of elements.
+     * @return Returns a random limit Stream of E, with between min and max number of elements.
      */
-    public static <E> List<E> randomNumberOf(int min, int max, Supplier<E> endlessSupplier) {
+    public static <E> Stream<E> randomNumberOf(int min, int max, Supplier<E> endlessSupplier) {
         return IntStream.range(0, range(min, max))
-                .mapToObj(i -> endlessSupplier.get())
-                .collect(Collectors.toList());
+                .mapToObj(i -> endlessSupplier.get());
     }
 
     /**
