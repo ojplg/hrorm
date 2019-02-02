@@ -10,9 +10,13 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.sql.Connection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  * Test operations for tables without primary keys, and KeylessDao.
@@ -101,7 +105,6 @@ public class KeylessTest {
     @Test
     public void testSelectByColumns() {
         Connection connection = helper.connect();
-
         {
             // We should do a sampleTest on every field type, so delegate this to a specialized method.
             KeylessDao<Keyless> dao = Keyless.DAO_BUILDER.buildDao(connection);
@@ -112,6 +115,74 @@ public class KeylessTest {
             sampleTest(dao, Keyless::getTimeStampColumn, "timestamp_column");
         }
     }
+
+    /**
+     * This comprehensively tests foldingSelect.
+     */
+    @Test
+    public void testFoldingSelect() {
+        Connection connection = helper.connect();
+        {
+            long expectedSum = fakeEntities.stream()
+                    .mapToLong(Keyless::getIntegerColumn)
+                    .sum();
+
+            KeylessDao<Keyless> dao = Keyless.DAO_BUILDER.buildDao(connection);
+            long foldedSum = dao.foldingSelect(new Keyless(), 0L, (l, k) -> l + k.getIntegerColumn());
+
+            Assert.assertEquals(expectedSum, foldedSum);
+        }
+    }
+
+    @Test
+    public void testTemplate() {
+        Connection connection = helper.connect();
+        {
+            KeylessDao<Keyless> dao = Keyless.DAO_BUILDER.buildDao(connection);
+        }
+    }
+
+
+
+    @Test
+    public void likeOperatorTest() {
+        Connection connection = helper.connect();
+        {
+            // Build a template Using a random name.
+            final Keyless template = new Keyless();
+            template.setStringColumn(RandomUtils.name());
+
+            // Get all matching Keyless, case-insensitive.
+            List<Keyless> matching = fakeEntities.stream()
+                .filter(like(template.getStringColumn()))
+                .collect(Collectors.toList());
+
+            // Is zero results (highly unlikely) uninteresting? Remove this then...
+            while (matching.isEmpty()) {
+                template.setStringColumn(RandomUtils.name());
+                matching = fakeEntities.stream()
+                        .filter(like(template.getStringColumn()))
+                        .collect(Collectors.toList());
+            }
+
+            KeylessDao<Keyless> dao = Keyless.DAO_BUILDER.buildDao(connection);
+
+            Map<String, Operator> columnOperatorMap = new HashMap<>();
+            columnOperatorMap.put("string_column", Operator.LIKE);
+
+            template.setStringColumn('%'+template.getStringColumn()+'%');
+            List<Keyless> fromDatabase = dao.selectManyByColumns(template, columnOperatorMap);
+
+            Assert.assertEquals(matching.size(), fromDatabase.size());
+            matching.forEach(keyless -> Assert.assertTrue(fromDatabase.contains(keyless)));
+
+
+
+
+
+        }
+    }
+
 
     /**
      * Test that selectManyByColumns works as intended by taking a sample dataset and comparing it
@@ -141,12 +212,36 @@ public class KeylessTest {
     // Produces a Keyless with purely random values, designed to contain some overlap.
     public static Keyless randomKeyless() {
         Keyless keyless = new Keyless();
-        keyless.setStringColumn(RandomUtils.name());
+        keyless.setStringColumn(RandomUtils.biname());
         keyless.setIntegerColumn(RandomUtils.range(0, 10));
         keyless.setBooleanColumn(RandomUtils.bool());
         keyless.setDecimalColumn(RandomUtils.bigDecimal()); // Probably Unique
         keyless.setTimeStampColumn(RandomUtils.localDateTime()); // Probably Unique, millisecond precision
         return keyless;
+    }
+
+    /**
+     * Predicates to simulate SQL Behavior in Streams.
+     */
+
+    public static <F extends Comparable<F>> Predicate<Keyless> greaterThan(final F comparable, final Function<Keyless, F> getter) {
+        return keyless -> getter.apply(keyless).compareTo(comparable) < 0;
+    }
+
+    public static <F extends Comparable<F>> Predicate<Keyless> lessThan(final F comparable, final Function<Keyless, F> getter) {
+        return keyless -> getter.apply(keyless).compareTo(comparable) > 0;
+    }
+
+    public static <F extends Comparable<F>> Predicate<Keyless> greaterThanOrEqual(final F comparable, final Function<Keyless, F> getter) {
+        return keyless -> getter.apply(keyless).compareTo(comparable) <= 0;
+    }
+
+    public static <F extends Comparable<F>> Predicate<Keyless> lessThanOrEqual(final F comparable, final Function<Keyless, F> getter) {
+        return keyless -> getter.apply(keyless).compareTo(comparable) >= 0;
+    }
+
+    public static Predicate<Keyless> like(final String stringColumn) {
+        return keyless -> keyless.getStringColumn().toLowerCase().contains(stringColumn.toLowerCase());
     }
 
     @Test
