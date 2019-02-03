@@ -136,15 +136,6 @@ public class KeylessTest {
     }
 
     @Test
-    public void testTemplate() {
-        Connection connection = helper.connect();
-        {
-            KeylessDao<Keyless> dao = Keyless.DAO_BUILDER.buildDao(connection);
-        }
-    }
-
-
-    @Test
     public void testValidate(){
         try {
             KeylessValidator.validate(helper.connect(), Keyless.DAO_BUILDER);
@@ -153,7 +144,9 @@ public class KeylessTest {
         }
     }
 
-
+    /**
+     * Comprehensive LIKE Operator test.
+     */
     @Test
     public void likeOperatorTest() {
         Connection connection = helper.connect();
@@ -310,7 +303,7 @@ public class KeylessTest {
      * Filters fakeEntities by a streamFilter Predicate equivalent to Operator, using template and column_name
      * to do the actual query.
      */
-    private <F> void predicateTest(
+    private void predicateTest(
             Keyless template,
             Operator operator, 
             Predicate<Keyless> streamFilter,
