@@ -1,7 +1,5 @@
 package org.hrorm;
 
-import java.util.Map;
-
 public class Operator {
 
     public static Operator EQUALS = new Operator("=");

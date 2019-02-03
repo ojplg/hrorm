@@ -57,16 +57,28 @@ public class RandomUtils {
      * @return A sub selection of List, all with the same value provided by the field getter.
      */
     public static <E, F> List<E> randomSubsetByField(List<E> list, Function<E, F> getter) {
+        F magicValue = randomDistinctFieldValue(list, getter);
+
+        return list.stream()
+                .filter(item -> Objects.equals(magicValue, getter.apply(item)))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Produces a random, field value from within the distinct possibilities contained in list.
+     * @param list The Dataset to select from.
+     * @param getter The Getter method on E to invoke.
+     * @param <E> The Entity Type.
+     * @param <F> The Field Type returned by getter::apply.
+     * @return A random one of the distinct field values.
+     */
+    public static <E, F> F randomDistinctFieldValue(List<E> list, Function<E, F> getter) {
         List<F> possibleValues = list.stream()
                 .map(getter)
                 .distinct()
                 .collect(Collectors.toList());
 
-        F magicValue = randomMemberOf(possibleValues);
-
-        return list.stream()
-                .filter(item -> Objects.equals(magicValue, getter.apply(item)))
-                .collect(Collectors.toList());
+        return randomMemberOf(possibleValues);
     }
 
     /**
