@@ -133,23 +133,25 @@ public class KeylessDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> implements K
 
     @Override
     public List<ENTITY> selectManyByColumns(ENTITY item, String ... columnNames) {
-        String sql = keylessSqlBuilder.selectByColumns(Collections.emptyMap(), columnNames);
-        List<BUILDER> bs = sqlRunner.selectByColumns(sql, supplier, Arrays.asList(columnNames), columnMap(columnNames), childrenDescriptors, item);
+        SelectColumnList selectColumnList = new SelectColumnList(columnNames);
+        String sql = keylessSqlBuilder.selectByColumns(selectColumnList);
+        List<BUILDER> bs = sqlRunner.selectByColumns(sql, supplier, new SelectColumnList(columnNames), columnMap(columnNames), childrenDescriptors, item);
         return mapBuilders(bs);
     }
 
     @Override
     public List<ENTITY> selectManyByColumns(ENTITY template, Map<String, Operator> columnNamesMap) {
-        String[] columnNames = columnNamesMap.keySet().stream().toArray(String[]::new);
-        String sql = keylessSqlBuilder.selectByColumns(columnNamesMap, columnNames);
-        List<BUILDER> bs = sqlRunner.selectByColumns(sql, supplier, Arrays.asList(columnNames), columnMap(columnNames), childrenDescriptors, template);
+        SelectColumnList selectColumnList = new SelectColumnList(columnNamesMap);
+        String sql = keylessSqlBuilder.selectByColumns(selectColumnList);
+        List<BUILDER> bs = sqlRunner.selectByColumns(sql, supplier, selectColumnList, columnMap(selectColumnList.columnNames()), childrenDescriptors, template);
         return mapBuilders(bs);
     }
 
     @Override
     public <T> T foldingSelect(ENTITY item, T identity, BiFunction<T,ENTITY,T> accumulator, String ... columnNames){
-        String sql = keylessSqlBuilder.selectByColumns(Collections.emptyMap(), columnNames);
-        return sqlRunner.foldingSelect(sql, supplier, Arrays.asList(columnNames), columnMap(columnNames), childrenDescriptors, item, buildFunction, identity, accumulator);
+        SelectColumnList selectColumnList = new SelectColumnList(columnNames);
+        String sql = keylessSqlBuilder.selectByColumns(selectColumnList);
+        return sqlRunner.foldingSelect(sql, supplier, selectColumnList, columnMap(columnNames), childrenDescriptors, item, buildFunction, identity, accumulator);
     }
 
     protected <A> A fromSingletonList(List<A> items) {

@@ -14,6 +14,7 @@ import org.junit.Test;
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -350,6 +351,170 @@ public class ComparatorSelectTest {
 
             List<Columns> found = dao.selectManyByColumns(template, map);
             Assert.assertEquals(0, found.size());
+        }
+    }
+
+    @Test
+    public void testIntegerOpenRange(){
+        Connection connection = helper.connect();
+        Dao<Columns> dao = daoBuilder().buildDao(connection);
+        {
+            for(long number = 1; number<=25; number++){
+                Columns columns = new Columns();
+                columns.setStringThing("IntegerOpenRangeTest");
+                columns.setIntegerThing(number);
+                dao.insert(columns);
+            }
+        }
+        {
+            List<Columns> all = dao.selectAll();
+            Assert.assertEquals(25, all.size());
+        }
+        {
+            Columns template = new Columns();
+            template.setIntegerThing(10L);
+            Operator rangeLimit = Operator.openRangeTo(20L);
+            Map<String, Operator> columnMap = Collections.singletonMap("integer_column", rangeLimit);
+
+            List<Columns> filtered = dao.selectManyByColumns(template, columnMap);
+            Assert.assertEquals(9, filtered.size());
+        }
+    }
+
+    @Test
+    public void testIntegerClosedRange(){
+        Connection connection = helper.connect();
+        Dao<Columns> dao = daoBuilder().buildDao(connection);
+        {
+            for(long number = 1; number<=25; number++){
+                Columns columns = new Columns();
+                columns.setStringThing("IntegerClosedRange");
+                columns.setIntegerThing(number);
+                dao.insert(columns);
+            }
+        }
+        {
+            List<Columns> all = dao.selectAll();
+            Assert.assertEquals(25, all.size());
+        }
+        {
+            Columns template = new Columns();
+            template.setIntegerThing(10L);
+            Operator rangeLimit = Operator.closedRangeTo(20L);
+            Map<String, Operator> columnMap = Collections.singletonMap("integer_column", rangeLimit);
+
+            List<Columns> filtered = dao.selectManyByColumns(template, columnMap);
+            Assert.assertEquals(11, filtered.size());
+        }
+    }
+
+    @Test
+    public void testDecimalOpenRange(){
+        Connection connection = helper.connect();
+        Dao<Columns> dao = daoBuilder().buildDao(connection);
+        {
+            for(long number = 1; number<=25; number++){
+                Columns columns = new Columns();
+                columns.setStringThing("DecimalOpenRangeTest");
+                columns.setDecimalThing(new BigDecimal(String.valueOf(number)));
+                dao.insert(columns);
+            }
+        }
+        {
+            List<Columns> all = dao.selectAll();
+            Assert.assertEquals(25, all.size());
+        }
+        {
+            Columns template = new Columns();
+            template.setDecimalThing(new BigDecimal("5"));
+            Operator rangeLimit = Operator.openRangeTo(new BigDecimal("18"));
+            Map<String, Operator> columnMap = Collections.singletonMap("decimal_column", rangeLimit);
+
+            List<Columns> filtered = dao.selectManyByColumns(template, columnMap);
+            Assert.assertEquals(12, filtered.size());
+        }
+    }
+
+    @Test
+    public void testDecimalClosedRange(){
+        Connection connection = helper.connect();
+        Dao<Columns> dao = daoBuilder().buildDao(connection);
+        {
+            for(long number = 1; number<=25; number++){
+                Columns columns = new Columns();
+                columns.setStringThing("DecimalClosed");
+                columns.setDecimalThing(new BigDecimal(String.valueOf(number) + ".123"));
+                dao.insert(columns);
+            }
+        }
+        {
+            List<Columns> all = dao.selectAll();
+            Assert.assertEquals(25, all.size());
+        }
+        {
+            Columns template = new Columns();
+            template.setDecimalThing(new BigDecimal("5.123"));
+            Operator rangeLimit = Operator.closedRangeTo(new BigDecimal("7.123"));
+            Map<String, Operator> columnMap = Collections.singletonMap("decimal_column", rangeLimit);
+
+            List<Columns> filtered = dao.selectManyByColumns(template, columnMap);
+            Assert.assertEquals(3, filtered.size());
+        }
+    }
+
+    @Test
+    public void testDateOpenRange(){
+        Connection connection = helper.connect();
+        Dao<Columns> dao = daoBuilder().buildDao(connection);
+        {
+            for(int number = 1; number<=25; number++){
+                LocalDateTime dateTime = LocalDateTime.of(2018, 3, number, 10, 30);
+                Columns columns = new Columns();
+                columns.setStringThing("DateOpenRangeTest");
+                columns.setTimeStampThing(dateTime);
+                dao.insert(columns);
+            }
+        }
+        {
+            List<Columns> all = dao.selectAll();
+            Assert.assertEquals(25, all.size());
+        }
+        {
+            Columns template = new Columns();
+            template.setTimeStampThing(LocalDateTime.of(2018, 3, 7, 9, 30));
+            Operator rangeLimit = Operator.openRangeTo(LocalDateTime.of(2018, 3, 22, 5, 5));
+            Map<String, Operator> columnMap = Collections.singletonMap("timestamp_column", rangeLimit);
+
+            List<Columns> filtered = dao.selectManyByColumns(template, columnMap);
+            Assert.assertEquals(15, filtered.size());
+        }
+    }
+
+    @Test
+    public void testDateClosedRange(){
+        Connection connection = helper.connect();
+        Dao<Columns> dao = daoBuilder().buildDao(connection);
+        {
+            for(int number = 1; number<=25; number++){
+                LocalDateTime dateTime = LocalDateTime.of(2018, 3, number, 10, 30);
+                Columns columns = new Columns();
+                columns.setStringThing("DateOpenRangeTest");
+                columns.setTimeStampThing(dateTime);
+                dao.insert(columns);
+            }
+        }
+        {
+            List<Columns> all = dao.selectAll();
+            Assert.assertEquals(25, all.size());
+        }
+        {
+            Columns template = new Columns();
+            template.setTimeStampThing(LocalDateTime.of(2018, 3, 7, 10, 30));
+            Operator rangeLimit = Operator.closedRangeTo(LocalDateTime.of(2018, 3, 22, 10, 30));
+            Map<String, Operator> columnMap = Collections.singletonMap("timestamp_column", rangeLimit);
+
+            List<Columns> filtered = dao.selectManyByColumns(template, columnMap);
+            Assert.assertEquals(16, filtered.size());
         }
     }
 

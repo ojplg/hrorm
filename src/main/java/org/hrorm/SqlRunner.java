@@ -50,16 +50,21 @@ public class SqlRunner<ENTITY, BUILDER> {
     }
 
     public List<BUILDER> select(String sql, Supplier<BUILDER> supplier, List<ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors){
-        return selectByColumns(sql, supplier, Collections.emptyList(), Collections.emptyMap(), childrenDescriptors, null);
+        return selectByColumns(sql, supplier, SelectColumnList.EMPTY, Collections.emptyMap(), childrenDescriptors, null);
     }
 
-    public List<BUILDER> selectByColumns(String sql, Supplier<BUILDER> supplier, List<String> columnNames, Map<String, ? extends Column<ENTITY,?>> columnNameMap, List<? extends ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors, ENTITY item){
+    public List<BUILDER> selectByColumns(String sql,
+                                         Supplier<BUILDER> supplier,
+                                         SelectColumnList selectColumnList,
+                                         Map<String, ? extends Column<ENTITY,?>> columnNameMap,
+                                         List<? extends ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors,
+                                         ENTITY item){
         BiFunction<List<BUILDER>, BUILDER, List<BUILDER>> accumulator =
                 (list, b) -> { list.add(b); return list; };
         return foldingSelect(
                 sql,
                 supplier,
-                columnNames,
+                selectColumnList,
                 columnNameMap,
                 childrenDescriptors,
                 item,
@@ -71,7 +76,7 @@ public class SqlRunner<ENTITY, BUILDER> {
 
     public <T,X> T foldingSelect(String sql,
                                Supplier<BUILDER> supplier,
-                               List<String> columnNames,
+                               SelectColumnList selectColumnList,
                                Map<String, ? extends Column<ENTITY,?>> columnNameMap,
                                List<? extends ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors,
                                ENTITY template,
@@ -84,11 +89,20 @@ public class SqlRunner<ENTITY, BUILDER> {
         try {
             statement = connection.prepareStatement(sql);
             int idx = 1;
-            for(String columnName : columnNames){
-
+            for(SelectColumnList.ColumnOperatorEntry columnEntry : selectColumnList){
+                String columnName = columnEntry.rawName;
                 Column<ENTITY,?> column = columnNameMap.get(columnName.toUpperCase());
                 column.setValue(template, idx, statement);
                 idx++;
+                Operator operator = columnEntry.operator;
+                if( operator.hasSecondParameter() ) {
+                    operator.setSecondParameter(idx, statement);
+                    idx++;
+//                    if (operator.getLongUpperLimit() != null) {
+//                        statement.setLong(idx, operator.getLongUpperLimit());
+//                        idx++;
+//                    }
+                }
             }
 
             logger.info(sql);

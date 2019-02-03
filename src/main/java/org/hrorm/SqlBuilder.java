@@ -29,7 +29,7 @@ public class SqlBuilder<ENTITY> implements Queries {
     }
 
     public String selectByColumns(String ... columnNames){
-        return keylessSqlBuilder.selectByColumns(Collections.emptyMap(), columnNames);
+        return keylessSqlBuilder.selectByColumns(new SelectColumnList(columnNames));
     }
 
     public String selectChildIds(String parentColumn){

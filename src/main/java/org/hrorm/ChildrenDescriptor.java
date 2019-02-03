@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.function.BiConsumer;
@@ -57,7 +58,7 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
 
         String sql = sqlBuilder.selectByColumns(parentChildColumnName());
         SqlRunner<CHILD,CHILDBUILDER> sqlRunner = new SqlRunner<>(connection, childDaoDescriptor);
-        List<String> parentChildColumnNameList = Collections.singletonList(parentChildColumnName());
+        SelectColumnList parentChildColumnNameList = new SelectColumnList(parentChildColumnName());
         List<ChildrenDescriptor<CHILD,?,CHILDBUILDER, ?>> childrenDescriptorsList = childDaoDescriptor.childrenDescriptors();
 
         Supplier<CHILDBUILDER> supplier = childDaoDescriptor.supplier();

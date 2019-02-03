@@ -75,7 +75,7 @@ public class DaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> extends KeylessDaoI
         ENTITY item = buildFunction.apply(builder);
         logger.info("Searching by " + id + " for " + item);
         List<BUILDER> items = sqlRunner.selectByColumns(sql, supplier,
-                Collections.singletonList(primaryKeyName), columnMap(primaryKeyName),
+                new SelectColumnList(primaryKeyName), columnMap(primaryKeyName),
                 childrenDescriptors, item);
         return fromSingletonList(mapBuilders(items));
     }
