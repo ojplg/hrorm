@@ -1,14 +1,28 @@
 package org.hrorm;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * Representation of the column names to be used in a SQL where clause.
+ *
+ * <p>
+ *
+ * Most users of hrorm will have no need to directly use this.
+ */
 public class SelectColumnList implements Iterable<SelectColumnList.ColumnOperatorEntry> {
 
+    /**
+     * Representation of a column name and its relevant operator
+     * to be used in a SQL where clause.
+     *
+     * <p>
+     *
+     * Most users of hrorm will have no need to directly use this.
+     */
     public static class ColumnOperatorEntry {
         String rawName;
         Operator operator;
