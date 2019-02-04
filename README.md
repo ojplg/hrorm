@@ -29,5 +29,3 @@ all the DAO builder classes while still supporting the clean types
 * Add tests:
   * Failed keyless validations
   * Keyless entities with children and siblings
-* Support for selects with LIKE, less than, greater than, ranges, etc  
-
