@@ -230,7 +230,7 @@ public class Operator {
 
     /**
      * Indication of whether this operator requires two parameters to
-     * be set, i.e. it represents a range.
+     * be set (it represents a range).
      *
      * <p>Used internally by hrorm, and generally of no interest to clients.</p>
      *
@@ -243,7 +243,7 @@ public class Operator {
     /**
      * Sets the second parameter onto the passed SQL statement.
      *
-     * <p>Used internally by hrorm, and generally of no interest to clients.</p>*
+     * <p>Used internally by hrorm, and generally of no interest to clients.</p>
      *
      * @param index The place in the SQL of the parameter being set.
      * @param statement The SQL
