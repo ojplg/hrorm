@@ -851,21 +851,43 @@
 
                 <p>Most of the time, you do not know up front what ID or IDs you are intersted in, so
                     hrorm allows you to select by columns. To do this, we make an instance of the entity
-                    we are searching for and populate it with the values we want to match. Suppose we want
-                    to find all the people who are high school graduates that weigh 100 kilograms. Here's what
-                    we can do.</p>
+                    we are searching for and populate it with the values we want to match or compare to. Suppose we want
+                    to find all the people who are high school graduates and that weigh more than 100 kilograms
+                    and who have the string fragment "Bart" in their names. We start by creating an instance
+                    of the entity with the critical values to be included in our query.</p>
 
                 <pre>
     Person personTemplate = new Person();
     personTemplate.setHighSchoolGraduate(true);
     personTemplate.setWeight(100L);
+    personTemplate.setName("%Bart%");</pre>
 
-    List&lt;Person&gt; people = personDao.selectManyByColumns(personTemplate, "IS_HIGH_SCHOOL_GRADUATE", "WEIGHT");</pre>
+                <p>Then, we create a <code>Map</code> detailing what columns we are interested in and
+                what comparisons to use when running the query.</p>
 
-                <p>Notice that hrorm wants the names of the database <b>columns</b>, not the fields on the object.</p>
+                <pre>
+    Map&lt;String, Operator&gt; columnMap = new HashMap&lt;&gt;();
+    columnMap.put("IS_HIGH_SCHOOL_GRADUATE", Operator.EQUALS);
+    columnMap.put("WEIGHT", Operator.GREATER_THAN);
+    columnMap.put("NAME", Operator.LIKE);</pre>
+
+                <p>Now we are ready to query for all the matching records.</p>
+
+                <pre>
+    List&lt;Person&gt; people = personDao.selectManyByColumns(personTemplate, columnMap);</pre>
+
+                <p>Notice that hrorm wants the names of the database <b>columns</b>, not the fields on the object.
+                Also note that query generated will link the various parts of the where clause with "AND"s. The
+                returned records will match all the specified criteria.</p>
+
+                <p>If we want to find records using only the equals operator, hrorm provides a convenience
+                method that does not require us to build the column name-operator map.</p>
+
+                <pre>
+    List&lt;Person&gt; people = personDao.selectManyByColumns(personTemplate, "IS_HIGH_SCHOOL_GRADUATE", "WEIGHT", "NAME");</pre>
 
                 <p>If we know that a particular query will only return 0 or 1 results (for instance, if there is
-                    a uniqueness constraint on the name field), hrorm provides a convenience method for that.</p>
+                    a uniqueness constraint on the name field), hrorm provides a further convenience method for that.</p>
 
                 <pre>
     Person personTemplate = new Person();
@@ -874,8 +896,6 @@
     Person person = personDao.selectByColumns(personTemplate, "NAME");</pre>
 
                 <p>If you use this method and hrorm finds more than one record, it will raise an exception.</p>
-
-                <p>At the moment, hrorm only supports exact matches, not any <code>LIKE</code> syntax.</p>
 
             </div>
 
