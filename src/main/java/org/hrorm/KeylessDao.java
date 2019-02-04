@@ -41,15 +41,39 @@ public interface KeylessDao<ENTITY> {
     /**
      * Select multiple records from the database by some search criteria.
      *
-     * @param item An instance of type ENTITY with populated values corresponding to the
+     * <p>The SQL generated will specify a select by the column names passed,
+     * where the values are equal to the values specified in the passed template
+     * object. All the values must match, as the where clause will be formed
+     * by joining the various column names with 'AND'.
+     * </p>
+     *
+     * @param template An instance of type ENTITY with populated values corresponding to the
      *             column names to select by.
      * @param columnNames The names of the database columns
      * @return The populated instances of type ENTITY with matching values with the passed item for
      *         the indicated columnNames.
      */
-    List<ENTITY> selectManyByColumns(ENTITY item, String... columnNames);
+    List<ENTITY> selectManyByColumns(ENTITY template, String... columnNames);
 
-    List<ENTITY> selectManyByColumns(ENTITY template, Map<String, Operator> columnNamesMap);
+    /**
+     * Select multiple records from the database by some search criteria.
+     *
+     * <p>
+     * This method will perform a select on the database and return the results
+     * found. The where clause will be generated to include tests of the column
+     * names specified in the <code>columnNames</code> parameter. Each entry in
+     * that <code>Map</code> should be accompanied by an <code>Operation</code>
+     * specifying what comparison should be used, e.g. =, LIKE, &gt;, etc.
+     * </p>
+     *
+     * @param template An instance of type ENTITY with populated values corresponding to the
+     *                column names to select by.
+     * @param columnNames The names of the database columns paired with the operation
+     *                    that should be used to construct the SQL select statement.
+     * @return The populated instances of type ENTITY with matching values with the passed item for
+     *         the indicated columnNames.
+     */
+    List<ENTITY> selectManyByColumns(ENTITY template, Map<String, Operator> columnNames);
 
     /**
      * Select a single record from the database by some search criteria.
