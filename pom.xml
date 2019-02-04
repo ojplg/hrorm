@@ -5,7 +5,7 @@
   <groupId>org.hrorm</groupId>
   <artifactId>hrorm</artifactId>
   <packaging>jar</packaging>
-  <version>0.5.2</version>
+  <version>0.6.0</version>
   <name>hrorm</name>
   <url>http://hrorm.org</url>
   <description>Hrorm is a simple, declarative ORM library.</description>
