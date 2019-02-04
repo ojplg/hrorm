@@ -34,6 +34,7 @@
                 <a href="#parent_child_relations" class="sublink-1">Parent-Child Relations</a>
                 <a href="#sibling_relations" class="sublink-1">Sibling Relations</a>
                 <a href="#immutable_models" class="sublink-1">Immutable Models</a>
+                <a href="#keyless_entities" class="sublink-1">Keyless Entities</a>
                 <a href="#constraints" class="sublink-1">Constraints</a>
                 <a href="#validation" class="sublink-1">Validation</a>
 
@@ -676,6 +677,26 @@
 
             </div>
 
+
+            <div class="card fluid">
+
+                <a name="keyless_entities"></a>
+                <h3>Keyless Entities</h3>
+
+                <hr>
+
+                <p>Hrorm is built to support tables that have sequence valued primary keys. This is generally
+                a good way to design a schema, but it's not always optimal. For instance, if you are storing
+                an event stream in a database, assigning keys might just be a waste of time and space.</p>
+
+                <p>Hrorm does have some mechanisms for supporting entities that do not have primary
+                keys. But, you cannot create a full-featured <code>Dao</code> for an entity without
+                a primary key. In these cases, you can create a <code>KeylessDao</code> which
+                has fewer methods.</p>
+
+                <p>Another drawback to the entities that are keyless is that they cannot be used as
+                child or sibling entities. Hrorm manages all relationships via keys.</p>
+            </div>
 
             <a name="constraints"></a>
             <div class="card fluid">
