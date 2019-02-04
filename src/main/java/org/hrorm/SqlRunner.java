@@ -98,10 +98,6 @@ public class SqlRunner<ENTITY, BUILDER> {
                 if( operator.hasSecondParameter() ) {
                     operator.setSecondParameter(idx, statement);
                     idx++;
-//                    if (operator.getLongUpperLimit() != null) {
-//                        statement.setLong(idx, operator.getLongUpperLimit());
-//                        idx++;
-//                    }
                 }
             }
 
