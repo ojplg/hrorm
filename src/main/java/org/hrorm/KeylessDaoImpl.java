@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
  * <p>
  *
  * There is no good reason to directly construct this class yourself.
- * Use a {@link IndirectKeylessDaoBuilder} or {@link IndirectDaoBuilder}.
+ * Use a {@link IndirectKeylessDaoBuilder}.
  *
  * @param <ENTITY> The type whose persistence is managed by this <code>Dao</code>.
  * @param <PARENT> The type of the parent (if any) of type <code>ENTITY</code>.
