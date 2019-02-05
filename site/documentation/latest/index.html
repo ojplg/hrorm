@@ -880,6 +880,11 @@
                 Also note that query generated will link the various parts of the where clause with "AND"s. The
                 returned records will match all the specified criteria.</p>
 
+                <p>In addition to the like, equals, and comparison operators, hrorm supports creating ranges
+                for numeric and date types that support comparison. There are methods for both open and closed
+                ranges. The value for the field in question set in the template object becomes the low end of
+                the range, and the methods for creating the ranges accept the upper limit as an argument.</p>
+
                 <p>If we want to find records using only the equals operator, hrorm provides a convenience
                 method that does not require us to build the column name-operator map.</p>
 
