@@ -96,7 +96,7 @@ public class DataColumnFactory {
 
             @Override
             int sqlType() {
-                return Types.INTEGER;
+                return Types.BOOLEAN;
             }
 
             @Override
