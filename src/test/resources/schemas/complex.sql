@@ -40,7 +40,7 @@ create table EDITH (
 create sequence FRED_SEQUENCE;
 create table FRED (
       id integer PRIMARY KEY,
-      flag text
+      flag integer
 );
 
 create sequence GAP_SEQUENCE;

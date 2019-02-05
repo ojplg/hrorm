@@ -11,7 +11,7 @@ create sequence immutable_child_seq;
 create table immutable_child (
     id integer primary key,
     birthday timestamp,
-    flag text,
+    flag integer,
     sibling_id integer,
     thing_id integer
 );

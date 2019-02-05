@@ -19,6 +19,18 @@ import java.util.Set;
  */
 public class ColumnTypes {
 
+
+    public static final Set<Integer> BooleanTypes =
+            Collections.unmodifiableSet(
+                    new HashSet<>(Arrays.asList(
+                            Types.INTEGER,
+                            Types.BIGINT,
+                            Types.SMALLINT,
+                            Types.BIT,
+                            Types.BOOLEAN,
+                            Types.NUMERIC
+                    )));
+
     public static final Set<Integer> IntegerTypes =
             Collections.unmodifiableSet(
                     new HashSet<>(Arrays.asList(

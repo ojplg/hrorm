@@ -244,7 +244,7 @@ public class IndirectDaoBuilder<ENTITY, BUILDER>  implements DaoDescriptor<ENTIT
      * @return This instance.
      */
     public IndirectDaoBuilder<ENTITY, BUILDER> withBooleanColumn(String columnName, Function<ENTITY, Boolean> getter, BiConsumer<BUILDER, Boolean> setter){
-        Column<ENTITY, BUILDER> column = DataColumnFactory.stringConverterColumn(columnName, myPrefix, getter, setter, BooleanConverter.INSTANCE, true);
+        Column<ENTITY, BUILDER> column = DataColumnFactory.booleanColumn(columnName, myPrefix, getter, setter, true);
         columns.add(column);
         lastColumnAdded = column;
         return this;

@@ -1,5 +1,7 @@
 package org.hrorm;
 
+import java.util.Objects;
+
 /**
  * This {@link Converter} translates true values to "T" and false
  * values to "F".
@@ -10,14 +12,20 @@ package org.hrorm;
  */
 public class BooleanConverter implements Converter<Boolean, String> {
 
-    public static final BooleanConverter INSTANCE = new BooleanConverter();
+    private final String trueRepresentation;
+    private final String falseRepresentation;
+
+    public BooleanConverter(String trueRepresentation, String falseRepresentation) {
+        this.trueRepresentation = trueRepresentation;
+        this.falseRepresentation = falseRepresentation;
+    }
 
     @Override
     public String from(Boolean aBoolean) {
         if ( aBoolean == null ) {
             return null;
         }
-        return aBoolean ? "T" : "F";
+        return aBoolean ? trueRepresentation : falseRepresentation;
     }
 
     @Override
@@ -25,10 +33,11 @@ public class BooleanConverter implements Converter<Boolean, String> {
         if ( s == null ){
             return null;
         }
-        switch (s) {
-            case "T" : return Boolean.TRUE;
-            case "F" : return Boolean.FALSE;
-            default : throw new HrormException("Unsupported string: " + s);
+        if (Objects.equals(s, trueRepresentation)) {
+            return Boolean.TRUE;
+        } else if (Objects.equals(s, falseRepresentation)) {
+            return Boolean.FALSE;
         }
+        throw new HrormException("Unsupported string: " + s);
     }
 }

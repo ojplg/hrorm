@@ -76,6 +76,34 @@ public class DataColumnFactory {
         };
     }
 
+    public static <ENTITY,BUILDER> AbstractColumn<Boolean, ENTITY, BUILDER> booleanColumn(
+            String name, String prefix, Function<ENTITY, Boolean> getter, BiConsumer<BUILDER, Boolean> setter, boolean nullable){
+        return new AbstractColumn<Boolean, ENTITY, BUILDER>(name, prefix, getter, setter, nullable) {
+            @Override
+            public Boolean fromResultSet(ResultSet resultSet, String columnName) throws SQLException {
+                return resultSet.getBoolean(columnName);
+            }
+
+            @Override
+            public void setPreparedStatement(PreparedStatement preparedStatement, int index, Boolean value) throws SQLException {
+                preparedStatement.setBoolean(index, value);
+            }
+
+            @Override
+            public Column<ENTITY, BUILDER> withPrefix(String newPrefix, Prefixer prefixer) {
+                return booleanColumn(getName(), newPrefix, getter, setter, nullable);
+            }
+
+            @Override
+            int sqlType() {
+                return Types.INTEGER;
+            }
+
+            @Override
+            public Set<Integer> supportedTypes() { return ColumnTypes.BooleanTypes; }
+        };
+    }
+
     public static <ENTITY,BUILDER> AbstractColumn<String, ENTITY, BUILDER> stringColumn(
             String name, String prefix, Function<ENTITY, String> getter, BiConsumer<BUILDER, String> setter, boolean nullable){
         return new AbstractColumn<String, ENTITY, BUILDER>(name, prefix, getter, setter, nullable) {
