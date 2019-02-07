@@ -167,4 +167,5 @@ public interface KeylessDao<ENTITY> {
                                      SqlFunction function, String columnName);
 
 
+    WhereClauseBuilder select(String columnName, Operator operator, Long value);
 }
