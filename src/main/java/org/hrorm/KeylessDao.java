@@ -116,4 +116,6 @@ public interface KeylessDao<ENTITY> {
      */
     <T> T foldingSelect(ENTITY template, T identity, BiFunction<T,ENTITY,T> accumulator, String ... columnNames);
 
+
+    WhereClauseBuilder select(String columnName, Operator operator, Long value);
 }

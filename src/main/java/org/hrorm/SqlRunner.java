@@ -6,7 +6,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
@@ -86,6 +85,7 @@ public class SqlRunner<ENTITY, BUILDER> {
                 int idx = 1;
                 for(WhereClauseBuilder.WherePhrase phrase : phrases){
                     phrase.setValue(idx, statement);
+                    idx++;
                 }
 
                 logger.info(sql);

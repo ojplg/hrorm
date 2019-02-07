@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.BiFunction;
-import java.util.function.Function;
 
 public class WhereClauseBuilder<ENTITY> implements Iterable<WhereClauseBuilder.WherePhrase> {
 
@@ -33,9 +32,32 @@ public class WhereClauseBuilder<ENTITY> implements Iterable<WhereClauseBuilder.W
 
         @Override
         public String asSqlSnippet(String prefix) {
-            return "a." + columnName + operator.getSqlString("") + "?";
+            return "a." + columnName + " " + operator.getSqlString("") + " ?";
         }
     }
+
+    private static class StringPhrase implements WherePhrase {
+        private final String columnName;
+        private final String value;
+        private final Operator operator;
+
+        StringPhrase(String columnName, Operator operator, String value){
+            this.columnName = columnName;
+            this.value = value;
+            this.operator = operator;
+        }
+
+        @Override
+        public void setValue(int index, PreparedStatement statement) throws SQLException {
+            statement.setString(index, value);
+        }
+
+        @Override
+        public String asSqlSnippet(String prefix) {
+            return "a." + columnName + " " + operator.getSqlString("") + " ?";
+        }
+    }
+
 
     private final List<WherePhrase> phrases = new ArrayList<>();
     private final String baseSelectStatement;
@@ -54,15 +76,18 @@ public class WhereClauseBuilder<ENTITY> implements Iterable<WhereClauseBuilder.W
         return this;
     }
 
+    public WhereClauseBuilder and(String columnName, Operator operator, String value){
+        phrases.add(new StringPhrase(columnName, operator, value));
+        return this;
+    }
+
     public List<ENTITY> execute(){
         StringBuilder buf = new StringBuilder();
         buf.append(baseSelectStatement);
         for(int idx=0; idx<phrases.size(); idx++){
             WherePhrase phrase = phrases.get(idx);
-            buf.append(phrase.asSqlSnippet("a."));
-            if( idx<phrases.size() - 1){
-                buf.append("and");
-            }
+            buf.append(" and ");
+            buf.append(phrase.asSqlSnippet(" a."));
         }
         String sql = buf.toString();
 

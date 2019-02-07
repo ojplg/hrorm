@@ -518,5 +518,31 @@ public class ComparatorSelectTest {
         }
     }
 
+    @Test
+    public void testFluentSelect(){
+        Connection connection = helper.connect();
+        Dao<Columns> dao = daoBuilder().buildDao(connection);
+        Long id;
+
+        LocalDateTime time = LocalDateTime.now();
+        {
+            Columns columns = new Columns();
+            columns.setStringThing("FluentSelectTest");
+            columns.setIntegerThing(762L);
+            columns.setBooleanThing(true);
+            columns.setDecimalThing(new BigDecimal("4.567"));
+            columns.setTimeStampThing(time);
+            columns.setColorThing(EnumeratedColor.Red);
+            id = dao.insert(columns);
+        }
+        {
+            List<Columns> found =
+                    dao.select("integer_column", Operator.GREATER_THAN, 11L)
+                        .and("string_column", Operator.LIKE, "Fluent%")
+                        .execute();
+            Assert.assertEquals(1, found.size());
+            Assert.assertEquals(id, found.get(0).getId());
+        }
+    }
 
 }
