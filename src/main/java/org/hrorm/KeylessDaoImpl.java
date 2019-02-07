@@ -179,7 +179,7 @@ public class KeylessDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> implements K
     public WhereClauseBuilder select(String columnName, Operator operator, Long value){
         return new WhereClauseBuilder(
                 keylessSqlBuilder.select(),
-                sqlRunner.buildSelector(),
+                sqlRunner.buildSelector(supplier, buildFunction),
                 columnName,
                 operator,
                 value

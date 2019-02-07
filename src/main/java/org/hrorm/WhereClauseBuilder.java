@@ -3,13 +3,14 @@ package org.hrorm;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-public class WhereClauseBuilder<ENTITY> {
+public class WhereClauseBuilder<ENTITY> implements Iterable<WhereClauseBuilder.WherePhrase> {
 
-    private interface WherePhrase {
+    public interface WherePhrase {
         void setValue(int index, PreparedStatement statement) throws SQLException;
         String asSqlSnippet(String prefix);
     }
@@ -38,9 +39,11 @@ public class WhereClauseBuilder<ENTITY> {
 
     private final List<WherePhrase> phrases = new ArrayList<>();
     private final String baseSelectStatement;
-    private final Function<String, List<ENTITY>> selector;
+    private final BiFunction<String, Iterable<WhereClauseBuilder.WherePhrase>, List<ENTITY>> selector;
 
-    public WhereClauseBuilder(String baseSelectStatement, Function<String, List<ENTITY>> selector, String columnName, Operator operator, Long value){
+    public WhereClauseBuilder(String baseSelectStatement,
+                              BiFunction<String, Iterable<WhereClauseBuilder.WherePhrase>, List<ENTITY>>  selector,
+                              String columnName, Operator operator, Long value){
         this.baseSelectStatement = baseSelectStatement;
         this.selector = selector;
         phrases.add(new LongPhrase(columnName, operator, value));
@@ -63,10 +66,15 @@ public class WhereClauseBuilder<ENTITY> {
         }
         String sql = buf.toString();
 
-        return selector.apply(sql);
+        return selector.apply(sql, this);
     }
 
     public <T> T fold(T identity, BiFunction<T,ENTITY,T> accumulator){
         return identity;
+    }
+
+    @Override
+    public Iterator<WherePhrase> iterator() {
+        return phrases.iterator();
     }
 }
