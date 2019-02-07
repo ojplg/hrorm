@@ -2,7 +2,6 @@ package org.hrorm;
 
 import java.sql.Connection;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -152,6 +151,16 @@ public class KeylessDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> implements K
         SelectColumnList selectColumnList = new SelectColumnList(columnNames);
         String sql = keylessSqlBuilder.selectByColumns(selectColumnList);
         return sqlRunner.foldingSelect(sql, supplier, selectColumnList, columnMap(columnNames), childrenDescriptors, item, buildFunction, identity, accumulator);
+    }
+
+    public WhereClauseBuilder select(String columnName, Operator operator, Long value){
+        return new WhereClauseBuilder(
+                keylessSqlBuilder.select(),
+                sqlRunner.buildSelector(),
+                columnName,
+                operator,
+                value
+        );
     }
 
     protected <A> A fromSingletonList(List<A> items) {
