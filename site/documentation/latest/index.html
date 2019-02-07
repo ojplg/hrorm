@@ -281,7 +281,7 @@
         long weight;
         BigDecimal height;
         LocalDateTime birthday;
-        boolean isHighSchoolGraduate;
+        Boolean isHighSchoolGraduate;
         HairColor hairColor;
     }</pre>
 
@@ -310,13 +310,11 @@
         WEIGHT INTEGER,
         HEIGHT DECIMAL,
         BIRTHDAY TIMESTAMP,
-        IS_HIGH_SCHOOL_GRADUATE TEXT,
+        IS_HIGH_SCHOOL_GRADUATE BOOLEAN,
         HAIR_COLOR TEXT
     );</pre>
 
-                <p>Note the somewhat different types than in the Java code. In particular, the boolean and
-                    enumeration values have become text fields. SQL has a more limited palate for the expression
-                    of types than Java.</p>
+                <p>Note the somewhat different types than in the Java code.</p>
 
                 <p>To translate between the database reprentation and the Java representation, we plan to use
                     a <code>Dao</code> object. We could build that directly, but hrorm provides a DaoBuilder
@@ -374,9 +372,8 @@
                 <pre>
     daoBuilder.withLocalDateTimeColumn("BIRTHDAY", Person::getBirthday, Person::setBirthday);</pre>
 
-                <p>And similarly for boolean values. Note that the table should declare a text or string value.
-                    ANSI SQL does not support a boolean column type. Hrorm will convert between Java's boolean
-                    enumeration of true/false with the strings "T" and "F" in the database.
+                <p>And similarly for boolean values. Not all databases support a Boolean type. For
+                    those, you should use the Converter apparatus, as with an enumerated type.
                 </p>
 
                 <pre>
