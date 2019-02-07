@@ -176,6 +176,16 @@ public class KeylessDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> implements K
         return sqlRunner.foldingSelect(sql, supplier, selectColumnList, columnMap(columnNames), childrenDescriptors, item, buildFunction, identity, accumulator);
     }
 
+    public WhereClauseBuilder select(String columnName, Operator operator, Long value){
+        return new WhereClauseBuilder(
+                keylessSqlBuilder.select(),
+                sqlRunner.buildSelector(),
+                columnName,
+                operator,
+                value
+        );
+    }
+
     protected <A> A fromSingletonList(List<A> items) {
         if (items.isEmpty()) {
             return null;

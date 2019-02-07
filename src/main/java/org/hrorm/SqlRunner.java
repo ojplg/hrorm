@@ -75,6 +75,13 @@ public class SqlRunner<ENTITY, BUILDER> {
         );
     }
 
+    public Function<String, List<ENTITY>> buildSelector(){
+        return sql ->
+        {
+            return null;
+        };
+    }
+
     public <T,X> T foldingSelect(String sql,
                                Supplier<BUILDER> supplier,
                                SelectColumnList selectColumnList,
