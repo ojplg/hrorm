@@ -99,7 +99,7 @@ public interface KeylessDao<ENTITY> {
     long countByColumns(ENTITY item, Map<String, Operator> columnNames);
 
     /**
-     * Select a single record from the database by some search criteria.
+     * Gets a total count of entities in the database.
      *
      * If multiple records are found that match the passed item, an exception will be thrown.
      *
@@ -134,9 +134,5 @@ public interface KeylessDao<ENTITY> {
      * @return The computed value based on the results found in the underlying store.
      */
     <T> T foldingSelect(ENTITY template, T identity, BiFunction<T,ENTITY,T> accumulator, String ... columnNames);
-
-
-
-
 
 }
