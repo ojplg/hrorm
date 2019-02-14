@@ -89,6 +89,25 @@ public interface KeylessDao<ENTITY> {
     ENTITY selectByColumns(ENTITY item, String... columnNames);
 
     /**
+     * Gets a count of records by some search criteria.
+     *
+     * @param item An instance of type ENTITY with populated values corresponding to the
+     *             column names to select by.
+     * @param columnNames The names of the database columns
+     * @return The total count of entities matching the search criteria
+     */
+    long countByColumns(ENTITY item, Map<String, Operator> columnNames);
+
+    /**
+     * Select a single record from the database by some search criteria.
+     *
+     * If multiple records are found that match the passed item, an exception will be thrown.
+     *
+     * @return The total row count of the entire represented table.
+     */
+    long fullCount();
+
+    /**
      * Insert a record into the database within a transaction that is
      * managed within the Dao. The Dao will either commit or rollback
      * the transaction and <b>close the underlying <code>Connection</code></b>
@@ -115,5 +134,9 @@ public interface KeylessDao<ENTITY> {
      * @return The computed value based on the results found in the underlying store.
      */
     <T> T foldingSelect(ENTITY template, T identity, BiFunction<T,ENTITY,T> accumulator, String ... columnNames);
+
+
+
+
 
 }

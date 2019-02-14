@@ -2,8 +2,8 @@ package org.hrorm;
 
 import java.sql.Connection;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
@@ -137,6 +137,19 @@ public class KeylessDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> implements K
         String sql = keylessSqlBuilder.selectByColumns(selectColumnList);
         List<BUILDER> bs = sqlRunner.selectByColumns(sql, supplier, new SelectColumnList(columnNames), columnMap(columnNames), childrenDescriptors, item);
         return mapBuilders(bs);
+    }
+
+    @Override
+    public long countByColumns(ENTITY item, Map<String, Operator> columnNames) {
+        SelectColumnList selectColumnList = new SelectColumnList(columnNames);
+        String sql = keylessSqlBuilder.countByColumns(selectColumnList);
+        return sqlRunner.count(sql, selectColumnList, columnMap(selectColumnList.columnNames()), item);
+    }
+
+    @Override
+    public long fullCount() {
+        String sql = keylessSqlBuilder.count();
+        return sqlRunner.count(sql, new SelectColumnList(new HashMap<>()), new HashMap<>(), null);
     }
 
     @Override
