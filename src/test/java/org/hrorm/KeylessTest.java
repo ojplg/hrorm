@@ -54,13 +54,10 @@ public class KeylessTest {
     @Test
     public void testFullCount() {
         Connection connection = helper.connect();
+        KeylessDao<Keyless> dao = Keyless.DAO_BUILDER.buildDao(connection);
 
-        // Insertion Phase
-        {
-            KeylessDao<Keyless> dao = Keyless.DAO_BUILDER.buildDao(connection);
-            long count = dao.fullCount();
-            Assert.assertEquals(fakeEntities.size(), count);
-        }
+        long count = dao.fullCount();
+        Assert.assertEquals(fakeEntities.size(), count);
     }
 
     /**

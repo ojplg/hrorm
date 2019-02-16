@@ -63,4 +63,19 @@ public class SelectColumnList implements Iterable<SelectColumnList.ColumnOperato
     public String[] columnNames(){
         return entries.stream().map(e -> e.rawName).collect(Collectors.toList()).toArray(new String[entries.size()]);
     }
+
+    public String sqlPredicates(){
+        StringBuilder buf = new StringBuilder();
+
+        for(SelectColumnList.ColumnOperatorEntry columnEntry : this){
+            buf.append(" and ");
+            buf.append("a.");
+            buf.append(columnEntry.rawName);
+            buf.append(" ");
+            buf.append(columnEntry.getSqlString());
+            buf.append(" ? ");
+        }
+
+        return buf.toString();
+    }
 }

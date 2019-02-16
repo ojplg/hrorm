@@ -120,6 +120,21 @@ public class KeylessSqlBuilder<ENTITY> {
         return buf.toString();
     }
 
+    public String selectFunction(SqlFunction function, String columnName, SelectColumnList selectColumnList){
+        StringBuilder buf = new StringBuilder();
+        buf.append("select ");
+        buf.append(function.getFunctionName());
+        buf.append(" ( ");
+        buf.append(columnName);
+        buf.append(" ) ");
+        buf.append(" from ");
+        buf.append(table);
+        buf.append(" a");
+        buf.append(" where 1=1 ");
+        buf.append(selectColumnList.sqlPredicates());
+        return buf.toString();
+    }
+
     private List<JoinColumn> flattenedJoinColumns(){
         List<JoinColumn> flatJoinColumnList = new ArrayList<>();
         for(JoinColumn joinColumn : joinColumns){
@@ -137,15 +152,7 @@ public class KeylessSqlBuilder<ENTITY> {
     public String selectByColumns(SelectColumnList selectColumnList){
         StringBuilder buf = new StringBuilder();
         buf.append(select());
-        for(SelectColumnList.ColumnOperatorEntry columnEntry : selectColumnList){
-            buf.append(" and ");
-            buf.append("a.");
-            buf.append(columnEntry.rawName);
-            buf.append(" ");
-            buf.append(columnEntry.getSqlString());
-            buf.append(" ? ");
-        }
-
+        buf.append(selectColumnList.sqlPredicates());
         return buf.toString();
     }
 

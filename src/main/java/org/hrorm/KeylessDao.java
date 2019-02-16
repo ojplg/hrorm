@@ -135,4 +135,7 @@ public interface KeylessDao<ENTITY> {
      */
     <T> T foldingSelect(ENTITY template, T identity, BiFunction<T,ENTITY,T> accumulator, String ... columnNames);
 
+
+    Object runFunction(ENTITY template, Map<String, Operator> whereMap,
+                       SqlFunction function, String columnName);
 }

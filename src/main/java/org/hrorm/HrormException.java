@@ -36,6 +36,12 @@ public class HrormException extends RuntimeException {
         this.sql = Optional.of(sql);
     }
 
+    public HrormException(String message, String sql){
+        super(message);
+        this.sql = Optional.of(sql);
+        this.sqlException = Optional.empty();
+    }
+
     public Optional<SQLException> getSqlException(){
         return sqlException;
     }

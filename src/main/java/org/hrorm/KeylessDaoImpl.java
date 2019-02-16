@@ -152,6 +152,17 @@ public class KeylessDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> implements K
         return sqlRunner.count(sql, new SelectColumnList(new HashMap<>()), new HashMap<>(), null);
     }
 
+
+    @Override
+    public Object runFunction(ENTITY template,
+                              Map<String, Operator> whereMap,
+                              SqlFunction function,
+                              String columnName) {
+        SelectColumnList selectColumnList = new SelectColumnList(whereMap);
+        String sql = keylessSqlBuilder.selectFunction(function, columnName, selectColumnList);
+        return sqlRunner.runFunction(sql, selectColumnList, columnMap(selectColumnList.columnNames()), template);
+    }
+
     @Override
     public List<ENTITY> selectManyByColumns(ENTITY template, Map<String, Operator> columnNamesMap) {
         SelectColumnList selectColumnList = new SelectColumnList(columnNamesMap);
