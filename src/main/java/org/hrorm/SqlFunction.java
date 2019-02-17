@@ -1,5 +1,8 @@
 package org.hrorm;
 
+/**
+ * Representation of various aggregation functions that a database can perform.
+ */
 public class SqlFunction {
 
     public static final SqlFunction COUNT = new SqlFunction("COUNT");
