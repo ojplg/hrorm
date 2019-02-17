@@ -183,44 +183,14 @@ public class SqlRunner<ENTITY, BUILDER> {
                                             SelectColumnList selectColumnList,
                                             Map<String, ? extends Column<ENTITY,?>> columnNameMap,
                                             ENTITY template) {
-        ResultSet resultSet = null;
-        PreparedStatement statement = null;
-        try {
-            statement = connection.prepareStatement(sql);
-            int idx = 1;
-            for(SelectColumnList.ColumnOperatorEntry columnEntry : selectColumnList){
-                String columnName = columnEntry.rawName;
-                Column<ENTITY,?> column = columnNameMap.get(columnName.toUpperCase());
-                column.setValue(template, idx, statement);
-                idx++;
-                Operator operator = columnEntry.operator;
-                if( operator.hasSecondParameter() ) {
-                    operator.setSecondParameter(idx, statement);
-                    idx++;
-                }
-            }
-            logger.info(sql);
-            resultSet = statement.executeQuery();
-
-            if (resultSet.next()) {
-                return resultSet.getBigDecimal(1);
-            } else {
-                return null;
-            }
-        } catch (SQLException ex){
-            throw new HrormException(ex, sql);
-        } finally {
+        Function<ResultSet, BigDecimal> reader = resultSet -> {
             try {
-                if (resultSet != null) {
-                    resultSet.close();
-                }
-                if (statement != null) {
-                    statement.close();
-                }
-            } catch (SQLException se){
-                throw new HrormException(se);
+                return resultSet.getBigDecimal(1);
+            } catch (SQLException ex){
+                throw new HrormException(ex, sql);
             }
-        }
+        };
+        return runFunction(sql, selectColumnList, columnNameMap, template, reader);
     }
 
     public Long runLongFunction(String sql,

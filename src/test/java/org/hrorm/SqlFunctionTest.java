@@ -46,7 +46,7 @@ public class SqlFunctionTest {
             columns.setStringThing("FunctionTest_" + idx);
             columns.setTimeStampThing(LocalDateTime.now());
             columns.setIntegerThing((long) idx);
-            columns.setDecimalThing(BigDecimal.valueOf((long) idx));
+            columns.setDecimalThing(new BigDecimal(idx + "." + idx));
             columns.setBooleanThing(idx % 2 == 0);
             columns.setColorThing(EnumeratedColor.Green);
 
@@ -117,7 +117,7 @@ public class SqlFunctionTest {
     public void testSum(){
         Columns template = new Columns();
         template.setBooleanThing(true);
-        template.setDecimalThing(new BigDecimal("50.4"));
+        template.setDecimalThing(new BigDecimal("50.7"));
 
         Dao<Columns> dao = daoBuilder().buildDao(helper.connect());
 
@@ -129,6 +129,25 @@ public class SqlFunctionTest {
                 SqlFunction.SUM, "integer_column");
 
         Assert.assertEquals(650, sum);
+
+    }
+
+    @Test
+    public void testBigDecimalSum(){
+        Columns template = new Columns();
+        template.setBooleanThing(true);
+        template.setDecimalThing(new BigDecimal("50.7"));
+
+        Dao<Columns> dao = daoBuilder().buildDao(helper.connect());
+
+        Map<String, Operator> whereMap = new HashMap<>();
+        whereMap.put("boolean_column", Operator.EQUALS);
+        whereMap.put("decimal_column", Operator.LESS_THAN);
+
+        BigDecimal sum = dao.runBigDecimalFunction(template, whereMap,
+                SqlFunction.SUM, "decimal_column");
+
+        Assert.assertEquals(new BigDecimal("658.30"), sum);
 
     }
 }

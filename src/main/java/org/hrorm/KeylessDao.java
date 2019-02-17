@@ -1,5 +1,6 @@
 package org.hrorm;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
@@ -119,6 +120,9 @@ public interface KeylessDao<ENTITY> {
 
     Long runLongFunction(ENTITY template, Map<String, Operator> whereMap,
                        SqlFunction function, String columnName);
+
+    BigDecimal runBigDecimalFunction(ENTITY template, Map<String, Operator> whereMap,
+                                     SqlFunction function, String columnName);
 
 
 }

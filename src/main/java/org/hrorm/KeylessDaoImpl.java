@@ -1,5 +1,6 @@
 package org.hrorm;
 
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -148,6 +149,17 @@ public class KeylessDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> implements K
         String sql = keylessSqlBuilder.selectFunction(function, columnName, selectColumnList);
         return sqlRunner.runLongFunction(sql, selectColumnList, columnMap(selectColumnList.columnNames()), template);
     }
+
+    @Override
+    public BigDecimal runBigDecimalFunction(ENTITY template,
+                                            Map<String, Operator> whereMap,
+                                            SqlFunction function,
+                                            String columnName) {
+        SelectColumnList selectColumnList = new SelectColumnList(whereMap);
+        String sql = keylessSqlBuilder.selectFunction(function, columnName, selectColumnList);
+        return sqlRunner.runBigDecimalFunction(sql, selectColumnList, columnMap(selectColumnList.columnNames()), template);
+    }
+
 
     @Override
     public List<ENTITY> selectManyByColumns(ENTITY template, Map<String, Operator> columnNamesMap) {
