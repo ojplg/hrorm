@@ -140,27 +140,13 @@ public class KeylessDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> implements K
     }
 
     @Override
-    public long countByColumns(ENTITY item, Map<String, Operator> columnNames) {
-        SelectColumnList selectColumnList = new SelectColumnList(columnNames);
-        String sql = keylessSqlBuilder.countByColumns(selectColumnList);
-        return sqlRunner.count(sql, selectColumnList, columnMap(selectColumnList.columnNames()), item);
-    }
-
-    @Override
-    public long fullCount() {
-        String sql = keylessSqlBuilder.count();
-        return sqlRunner.count(sql, new SelectColumnList(new HashMap<>()), new HashMap<>(), null);
-    }
-
-
-    @Override
-    public Object runFunction(ENTITY template,
+    public Long runLongFunction(ENTITY template,
                               Map<String, Operator> whereMap,
                               SqlFunction function,
                               String columnName) {
         SelectColumnList selectColumnList = new SelectColumnList(whereMap);
         String sql = keylessSqlBuilder.selectFunction(function, columnName, selectColumnList);
-        return sqlRunner.runFunction(sql, selectColumnList, columnMap(selectColumnList.columnNames()), template);
+        return sqlRunner.runLongFunction(sql, selectColumnList, columnMap(selectColumnList.columnNames()), template);
     }
 
     @Override

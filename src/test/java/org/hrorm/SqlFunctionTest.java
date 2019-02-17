@@ -75,7 +75,7 @@ public class SqlFunctionTest {
         Map<String, Operator> whereMap = Collections.singletonMap(
                 "integer_column", Operator.GREATER_THAN_OR_EQUALS);
 
-        long count = (long) dao.runFunction(template, whereMap,
+        long count = (long) dao.runLongFunction(template, whereMap,
                 SqlFunction.COUNT, "id");
 
         Assert.assertEquals(50L, count);
@@ -91,7 +91,7 @@ public class SqlFunctionTest {
 
         Map<String, Operator> whereMap = Collections.emptyMap();
 
-        int value = (int) dao.runFunction(template, whereMap,
+        long value = dao.runLongFunction(template, whereMap,
                 SqlFunction.MIN, "integer_column");
 
         Assert.assertEquals(0, value);
@@ -107,12 +107,9 @@ public class SqlFunctionTest {
         Map<String, Operator> whereMap = Collections.singletonMap(
                 "string_column", Operator.LIKE);
 
-        Object result = dao.runFunction(template, whereMap,
+        long result = dao.runLongFunction(template, whereMap,
                 SqlFunction.MAX, "integer_column");
-
-        int value = (int) result;
-
-        Assert.assertEquals(99, value);
+        Assert.assertEquals(99, result);
 
     }
 
@@ -128,7 +125,7 @@ public class SqlFunctionTest {
         whereMap.put("boolean_column", Operator.EQUALS);
         whereMap.put("decimal_column", Operator.LESS_THAN);
 
-        long sum = (long) dao.runFunction(template, whereMap,
+        long sum = dao.runLongFunction(template, whereMap,
                 SqlFunction.SUM, "integer_column");
 
         Assert.assertEquals(650, sum);

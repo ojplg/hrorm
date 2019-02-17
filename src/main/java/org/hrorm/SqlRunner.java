@@ -1,5 +1,6 @@
 package org.hrorm;
 
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -133,10 +134,11 @@ public class SqlRunner<ENTITY, BUILDER> {
         }
     }
 
-    public Object runFunction(String sql,
+    private <T> T runFunction(String sql,
                               SelectColumnList selectColumnList,
                               Map<String, ? extends Column<ENTITY,?>> columnNameMap,
-                              ENTITY template) {
+                              ENTITY template,
+                              Function<ResultSet, T> reader) {
         ResultSet resultSet = null;
         PreparedStatement statement = null;
         try {
@@ -157,9 +159,9 @@ public class SqlRunner<ENTITY, BUILDER> {
             resultSet = statement.executeQuery();
 
             if (resultSet.next()) {
-                return resultSet.getObject(1);
+                return reader.apply(resultSet);
             } else {
-                throw new HrormException("No result from query.", sql);
+                return null;
             }
         } catch (SQLException ex){
             throw new HrormException(ex, sql);
@@ -177,8 +179,10 @@ public class SqlRunner<ENTITY, BUILDER> {
         }
     }
 
-
-    public long count(String sql,SelectColumnList selectColumnList, Map<String, ? extends Column<ENTITY,?>> columnNameMap, ENTITY template) {
+    public BigDecimal runBigDecimalFunction(String sql,
+                                            SelectColumnList selectColumnList,
+                                            Map<String, ? extends Column<ENTITY,?>> columnNameMap,
+                                            ENTITY template) {
         ResultSet resultSet = null;
         PreparedStatement statement = null;
         try {
@@ -199,7 +203,9 @@ public class SqlRunner<ENTITY, BUILDER> {
             resultSet = statement.executeQuery();
 
             if (resultSet.next()) {
-                return resultSet.getLong(1);
+                return resultSet.getBigDecimal(1);
+            } else {
+                return null;
             }
         } catch (SQLException ex){
             throw new HrormException(ex, sql);
@@ -215,7 +221,20 @@ public class SqlRunner<ENTITY, BUILDER> {
                 throw new HrormException(se);
             }
         }
-        return -1L;
+    }
+
+    public Long runLongFunction(String sql,
+                              SelectColumnList selectColumnList,
+                              Map<String, ? extends Column<ENTITY,?>> columnNameMap,
+                              ENTITY template) {
+        Function<ResultSet, Long> reader = resultSet -> {
+            try {
+                return resultSet.getLong(1);
+            } catch (SQLException ex){
+                throw new HrormException(ex, sql);
+            }
+        };
+        return runFunction(sql, selectColumnList, columnNameMap, template, reader);
     }
 
     public void insert(String sql, Envelope<ENTITY> envelope) {

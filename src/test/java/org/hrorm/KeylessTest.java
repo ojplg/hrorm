@@ -49,18 +49,6 @@ public class KeylessTest {
 
 
     /**
-     * Comprehensively tests fullCount.
-     */
-    @Test
-    public void testFullCount() {
-        Connection connection = helper.connect();
-        KeylessDao<Keyless> dao = Keyless.DAO_BUILDER.buildDao(connection);
-
-        long count = dao.fullCount();
-        Assert.assertEquals(fakeEntities.size(), count);
-    }
-
-    /**
      * Comprehensively tests insert/select.
      */
     @Test
@@ -339,11 +327,8 @@ public class KeylessTest {
         columnOperatorMap.put(columnName, operator);
         List<Keyless> fromDatabase = dao.selectManyByColumns(template, columnOperatorMap);
 
-        // Perform the same test on count function.
-        long fromDatabaseCount = dao.countByColumns(template, columnOperatorMap);
 
         // Verify
-        Assert.assertEquals(matching.size(), fromDatabaseCount);
         Assert.assertEquals(matching.size(), fromDatabase.size());
         matching.forEach(keyless -> Assert.assertTrue(fromDatabase.contains(keyless)));
     }
