@@ -186,6 +186,14 @@ public class KeylessDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> implements K
         );
     }
 
+    @Override
+    public List<ENTITY> select(Where where) {
+
+
+
+        return null;
+    }
+
     protected <A> A fromSingletonList(List<A> items) {
         if (items.isEmpty()) {
             return null;

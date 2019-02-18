@@ -14,10 +14,17 @@ import org.junit.Test;
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import static org.hrorm.Where.where;
 
 public class ComparatorSelectTest {
 
@@ -543,6 +550,43 @@ public class ComparatorSelectTest {
             Assert.assertEquals(1, found.size());
             Assert.assertEquals(id, found.get(0).getId());
         }
+    }
+
+    @Test
+    public void testFluentSelect2(){
+        Connection connection = helper.connect();
+        Dao<Columns> dao = daoBuilder().buildDao(connection);
+        Long id;
+
+        LocalDateTime time = LocalDateTime.now();
+        {
+            for(long idx = 1; idx<100; idx++) {
+                Columns columns = new Columns();
+                columns.setStringThing("FluentSelectTest2_" + idx + (idx%3==0 ? "THREE" : "NOPE"));
+                columns.setIntegerThing(idx);
+                columns.setBooleanThing(true);
+                columns.setDecimalThing(idx%5==0 ? new BigDecimal("5.0") : new BigDecimal("4.321"));
+                columns.setTimeStampThing(time);
+                columns.setColorThing( EnumeratedColor.Green);
+            }
+        }
+        {
+            List<Columns> found =
+                    dao.select(where("integer_column", Operator.GREATER_THAN, 67L)
+                            .and("integer_column", Operator.LESS_THAN, 84L)
+                            .and(
+                                    where("string_column", Operator.LIKE, "%THREE%")
+                                    .or("decimal_column", Operator.EQUALS, new BigDecimal("5.0"))
+                            ));
+
+            List<Long> expetedIds = Arrays.asList(new Long[]{ 69L, 70L, 72L, 75L, 78L, 80L, 81L } );
+
+            Set<Long> foundIdSet = found.stream().map(c -> c.getId()).collect(Collectors.toSet());
+
+//            Assert.assertEquals(7, found.size());
+            Assert.assertTrue(foundIdSet.containsAll(expetedIds));
+        }
+
     }
 
 }

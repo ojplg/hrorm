@@ -12,6 +12,14 @@ public class SimpleSqlFormatter {
         In,Out;
     }
 
+    void handleOperatorCharacter(char c, ParseState parseState, StringBuffer buf){
+        if ( parseState != ParseState.WhiteSpace ){
+            buf.append(' ');
+        }
+        buf.append(c);
+        buf.append(' ');
+    }
+
     String format(String inputSql){
 
         ParseState parseState = ParseState.Start;
@@ -47,12 +55,24 @@ public class SimpleSqlFormatter {
                 buf.append("'");
             }
             else if ( c.equals( '=' ) ){
-                if ( parseState == ParseState.WhiteSpace ){
-                    buf.append("= ");
-                } else {
-                    buf.append(" = ");
-                    parseState = ParseState.WhiteSpace;
-                }
+                handleOperatorCharacter('=', parseState, buf);
+                parseState = ParseState.WhiteSpace;
+            }
+            else if ( c.equals( '<' ) ){
+                handleOperatorCharacter('<', parseState, buf);
+                parseState = ParseState.WhiteSpace;
+            }
+            else if ( c.equals( '>' ) ){
+                handleOperatorCharacter('<', parseState, buf);
+                parseState = ParseState.WhiteSpace;
+            }
+            else if ( c.equals( '?' )){
+                handleOperatorCharacter('?', parseState, buf);
+                parseState = ParseState.WhiteSpace;
+            }
+            else if ( c.equals( '(' )){
+                handleOperatorCharacter('(', parseState, buf);
+                parseState = ParseState.WhiteSpace;
             }
             else {
                 buf.append(c);
