@@ -14,11 +14,9 @@ import org.junit.Test;
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -556,7 +554,6 @@ public class ComparatorSelectTest {
     public void testFluentSelect2(){
         Connection connection = helper.connect();
         Dao<Columns> dao = daoBuilder().buildDao(connection);
-        Long id;
 
         LocalDateTime time = LocalDateTime.now();
         {
@@ -581,9 +578,9 @@ public class ComparatorSelectTest {
                                     .or("decimal_column", Operator.EQUALS, new BigDecimal("5.0"))
                             ));
 
-            List<Long> expectedIntegers = Arrays.asList(new Long[]{ 69L, 70L, 72L, 75L, 78L, 80L, 81L } );
+            List<Long> expectedIntegers = Arrays.asList(69L, 70L, 72L, 75L, 78L, 80L, 81L);
 
-            Set<Long> foundIntegerSet = found.stream().map(c -> c.getIntegerThing()).collect(Collectors.toSet());
+            Set<Long> foundIntegerSet = found.stream().map(Columns::getIntegerThing).collect(Collectors.toSet());
 
             Assert.assertTrue(foundIntegerSet.containsAll(expectedIntegers));
         }
