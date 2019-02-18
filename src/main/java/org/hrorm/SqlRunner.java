@@ -74,6 +74,55 @@ public class SqlRunner<ENTITY, BUILDER> {
         );
     }
 
+    public List<BUILDER> selectWhere(String sql,
+                                     Supplier<BUILDER> supplier,
+                                     List<? extends ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors,
+                                     Where where){
+        ResultSet resultSet = null;
+        PreparedStatement statement = null;
+        try {
+            statement = connection.prepareStatement(sql);
+            int idx = 1;
+            for(WherePredicateAtom atom : where){
+                atom.setValue(idx, statement);
+                idx++;
+            }
+
+            logger.info(sql);
+
+            resultSet = statement.executeQuery();
+
+            List<BUILDER> builderList = new ArrayList<>();
+
+            while (resultSet.next()) {
+                BUILDER bldr = populate(resultSet, supplier);
+                for(ChildrenDescriptor<ENTITY,?, BUILDER,?> descriptor : childrenDescriptors){
+                    descriptor.populateChildren(connection, bldr);
+                }
+                builderList.add(bldr);
+            }
+
+            return builderList;
+
+
+
+        } catch (SQLException ex){
+            throw new HrormException(ex, sql);
+        } finally {
+            try {
+                if (resultSet != null) {
+                    resultSet.close();
+                }
+                if (statement != null) {
+                    statement.close();
+                }
+            } catch (SQLException se){
+                throw new HrormException(se);
+            }
+        }
+
+    }
+
     public BiFunction<String, Iterable<WhereClauseBuilder.WherePhrase>, List<ENTITY>>
     buildSelector(Supplier<BUILDER> supplier, Function<BUILDER, ENTITY> buildFunction){
         return (sql, phrases) ->

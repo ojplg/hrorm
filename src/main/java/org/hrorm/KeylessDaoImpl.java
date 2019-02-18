@@ -165,10 +165,9 @@ public class KeylessDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> implements K
 
     @Override
     public List<ENTITY> select(Where where) {
-
-
-
-        return null;
+        String sql = keylessSqlBuilder.select() + " AND " + where.render();
+        List<BUILDER> bs = sqlRunner.selectWhere(sql, supplier, childrenDescriptors, where);
+        return mapBuilders(bs);
     }
 
     protected <A> A fromSingletonList(List<A> items) {

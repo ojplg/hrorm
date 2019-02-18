@@ -27,7 +27,7 @@ public class WhereTest {
 
         String generatedSql = where.render();
         String expectedSql = "A.NUMBER > ? AND A.NUMBER < ? "
-                + "AND ( A.OTHER = ? OR A.THIRD > ? )";
+                                + "AND ( A.OTHER = ? OR A.THIRD > ? )";
 
         SimpleSqlFormatter.assertEqualSql(expectedSql, generatedSql);
     }

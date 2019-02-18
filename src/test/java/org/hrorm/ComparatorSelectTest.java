@@ -568,6 +568,8 @@ public class ComparatorSelectTest {
                 columns.setDecimalThing(idx%5==0 ? new BigDecimal("5.0") : new BigDecimal("4.321"));
                 columns.setTimeStampThing(time);
                 columns.setColorThing( EnumeratedColor.Green);
+
+                dao.insert(columns);
             }
         }
         {
@@ -579,12 +581,11 @@ public class ComparatorSelectTest {
                                     .or("decimal_column", Operator.EQUALS, new BigDecimal("5.0"))
                             ));
 
-            List<Long> expetedIds = Arrays.asList(new Long[]{ 69L, 70L, 72L, 75L, 78L, 80L, 81L } );
+            List<Long> expectedIntegers = Arrays.asList(new Long[]{ 69L, 70L, 72L, 75L, 78L, 80L, 81L } );
 
-            Set<Long> foundIdSet = found.stream().map(c -> c.getId()).collect(Collectors.toSet());
+            Set<Long> foundIntegerSet = found.stream().map(c -> c.getIntegerThing()).collect(Collectors.toSet());
 
-//            Assert.assertEquals(7, found.size());
-            Assert.assertTrue(foundIdSet.containsAll(expetedIds));
+            Assert.assertTrue(foundIntegerSet.containsAll(expectedIntegers));
         }
 
     }
