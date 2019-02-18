@@ -95,31 +95,6 @@ public class KeylessSqlBuilder<ENTITY> {
         return buf.toString();
     }
 
-    public String count(){
-        StringBuilder buf = new StringBuilder();
-        buf.append("select count(*) from ");
-        buf.append(table);
-        buf.append(" a");
-        List<JoinColumn> flattenedJoinColumns = flattenedJoinColumns();
-        for(JoinColumn joinColumn : flattenedJoinColumns) {
-            buf.append(" LEFT JOIN ");
-            buf.append(joinColumn.getTable());
-            buf.append(" ");
-            buf.append(joinColumn.getPrefix());
-            buf.append(" ON ");
-            buf.append(joinColumn.getJoinedTablePrefix());
-            buf.append(".");
-            buf.append(joinColumn.getName());
-            buf.append("=");
-            buf.append(joinColumn.getPrefix());
-            buf.append(".");
-            buf.append(joinColumn.getJoinedTablePrimaryKeyName());
-        }
-        buf.append(" where 1=1 ");
-
-        return buf.toString();
-    }
-
     public String selectFunction(SqlFunction function, String columnName, SelectColumnList selectColumnList){
         StringBuilder buf = new StringBuilder();
         buf.append("select ");
@@ -155,21 +130,7 @@ public class KeylessSqlBuilder<ENTITY> {
         buf.append(selectColumnList.sqlPredicates());
         return buf.toString();
     }
-
-    public String countByColumns(SelectColumnList selectColumnList) {
-        StringBuilder buf = new StringBuilder();
-        buf.append(count());
-        for(SelectColumnList.ColumnOperatorEntry columnEntry : selectColumnList){
-            buf.append(" and ");
-            buf.append("a.");
-            buf.append(columnEntry.rawName);
-            buf.append(" ");
-            buf.append(columnEntry.getSqlString());
-            buf.append(" ? ");
-        }
-        return buf.toString();
-    }
-
+    
     public String insert(){
         StringBuilder bldr = new StringBuilder();
         bldr.append("insert into ");
