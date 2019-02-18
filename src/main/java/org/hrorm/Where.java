@@ -3,14 +3,15 @@ package org.hrorm;
 import java.math.BigDecimal;
 import java.util.Iterator;
 
+/**
+ * Representation of a SQL where clause: a possibly nested list of
+ * predicates that describes which records in the database to match.
+ */
 public class Where implements Iterable<WherePredicateAtom> {
-
-    private WherePredicateTree tree;
 
     public static Where where(String columnName, Operator operator, Long value) {
         WherePredicateAtom<Long> atom = WherePredicateAtom.forLong(columnName, operator, value);
-        Where where = new Where(atom);
-        return where;
+        return new Where(atom);
     }
 
     public static Where where(String columnName, Operator operator, String value){
@@ -23,6 +24,7 @@ public class Where implements Iterable<WherePredicateAtom> {
         return new Where(atom);
     }
 
+    private WherePredicateTree tree;
 
     public Where(WherePredicateAtom atom){
         tree = new WherePredicateTree(atom);
