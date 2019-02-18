@@ -118,4 +118,7 @@ public interface KeylessDao<ENTITY> {
 
 
     WhereClauseBuilder select(String columnName, Operator operator, Long value);
+
+    List<ENTITY> select(Where where);
+
 }
