@@ -24,6 +24,10 @@ import java.util.stream.Collectors;
 
 import static org.hrorm.Where.where;
 
+import static org.hrorm.Operator.LESS_THAN;
+import static org.hrorm.Operator.GREATER_THAN;
+import static org.hrorm.Operator.LIKE;
+
 public class ComparatorSelectTest {
 
     static { TestLogConfig.load(); }
@@ -78,7 +82,6 @@ public class ComparatorSelectTest {
         Assert.assertEquals(id, columns.getId());
     }
 
-
     @Test
     public void testSelectStringLike(){
         Connection connection = helper.connect();
@@ -104,6 +107,13 @@ public class ComparatorSelectTest {
             map.put("string_column", Operator.LIKE);
 
             List<Columns> found = dao.selectManyByColumns(template, map);
+            Assert.assertEquals(1, found.size());
+            Assert.assertEquals(id, found.get(0).getId());
+        }
+        {
+            List<Columns> found = dao.select(
+                    where("string_column", Operator.LIKE, "LIKE%")
+            );
             Assert.assertEquals(1, found.size());
             Assert.assertEquals(id, found.get(0).getId());
         }
@@ -135,6 +145,13 @@ public class ComparatorSelectTest {
             List<Columns> found = dao.selectManyByColumns(template, map);
             Assert.assertEquals(0, found.size());
         }
+        {
+            List<Columns> found = dao.select(
+                    where("string_column", LIKE, "%FOO%")
+            );
+            Assert.assertEquals(0, found.size());
+
+        }
     }
 
     @Test
@@ -163,6 +180,13 @@ public class ComparatorSelectTest {
             map.put("integer_column", Operator.LESS_THAN);
 
             List<Columns> found = dao.selectManyByColumns(template, map);
+            Assert.assertEquals(1, found.size());
+            Assert.assertEquals(id, found.get(0).getId());
+        }
+        {
+            List<Columns> found = dao.select(
+                    where("integer_column", LESS_THAN, 1234L)
+            );
             Assert.assertEquals(1, found.size());
             Assert.assertEquals(id, found.get(0).getId());
         }
@@ -196,7 +220,12 @@ public class ComparatorSelectTest {
             List<Columns> found = dao.selectManyByColumns(template, map);
             Assert.assertEquals(0, found.size());
         }
-
+        {
+            List<Columns> found = dao.select(
+                    where("integer_column", LESS_THAN, 123L)
+            );
+            Assert.assertEquals(0, found.size());
+        }
     }
 
 
@@ -225,6 +254,13 @@ public class ComparatorSelectTest {
             map.put("decimal_column", Operator.LESS_THAN);
 
             List<Columns> found = dao.selectManyByColumns(template, map);
+            Assert.assertEquals(1, found.size());
+            Assert.assertEquals(id, found.get(0).getId());
+        }
+        {
+            List<Columns> found = dao.select(
+                    where("decimal_column", LESS_THAN, new BigDecimal("5.03"))
+            );
             Assert.assertEquals(1, found.size());
             Assert.assertEquals(id, found.get(0).getId());
         }
@@ -258,7 +294,12 @@ public class ComparatorSelectTest {
             List<Columns> found = dao.selectManyByColumns(template, map);
             Assert.assertEquals(0, found.size());
         }
-
+        {
+            List<Columns> found = dao.select(
+                    where("decimal_column", LESS_THAN, new BigDecimal("3.12"))
+            );
+            Assert.assertEquals(0, found.size());
+        }
     }
 
     @Test
@@ -294,8 +335,15 @@ public class ComparatorSelectTest {
             Assert.assertEquals(1, found.size());
             Assert.assertEquals(id, found.get(0).getId());
         }
-
-
+        {
+            List<Columns> found = dao.select(
+                    where("integer_column", LESS_THAN, 1234L)
+                      .and("decimal_column", GREATER_THAN, new BigDecimal("3.12"))
+                      .and("string_column", LIKE, "%And%")
+            );
+            Assert.assertEquals(1, found.size());
+            Assert.assertEquals(id, found.get(0).getId());
+        }
     }
 
     @Test
@@ -330,6 +378,15 @@ public class ComparatorSelectTest {
             Assert.assertEquals(0, found.size());
         }
         {
+            // change string value
+            List<Columns> found = dao.select(
+                    where("integer_column", LESS_THAN, 1234L)
+                            .and("decimal_column", GREATER_THAN, new BigDecimal("3.12"))
+                            .and("string_column", LIKE, "%BADSTRING%")
+            );
+            Assert.assertEquals(0, found.size());
+        }
+        {
             Columns template = new Columns();
             template.setDecimalThing(new BigDecimal("6.212"));
             template.setStringThing("%And%");
@@ -344,6 +401,15 @@ public class ComparatorSelectTest {
             Assert.assertEquals(0, found.size());
         }
         {
+            // change decimal value
+            List<Columns> found = dao.select(
+                    where("integer_column", LESS_THAN, 1234L)
+                            .and("decimal_column", GREATER_THAN, new BigDecimal("13.12"))
+                            .and("string_column", LIKE, "%And%")
+            );
+            Assert.assertEquals(0, found.size());
+        }
+        {
             Columns template = new Columns();
             template.setDecimalThing(new BigDecimal("3.12"));
             template.setStringThing("%And%");
@@ -355,6 +421,15 @@ public class ComparatorSelectTest {
             map.put("string_column", Operator.LIKE);
 
             List<Columns> found = dao.selectManyByColumns(template, map);
+            Assert.assertEquals(0, found.size());
+        }
+        {
+            // change long value
+            List<Columns> found = dao.select(
+                    where("integer_column", LESS_THAN, 4L)
+                            .and("decimal_column", GREATER_THAN, new BigDecimal("3.12"))
+                            .and("string_column", LIKE, "%And%")
+            );
             Assert.assertEquals(0, found.size());
         }
     }
@@ -384,6 +459,13 @@ public class ComparatorSelectTest {
             List<Columns> filtered = dao.selectManyByColumns(template, columnMap);
             Assert.assertEquals(9, filtered.size());
         }
+        {
+            List<Columns> filtered = dao.select(
+                    where("integer_column", GREATER_THAN, 10L)
+                    .and("integer_column", LESS_THAN, 20L)
+            );
+            Assert.assertEquals(9, filtered.size());
+        }
     }
 
     @Test
@@ -409,6 +491,13 @@ public class ComparatorSelectTest {
             Map<String, Operator> columnMap = Collections.singletonMap("integer_column", rangeLimit);
 
             List<Columns> filtered = dao.selectManyByColumns(template, columnMap);
+            Assert.assertEquals(11, filtered.size());
+        }
+        {
+            List<Columns> filtered = dao.select(
+                    where("integer_column", Operator.GREATER_THAN_OR_EQUALS, 10L)
+                            .and("integer_column", Operator.LESS_THAN_OR_EQUALS, 20L)
+            );
             Assert.assertEquals(11, filtered.size());
         }
     }
