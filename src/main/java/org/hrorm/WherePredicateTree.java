@@ -1,5 +1,9 @@
 package org.hrorm;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 public class WherePredicateTree {
 
     public enum Conjunction {
@@ -9,6 +13,8 @@ public class WherePredicateTree {
     interface WherePredicateNode {
 
         String render(String prefix);
+
+        List<WherePredicateAtom> asAtomList();
 
     }
 
@@ -27,6 +33,13 @@ public class WherePredicateTree {
             return leftNode.render(prefix) + " " + conjunction + " " + rightNode.render(prefix);
         }
 
+        @Override
+        public List<WherePredicateAtom> asAtomList() {
+            ArrayList<WherePredicateAtom> atoms = new ArrayList<>();
+            atoms.addAll(leftNode.asAtomList());
+            atoms.addAll(rightNode.asAtomList());
+            return atoms;
+        }
     }
 
     class WherePredicateLeaf implements WherePredicateNode {
@@ -40,6 +53,10 @@ public class WherePredicateTree {
             return atom.render(prefix);
         }
 
+        @Override
+        public List<WherePredicateAtom> asAtomList() {
+            return Collections.singletonList(atom);
+        }
     }
 
     class WherePredicateGroup implements WherePredicateNode {
@@ -51,6 +68,11 @@ public class WherePredicateTree {
 
         public String render(String prefix){
             return " ( " + node.render(prefix) + " ) ";
+        }
+
+        @Override
+        public List<WherePredicateAtom> asAtomList() {
+            return node.asAtomList();
         }
     }
 
@@ -77,5 +99,9 @@ public class WherePredicateTree {
 
     public WherePredicateNode getRootNode(){
         return rootNode;
+    }
+
+    public List<WherePredicateAtom> asAtomList(){
+        return rootNode.asAtomList();
     }
 }
