@@ -14,7 +14,7 @@ public class WherePredicateTree {
 
         String render(String prefix);
 
-        List<WherePredicateAtom> asAtomList();
+        List<WherePredicate> asAtomList();
 
     }
 
@@ -34,8 +34,8 @@ public class WherePredicateTree {
         }
 
         @Override
-        public List<WherePredicateAtom> asAtomList() {
-            ArrayList<WherePredicateAtom> atoms = new ArrayList<>();
+        public List<WherePredicate> asAtomList() {
+            ArrayList<WherePredicate> atoms = new ArrayList<>();
             atoms.addAll(leftNode.asAtomList());
             atoms.addAll(rightNode.asAtomList());
             return atoms;
@@ -43,9 +43,9 @@ public class WherePredicateTree {
     }
 
     class WherePredicateLeaf implements WherePredicateNode {
-        private final WherePredicateAtom atom;
+        private final WherePredicate atom;
 
-        public WherePredicateLeaf(WherePredicateAtom atom){
+        public WherePredicateLeaf(WherePredicate atom){
             this.atom = atom;
         }
 
@@ -54,7 +54,7 @@ public class WherePredicateTree {
         }
 
         @Override
-        public List<WherePredicateAtom> asAtomList() {
+        public List<WherePredicate> asAtomList() {
             return Collections.singletonList(atom);
         }
     }
@@ -71,18 +71,18 @@ public class WherePredicateTree {
         }
 
         @Override
-        public List<WherePredicateAtom> asAtomList() {
+        public List<WherePredicate> asAtomList() {
             return node.asAtomList();
         }
     }
 
     private WherePredicateNode rootNode;
 
-    public WherePredicateTree(WherePredicateAtom atom){
+    public WherePredicateTree(WherePredicate atom){
         this.rootNode = new WherePredicateLeaf(atom);
     }
 
-    public void addAtom(Conjunction conjunction, WherePredicateAtom atom){
+    public void addAtom(Conjunction conjunction, WherePredicate atom){
         WherePredicateLeaf newLeaf = new WherePredicateLeaf(atom);
         WherePredicateBranch branch = new WherePredicateBranch(rootNode, conjunction, newLeaf);
         rootNode = branch;
@@ -101,7 +101,7 @@ public class WherePredicateTree {
         return rootNode;
     }
 
-    public List<WherePredicateAtom> asAtomList(){
+    public List<WherePredicate> asAtomList(){
         return rootNode.asAtomList();
     }
 }

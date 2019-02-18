@@ -84,7 +84,7 @@ public class SqlRunner<ENTITY, BUILDER> {
         try {
             statement = connection.prepareStatement(sql);
             int idx = 1;
-            for(WherePredicateAtom atom : where){
+            for(WherePredicate atom : where){
                 atom.setValue(idx, statement);
                 idx++;
             }

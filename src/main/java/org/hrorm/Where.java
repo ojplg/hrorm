@@ -7,56 +7,56 @@ import java.util.Iterator;
  * Representation of a SQL where clause: a possibly nested list of
  * predicates that describes which records in the database to match.
  */
-public class Where implements Iterable<WherePredicateAtom> {
+public class Where implements Iterable<WherePredicate> {
 
     public static Where where(String columnName, Operator operator, Long value) {
-        WherePredicateAtom<Long> atom = WherePredicateAtom.forLong(columnName, operator, value);
+        WherePredicate<Long> atom = WherePredicate.forLong(columnName, operator, value);
         return new Where(atom);
     }
 
     public static Where where(String columnName, Operator operator, String value){
-        WherePredicateAtom<String> atom = WherePredicateAtom.forString(columnName, operator, value);
+        WherePredicate<String> atom = WherePredicate.forString(columnName, operator, value);
         return new Where(atom);
     }
 
     public static Where where(String columnName, Operator operator, BigDecimal value){
-        WherePredicateAtom<BigDecimal> atom = WherePredicateAtom.forBigDecimal(columnName, operator, value);
+        WherePredicate<BigDecimal> atom = WherePredicate.forBigDecimal(columnName, operator, value);
         return new Where(atom);
     }
 
     private WherePredicateTree tree;
 
-    public Where(WherePredicateAtom atom){
+    public Where(WherePredicate atom){
         tree = new WherePredicateTree(atom);
     }
 
     public Where and(String columnName, Operator operator, Long value){
-        WherePredicateAtom<Long> atom = WherePredicateAtom.forLong(columnName, operator, value);
+        WherePredicate<Long> atom = WherePredicate.forLong(columnName, operator, value);
         tree.addAtom(WherePredicateTree.Conjunction.AND, atom);
         return this;
     }
 
     public Where and(String columnName, Operator operator, BigDecimal value){
-        WherePredicateAtom<BigDecimal> atom = WherePredicateAtom.forBigDecimal(columnName, operator, value);
+        WherePredicate<BigDecimal> atom = WherePredicate.forBigDecimal(columnName, operator, value);
         tree.addAtom(WherePredicateTree.Conjunction.AND, atom);
         return this;
     }
 
     public Where and(String columnName, Operator operator, String value){
-        WherePredicateAtom<String> atom = WherePredicateAtom.forString(columnName, operator, value);
+        WherePredicate<String> atom = WherePredicate.forString(columnName, operator, value);
         tree.addAtom(WherePredicateTree.Conjunction.AND, atom);
         return this;
     }
 
 
     public Where or(String columnName, Operator operator, Long value){
-        WherePredicateAtom<Long> atom = WherePredicateAtom.forLong(columnName, operator, value);
+        WherePredicate<Long> atom = WherePredicate.forLong(columnName, operator, value);
         tree.addAtom(WherePredicateTree.Conjunction.OR, atom);
         return this;
     }
 
     public Where or(String columnName, Operator operator, BigDecimal value){
-        WherePredicateAtom<BigDecimal> atom = WherePredicateAtom.forBigDecimal(columnName, operator, value);
+        WherePredicate<BigDecimal> atom = WherePredicate.forBigDecimal(columnName, operator, value);
         tree.addAtom(WherePredicateTree.Conjunction.OR, atom);
         return this;
     }
@@ -75,7 +75,7 @@ public class Where implements Iterable<WherePredicateAtom> {
     }
 
     @Override
-    public Iterator<WherePredicateAtom> iterator() {
+    public Iterator<WherePredicate> iterator() {
         return tree.asAtomList().iterator();
     }
 }

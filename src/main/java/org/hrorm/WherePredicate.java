@@ -4,29 +4,29 @@ import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-public class WherePredicateAtom<T> {
+public class WherePredicate<T> {
 
     @FunctionalInterface
     interface PreparedStatementSetter<VALUE> {
         void apply(PreparedStatement preparedStatement, int index, VALUE value) throws SQLException;
     }
 
-    public static WherePredicateAtom<Long> forLong(String columnName, Operator operator, Long value) {
+    public static WherePredicate<Long> forLong(String columnName, Operator operator, Long value) {
         PreparedStatementSetter<Long> setter = (preparedStatement, index, aLong) ->
         { preparedStatement.setLong(index, aLong); };
-        return new WherePredicateAtom<>(columnName, operator, value, setter);
+        return new WherePredicate<>(columnName, operator, value, setter);
     }
 
-    public static WherePredicateAtom<String> forString(String columnName, Operator operator, String value) {
+    public static WherePredicate<String> forString(String columnName, Operator operator, String value) {
         PreparedStatementSetter<String> setter = (preparedStatement, index, v) ->
                                                 preparedStatement.setString(index, v);
-        return new WherePredicateAtom<>(columnName, operator, value, setter);
+        return new WherePredicate<>(columnName, operator, value, setter);
     }
 
-    public static WherePredicateAtom<BigDecimal> forBigDecimal(String columnName, Operator operator, BigDecimal value) {
+    public static WherePredicate<BigDecimal> forBigDecimal(String columnName, Operator operator, BigDecimal value) {
         PreparedStatementSetter<BigDecimal> setter = (preparedStatement, index, v) ->
                 preparedStatement.setBigDecimal(index, v);
-        return new WherePredicateAtom<>(columnName, operator, value, setter);
+        return new WherePredicate<>(columnName, operator, value, setter);
     }
 
 
@@ -37,7 +37,7 @@ public class WherePredicateAtom<T> {
 
 
 
-    public WherePredicateAtom(String columnName, Operator operator, T value, PreparedStatementSetter<T> setter) {
+    public WherePredicate(String columnName, Operator operator, T value, PreparedStatementSetter<T> setter) {
         this.columnName = columnName;
         this.operator = operator;
         this.value = value;
