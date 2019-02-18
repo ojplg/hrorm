@@ -148,6 +148,14 @@ public class SqlFunctionTest {
                 SqlFunction.SUM, "decimal_column");
 
         Assert.assertEquals(new BigDecimal("658.30"), sum);
+    }
 
+    @Test
+    public void testAverage(){
+        Dao<Columns> dao = daoBuilder().buildDao(helper.connect());
+        BigDecimal avg = dao.runBigDecimalFunction(new Columns(), new HashMap<>(),
+                SqlFunction.AVG, "decimal_column");
+
+        Assert.assertEquals(new BigDecimal("50.0355"), avg);
     }
 }
