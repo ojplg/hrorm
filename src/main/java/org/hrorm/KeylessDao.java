@@ -166,7 +166,6 @@ public interface KeylessDao<ENTITY> {
     BigDecimal runBigDecimalFunction(ENTITY template, Map<String, Operator> whereMap,
                                      SqlFunction function, String columnName);
 
-
     WhereClauseBuilder select(String columnName, Operator operator, Long value);
 
     List<ENTITY> select(Where where);
