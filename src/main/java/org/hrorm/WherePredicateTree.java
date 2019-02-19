@@ -4,6 +4,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * A very simple syntax tree for representing where clauses with possibly
+ * nested predicates joined by AND and OR.
+ */
 public class WherePredicateTree {
 
     public enum Conjunction {
@@ -11,11 +15,8 @@ public class WherePredicateTree {
     }
 
     interface WherePredicateNode {
-
         String render(String prefix);
-
-        List<WherePredicate> asAtomList();
-
+        List<WherePredicate> asList();
     }
 
     class WherePredicateBranch implements WherePredicateNode {
@@ -34,10 +35,10 @@ public class WherePredicateTree {
         }
 
         @Override
-        public List<WherePredicate> asAtomList() {
+        public List<WherePredicate> asList() {
             ArrayList<WherePredicate> atoms = new ArrayList<>();
-            atoms.addAll(leftNode.asAtomList());
-            atoms.addAll(rightNode.asAtomList());
+            atoms.addAll(leftNode.asList());
+            atoms.addAll(rightNode.asList());
             return atoms;
         }
     }
@@ -54,7 +55,7 @@ public class WherePredicateTree {
         }
 
         @Override
-        public List<WherePredicate> asAtomList() {
+        public List<WherePredicate> asList() {
             return Collections.singletonList(atom);
         }
     }
@@ -71,8 +72,8 @@ public class WherePredicateTree {
         }
 
         @Override
-        public List<WherePredicate> asAtomList() {
-            return node.asAtomList();
+        public List<WherePredicate> asList() {
+            return node.asList();
         }
     }
 
@@ -101,7 +102,7 @@ public class WherePredicateTree {
         return rootNode;
     }
 
-    public List<WherePredicate> asAtomList(){
-        return rootNode.asAtomList();
+    public List<WherePredicate> asList(){
+        return rootNode.asList();
     }
 }

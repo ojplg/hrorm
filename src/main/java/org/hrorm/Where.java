@@ -76,6 +76,6 @@ public class Where implements Iterable<WherePredicate> {
 
     @Override
     public Iterator<WherePredicate> iterator() {
-        return tree.asAtomList().iterator();
+        return tree.asList().iterator();
     }
 }

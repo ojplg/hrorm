@@ -4,6 +4,13 @@ import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
+/**
+ * Represents a particular predicate for filtering results. For example
+ * whether the values in a particular numeric column are less than some
+ * value.
+ *
+ * @param <T> the type held by the column being compared
+ */
 public class WherePredicate<T> {
 
     @FunctionalInterface
@@ -29,13 +36,10 @@ public class WherePredicate<T> {
         return new WherePredicate<>(columnName, operator, value, setter);
     }
 
-
     private final String columnName;
     private final Operator operator;
     private final T value;
     private final PreparedStatementSetter<T> setter;
-
-
 
     public WherePredicate(String columnName, Operator operator, T value, PreparedStatementSetter<T> setter) {
         this.columnName = columnName;
@@ -44,10 +48,24 @@ public class WherePredicate<T> {
         this.setter = setter;
     }
 
+    /**
+     * Creates a string representing a SQL snippet that can be used to build
+     * a prepared statement.
+     *
+     * @param prefix The prefix to give to the column name to specify its table.
+     * @return the SQL snippet.
+     */
     public String render(String prefix){
         return prefix + columnName + " " + operator.getSqlString(columnName) + " ? ";
     }
 
+    /**
+     * Applies
+     *
+     * @param index
+     * @param statement
+     * @throws SQLException
+     */
     public void setValue(int index, PreparedStatement statement) throws SQLException {
         setter.apply(statement, index, value);
     }
