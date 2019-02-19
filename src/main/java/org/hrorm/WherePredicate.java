@@ -60,11 +60,11 @@ public class WherePredicate<T> {
     }
 
     /**
-     * Applies
+     * Applies the value held by this object to the passed statement.
      *
-     * @param index
-     * @param statement
-     * @throws SQLException
+     * @param index the index of the variable to be set
+     * @param statement the statement being populated
+     * @throws SQLException on an error
      */
     public void setValue(int index, PreparedStatement statement) throws SQLException {
         setter.apply(statement, index, value);
