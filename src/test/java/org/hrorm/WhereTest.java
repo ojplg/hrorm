@@ -31,4 +31,18 @@ public class WhereTest {
 
         SimpleSqlFormatter.assertEqualSql(expectedSql, generatedSql);
     }
+
+    @Test
+    public void testSubClauseFirst(){
+        Where where = where(where("FOO", Operator.EQUALS, 1L)
+                                .and("BAR", Operator.LESS_THAN_OR_EQUALS, 2L))
+                        .or("BAZ", Operator.LIKE, "baz");
+
+
+        String generatedSql = where.render();
+        String expectedSql = "( A.FOO = ? AND A.BAR <= ? )"
+                + "OR A.BAZ LIKE ? ";
+
+        SimpleSqlFormatter.assertEqualSql(expectedSql, generatedSql);
+    }
 }

@@ -24,7 +24,16 @@ public class Where implements Iterable<WherePredicate> {
         return new Where(atom);
     }
 
-    private WherePredicateTree tree;
+    public static Where where(Where subWhere){
+        return new Where(subWhere);
+    }
+
+    private final WherePredicateTree tree;
+
+    public Where(Where subWhere){
+        WherePredicateTree.WherePredicateGroup group = new WherePredicateTree.WherePredicateGroup(subWhere.getRootNode());
+        this.tree = new WherePredicateTree(group);
+    }
 
     public Where(WherePredicate atom){
         tree = new WherePredicateTree(atom);
@@ -57,6 +66,12 @@ public class Where implements Iterable<WherePredicate> {
 
     public Where or(String columnName, Operator operator, BigDecimal value){
         WherePredicate<BigDecimal> atom = WherePredicate.forBigDecimal(columnName, operator, value);
+        tree.addAtom(WherePredicateTree.Conjunction.OR, atom);
+        return this;
+    }
+
+    public Where or(String columnName, Operator operator, String value){
+        WherePredicate<String> atom = WherePredicate.forString(columnName, operator, value);
         tree.addAtom(WherePredicateTree.Conjunction.OR, atom);
         return this;
     }

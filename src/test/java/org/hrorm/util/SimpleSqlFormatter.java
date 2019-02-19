@@ -20,6 +20,7 @@ public class SimpleSqlFormatter {
         buf.append(' ');
     }
 
+    // NOTE: Mishandles two character operators like '>=' and '<='
     String format(String inputSql){
 
         ParseState parseState = ParseState.Start;
@@ -72,6 +73,10 @@ public class SimpleSqlFormatter {
             }
             else if ( c.equals( '(' )){
                 handleOperatorCharacter('(', parseState, buf);
+                parseState = ParseState.WhiteSpace;
+            }
+            else if ( c.equals( ')' )){
+                handleOperatorCharacter(')', parseState, buf);
                 parseState = ParseState.WhiteSpace;
             }
             else {

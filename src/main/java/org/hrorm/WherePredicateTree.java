@@ -60,7 +60,7 @@ public class WherePredicateTree {
         }
     }
 
-    class WherePredicateGroup implements WherePredicateNode {
+    public static class WherePredicateGroup implements WherePredicateNode {
         private final WherePredicateNode node;
 
         public WherePredicateGroup(WherePredicateNode node){
@@ -81,6 +81,10 @@ public class WherePredicateTree {
 
     public WherePredicateTree(WherePredicate atom){
         this.rootNode = new WherePredicateLeaf(atom);
+    }
+
+    public WherePredicateTree(WherePredicateNode node){
+        this.rootNode = node;
     }
 
     public void addAtom(Conjunction conjunction, WherePredicate atom){
