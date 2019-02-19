@@ -19,21 +19,15 @@ public class WherePredicate<T> {
     }
 
     public static WherePredicate<Long> forLong(String columnName, Operator operator, Long value) {
-        PreparedStatementSetter<Long> setter = (preparedStatement, index, aLong) ->
-        { preparedStatement.setLong(index, aLong); };
-        return new WherePredicate<>(columnName, operator, value, setter);
+        return new WherePredicate<>(columnName, operator, value, PreparedStatement::setLong);
     }
 
     public static WherePredicate<String> forString(String columnName, Operator operator, String value) {
-        PreparedStatementSetter<String> setter = (preparedStatement, index, v) ->
-                                                preparedStatement.setString(index, v);
-        return new WherePredicate<>(columnName, operator, value, setter);
+        return new WherePredicate<>(columnName, operator, value, PreparedStatement::setString);
     }
 
     public static WherePredicate<BigDecimal> forBigDecimal(String columnName, Operator operator, BigDecimal value) {
-        PreparedStatementSetter<BigDecimal> setter = (preparedStatement, index, v) ->
-                preparedStatement.setBigDecimal(index, v);
-        return new WherePredicate<>(columnName, operator, value, setter);
+        return new WherePredicate<>(columnName, operator, value, PreparedStatement::setBigDecimal);
     }
 
     private final String columnName;
