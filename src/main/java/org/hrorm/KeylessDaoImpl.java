@@ -135,7 +135,7 @@ public class KeylessDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> implements K
     public List<ENTITY> selectManyByColumns(ENTITY item, String ... columnNames) {
         SelectColumnList selectColumnList = new SelectColumnList(columnNames);
         String sql = keylessSqlBuilder.selectByColumns(selectColumnList);
-        List<BUILDER> bs = sqlRunner.selectByColumns(sql, supplier, new SelectColumnList(columnNames), columnMap(columnNames), childrenDescriptors, item);
+        List<BUILDER> bs = sqlRunner.selectByColumns(sql, supplier, new SelectColumnList(columnNames), select(columnNames), childrenDescriptors, item);
         return mapBuilders(bs);
     }
 
@@ -146,7 +146,7 @@ public class KeylessDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> implements K
                               String columnName) {
         SelectColumnList selectColumnList = new SelectColumnList(whereMap);
         String sql = keylessSqlBuilder.selectFunction(function, columnName, selectColumnList);
-        return sqlRunner.runLongFunction(sql, selectColumnList, columnMap(selectColumnList.columnNames()), template);
+        return sqlRunner.runLongFunction(sql, selectColumnList, select(selectColumnList.columnNames()), template);
     }
 
     @Override
@@ -156,7 +156,7 @@ public class KeylessDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> implements K
                                             String columnName) {
         SelectColumnList selectColumnList = new SelectColumnList(whereMap);
         String sql = keylessSqlBuilder.selectFunction(function, columnName, selectColumnList);
-        return sqlRunner.runBigDecimalFunction(sql, selectColumnList, columnMap(selectColumnList.columnNames()), template);
+        return sqlRunner.runBigDecimalFunction(sql, selectColumnList, select(selectColumnList.columnNames()), template);
     }
 
 
@@ -164,7 +164,7 @@ public class KeylessDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> implements K
     public List<ENTITY> selectManyByColumns(ENTITY template, Map<String, Operator> columnNamesMap) {
         SelectColumnList selectColumnList = new SelectColumnList(columnNamesMap);
         String sql = keylessSqlBuilder.selectByColumns(selectColumnList);
-        List<BUILDER> bs = sqlRunner.selectByColumns(sql, supplier, selectColumnList, columnMap(selectColumnList.columnNames()), childrenDescriptors, template);
+        List<BUILDER> bs = sqlRunner.selectByColumns(sql, supplier, selectColumnList, select(selectColumnList.columnNames()), childrenDescriptors, template);
         return mapBuilders(bs);
     }
 
@@ -172,7 +172,7 @@ public class KeylessDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> implements K
     public <T> T foldingSelect(ENTITY item, T identity, BiFunction<T,ENTITY,T> accumulator, String ... columnNames){
         SelectColumnList selectColumnList = new SelectColumnList(columnNames);
         String sql = keylessSqlBuilder.selectByColumns(selectColumnList);
-        return sqlRunner.foldingSelect(sql, supplier, selectColumnList, columnMap(columnNames), childrenDescriptors, item, buildFunction, identity, accumulator);
+        return sqlRunner.foldingSelect(sql, supplier, selectColumnList, select(columnNames), childrenDescriptors, item, buildFunction, identity, accumulator);
     }
 
     public WhereClauseBuilder select(String columnName, Operator operator, Long value){

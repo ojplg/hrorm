@@ -54,7 +54,7 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
         parentSetter.accept(childBuilder, parent);
         CHILD child = childBuilder().apply(childBuilder);
 
-        SortedMap<String, Column<CHILD, CHILDBUILDER>> columnNameMap = childDaoDescriptor.columnMap(parentChildColumnName());
+        ColumnSelection<CHILD, CHILDBUILDER> columnNameMap = childDaoDescriptor.select(parentChildColumnName());
 
         String sql = sqlBuilder.selectByColumns(parentChildColumnName());
         SqlRunner<CHILD,CHILDBUILDER> sqlRunner = new SqlRunner<>(connection, childDaoDescriptor);

@@ -97,17 +97,8 @@ public interface KeylessDaoDescriptor<ENTITY, ENTITYBUILDER> {
         return KeylessDaoDescriptor.dataColumnsWithParent(dataColumns(), parentColumn(), hasParent());
     }
 
-    default SortedMap<String, Column<ENTITY,ENTITYBUILDER>> columnMap(String... columnNames){
-        SortedMap<String, Column<ENTITY,ENTITYBUILDER>> map = new TreeMap<>();
-        Set<String> nameSet = Arrays.stream(columnNames)
-                .map(String::toUpperCase).collect(Collectors.toSet());
-        for(Column<ENTITY,ENTITYBUILDER> column : allColumns()){
-            if (nameSet.contains(column.getName().toUpperCase())) {
-                String columnNameKey = column.getName().toUpperCase();
-                map.put(columnNameKey, column);
-            }
-        }
-        return Collections.unmodifiableSortedMap(map);
+    default ColumnSelection<ENTITY, ENTITYBUILDER> select(String ... columnNames){
+        return new ColumnSelection(allColumns(), columnNames);
     }
 
 }

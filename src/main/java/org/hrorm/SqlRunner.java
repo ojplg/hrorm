@@ -8,7 +8,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -51,13 +50,13 @@ public class SqlRunner<ENTITY, BUILDER> {
     }
 
     public List<BUILDER> select(String sql, Supplier<BUILDER> supplier, List<ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors){
-        return selectByColumns(sql, supplier, SelectColumnList.EMPTY, Collections.emptyMap(), childrenDescriptors, null);
+        return selectByColumns(sql, supplier, SelectColumnList.EMPTY, ColumnSelection.empty(), childrenDescriptors, null);
     }
 
     public List<BUILDER> selectByColumns(String sql,
                                          Supplier<BUILDER> supplier,
                                          SelectColumnList selectColumnList,
-                                         Map<String, ? extends Column<ENTITY,?>> columnNameMap,
+                                         ColumnSelection<ENTITY,BUILDER> columnSelection,
                                          List<? extends ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors,
                                          ENTITY item){
         BiFunction<List<BUILDER>, BUILDER, List<BUILDER>> accumulator =
@@ -66,7 +65,7 @@ public class SqlRunner<ENTITY, BUILDER> {
                 sql,
                 supplier,
                 selectColumnList,
-                columnNameMap,
+                columnSelection,
                 childrenDescriptors,
                 item,
                 b -> b,
@@ -170,7 +169,7 @@ public class SqlRunner<ENTITY, BUILDER> {
     public <T,X> T foldingSelect(String sql,
                                Supplier<BUILDER> supplier,
                                SelectColumnList selectColumnList,
-                               Map<String, ? extends Column<ENTITY,?>> columnNameMap,
+                               ColumnSelection<ENTITY, BUILDER> columnSelection,
                                List<? extends ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors,
                                ENTITY template,
                                Function<BUILDER, X> buildFunction,
@@ -184,7 +183,7 @@ public class SqlRunner<ENTITY, BUILDER> {
             int idx = 1;
             for(SelectColumnList.ColumnOperatorEntry columnEntry : selectColumnList){
                 String columnName = columnEntry.rawName;
-                Column<ENTITY,?> column = columnNameMap.get(columnName.toUpperCase());
+                Column<ENTITY,?> column = columnSelection.get(columnName.toUpperCase());
                 column.setValue(template, idx, statement);
                 idx++;
                 Operator operator = columnEntry.operator;
@@ -228,7 +227,7 @@ public class SqlRunner<ENTITY, BUILDER> {
 
     private <T> T runFunction(String sql,
                               SelectColumnList selectColumnList,
-                              Map<String, ? extends Column<ENTITY,?>> columnNameMap,
+                              ColumnSelection<ENTITY, BUILDER> columnSelection,
                               ENTITY template,
                               Function<ResultSet, T> reader) {
         ResultSet resultSet = null;
@@ -238,7 +237,7 @@ public class SqlRunner<ENTITY, BUILDER> {
             int idx = 1;
             for(SelectColumnList.ColumnOperatorEntry columnEntry : selectColumnList){
                 String columnName = columnEntry.rawName;
-                Column<ENTITY,?> column = columnNameMap.get(columnName.toUpperCase());
+                Column<ENTITY,?> column = columnSelection.get(columnName.toUpperCase());
                 column.setValue(template, idx, statement);
                 idx++;
                 Operator operator = columnEntry.operator;
@@ -273,7 +272,7 @@ public class SqlRunner<ENTITY, BUILDER> {
 
     public BigDecimal runBigDecimalFunction(String sql,
                                             SelectColumnList selectColumnList,
-                                            Map<String, ? extends Column<ENTITY,?>> columnNameMap,
+                                            ColumnSelection<ENTITY,BUILDER> columnSelection,
                                             ENTITY template) {
         Function<ResultSet, BigDecimal> reader = resultSet -> {
             try {
@@ -282,12 +281,12 @@ public class SqlRunner<ENTITY, BUILDER> {
                 throw new HrormException(ex, sql);
             }
         };
-        return runFunction(sql, selectColumnList, columnNameMap, template, reader);
+        return runFunction(sql, selectColumnList, columnSelection, template, reader);
     }
 
     public Long runLongFunction(String sql,
                               SelectColumnList selectColumnList,
-                              Map<String, ? extends Column<ENTITY,?>> columnNameMap,
+                                ColumnSelection<ENTITY,BUILDER> columnSelection,
                               ENTITY template) {
         Function<ResultSet, Long> reader = resultSet -> {
             try {
@@ -296,7 +295,7 @@ public class SqlRunner<ENTITY, BUILDER> {
                 throw new HrormException(ex, sql);
             }
         };
-        return runFunction(sql, selectColumnList, columnNameMap, template, reader);
+        return runFunction(sql, selectColumnList, columnSelection, template, reader);
     }
 
     public void insert(String sql, Envelope<ENTITY> envelope) {
