@@ -138,6 +138,14 @@ public class Where implements Iterable<WherePredicate>, StatementPopulator {
         return this;
     }
 
+    public Where isNull(String columnName){
+        return this;
+    }
+
+    public Where isNotNull(String columnName){
+        return this;
+    }
+
     public String render(){
         return tree.render("a.");
     }

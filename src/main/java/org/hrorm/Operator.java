@@ -3,6 +3,12 @@ package org.hrorm;
 /**
  * The <code>Operator</code> type supports the generation of SQL statements
  * that specify the various comparisons allows in SQL where clauses.
+ *
+ * <p>
+ *     The SQL operators "is" and "is not" have no instances in this class.
+ *     However, the <code>Where</code> type supports <code>isNull()</code>
+ *     and <code>isNotNull()</code> methods.
+ * </p>
  */
 public class Operator {
 
@@ -10,6 +16,7 @@ public class Operator {
      * An instance that represents the equality ('=') operator.
      */
     public static final Operator EQUALS = new Operator("=");
+    public static final Operator NOT_EQUALS = new Operator("<>");
 
     /**
      * An instance that represents the 'LIKE' operator to be used
@@ -17,6 +24,7 @@ public class Operator {
      * SQL, matching zero or more of any characters.
      */
     public static final Operator LIKE = new Operator("LIKE");
+    public static final Operator NOT_LIKE = new Operator("NOT LIKE");
 
     /**
      * An instance that represents the less than ('&lt;') operator.
@@ -37,7 +45,7 @@ public class Operator {
      * An instance that represents the greater than or equals ('&gt;=') operator.
      */
     public static final Operator GREATER_THAN_OR_EQUALS = new Operator(">=");
-
+    
     private final String sqlString;
 
     private Operator(String sqlString){
