@@ -1,7 +1,6 @@
 package org.hrorm;
 
 import java.sql.Connection;
-import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;

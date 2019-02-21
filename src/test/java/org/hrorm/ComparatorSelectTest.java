@@ -527,6 +527,12 @@ public class ComparatorSelectTest {
             List<Columns> filtered = dao.selectManyByColumns(template, columnMap);
             Assert.assertEquals(12, filtered.size());
         }
+        {
+            List<Columns> filtered = dao.select(where("decimal_column", Operator.GREATER_THAN, new BigDecimal("5"))
+                                                    .and("decimal_column", Operator.LESS_THAN, new BigDecimal("18")));
+            Assert.assertEquals(12, filtered.size());
+        }
+
     }
 
     @Test
@@ -552,6 +558,11 @@ public class ComparatorSelectTest {
             Map<String, Operator> columnMap = Collections.singletonMap("decimal_column", rangeLimit);
 
             List<Columns> filtered = dao.selectManyByColumns(template, columnMap);
+            Assert.assertEquals(3, filtered.size());
+        }
+        {
+            List<Columns> filtered = dao.select(where("decimal_column", Operator.GREATER_THAN_OR_EQUALS, new BigDecimal("5.123"))
+                    .and("decimal_column", Operator.LESS_THAN_OR_EQUALS, new BigDecimal("7.123")));
             Assert.assertEquals(3, filtered.size());
         }
     }
@@ -582,6 +593,11 @@ public class ComparatorSelectTest {
             List<Columns> filtered = dao.selectManyByColumns(template, columnMap);
             Assert.assertEquals(15, filtered.size());
         }
+        {
+            List<Columns> filtered = dao.select(where("timestamp_column", Operator.GREATER_THAN, LocalDateTime.of(2018, 3, 7, 9, 30))
+                    .and("timestamp_column", Operator.LESS_THAN, LocalDateTime.of(2018, 3, 22, 5, 5)));
+            Assert.assertEquals(15, filtered.size());
+        }
     }
 
     @Test
@@ -608,6 +624,12 @@ public class ComparatorSelectTest {
             Map<String, Operator> columnMap = Collections.singletonMap("timestamp_column", rangeLimit);
 
             List<Columns> filtered = dao.selectManyByColumns(template, columnMap);
+            Assert.assertEquals(16, filtered.size());
+        }
+        {
+            List<Columns> filtered = dao.select(
+                    where("timestamp_column", Operator.GREATER_THAN_OR_EQUALS, LocalDateTime.of(2018, 3, 7, 10, 30))
+                    .and("timestamp_column", Operator.LESS_THAN_OR_EQUALS, LocalDateTime.of(2018, 3, 22, 10, 30)));
             Assert.assertEquals(16, filtered.size());
         }
     }

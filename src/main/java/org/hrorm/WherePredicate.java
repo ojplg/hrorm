@@ -3,6 +3,8 @@ package org.hrorm;
 import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 /**
  * Represents a particular predicate for filtering results. For example
@@ -29,6 +31,16 @@ public class WherePredicate<T> {
     public static WherePredicate<BigDecimal> forBigDecimal(String columnName, Operator operator, BigDecimal value) {
         return new WherePredicate<>(columnName, operator, value, PreparedStatement::setBigDecimal);
     }
+
+    public static WherePredicate<LocalDateTime> forLocalDateTime(String columnName, Operator operator, LocalDateTime value) {
+        return new WherePredicate<>(columnName, operator, value,
+                (preparedStatement, index, localDateTime) ->
+                    {
+                        Timestamp sqlTime = Timestamp.valueOf(value);
+                        preparedStatement.setTimestamp(index, sqlTime);
+                    });
+    }
+
 
     private final String columnName;
     private final Operator operator;

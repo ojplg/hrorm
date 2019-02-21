@@ -1,6 +1,7 @@
 package org.hrorm;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Iterator;
 
 /**
@@ -23,6 +24,12 @@ public class Where implements Iterable<WherePredicate> {
         WherePredicate<BigDecimal> atom = WherePredicate.forBigDecimal(columnName, operator, value);
         return new Where(atom);
     }
+
+    public static Where where(String columnName, Operator operator, LocalDateTime value){
+        WherePredicate<LocalDateTime> atom = WherePredicate.forLocalDateTime(columnName, operator, value);
+        return new Where(atom);
+    }
+
 
     public static Where where(Where subWhere){
         return new Where(subWhere);
@@ -57,6 +64,11 @@ public class Where implements Iterable<WherePredicate> {
         return this;
     }
 
+    public Where and(String columnName, Operator operator, LocalDateTime value){
+        WherePredicate<LocalDateTime> atom = WherePredicate.forLocalDateTime(columnName, operator, value);
+        tree.addAtom(WherePredicateTree.Conjunction.AND, atom);
+        return this;
+    }
 
     public Where or(String columnName, Operator operator, Long value){
         WherePredicate<Long> atom = WherePredicate.forLong(columnName, operator, value);
