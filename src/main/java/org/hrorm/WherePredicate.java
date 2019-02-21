@@ -62,7 +62,7 @@ public class WherePredicate<T> {
      * @return the SQL snippet.
      */
     public String render(String prefix){
-        return prefix + columnName + " " + operator.getSqlString(columnName) + " ? ";
+        return prefix + columnName + " " + operator.getSqlString() + " ? ";
     }
 
     /**

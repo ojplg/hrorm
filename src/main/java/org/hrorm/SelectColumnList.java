@@ -33,7 +33,7 @@ public class SelectColumnList implements Iterable<SelectColumnList.ColumnOperato
         }
 
         public String getSqlString() {
-            return operator.getSqlString(rawName);
+            return operator.getSqlString();
         }
     }
 
