@@ -45,17 +45,27 @@ public class WherePredicate<T> {
                     });
     }
 
-
     private final String columnName;
     private final Operator operator;
     private final T value;
     private final PreparedStatementSetter<T> setter;
+
+    private final Boolean nullityCheck;
+
+    public WherePredicate(String columnName, boolean nullityCheck){
+        this.columnName = columnName;
+        this.operator = null;
+        this.value = null;
+        this.setter = (preparedStatement, index, t) -> {};
+        this.nullityCheck = nullityCheck;
+    }
 
     public WherePredicate(String columnName, Operator operator, T value, PreparedStatementSetter<T> setter) {
         this.columnName = columnName;
         this.operator = operator;
         this.value = value;
         this.setter = setter;
+        this.nullityCheck = null;
     }
 
     /**
@@ -66,6 +76,13 @@ public class WherePredicate<T> {
      * @return the SQL snippet.
      */
     public String render(String prefix){
+        if( nullityCheck == Boolean.TRUE ){
+            return prefix + columnName + " IS NULL ";
+        }
+        if( nullityCheck == Boolean.FALSE ){
+            return prefix + columnName + " IS NOT NULL ";
+        }
+
         return prefix + columnName + " " + operator.getSqlString() + " ? ";
     }
 

@@ -555,4 +555,58 @@ public class ComparatorSelectTest {
         }
     }
 
+    @Test
+    public void testSelectIsNull(){
+        Connection connection = helper.connect();
+        Dao<Columns> dao = daoBuilder().buildDao(connection);
+
+        LocalDateTime time = LocalDateTime.now();
+        {
+            for(long idx = 1; idx<=100; idx++) {
+                Columns columns = new Columns();
+                columns.setStringThing(idx%3 == 0 ? "SelectIsNull" + idx : null);
+                columns.setIntegerThing(idx);
+                columns.setBooleanThing(true);
+                columns.setDecimalThing(idx%5==0 ? new BigDecimal("5.0") : new BigDecimal("4.321"));
+                columns.setTimeStampThing(time);
+                columns.setColorThing( EnumeratedColor.Green);
+
+                dao.insert(columns);
+            }
+        }
+        {
+            List<Columns> found =
+                    dao.select(Where.isNull("string_column"));
+
+            Assert.assertEquals(67, found.size());
+        }
+    }
+
+    @Test
+    public void testSelectIsNotNull(){
+        Connection connection = helper.connect();
+        Dao<Columns> dao = daoBuilder().buildDao(connection);
+
+        LocalDateTime time = LocalDateTime.now();
+        {
+            for(long idx = 1; idx<=100; idx++) {
+                Columns columns = new Columns();
+                columns.setStringThing(idx%3 == 0 ? "SelectIsNotNull" + idx : null);
+                columns.setIntegerThing(idx);
+                columns.setBooleanThing(true);
+                columns.setDecimalThing(idx%5==0 ? new BigDecimal("5.0") : new BigDecimal("4.321"));
+                columns.setTimeStampThing(time);
+                columns.setColorThing( EnumeratedColor.Green);
+
+                dao.insert(columns);
+            }
+        }
+        {
+            List<Columns> found =
+                    dao.select(Where.isNotNull("string_column"));
+
+            Assert.assertEquals(33, found.size());
+        }
+    }
+
 }

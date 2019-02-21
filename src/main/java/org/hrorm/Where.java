@@ -14,6 +14,8 @@ public class Where implements Iterable<WherePredicate>, StatementPopulator {
 
     public static final Where EMPTY = new Where();
 
+    public static Where where(){ return new Where(); }
+
     public static Where where(String columnName, Operator operator, Boolean value){
         return new Where(columnName, operator, value);
     }
@@ -40,7 +42,7 @@ public class Where implements Iterable<WherePredicate>, StatementPopulator {
 
     private final WherePredicateTree tree;
 
-    private Where(){
+    public Where(){
         this.tree = WherePredicateTree.EMPTY;
     }
 
@@ -138,12 +140,14 @@ public class Where implements Iterable<WherePredicate>, StatementPopulator {
         return this;
     }
 
-    public Where isNull(String columnName){
-        return this;
+    public static Where isNull(String columnName){
+        WherePredicate atom = new WherePredicate(columnName, true);
+        return new Where(atom);
     }
 
-    public Where isNotNull(String columnName){
-        return this;
+    public static Where isNotNull(String columnName){
+        WherePredicate atom = new WherePredicate(columnName, false);
+        return new Where(atom);
     }
 
     public String render(){
