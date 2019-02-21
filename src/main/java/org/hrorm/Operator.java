@@ -16,6 +16,10 @@ public class Operator {
      * An instance that represents the equality ('=') operator.
      */
     public static final Operator EQUALS = new Operator("=");
+
+    /**
+     * An instance that represents the inequality ('&lt;&gt;') operator.
+     */
     public static final Operator NOT_EQUALS = new Operator("<>");
 
     /**
@@ -24,6 +28,13 @@ public class Operator {
      * SQL, matching zero or more of any characters.
      */
     public static final Operator LIKE = new Operator("LIKE");
+
+
+    /**
+     * An instance that represents the 'NOT LIKE' operator to be used
+     * for string fields. The ampersand character is a wildcard in
+     * SQL, matching zero or more of any characters.
+     */
     public static final Operator NOT_LIKE = new Operator("NOT LIKE");
 
     /**
@@ -45,7 +56,7 @@ public class Operator {
      * An instance that represents the greater than or equals ('&gt;=') operator.
      */
     public static final Operator GREATER_THAN_OR_EQUALS = new Operator(">=");
-    
+
     private final String sqlString;
 
     private Operator(String sqlString){

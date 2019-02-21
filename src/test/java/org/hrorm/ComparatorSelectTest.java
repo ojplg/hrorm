@@ -458,7 +458,7 @@ public class ComparatorSelectTest {
     }
 
     @Test
-    public void testFluentSelect2(){
+    public void testFluentSelectNesting(){
         Connection connection = helper.connect();
         Dao<Columns> dao = daoBuilder().buildDao(connection);
 
@@ -492,6 +492,67 @@ public class ComparatorSelectTest {
             Assert.assertTrue(foundIntegerSet.containsAll(expectedIntegers));
         }
 
+    }
+
+    @Test
+    public void testSelectNotEquals(){
+        Connection connection = helper.connect();
+        Dao<Columns> dao = daoBuilder().buildDao(connection);
+
+        LocalDateTime time = LocalDateTime.now();
+        {
+            for(long idx = 1; idx<=100; idx++) {
+                Columns columns = new Columns();
+                columns.setStringThing("FluentSelectTest2_" + idx + (idx%3==0 ? "THREE" : "NOPE"));
+                columns.setIntegerThing(idx);
+                columns.setBooleanThing(true);
+                columns.setDecimalThing(idx%5==0 ? new BigDecimal("5.0") : new BigDecimal("4.321"));
+                columns.setTimeStampThing(time);
+                columns.setColorThing( EnumeratedColor.Green);
+
+                dao.insert(columns);
+            }
+        }
+        {
+            List<Columns> found =
+                    dao.select(where("integer_column", Operator.NOT_EQUALS, 67L));
+
+            Assert.assertEquals(99, found.size());
+
+            Set<Long> foundIntegerSet = found.stream().map(Columns::getIntegerThing).collect(Collectors.toSet());
+            Assert.assertFalse(foundIntegerSet.contains(67L));
+        }
+
+    }
+
+    @Test
+    public void testSelectNotLike(){
+        Connection connection = helper.connect();
+        Dao<Columns> dao = daoBuilder().buildDao(connection);
+
+        LocalDateTime time = LocalDateTime.now();
+        {
+            for(long idx = 1; idx<=100; idx++) {
+                Columns columns = new Columns();
+                columns.setStringThing("SelectNotLike" + idx);
+                columns.setIntegerThing(idx);
+                columns.setBooleanThing(true);
+                columns.setDecimalThing(idx%5==0 ? new BigDecimal("5.0") : new BigDecimal("4.321"));
+                columns.setTimeStampThing(time);
+                columns.setColorThing( EnumeratedColor.Green);
+
+                dao.insert(columns);
+            }
+        }
+        {
+            List<Columns> found =
+                    dao.select(where("string_column", Operator.NOT_LIKE, "%67%"));
+
+            Assert.assertEquals(99, found.size());
+
+            Set<Long> foundIntegerSet = found.stream().map(Columns::getIntegerThing).collect(Collectors.toSet());
+            Assert.assertFalse(foundIntegerSet.contains(67L));
+        }
     }
 
 }
