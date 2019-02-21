@@ -123,49 +123,6 @@ public class SqlRunner<ENTITY, BUILDER> {
 
     }
 
-    public BiFunction<String, Iterable<WhereClauseBuilder.WherePhrase>, List<ENTITY>>
-    buildSelector(Supplier<BUILDER> supplier, Function<BUILDER, ENTITY> buildFunction){
-        return (sql, phrases) ->
-        {
-            ResultSet resultSet = null;
-            PreparedStatement statement = null;
-            try {
-                statement = connection.prepareStatement(sql);
-                int idx = 1;
-                for(WhereClauseBuilder.WherePhrase phrase : phrases){
-                    phrase.setValue(idx, statement);
-                    idx++;
-                }
-
-                logger.info(sql);
-                resultSet = statement.executeQuery();
-
-                List<ENTITY> results = new ArrayList<>();
-
-                while (resultSet.next()) {
-                    BUILDER bldr = populate(resultSet, supplier);
-                    results.add(buildFunction.apply(bldr));
-                }
-
-                return results;
-
-            } catch (SQLException ex){
-                throw new HrormException(ex, sql);
-            } finally {
-                try {
-                    if (resultSet != null) {
-                        resultSet.close();
-                    }
-                    if (statement != null) {
-                        statement.close();
-                    }
-                } catch (SQLException se){
-                    throw new HrormException(se);
-                }
-            }
-        };
-    }
-
     public <T,X> T foldingSelect(String sql,
                                Supplier<BUILDER> supplier,
                                SelectColumnList selectColumnList,
