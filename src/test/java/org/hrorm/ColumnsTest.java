@@ -276,15 +276,12 @@ public class ColumnsTest {
             }
         }
         {
-            Columns template = new Columns();
-            template.setStringThing("Include");
-
             Connection connection = helper.connect();
             Dao<Columns> dao = daoBuilder().buildDao(connection);
 
-            Long result = dao.foldingSelect(template, 0L,
+            Long result = dao.foldingSelect(0L,
                     (accumulator, columns) -> accumulator+columns.getIntegerThing(),
-                    "STRING_COLUMN");
+                    Where.where("string_column", Operator.EQUALS, "Include"));
 
             Assert.assertEquals(2550L, (long) result);
         }

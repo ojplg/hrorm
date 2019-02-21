@@ -130,7 +130,7 @@ public class KeylessTest {
                     .sum();
 
             KeylessDao<Keyless> dao = Keyless.DAO_BUILDER.buildDao(connection);
-            long foldedSum = dao.foldingSelect(new Keyless(), 0L, (l, k) -> l + k.getIntegerColumn());
+            long foldedSum = dao.foldingSelect(0L, (l, k) -> l + k.getIntegerColumn(), Where.EMPTY);
 
             Assert.assertEquals(expectedSum, foldedSum);
         }

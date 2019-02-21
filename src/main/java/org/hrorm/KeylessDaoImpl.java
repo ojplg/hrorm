@@ -161,15 +161,14 @@ public class KeylessDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> implements K
 
 
     @Override
-    public <T> T foldingSelect(ENTITY item, T identity, BiFunction<T,ENTITY,T> accumulator, String ... columnNames){
-        SelectColumnList selectColumnList = new SelectColumnList(columnNames);
-        String sql = keylessSqlBuilder.selectByColumns(selectColumnList);
-        return sqlRunner.foldingSelect(sql, supplier, selectColumnList, select(columnNames), childrenDescriptors, item, buildFunction, identity, accumulator);
+    public <T> T foldingSelect(T identity, BiFunction<T,ENTITY,T> accumulator, Where where){
+        String sql = keylessSqlBuilder.select(where) ;
+        return sqlRunner.foldingSelect(sql, where, supplier, childrenDescriptors, buildFunction, identity, accumulator);
     }
 
     @Override
     public List<ENTITY> select(Where where) {
-        String sql = keylessSqlBuilder.select() + " AND " + where.render();
+        String sql = keylessSqlBuilder.select(where);
         List<BUILDER> bs = sqlRunner.selectWhere(sql, supplier, childrenDescriptors, where);
         return mapBuilders(bs);
     }

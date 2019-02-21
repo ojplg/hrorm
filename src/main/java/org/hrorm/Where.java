@@ -1,6 +1,8 @@
 package org.hrorm;
 
 import java.math.BigDecimal;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.Iterator;
 
@@ -8,7 +10,7 @@ import java.util.Iterator;
  * Representation of a SQL where clause: a possibly nested list of
  * predicates that describes which records in the database to match.
  */
-public class Where implements Iterable<WherePredicate> {
+public class Where implements Iterable<WherePredicate>, StatementPopulator {
 
     public static Where where(String columnName, Operator operator, Long value) {
         WherePredicate<Long> atom = WherePredicate.forLong(columnName, operator, value);
@@ -30,12 +32,17 @@ public class Where implements Iterable<WherePredicate> {
         return new Where(atom);
     }
 
+    public static final Where EMPTY = new Where();
 
     public static Where where(Where subWhere){
         return new Where(subWhere);
     }
 
     private final WherePredicateTree tree;
+
+    private Where(){
+        this.tree = WherePredicateTree.EMPTY;
+    }
 
     public Where(Where subWhere){
         WherePredicateTree.WherePredicateGroup group = new WherePredicateTree.WherePredicateGroup(subWhere.getRootNode());
@@ -104,5 +111,14 @@ public class Where implements Iterable<WherePredicate> {
     @Override
     public Iterator<WherePredicate> iterator() {
         return tree.asList().iterator();
+    }
+
+    @Override
+    public void populate(PreparedStatement preparedStatement) throws SQLException {
+        int idx = 1;
+        for(WherePredicate atom : this){
+            atom.setValue(idx, preparedStatement);
+            idx++;
+        }
     }
 }

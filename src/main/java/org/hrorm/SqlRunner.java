@@ -61,13 +61,12 @@ public class SqlRunner<ENTITY, BUILDER> {
                                          ENTITY item){
         BiFunction<List<BUILDER>, BUILDER, List<BUILDER>> accumulator =
                 (list, b) -> { list.add(b); return list; };
+        StatementPopulator populator = columnSelection.buildPopulator(item);
         return foldingSelect(
                 sql,
+                populator,
                 supplier,
-                selectColumnList,
-                columnSelection,
                 childrenDescriptors,
-                item,
                 b -> b,
                 new ArrayList<>(),
                 accumulator
@@ -124,11 +123,9 @@ public class SqlRunner<ENTITY, BUILDER> {
     }
 
     public <T,X> T foldingSelect(String sql,
+                               StatementPopulator statementPopulator,
                                Supplier<BUILDER> supplier,
-                               SelectColumnList selectColumnList,
-                               ColumnSelection<ENTITY, BUILDER> columnSelection,
                                List<? extends ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors,
-                               ENTITY template,
                                Function<BUILDER, X> buildFunction,
                                T identity,
                                BiFunction<T,X,T> accumulator){
@@ -137,18 +134,7 @@ public class SqlRunner<ENTITY, BUILDER> {
         PreparedStatement statement = null;
         try {
             statement = connection.prepareStatement(sql);
-            int idx = 1;
-            for(SelectColumnList.ColumnOperatorEntry columnEntry : selectColumnList){
-                String columnName = columnEntry.rawName;
-                Column<ENTITY,?> column = columnSelection.get(columnName.toUpperCase());
-                column.setValue(template, idx, statement);
-                idx++;
-                Operator operator = columnEntry.operator;
-                if( operator.hasSecondParameter() ) {
-                    operator.setSecondParameter(idx, statement);
-                    idx++;
-                }
-            }
+            statementPopulator.populate(statement);
 
             logger.info(sql);
             resultSet = statement.executeQuery();

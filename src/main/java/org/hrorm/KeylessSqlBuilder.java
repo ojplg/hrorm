@@ -95,6 +95,15 @@ public class KeylessSqlBuilder<ENTITY> {
         return buf.toString();
     }
 
+    public String select(Where where){
+        String whereClause = where.render();
+        if ( whereClause.length() > 0 ) {
+            return select() + " AND " + whereClause;
+        } else {
+            return select();
+        }
+    }
+
     public String selectFunction(SqlFunction function, String columnName, SelectColumnList selectColumnList){
         StringBuilder buf = new StringBuilder();
         buf.append("select ");

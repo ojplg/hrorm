@@ -77,6 +77,20 @@ public class WherePredicateTree {
         }
     }
 
+    public static class EmptyNode implements  WherePredicateNode {
+        @Override
+        public String render(String prefix) {
+            return "";
+        }
+
+        @Override
+        public List<WherePredicate> asList() {
+            return Collections.emptyList();
+        }
+    }
+
+    public static final WherePredicateTree EMPTY = new WherePredicateTree(new EmptyNode());
+
     private WherePredicateNode rootNode;
 
     public WherePredicateTree(WherePredicate atom){

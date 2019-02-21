@@ -85,17 +85,14 @@ public interface KeylessDao<ENTITY> {
      * Computes a result based on the entities found by a select statement
      * without realizing the entire list of found entities in memory.
      *
-     * @param template An instance of type ENTITY with populated values corresponding to the
-     *                column names to select by.
      * @param identity The identity element of the return type.
      * @param accumulator A function that computes the desired value based on
      *                    the values seen thus far and the next instance
      *                    of the entity found in the result set.
-     * @param columnNames The names of the columns to include in the select where clause.
      * @param <T> The type of the value to be computed.
      * @return The computed value based on the results found in the underlying store.
      */
-    <T> T foldingSelect(ENTITY template, T identity, BiFunction<T,ENTITY,T> accumulator, String ... columnNames);
+    <T> T foldingSelect(T identity, BiFunction<T,ENTITY,T> accumulator, Where where);
 
 
     /**
