@@ -7,6 +7,10 @@ import java.util.List;
 /**
  * A very simple syntax tree for representing where clauses with possibly
  * nested predicates joined by AND and OR.
+ *
+ * <p>
+ *
+ * Most users of hrorm will have no need to directly use this.
  */
 public class WherePredicateTree {
 

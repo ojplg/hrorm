@@ -376,7 +376,6 @@ public class IndirectDaoBuilder<ENTITY, BUILDER>  implements DaoDescriptor<ENTIT
         return this;
     }
 
-
     /**
      * Sets the most recent column added to this DaoBuilder to prevent it allowing
      * nulls on inserts or updates.
@@ -389,10 +388,6 @@ public class IndirectDaoBuilder<ENTITY, BUILDER>  implements DaoDescriptor<ENTIT
         }
         lastColumnAdded.notNull();
         return this;
-    }
-
-    public String getMyPrefix(){
-        return myPrefix;
     }
 
 }

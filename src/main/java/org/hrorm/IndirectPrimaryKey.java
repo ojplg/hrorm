@@ -77,7 +77,7 @@ public class IndirectPrimaryKey<ENTITY, BUILDER> implements PrimaryKey<ENTITY, B
     public PopulateResult populate(BUILDER constructor, ResultSet resultSet) throws SQLException {
         Long value = resultSet.getLong(prefix  + name);
         setter.accept(constructor, value);
-        if (value == null || value == 0 ){
+        if ( value == null || value == 0 ){
             return PopulateResult.NoPrimaryKey;
         }
         return PopulateResult.PrimaryKey;

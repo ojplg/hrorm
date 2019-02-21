@@ -1,7 +1,5 @@
 package org.hrorm;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -10,6 +8,16 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * Represents a sub set of columns that are relevant to a particular query.
+ *
+ * <p>
+ *
+ * Most users of hrorm will have no need to directly use this.
+ *
+ * @param <ENTITY> The type of the entity.
+ * @param <BUILDER> The class that is used to build new entity instances.
+ */
 public class ColumnSelection<ENTITY, BUILDER> {
 
     private static final ColumnSelection EMPTY = new ColumnSelection(Collections.emptyList());
@@ -31,7 +39,7 @@ public class ColumnSelection<ENTITY, BUILDER> {
         this.columnNames = Arrays.asList(columnNames);
     }
 
-    public static final <E,B> ColumnSelection<E,B> empty() {
+    public static <E,B> ColumnSelection<E,B> empty() {
         return (ColumnSelection<E,B>) EMPTY;
     }
 
@@ -40,15 +48,12 @@ public class ColumnSelection<ENTITY, BUILDER> {
     }
 
     public StatementPopulator buildPopulator(ENTITY entity) {
-        return new StatementPopulator() {
-            @Override
-            public void populate(PreparedStatement preparedStatement) throws SQLException {
-                int index = 1;
-                for (String columnName : columnNames) {
-                    Column<ENTITY, BUILDER> column = columns.get(columnName.toUpperCase());
-                    column.setValue(entity, index, preparedStatement);
-                    index++;
-                }
+        return preparedStatement -> {
+            int index = 1;
+            for (String columnName : columnNames) {
+                Column<ENTITY, BUILDER> column = columns.get(columnName.toUpperCase());
+                column.setValue(entity, index, preparedStatement);
+                index++;
             }
         };
     }

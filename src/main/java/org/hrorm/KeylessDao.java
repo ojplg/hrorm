@@ -68,7 +68,12 @@ public interface KeylessDao<ENTITY> {
      */
     ENTITY selectByColumns(ENTITY item, String... columnNames);
 
-
+    /**
+     * Run a select in the data store for entities matching the given where predicates.
+     *
+     * @param where The predicates to drive selection.
+     * @return The matching results.
+     */
     List<ENTITY> select(Where where);
 
     /**
@@ -90,6 +95,7 @@ public interface KeylessDao<ENTITY> {
      * @param accumulator A function that computes the desired value based on
      *                    the values seen thus far and the next instance
      *                    of the entity found in the result set.
+     * @param where Predicates to drive selection of results
      * @param <T> The type of the value to be computed.
      * @return The computed value based on the results found in the underlying store.
      */
@@ -110,6 +116,7 @@ public interface KeylessDao<ENTITY> {
      *
      * @param function The function to run
      * @param columnName The column to apply the function to
+     * @param where Predicates to drive selection of results
      * @return The value returned by applying the specified function to the values in the
      * specified column in the matching results, or null if no results are found.
      */
@@ -129,6 +136,7 @@ public interface KeylessDao<ENTITY> {
      *
      * @param function The function to run
      * @param columnName The column to apply the function to
+     * @param where Predicates to drive selection of results
      * @return The value returned by applying the specified function to the values in the
      * specified column in the matching results, or null if no results are found.
      */

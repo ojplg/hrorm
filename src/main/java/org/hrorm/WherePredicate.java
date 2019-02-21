@@ -11,6 +11,10 @@ import java.time.LocalDateTime;
  * whether the values in a particular numeric column are less than some
  * value.
  *
+ * <p>
+ *
+ * Most users of hrorm will have no need to directly use this.
+ *
  * @param <T> the type held by the column being compared
  */
 public class WherePredicate<T> {
