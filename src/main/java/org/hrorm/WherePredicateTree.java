@@ -77,7 +77,7 @@ public class WherePredicateTree {
         }
     }
 
-    public static class EmptyNode implements  WherePredicateNode {
+    public static class EmptyNode implements WherePredicateNode {
         @Override
         public String render(String prefix) {
             return "";

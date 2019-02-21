@@ -137,7 +137,7 @@ public class Where implements Iterable<WherePredicate>, StatementPopulator {
         tree.addAtom(WherePredicateTree.Conjunction.OR, atom);
         return this;
     }
-    
+
     public String render(){
         return tree.render("a.");
     }
