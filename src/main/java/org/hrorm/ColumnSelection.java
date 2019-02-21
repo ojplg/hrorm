@@ -52,4 +52,18 @@ public class ColumnSelection<ENTITY, BUILDER> {
             }
         };
     }
+
+    public String whereClause(){
+        StringBuilder buf = new StringBuilder();
+
+        for(String columnName : columnNames){
+            buf.append(" and ");
+            buf.append("a.");
+            buf.append(columnName);
+            buf.append(" = ? ");
+        }
+
+        return buf.toString();
+    }
+
 }

@@ -12,6 +12,11 @@ import java.util.Iterator;
  */
 public class Where implements Iterable<WherePredicate>, StatementPopulator {
 
+    public static Where where(String columnName, Operator operator, Boolean value){
+        WherePredicate<Boolean> atom = WherePredicate.forBoolean(columnName, operator, value);
+        return new Where(atom);
+    }
+
     public static Where where(String columnName, Operator operator, Long value) {
         WherePredicate<Long> atom = WherePredicate.forLong(columnName, operator, value);
         return new Where(atom);

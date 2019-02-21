@@ -140,23 +140,19 @@ public class KeylessDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> implements K
     }
 
     @Override
-    public Long runLongFunction(ENTITY template,
-                              Map<String, Operator> whereMap,
-                              SqlFunction function,
-                              String columnName) {
-        SelectColumnList selectColumnList = new SelectColumnList(whereMap);
-        String sql = keylessSqlBuilder.selectFunction(function, columnName, selectColumnList);
-        return sqlRunner.runLongFunction(sql, select(selectColumnList.columnNames()), template);
+    public Long runLongFunction(SqlFunction function,
+                              String columnName,
+                                Where where) {
+        String sql = keylessSqlBuilder.selectFunction(function, columnName, where);
+        return sqlRunner.runLongFunction(sql, where);
     }
 
     @Override
-    public BigDecimal runBigDecimalFunction(ENTITY template,
-                                            Map<String, Operator> whereMap,
-                                            SqlFunction function,
-                                            String columnName) {
-        SelectColumnList selectColumnList = new SelectColumnList(whereMap);
-        String sql = keylessSqlBuilder.selectFunction(function, columnName, selectColumnList);
-        return sqlRunner.runBigDecimalFunction(sql, select(selectColumnList.columnNames()), template);
+    public BigDecimal runBigDecimalFunction(SqlFunction function,
+                                            String columnName,
+                                            Where where) {
+        String sql = keylessSqlBuilder.selectFunction(function, columnName, where);
+        return sqlRunner.runBigDecimalFunction(sql, where);
     }
 
 

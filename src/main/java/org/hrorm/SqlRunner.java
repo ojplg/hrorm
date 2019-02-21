@@ -168,15 +168,13 @@ public class SqlRunner<ENTITY, BUILDER> {
     }
 
     private <T> T runFunction(String sql,
-                              ColumnSelection<ENTITY, BUILDER> columnSelection,
-                              ENTITY template,
+                              Where where,
                               Function<ResultSet, T> reader) {
         ResultSet resultSet = null;
         PreparedStatement statement = null;
         try {
             statement = connection.prepareStatement(sql);
-            StatementPopulator populator = columnSelection.buildPopulator(template);
-            populator.populate(statement);
+            where.populate(statement);
 
             logger.info(sql);
             resultSet = statement.executeQuery();
@@ -203,8 +201,7 @@ public class SqlRunner<ENTITY, BUILDER> {
     }
 
     public BigDecimal runBigDecimalFunction(String sql,
-                                            ColumnSelection<ENTITY,BUILDER> columnSelection,
-                                            ENTITY template) {
+                                            Where where) {
         Function<ResultSet, BigDecimal> reader = resultSet -> {
             try {
                 return resultSet.getBigDecimal(1);
@@ -212,12 +209,11 @@ public class SqlRunner<ENTITY, BUILDER> {
                 throw new HrormException(ex, sql);
             }
         };
-        return runFunction(sql, columnSelection, template, reader);
+        return runFunction(sql, where, reader);
     }
 
     public Long runLongFunction(String sql,
-                                ColumnSelection<ENTITY,BUILDER> columnSelection,
-                              ENTITY template) {
+                                Where where) {
         Function<ResultSet, Long> reader = resultSet -> {
             try {
                 return resultSet.getLong(1);
@@ -225,7 +221,7 @@ public class SqlRunner<ENTITY, BUILDER> {
                 throw new HrormException(ex, sql);
             }
         };
-        return runFunction(sql, columnSelection, template, reader);
+        return runFunction(sql, where, reader);
     }
 
     public void insert(String sql, Envelope<ENTITY> envelope) {

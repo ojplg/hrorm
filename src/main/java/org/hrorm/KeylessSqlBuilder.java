@@ -104,7 +104,7 @@ public class KeylessSqlBuilder<ENTITY> {
         }
     }
 
-    public String selectFunction(SqlFunction function, String columnName, SelectColumnList selectColumnList){
+    public String selectFunction(SqlFunction function, String columnName, Where where){
         StringBuilder buf = new StringBuilder();
         buf.append("select ");
         buf.append(function.getFunctionName());
@@ -114,8 +114,13 @@ public class KeylessSqlBuilder<ENTITY> {
         buf.append(" from ");
         buf.append(table);
         buf.append(" a");
-        buf.append(" where 1=1 ");
-        buf.append(selectColumnList.sqlPredicates());
+
+        String whereClause = where.render();
+        if ( whereClause.length() > 1) {
+            buf.append(" where ");
+            buf.append(whereClause);
+        }
+
         return buf.toString();
     }
 

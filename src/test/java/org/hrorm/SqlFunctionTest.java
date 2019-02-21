@@ -67,16 +67,11 @@ public class SqlFunctionTest {
 
     @Test
     public void testCount(){
-        Columns template = new Columns();
-        template.setIntegerThing(50L);
 
         Dao<Columns> dao = daoBuilder().buildDao(helper.connect());
 
-        Map<String, Operator> whereMap = Collections.singletonMap(
-                "integer_column", Operator.GREATER_THAN_OR_EQUALS);
-
-        long count = (long) dao.runLongFunction(template, whereMap,
-                SqlFunction.COUNT, "id");
+        long count = dao.runLongFunction(
+                SqlFunction.COUNT, "id", Where.where("integer_column", Operator.GREATER_THAN_OR_EQUALS, 50L));
 
         Assert.assertEquals(50L, count);
     }
@@ -84,49 +79,36 @@ public class SqlFunctionTest {
 
     @Test
     public void testMin(){
-        Columns template = new Columns();
-        template.setIntegerThing(50L);
 
         Dao<Columns> dao = daoBuilder().buildDao(helper.connect());
 
-        Map<String, Operator> whereMap = Collections.emptyMap();
-
-        long value = dao.runLongFunction(template, whereMap,
-                SqlFunction.MIN, "integer_column");
+        long value = dao.runLongFunction(
+                SqlFunction.MIN, "integer_column", Where.EMPTY);
 
         Assert.assertEquals(0, value);
     }
 
     @Test
     public void testMax(){
-        Columns template = new Columns();
-        template.setStringThing("Function%");
-
         Dao<Columns> dao = daoBuilder().buildDao(helper.connect());
 
-        Map<String, Operator> whereMap = Collections.singletonMap(
-                "string_column", Operator.LIKE);
-
-        long result = dao.runLongFunction(template, whereMap,
-                SqlFunction.MAX, "integer_column");
+        long result = dao.runLongFunction(
+                SqlFunction.MAX, "integer_column",
+                Where.where("string_column", Operator.LIKE, "Function%"));
         Assert.assertEquals(99, result);
 
     }
 
     @Test
     public void testSum(){
-        Columns template = new Columns();
-        template.setBooleanThing(true);
-        template.setDecimalThing(new BigDecimal("50.7"));
 
         Dao<Columns> dao = daoBuilder().buildDao(helper.connect());
 
-        Map<String, Operator> whereMap = new HashMap<>();
-        whereMap.put("boolean_column", Operator.EQUALS);
-        whereMap.put("decimal_column", Operator.LESS_THAN);
-
-        long sum = dao.runLongFunction(template, whereMap,
-                SqlFunction.SUM, "integer_column");
+        long sum = dao.runLongFunction(
+                SqlFunction.SUM,
+                "integer_column",
+                Where.where("boolean_column", Operator.EQUALS, true)
+                        .and("decimal_column", Operator.LESS_THAN, new BigDecimal("50.7")) );
 
         Assert.assertEquals(650, sum);
 
@@ -144,8 +126,10 @@ public class SqlFunctionTest {
         whereMap.put("boolean_column", Operator.EQUALS);
         whereMap.put("decimal_column", Operator.LESS_THAN);
 
-        BigDecimal sum = dao.runBigDecimalFunction(template, whereMap,
-                SqlFunction.SUM, "decimal_column");
+        BigDecimal sum = dao.runBigDecimalFunction(
+                SqlFunction.SUM, "decimal_column",
+                Where.where("boolean_column", Operator.EQUALS, true)
+                        .and("decimal_column", Operator.LESS_THAN, new BigDecimal("50.7")));
 
         Assert.assertEquals(new BigDecimal("658.30"), sum);
     }
@@ -153,8 +137,8 @@ public class SqlFunctionTest {
     @Test
     public void testAverage(){
         Dao<Columns> dao = daoBuilder().buildDao(helper.connect());
-        BigDecimal avg = dao.runBigDecimalFunction(new Columns(), new HashMap<>(),
-                SqlFunction.AVG, "decimal_column");
+        BigDecimal avg = dao.runBigDecimalFunction(
+                SqlFunction.AVG, "decimal_column", Where.EMPTY);
 
         Assert.assertEquals(new BigDecimal("50.0355"), avg);
     }

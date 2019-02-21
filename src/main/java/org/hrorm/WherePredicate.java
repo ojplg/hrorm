@@ -20,6 +20,10 @@ public class WherePredicate<T> {
         void apply(PreparedStatement preparedStatement, int index, VALUE value) throws SQLException;
     }
 
+    public static WherePredicate<Boolean> forBoolean(String columnName, Operator operator, Boolean value) {
+        return new WherePredicate<>(columnName, operator, value, PreparedStatement::setBoolean);
+    }
+
     public static WherePredicate<Long> forLong(String columnName, Operator operator, Long value) {
         return new WherePredicate<>(columnName, operator, value, PreparedStatement::setLong);
     }

@@ -107,17 +107,12 @@ public interface KeylessDao<ENTITY> {
      *     select FUNCTION(COLUMN) from TABLE where ...
      * </code>
      *
-     * @param template An instance of type ENTITY with populated values corresponding to the
-     *                column names to select by.
-     * @param whereMap The names of the database columns paired with the operation
-     *                    that should be used to construct the SQL select statement.
      * @param function The function to run
      * @param columnName The column to apply the function to
      * @return The value returned by applying the specified function to the values in the
      * specified column in the matching results, or null if no results are found.
      */
-    Long runLongFunction(ENTITY template, Map<String, Operator> whereMap,
-                       SqlFunction function, String columnName);
+    Long runLongFunction(SqlFunction function, String columnName, Where where);
 
     /**
      * Computes an aggregated BigDecimal value, based on the select criteria specified
@@ -131,17 +126,12 @@ public interface KeylessDao<ENTITY> {
      *     select FUNCTION(COLUMN) from TABLE where ...
      * </code>
      *
-     * @param template An instance of type ENTITY with populated values corresponding to the
-     *                column names to select by.
-     * @param whereMap The names of the database columns paired with the operation
-     *                    that should be used to construct the SQL select statement.
      * @param function The function to run
      * @param columnName The column to apply the function to
      * @return The value returned by applying the specified function to the values in the
      * specified column in the matching results, or null if no results are found.
      */
-    BigDecimal runBigDecimalFunction(ENTITY template, Map<String, Operator> whereMap,
-                                     SqlFunction function, String columnName);
+    BigDecimal runBigDecimalFunction(SqlFunction function, String columnName, Where where);
 
     List<ENTITY> select(Where where);
 
