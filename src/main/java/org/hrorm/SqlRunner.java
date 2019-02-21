@@ -168,7 +168,6 @@ public class SqlRunner<ENTITY, BUILDER> {
     }
 
     private <T> T runFunction(String sql,
-                              SelectColumnList selectColumnList,
                               ColumnSelection<ENTITY, BUILDER> columnSelection,
                               ENTITY template,
                               Function<ResultSet, T> reader) {
@@ -176,18 +175,9 @@ public class SqlRunner<ENTITY, BUILDER> {
         PreparedStatement statement = null;
         try {
             statement = connection.prepareStatement(sql);
-            int idx = 1;
-            for(SelectColumnList.ColumnOperatorEntry columnEntry : selectColumnList){
-                String columnName = columnEntry.rawName;
-                Column<ENTITY,?> column = columnSelection.get(columnName.toUpperCase());
-                column.setValue(template, idx, statement);
-                idx++;
-                Operator operator = columnEntry.operator;
-                if( operator.hasSecondParameter() ) {
-                    operator.setSecondParameter(idx, statement);
-                    idx++;
-                }
-            }
+            StatementPopulator populator = columnSelection.buildPopulator(template);
+            populator.populate(statement);
+
             logger.info(sql);
             resultSet = statement.executeQuery();
 
@@ -213,7 +203,6 @@ public class SqlRunner<ENTITY, BUILDER> {
     }
 
     public BigDecimal runBigDecimalFunction(String sql,
-                                            SelectColumnList selectColumnList,
                                             ColumnSelection<ENTITY,BUILDER> columnSelection,
                                             ENTITY template) {
         Function<ResultSet, BigDecimal> reader = resultSet -> {
@@ -223,11 +212,10 @@ public class SqlRunner<ENTITY, BUILDER> {
                 throw new HrormException(ex, sql);
             }
         };
-        return runFunction(sql, selectColumnList, columnSelection, template, reader);
+        return runFunction(sql, columnSelection, template, reader);
     }
 
     public Long runLongFunction(String sql,
-                              SelectColumnList selectColumnList,
                                 ColumnSelection<ENTITY,BUILDER> columnSelection,
                               ENTITY template) {
         Function<ResultSet, Long> reader = resultSet -> {
@@ -237,7 +225,7 @@ public class SqlRunner<ENTITY, BUILDER> {
                 throw new HrormException(ex, sql);
             }
         };
-        return runFunction(sql, selectColumnList, columnSelection, template, reader);
+        return runFunction(sql, columnSelection, template, reader);
     }
 
     public void insert(String sql, Envelope<ENTITY> envelope) {

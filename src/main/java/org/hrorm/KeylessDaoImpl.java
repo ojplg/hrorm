@@ -146,7 +146,7 @@ public class KeylessDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> implements K
                               String columnName) {
         SelectColumnList selectColumnList = new SelectColumnList(whereMap);
         String sql = keylessSqlBuilder.selectFunction(function, columnName, selectColumnList);
-        return sqlRunner.runLongFunction(sql, selectColumnList, select(selectColumnList.columnNames()), template);
+        return sqlRunner.runLongFunction(sql, select(selectColumnList.columnNames()), template);
     }
 
     @Override
@@ -156,7 +156,7 @@ public class KeylessDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> implements K
                                             String columnName) {
         SelectColumnList selectColumnList = new SelectColumnList(whereMap);
         String sql = keylessSqlBuilder.selectFunction(function, columnName, selectColumnList);
-        return sqlRunner.runBigDecimalFunction(sql, selectColumnList, select(selectColumnList.columnNames()), template);
+        return sqlRunner.runBigDecimalFunction(sql, select(selectColumnList.columnNames()), template);
     }
 
 
