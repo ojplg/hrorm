@@ -103,13 +103,11 @@ public class WherePredicateTree {
 
     public void addAtom(Conjunction conjunction, WherePredicate atom){
         WherePredicateLeaf newLeaf = new WherePredicateLeaf(atom);
-        WherePredicateBranch branch = new WherePredicateBranch(rootNode, conjunction, newLeaf);
-        rootNode = branch;
+        rootNode = new WherePredicateBranch(rootNode, conjunction, newLeaf);
     }
 
     public void addNode(Conjunction conjunction, WherePredicateNode node){
-        WherePredicateBranch branch = new WherePredicateBranch(rootNode, conjunction, new WherePredicateGroup(node));
-        rootNode = branch;
+        rootNode = new WherePredicateBranch(rootNode, conjunction, new WherePredicateGroup(node));
     }
 
     public String render(String prefix){
