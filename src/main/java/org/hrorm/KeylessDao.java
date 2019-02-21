@@ -2,7 +2,6 @@ package org.hrorm;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Map;
 import java.util.function.BiFunction;
 
 /**
@@ -69,6 +68,9 @@ public interface KeylessDao<ENTITY> {
      */
     ENTITY selectByColumns(ENTITY item, String... columnNames);
 
+
+    List<ENTITY> select(Where where);
+
     /**
      * Insert a record into the database within a transaction that is
      * managed within the Dao. The Dao will either commit or rollback
@@ -79,7 +81,6 @@ public interface KeylessDao<ENTITY> {
      * @return The newly issued primary key of the record, if there is one. Else, Optional.empty()
      */
     Long atomicInsert(ENTITY item);
-
 
     /**
      * Computes a result based on the entities found by a select statement
@@ -132,7 +133,5 @@ public interface KeylessDao<ENTITY> {
      * specified column in the matching results, or null if no results are found.
      */
     BigDecimal runBigDecimalFunction(SqlFunction function, String columnName, Where where);
-
-    List<ENTITY> select(Where where);
 
 }
