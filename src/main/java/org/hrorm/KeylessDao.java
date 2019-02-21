@@ -57,26 +57,6 @@ public interface KeylessDao<ENTITY> {
     List<ENTITY> selectManyByColumns(ENTITY template, String... columnNames);
 
     /**
-     * Select multiple records from the database by some search criteria.
-     *
-     * <p>
-     * This method will perform a select on the database and return the results
-     * found. The where clause will be generated to include tests of the column
-     * names specified in the <code>columnNames</code> parameter. Each entry in
-     * that <code>Map</code> should be accompanied by an <code>Operation</code>
-     * specifying what comparison should be used, e.g. =, LIKE, &gt;, etc.
-     * </p>
-     *
-     * @param template An instance of type ENTITY with populated values corresponding to the
-     *                column names to select by.
-     * @param columnNames The names of the database columns paired with the operation
-     *                    that should be used to construct the SQL select statement.
-     * @return The populated instances of type ENTITY with matching values with the passed item for
-     *         the indicated columnNames.
-     */
-    List<ENTITY> selectManyByColumns(ENTITY template, Map<String, Operator> columnNames);
-
-    /**
      * Select a single record from the database by some search criteria.
      *
      * If multiple records are found that match the passed item, an exception will be thrown.
@@ -165,8 +145,6 @@ public interface KeylessDao<ENTITY> {
      */
     BigDecimal runBigDecimalFunction(ENTITY template, Map<String, Operator> whereMap,
                                      SqlFunction function, String columnName);
-
-    WhereClauseBuilder select(String columnName, Operator operator, Long value);
 
     List<ENTITY> select(Where where);
 

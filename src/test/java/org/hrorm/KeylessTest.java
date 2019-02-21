@@ -171,11 +171,7 @@ public class KeylessTest {
 
             KeylessDao<Keyless> dao = Keyless.DAO_BUILDER.buildDao(connection);
 
-            Map<String, Operator> columnOperatorMap = new HashMap<>();
-            columnOperatorMap.put("string_column", Operator.LIKE);
-
-            template.setStringColumn('%'+template.getStringColumn()+'%');
-            List<Keyless> fromDatabase = dao.selectManyByColumns(template, columnOperatorMap);
+            List<Keyless> fromDatabase = dao.select( Where.where("string_column", Operator.LIKE, '%'+template.getStringColumn()+'%'));
 
             Assert.assertEquals(matching.size(), fromDatabase.size());
             matching.forEach(keyless -> Assert.assertTrue(fromDatabase.contains(keyless)));
@@ -191,34 +187,24 @@ public class KeylessTest {
             template.setDecimalColumn(RandomUtils.randomDistinctFieldValue(fakeEntities, Keyless::getDecimalColumn));
 
             predicateTest(
-                    template,
-                    Operator.EQUALS,
                     equalTo(template, Keyless::getDecimalColumn),
-                    "decimal_column");
+                    Where.where("decimal_column", Operator.EQUALS, template.getDecimalColumn()));
 
             predicateTest(
-                    template,
-                    Operator.LESS_THAN,
                     lessThan(template, Keyless::getDecimalColumn),
-                    "decimal_column");
+                    Where.where("decimal_column", Operator.LESS_THAN, template.getDecimalColumn()));
 
             predicateTest(
-                    template,
-                    Operator.LESS_THAN_OR_EQUALS,
                     lessThanOrEqual(template, Keyless::getDecimalColumn),
-                    "decimal_column");
+                    Where.where("decimal_column", Operator.LESS_THAN_OR_EQUALS, template.getDecimalColumn()));
 
             predicateTest(
-                    template,
-                    Operator.GREATER_THAN,
                     greaterThan(template, Keyless::getDecimalColumn),
-                    "decimal_column");
+                    Where.where("decimal_column", Operator.GREATER_THAN, template.getDecimalColumn()));
 
             predicateTest(
-                    template,
-                    Operator.GREATER_THAN_OR_EQUALS,
                     greaterThanOrEqual(template, Keyless::getDecimalColumn),
-                    "decimal_column");
+                    Where.where("decimal_column", Operator.GREATER_THAN_OR_EQUALS, template.getDecimalColumn()));
         }
     }
 
@@ -230,34 +216,24 @@ public class KeylessTest {
             template.setIntegerColumn(RandomUtils.randomDistinctFieldValue(fakeEntities, Keyless::getIntegerColumn));
 
             predicateTest(
-                    template,
-                    Operator.EQUALS,
                     equalTo(template, Keyless::getIntegerColumn),
-                    "integer_column");
+                    Where.where("integer_column", Operator.EQUALS, template.getIntegerColumn()));
 
             predicateTest(
-                    template,
-                    Operator.LESS_THAN,
                     lessThan(template, Keyless::getIntegerColumn),
-                    "integer_column");
+                    Where.where("integer_column", Operator.LESS_THAN, template.getIntegerColumn()));
 
             predicateTest(
-                    template,
-                    Operator.LESS_THAN_OR_EQUALS,
                     lessThanOrEqual(template, Keyless::getIntegerColumn),
-                    "integer_column");
+                    Where.where("integer_column", Operator.LESS_THAN_OR_EQUALS, template.getIntegerColumn()));
 
             predicateTest(
-                    template,
-                    Operator.GREATER_THAN,
                     greaterThan(template, Keyless::getIntegerColumn),
-                    "integer_column");
+                    Where.where("integer_column", Operator.GREATER_THAN, template.getIntegerColumn()));
 
             predicateTest(
-                    template,
-                    Operator.GREATER_THAN_OR_EQUALS,
                     greaterThanOrEqual(template, Keyless::getIntegerColumn),
-                    "integer_column");
+                    Where.where("integer_column", Operator.GREATER_THAN_OR_EQUALS, template.getIntegerColumn()));
         }
     }
 
@@ -269,34 +245,24 @@ public class KeylessTest {
             template.setTimeStampColumn(RandomUtils.randomDistinctFieldValue(fakeEntities, Keyless::getTimeStampColumn));
 
             predicateTest(
-                    template,
-                    Operator.EQUALS,
                     equalTo(template, Keyless::getTimeStampColumn),
-                    "timestamp_column");
+                    Where.where("timestamp_column", Operator.EQUALS, template.getTimeStampColumn()));
 
             predicateTest(
-                    template,
-                    Operator.LESS_THAN,
                     lessThan(template, Keyless::getTimeStampColumn),
-                    "timestamp_column");
+                    Where.where("timestamp_column", Operator.LESS_THAN, template.getTimeStampColumn()));
 
             predicateTest(
-                    template,
-                    Operator.LESS_THAN_OR_EQUALS,
                     lessThanOrEqual(template, Keyless::getTimeStampColumn),
-                    "timestamp_column");
+                    Where.where("timestamp_column", Operator.LESS_THAN_OR_EQUALS, template.getTimeStampColumn()));
 
             predicateTest(
-                    template,
-                    Operator.GREATER_THAN,
                     greaterThan(template, Keyless::getTimeStampColumn),
-                    "timestamp_column");
+                    Where.where("timestamp_column", Operator.GREATER_THAN, template.getTimeStampColumn()));
 
             predicateTest(
-                    template,
-                    Operator.GREATER_THAN_OR_EQUALS,
                     greaterThanOrEqual(template, Keyless::getTimeStampColumn),
-                    "timestamp_column");
+                    Where.where("timestamp_column", Operator.GREATER_THAN_OR_EQUALS, template.getTimeStampColumn()));
         }
     }
 
@@ -307,11 +273,9 @@ public class KeylessTest {
      * Also tests countByColumns for the same criteria.
      *
      */
-    private void predicateTest(
-            Keyless template,
-            Operator operator, 
+    private <T> void predicateTest(
             Predicate<Keyless> streamFilter,
-            String columnName) {
+            Where where) {
 
         // DAO Setup
         Connection connection = helper.connect();
@@ -323,10 +287,11 @@ public class KeylessTest {
                 .collect(Collectors.toList());
 
         // Setup and exec query
-        Map<String, Operator> columnOperatorMap = new HashMap<>();
-        columnOperatorMap.put(columnName, operator);
-        List<Keyless> fromDatabase = dao.selectManyByColumns(template, columnOperatorMap);
+        //Map<String, Operator> columnOperatorMap = new HashMap<>();
+        //columnOperatorMap.put(columnName, operator);
+        //List<Keyless> fromDatabase = dao.selectManyByColumns(template, columnOperatorMap);
 
+        List<Keyless> fromDatabase = dao.select(where);
 
         // Verify
         Assert.assertEquals(matching.size(), fromDatabase.size());

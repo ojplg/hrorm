@@ -161,28 +161,10 @@ public class KeylessDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> implements K
 
 
     @Override
-    public List<ENTITY> selectManyByColumns(ENTITY template, Map<String, Operator> columnNamesMap) {
-        SelectColumnList selectColumnList = new SelectColumnList(columnNamesMap);
-        String sql = keylessSqlBuilder.selectByColumns(selectColumnList);
-        List<BUILDER> bs = sqlRunner.selectByColumns(sql, supplier, selectColumnList, select(selectColumnList.columnNames()), childrenDescriptors, template);
-        return mapBuilders(bs);
-    }
-
-    @Override
     public <T> T foldingSelect(ENTITY item, T identity, BiFunction<T,ENTITY,T> accumulator, String ... columnNames){
         SelectColumnList selectColumnList = new SelectColumnList(columnNames);
         String sql = keylessSqlBuilder.selectByColumns(selectColumnList);
         return sqlRunner.foldingSelect(sql, supplier, selectColumnList, select(columnNames), childrenDescriptors, item, buildFunction, identity, accumulator);
-    }
-
-    public WhereClauseBuilder select(String columnName, Operator operator, Long value){
-        return new WhereClauseBuilder(
-                keylessSqlBuilder.select(),
-                sqlRunner.buildSelector(supplier, buildFunction),
-                columnName,
-                operator,
-                value
-        );
     }
 
     @Override
