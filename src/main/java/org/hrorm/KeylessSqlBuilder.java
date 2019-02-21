@@ -138,10 +138,10 @@ public class KeylessSqlBuilder<ENTITY> {
         listToBuild.add(0, columnToAdd);
     }
 
-    public String selectByColumns(SelectColumnList selectColumnList){
+    public String selectByColumns(ColumnSelection selectColumnList){
         StringBuilder buf = new StringBuilder();
         buf.append(select());
-        buf.append(selectColumnList.sqlPredicates());
+        buf.append(selectColumnList.whereClause());
         return buf.toString();
     }
     

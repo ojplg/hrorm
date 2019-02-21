@@ -56,9 +56,8 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
 
         ColumnSelection<CHILD, CHILDBUILDER> columnNameMap = childDaoDescriptor.select(parentChildColumnName());
 
-        String sql = sqlBuilder.selectByColumns(parentChildColumnName());
+        String sql = sqlBuilder.selectByColumns(childDaoDescriptor.select(parentChildColumnName()));
         SqlRunner<CHILD,CHILDBUILDER> sqlRunner = new SqlRunner<>(connection, childDaoDescriptor);
-        SelectColumnList parentChildColumnNameList = new SelectColumnList(parentChildColumnName());
         List<ChildrenDescriptor<CHILD,?,CHILDBUILDER, ?>> childrenDescriptorsList = childDaoDescriptor.childrenDescriptors();
 
         Supplier<CHILDBUILDER> supplier = childDaoDescriptor.supplier();

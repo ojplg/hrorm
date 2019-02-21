@@ -15,7 +15,6 @@ public interface Queries {
     String update();
     String delete();
     String select();
-    String selectByColumns(String ... columnNames);
 
 }
 

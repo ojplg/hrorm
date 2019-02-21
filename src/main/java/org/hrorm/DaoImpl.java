@@ -68,7 +68,8 @@ public class DaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> extends KeylessDaoI
     @Override
     public ENTITY select(long id) {
         String primaryKeyName = primaryKey.getName();
-        String sql = sqlBuilder.selectByColumns(primaryKeyName);
+        ColumnSelection<ENTITY, BUILDER> columnSelection = select(primaryKeyName);
+        String sql = sqlBuilder.selectByColumns(columnSelection);
         BUILDER builder = supplier().get();
         primaryKey.setKey(builder, id);
         ENTITY item = buildFunction.apply(builder);

@@ -27,8 +27,8 @@ public class SqlBuilder<ENTITY> implements Queries {
         return keylessSqlBuilder.select();
     }
 
-    public String selectByColumns(String ... columnNames){
-        return keylessSqlBuilder.selectByColumns(new SelectColumnList(columnNames));
+    public String selectByColumns(ColumnSelection<ENTITY,?> columnSelection){
+        return keylessSqlBuilder.selectByColumns(columnSelection);
     }
 
     public String selectChildIds(String parentColumn){
