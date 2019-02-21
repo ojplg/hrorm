@@ -34,7 +34,7 @@ public class DataColumnFactory {
             }
 
             @Override
-            public Column<ENTITY, BUILDER> withPrefix(String newPrefix, Prefixer prefixer) {
+            public DataColumn<BigDecimal, ENTITY, BUILDER> withPrefix(String newPrefix, Prefixer prefixer) {
                 return bigDecimalColumn(getName(), newPrefix, getter, setter, nullable);
             }
 
@@ -62,7 +62,7 @@ public class DataColumnFactory {
             }
 
             @Override
-            public Column<ENTITY, BUILDER> withPrefix(String newPrefix, Prefixer prefixer) {
+            public DataColumn<Long, ENTITY, BUILDER> withPrefix(String newPrefix, Prefixer prefixer) {
                 return longColumn(getName(), newPrefix, getter, setter, nullable);
             }
 
@@ -90,7 +90,7 @@ public class DataColumnFactory {
             }
 
             @Override
-            public Column<ENTITY, BUILDER> withPrefix(String newPrefix, Prefixer prefixer) {
+            public DataColumn<Boolean, ENTITY, BUILDER> withPrefix(String newPrefix, Prefixer prefixer) {
                 return booleanColumn(getName(), newPrefix, getter, setter, nullable);
             }
 
@@ -118,7 +118,7 @@ public class DataColumnFactory {
             }
 
             @Override
-            public Column<ENTITY, BUILDER> withPrefix(String newPrefix, Prefixer prefixer) {
+            public DataColumn<String, ENTITY, BUILDER> withPrefix(String newPrefix, Prefixer prefixer) {
                 return stringColumn(getName(), newPrefix, getter, setter, nullable);
             }
 
@@ -152,7 +152,7 @@ public class DataColumnFactory {
             }
 
             @Override
-            public Column<ENTITY, BUILDER> withPrefix(String newPrefix, Prefixer prefixer) {
+            public DataColumn<LocalDateTime, ENTITY, BUILDER> withPrefix(String newPrefix, Prefixer prefixer) {
                 return localDateTimeColumn(getName(), newPrefix, getter, setter, nullable);
             }
 
@@ -190,7 +190,7 @@ public class DataColumnFactory {
             }
 
             @Override
-            public Column<ENTITY, BUILDER> withPrefix(String newPrefix, Prefixer prefixer) {
+            public DataColumn<E, ENTITY, BUILDER> withPrefix(String newPrefix, Prefixer prefixer) {
                 return stringConverterColumn(getName(), newPrefix, getter, setter, converter, nullable);
             }
 

@@ -1,15 +1,10 @@
 package org.hrorm;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
-import java.util.SortedMap;
-import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 /**
  * Implementers of this interface completely describe all the information
@@ -47,7 +42,7 @@ public interface KeylessDaoDescriptor<ENTITY, ENTITYBUILDER> {
      *
      * @return all the data columns supported
      */
-    List<Column<ENTITY, ENTITYBUILDER>> dataColumns();
+    List<DataColumn<?, ENTITY, ENTITYBUILDER>> dataColumns();
 
     /**
      * The columns that contain references to foreign keys to other objects
@@ -84,7 +79,7 @@ public interface KeylessDaoDescriptor<ENTITY, ENTITYBUILDER> {
     }
 
     static <ENTITY, ENTITYBUILDER, P, PB> List<Column<ENTITY, ENTITYBUILDER>> dataColumnsWithParent(
-            List<Column<ENTITY, ENTITYBUILDER>> dataColumns, ParentColumn<ENTITY, P, ENTITYBUILDER, PB> parentColumn,
+            List<DataColumn<?, ENTITY, ENTITYBUILDER>> dataColumns, ParentColumn<ENTITY, P, ENTITYBUILDER, PB> parentColumn,
             boolean hasParent){
         List<Column<ENTITY, ENTITYBUILDER>> allColumns = new ArrayList<>(dataColumns);
         if ( hasParent ) {

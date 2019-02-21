@@ -6,6 +6,8 @@ package org.hrorm;
  */
 public class Operator {
 
+    // TODO: NOT_EQUALS, NOT_LIKE
+
     /**
      * An instance that represents the equality ('=') operator.
      */

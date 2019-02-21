@@ -113,7 +113,7 @@ public class JoinColumn<ENTITY, JOINED, ENTITYBUILDER, JOINEDBUILDER> implements
         return new JoinColumn(name, newPrefix, prefixer, getter, setter, daoDescriptor, nullable);
     }
 
-    public List<Column<JOINED, JOINEDBUILDER>> getDataColumns(){
+    public List<DataColumn<?, JOINED, JOINEDBUILDER>> getDataColumns(){
         return this.daoDescriptor.dataColumns();
     }
 

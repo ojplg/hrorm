@@ -17,7 +17,7 @@ import java.util.function.Function;
  * @param <ENTITY> The entity this column belongs to.
  * @param <BUILDER> The class that is used to build new entity instances.
  */
-public abstract class AbstractColumn<TYPE,ENTITY,BUILDER> implements Column<ENTITY,BUILDER> {
+public abstract class AbstractColumn<TYPE,ENTITY,BUILDER> implements DataColumn<TYPE,ENTITY,BUILDER> {
 
     private final String name;
     private final String prefix;
@@ -63,14 +63,16 @@ public abstract class AbstractColumn<TYPE,ENTITY,BUILDER> implements Column<ENTI
         }
     }
 
+    public TYPE getValue(ENTITY entity){
+        return getter.apply(entity);
+    }
+
     @Override
     public void notNull() {
         nullable = false;
     }
 
     abstract TYPE fromResultSet(ResultSet resultSet, String columnName) throws SQLException;
-
-    abstract void setPreparedStatement(PreparedStatement preparedStatement, int index, TYPE value) throws SQLException;
 
     abstract int sqlType();
 }

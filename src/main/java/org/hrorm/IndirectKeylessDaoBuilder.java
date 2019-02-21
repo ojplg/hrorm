@@ -46,7 +46,7 @@ public class IndirectKeylessDaoBuilder<ENTITY, BUILDER> implements KeylessDaoDes
     }
 
     @Override
-    public List<Column<ENTITY, BUILDER>> dataColumns() {
+    public List<DataColumn<?, ENTITY, BUILDER>> dataColumns() {
         return internalDaoBuilder.dataColumns();
     }
 

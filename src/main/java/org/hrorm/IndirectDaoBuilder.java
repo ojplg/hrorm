@@ -33,7 +33,7 @@ public class IndirectDaoBuilder<ENTITY, BUILDER>  implements DaoDescriptor<ENTIT
 
     private final Prefixer prefixer;
 
-    private final List<Column<ENTITY, BUILDER>> columns = new ArrayList<>();
+    private final List<DataColumn<?, ENTITY, BUILDER>> dataColumns = new ArrayList<>();
     private final List<JoinColumn<ENTITY,?, BUILDER,?>> joinColumns = new ArrayList<>();
     private final List<ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors = new ArrayList<>();
 
@@ -62,7 +62,7 @@ public class IndirectDaoBuilder<ENTITY, BUILDER>  implements DaoDescriptor<ENTIT
             throw new HrormException("Attempt to set a second primary key");
         }
         this.primaryKey = primaryKey;
-        columns.add(primaryKey);
+        dataColumns.add(primaryKey);
     }
 
     /**
@@ -91,8 +91,8 @@ public class IndirectDaoBuilder<ENTITY, BUILDER>  implements DaoDescriptor<ENTIT
     }
 
     @Override
-    public List<Column<ENTITY, BUILDER>> dataColumns() {
-        return columns;
+    public List<DataColumn<?, ENTITY, BUILDER>> dataColumns() {
+        return dataColumns;
     }
 
     @Override
@@ -163,8 +163,8 @@ public class IndirectDaoBuilder<ENTITY, BUILDER>  implements DaoDescriptor<ENTIT
      * @return This instance.
      */
     public IndirectDaoBuilder<ENTITY, BUILDER> withStringColumn(String columnName, Function<ENTITY, String> getter, BiConsumer<BUILDER, String> setter){
-        Column<ENTITY, BUILDER> column = DataColumnFactory.stringColumn(columnName, myPrefix, getter, setter, true);
-        columns.add(column);
+        DataColumn<String, ENTITY, BUILDER> column = DataColumnFactory.stringColumn(columnName, myPrefix, getter, setter, true);
+        dataColumns.add(column);
         lastColumnAdded = column;
         return this;
     }
@@ -178,8 +178,8 @@ public class IndirectDaoBuilder<ENTITY, BUILDER>  implements DaoDescriptor<ENTIT
      * @return This instance.
      */
     public IndirectDaoBuilder<ENTITY, BUILDER> withIntegerColumn(String columnName, Function<ENTITY, Long> getter, BiConsumer<BUILDER, Long> setter){
-        Column<ENTITY, BUILDER> column = DataColumnFactory.longColumn(columnName, myPrefix, getter, setter, true);
-        columns.add(column);
+        DataColumn<Long, ENTITY, BUILDER> column = DataColumnFactory.longColumn(columnName, myPrefix, getter, setter, true);
+        dataColumns.add(column);
         lastColumnAdded = column;
         return this;
     }
@@ -193,8 +193,8 @@ public class IndirectDaoBuilder<ENTITY, BUILDER>  implements DaoDescriptor<ENTIT
      * @return This instance.
      */
     public IndirectDaoBuilder<ENTITY, BUILDER> withBigDecimalColumn(String columnName, Function<ENTITY, BigDecimal> getter, BiConsumer<BUILDER, BigDecimal> setter){
-        Column<ENTITY, BUILDER> column = DataColumnFactory.bigDecimalColumn(columnName, myPrefix, getter, setter, true);
-        columns.add(column);
+        DataColumn<BigDecimal, ENTITY, BUILDER> column = DataColumnFactory.bigDecimalColumn(columnName, myPrefix, getter, setter, true);
+        dataColumns.add(column);
         lastColumnAdded = column;
         return this;
     }
@@ -212,8 +212,8 @@ public class IndirectDaoBuilder<ENTITY, BUILDER>  implements DaoDescriptor<ENTIT
      * @return This instance.
      */
     public <E> IndirectDaoBuilder<ENTITY, BUILDER> withConvertingStringColumn(String columnName, Function<ENTITY, E> getter, BiConsumer<BUILDER, E> setter, Converter<E, String> converter){
-        Column<ENTITY, BUILDER> column = DataColumnFactory.stringConverterColumn(columnName, myPrefix, getter, setter, converter, true);
-        columns.add(column);
+        DataColumn<?, ENTITY, BUILDER> column = DataColumnFactory.stringConverterColumn(columnName, myPrefix, getter, setter, converter, true);
+        dataColumns.add(column);
         lastColumnAdded = column;
         return this;
     }
@@ -227,8 +227,8 @@ public class IndirectDaoBuilder<ENTITY, BUILDER>  implements DaoDescriptor<ENTIT
      * @return This instance.
      */
     public IndirectDaoBuilder<ENTITY, BUILDER> withLocalDateTimeColumn(String columnName, Function<ENTITY, LocalDateTime> getter, BiConsumer<BUILDER, LocalDateTime> setter){
-        Column<ENTITY, BUILDER> column = DataColumnFactory.localDateTimeColumn(columnName, myPrefix, getter, setter, true);
-        columns.add(column);
+        DataColumn<LocalDateTime, ENTITY, BUILDER> column = DataColumnFactory.localDateTimeColumn(columnName, myPrefix, getter, setter, true);
+        dataColumns.add(column);
         lastColumnAdded = column;
         return this;
     }
@@ -244,8 +244,8 @@ public class IndirectDaoBuilder<ENTITY, BUILDER>  implements DaoDescriptor<ENTIT
      * @return This instance.
      */
     public IndirectDaoBuilder<ENTITY, BUILDER> withBooleanColumn(String columnName, Function<ENTITY, Boolean> getter, BiConsumer<BUILDER, Boolean> setter){
-        Column<ENTITY, BUILDER> column = DataColumnFactory.booleanColumn(columnName, myPrefix, getter, setter, true);
-        columns.add(column);
+        DataColumn<Boolean, ENTITY, BUILDER> column = DataColumnFactory.booleanColumn(columnName, myPrefix, getter, setter, true);
+        dataColumns.add(column);
         lastColumnAdded = column;
         return this;
     }
@@ -254,7 +254,7 @@ public class IndirectDaoBuilder<ENTITY, BUILDER>  implements DaoDescriptor<ENTIT
      * Describes a data element that is represented by an <code>Object</code> of some
      * other type <code>U</code> with its own table for persistence.
      *
-     * Join columns describe entities that have their own independent existence and
+     * Join dataColumns describe entities that have their own independent existence and
      * their persistence is a pre-requisite for the persistence of dependent objects.
      *
      * Imagine a schema that describes cities and states. Every city entity should

@@ -95,7 +95,7 @@ public class IndirectPrimaryKey<ENTITY, BUILDER> implements PrimaryKey<ENTITY, B
     }
 
     @Override
-    public Column<ENTITY, BUILDER> withPrefix(String newPrefix, Prefixer prefixer) {
+    public DataColumn<Long, ENTITY, BUILDER> withPrefix(String newPrefix, Prefixer prefixer) {
         return new IndirectPrimaryKey<>(newPrefix, name, sequenceName, getter, setter);
     }
 
@@ -112,4 +112,13 @@ public class IndirectPrimaryKey<ENTITY, BUILDER> implements PrimaryKey<ENTITY, B
     @Override
     public Set<Integer> supportedTypes() { return ColumnTypes.IntegerTypes; }
 
+    @Override
+    public Long getValue(ENTITY entity) {
+        return getKey(entity);
+    }
+
+    @Override
+    public void setPreparedStatement(PreparedStatement preparedStatement, int index, Long value) throws SQLException {
+        preparedStatement.setLong(index, value);
+    }
 }

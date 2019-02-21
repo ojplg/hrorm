@@ -51,7 +51,7 @@ public class DaoBuilder<ENTITY> implements DaoDescriptor<ENTITY, ENTITY> {
     }
 
     @Override
-    public List<Column<ENTITY, ENTITY>> dataColumns() {
+    public List<DataColumn<?, ENTITY, ENTITY>> dataColumns() {
         return internalDaoBuilder.dataColumns();
     }
 

@@ -22,7 +22,7 @@ public class RelativeDaoDescriptor<ENTITY, PARENT, ENTITYBUILDER> implements Dao
 
     private final String tableName;
     private final Supplier<ENTITYBUILDER> supplier;
-    private final List<Column<ENTITY, ENTITYBUILDER>> dataColumns;
+    private final List<DataColumn<?, ENTITY, ENTITYBUILDER>> dataColumns;
     private final List<JoinColumn<ENTITY, ?, ENTITYBUILDER, ?>> joinColumns;
     private final PrimaryKey<ENTITY, ENTITYBUILDER> primaryKey;
     private final List<ChildrenDescriptor<ENTITY,?, ENTITYBUILDER,?>> childrenDescriptors;
@@ -60,7 +60,7 @@ public class RelativeDaoDescriptor<ENTITY, PARENT, ENTITYBUILDER> implements Dao
     }
 
     @Override
-    public List<Column<ENTITY, ENTITYBUILDER>> dataColumns() {
+    public List<DataColumn<?, ENTITY, ENTITYBUILDER>> dataColumns() {
         return dataColumns;
     }
 
