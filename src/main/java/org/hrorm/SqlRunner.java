@@ -50,12 +50,11 @@ public class SqlRunner<ENTITY, BUILDER> {
     }
 
     public List<BUILDER> select(String sql, Supplier<BUILDER> supplier, List<ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors){
-        return selectByColumns(sql, supplier, SelectColumnList.EMPTY, ColumnSelection.empty(), childrenDescriptors, null);
+        return selectByColumns(sql, supplier, ColumnSelection.empty(), childrenDescriptors, null);
     }
 
     public List<BUILDER> selectByColumns(String sql,
                                          Supplier<BUILDER> supplier,
-                                         SelectColumnList selectColumnList,
                                          ColumnSelection<ENTITY,BUILDER> columnSelection,
                                          List<? extends ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors,
                                          ENTITY item){

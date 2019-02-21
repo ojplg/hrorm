@@ -66,7 +66,6 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
         List<CHILDBUILDER> childrenBuilders = sqlRunner.selectByColumns(
                 sql,
                 supplier,
-                parentChildColumnNameList,
                 columnNameMap,
                 childrenDescriptorsList,
                 child);

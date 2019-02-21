@@ -135,7 +135,7 @@ public class KeylessDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> implements K
     public List<ENTITY> selectManyByColumns(ENTITY item, String ... columnNames) {
         SelectColumnList selectColumnList = new SelectColumnList(columnNames);
         String sql = keylessSqlBuilder.selectByColumns(selectColumnList);
-        List<BUILDER> bs = sqlRunner.selectByColumns(sql, supplier, new SelectColumnList(columnNames), select(columnNames), childrenDescriptors, item);
+        List<BUILDER> bs = sqlRunner.selectByColumns(sql, supplier, select(columnNames), childrenDescriptors, item);
         return mapBuilders(bs);
     }
 
