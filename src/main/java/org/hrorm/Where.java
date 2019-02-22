@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
-import java.util.Iterator;
 
 /**
  * Representation of a SQL where clause: a possibly nested list of
