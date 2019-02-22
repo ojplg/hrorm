@@ -148,6 +148,11 @@ public class Where implements StatementPopulator {
         return new Where(atom);
     }
 
+    /**
+     * The SQL that makes up the where clause this object represents.
+     *
+     * @return the SQL
+     */
     public String render(){
         return tree.render("a.");
     }
