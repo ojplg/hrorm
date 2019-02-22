@@ -20,7 +20,6 @@ public class SqlFunction {
      */
     public static final SqlFunction SUM = new SqlFunction("SUM");
 
-
     /**
      * To run the SQL MIN function on a column in a table.
      */

@@ -29,7 +29,6 @@ public class Operator {
      */
     public static final Operator LIKE = new Operator("LIKE");
 
-
     /**
      * An instance that represents the 'NOT LIKE' operator to be used
      * for string fields. The ampersand character is a wildcard in
