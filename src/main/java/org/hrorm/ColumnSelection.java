@@ -36,7 +36,7 @@ public class ColumnSelection<ENTITY, BUILDER> {
             }
         }
         this.columns = Collections.unmodifiableMap(map);
-        this.columnNames = Arrays.asList(columnNames);
+        this.columnNames = Collections.unmodifiableList(Arrays.asList(columnNames));
     }
 
     public static <E,B> ColumnSelection<E,B> empty() {
