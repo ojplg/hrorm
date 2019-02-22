@@ -45,7 +45,6 @@ public class DaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> extends KeylessDaoI
         return id;
     }
 
-
     @Override
     public void update(ENTITY item) {
         String sql = sqlBuilder.update();
@@ -76,7 +75,6 @@ public class DaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> extends KeylessDaoI
         return fromSingletonList(mapBuilders(items));
     }
 
-
     @Override
     public List<ENTITY> selectMany(List<Long> ids) {
         String sql = sqlBuilder.select();
@@ -103,10 +101,8 @@ public class DaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> extends KeylessDaoI
         );
     }
 
-
     @Override
     public PrimaryKey<ENTITY, BUILDER> primaryKey() { return primaryKey; }
-
 
     @Override
     public Queries queries() {
