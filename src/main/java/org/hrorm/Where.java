@@ -184,11 +184,11 @@ public class Where implements StatementPopulator {
      * existing predicates to the passed argument with a logical and
      * operation. The passed object will be grouped parenthetically.
      *
-     * @param where the new predicate to add
+     * @param subWhere the new predicate to add
      * @return this object
      */
-    public Where and(Where where){
-        tree.addSubtree(WherePredicateTree.Conjunction.AND, where.tree);
+    public Where and(Where subWhere){
+        tree.addSubtree(WherePredicateTree.Conjunction.AND, subWhere.tree);
         return this;
     }
 
@@ -267,30 +267,88 @@ public class Where implements StatementPopulator {
         return this;
     }
 
+    /**
+     * Add a new predicate to the existing object by connecting the
+     * existing predicates to the passed argument with a logical or
+     * operation. The passed object will be grouped parenthetically.
+     *
+     * @param subWhere the new predicate to add
+     * @return this object
+     */
+    public Where or(Where subWhere){
+        tree.addSubtree(WherePredicateTree.Conjunction.OR, subWhere.tree);
+        return this;
+    }
+
+    /**
+     * Add a new predicate to the existing object by connecting the
+     * existing predicates to the new one with a logical or.
+     *
+     * @param columnName The column name the predicate applies to
+     * @param operator The operation used to evaluate the predicate
+     * @param value The value to compare the column values against
+     * @return this object
+     */
     public Where or(String columnName, Operator operator, Long value){
         WherePredicate<Long> atom = WherePredicate.forLong(columnName, operator, value);
         tree.addAtom(WherePredicateTree.Conjunction.OR, atom);
         return this;
     }
 
+    /**
+     * Add a new predicate to the existing object by connecting the
+     * existing predicates to the new one with a logical or.
+     *
+     * @param columnName The column name the predicate applies to
+     * @param operator The operation used to evaluate the predicate
+     * @param value The value to compare the column values against
+     * @return this object
+     */
     public Where or(String columnName, Operator operator, BigDecimal value){
         WherePredicate<BigDecimal> atom = WherePredicate.forBigDecimal(columnName, operator, value);
         tree.addAtom(WherePredicateTree.Conjunction.OR, atom);
         return this;
     }
 
+    /**
+     * Add a new predicate to the existing object by connecting the
+     * existing predicates to the new one with a logical or.
+     *
+     * @param columnName The column name the predicate applies to
+     * @param operator The operation used to evaluate the predicate
+     * @param value The value to compare the column values against
+     * @return this object
+     */
     public Where or(String columnName, Operator operator, String value){
         WherePredicate<String> atom = WherePredicate.forString(columnName, operator, value);
         tree.addAtom(WherePredicateTree.Conjunction.OR, atom);
         return this;
     }
 
+    /**
+     * Add a new predicate to the existing object by connecting the
+     * existing predicates to the new one with a logical or.
+     *
+     * @param columnName The column name the predicate applies to
+     * @param operator The operation used to evaluate the predicate
+     * @param value The value to compare the column values against
+     * @return this object
+     */
     public Where or(String columnName, Operator operator, Boolean value){
         WherePredicate<Boolean> atom = WherePredicate.forBoolean(columnName, operator, value);
         tree.addAtom(WherePredicateTree.Conjunction.OR, atom);
         return this;
     }
 
+    /**
+     * Add a new predicate to the existing object by connecting the
+     * existing predicates to the new one with a logical or.
+     *
+     * @param columnName The column name the predicate applies to
+     * @param operator The operation used to evaluate the predicate
+     * @param value The value to compare the column values against
+     * @return this object
+     */
     public Where or(String columnName, Operator operator, LocalDateTime value){
         WherePredicate<LocalDateTime> atom = WherePredicate.forLocalDateTime(columnName, operator, value);
         tree.addAtom(WherePredicateTree.Conjunction.OR, atom);

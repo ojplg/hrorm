@@ -14,6 +14,8 @@ import org.junit.Test;
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalAmount;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -609,4 +611,42 @@ public class ComparatorSelectTest {
         }
     }
 
+    @Test
+    public void testSelectWithOrSubclause(){
+        Connection connection = helper.connect();
+        Dao<Columns> dao = daoBuilder().buildDao(connection);
+
+        LocalDateTime runTime = LocalDateTime.now();
+        LocalDateTime iteratedTime = runTime;
+        {
+            for(long idx = 1; idx<=100; idx++) {
+                Columns columns = new Columns();
+                columns.setStringThing("SelectOrSubClause" + idx);
+                columns.setIntegerThing(idx);
+                columns.setBooleanThing(true);
+                columns.setDecimalThing(idx%5==0 ? new BigDecimal("5.0") : new BigDecimal("4.321"));
+                iteratedTime = iteratedTime.plus(1, ChronoUnit.DAYS);
+                columns.setTimeStampThing(iteratedTime);
+                columns.setColorThing(EnumeratedColor.Green);
+
+                dao.insert(columns);
+            }
+        }
+        {
+            LocalDateTime startTime = runTime.plus(72, ChronoUnit.DAYS).minus(1, ChronoUnit.HOURS);
+            LocalDateTime endTime = runTime.plus(83, ChronoUnit.DAYS).plus(1, ChronoUnit.HOURS);
+            List<Columns> found = dao.select(where("string_column",LIKE,"%7")
+                                                .or(where("timestamp_column", GREATER_THAN, startTime)
+                                                    .and("timestamp_column", LESS_THAN, endTime)));
+
+            List<Long> expectedIntegers = Arrays.asList(7L, 17L, 27L, 37L, 47L, 57L, 67L, 72L, 73L,
+                                                        74L, 75L, 76L, 77L, 78L, 79L, 80L, 81L, 82L, 83L,
+                                                        87L, 97L);
+
+            Set<Long> foundIntegerSet = found.stream().map(Columns::getIntegerThing).collect(Collectors.toSet());
+
+            Assert.assertTrue(foundIntegerSet.containsAll(expectedIntegers));
+            Assert.assertEquals(expectedIntegers.size(), foundIntegerSet.size());
+        }
+    }
 }
