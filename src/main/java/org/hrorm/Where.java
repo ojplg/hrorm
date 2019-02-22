@@ -94,6 +94,30 @@ public class Where implements StatementPopulator {
         return new Where(columnName, operator, value);
     }
 
+    /**
+     * Creates a new object with a single predicate testing whether
+     * a column is null.
+     *
+     * @param columnName The column to test for a null value.
+     * @return the new object
+     */
+    public static Where isNull(String columnName){
+        WherePredicate atom = new WherePredicate(columnName, true);
+        return new Where(atom);
+    }
+
+    /**
+     * Creates a new object with a single predicate testing whether
+     * a column is not null.
+     *
+     * @param columnName The column to test for a not null value.
+     * @return the new object
+     */
+    public static Where isNotNull(String columnName){
+        WherePredicate atom = new WherePredicate(columnName, false);
+        return new Where(atom);
+    }
+
     private final WherePredicateTree tree;
 
     /**
@@ -353,16 +377,6 @@ public class Where implements StatementPopulator {
         WherePredicate<LocalDateTime> atom = WherePredicate.forLocalDateTime(columnName, operator, value);
         tree.addAtom(WherePredicateTree.Conjunction.OR, atom);
         return this;
-    }
-
-    public static Where isNull(String columnName){
-        WherePredicate atom = new WherePredicate(columnName, true);
-        return new Where(atom);
-    }
-
-    public static Where isNotNull(String columnName){
-        WherePredicate atom = new WherePredicate(columnName, false);
-        return new Where(atom);
     }
 
     /**

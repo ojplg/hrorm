@@ -15,7 +15,6 @@ import java.math.BigDecimal;
 import java.sql.Connection;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalAmount;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -585,6 +584,40 @@ public class ComparatorSelectTest {
     }
 
     @Test
+    public void testSelectIsNullWithAndClause(){
+        Connection connection = helper.connect();
+        Dao<Columns> dao = daoBuilder().buildDao(connection);
+
+        LocalDateTime time = LocalDateTime.now();
+        {
+            for(long idx = 1; idx<=100; idx++) {
+                Columns columns = new Columns();
+                columns.setStringThing(idx%3 == 0 ? "SelectIsNullWithAndClause" + idx : null);
+                columns.setIntegerThing(idx);
+                columns.setBooleanThing(true);
+                columns.setDecimalThing(idx%5==0 ? new BigDecimal("5.0") : new BigDecimal("4.321"));
+                columns.setTimeStampThing(time);
+                columns.setColorThing( EnumeratedColor.Green);
+
+                dao.insert(columns);
+            }
+        }
+        {
+            List<Columns> found =
+                    dao.select(where("integer_column", GREATER_THAN, 90L)
+                                    .and(Where.isNull("string_column")));
+
+            List<Long> expectedIntegers = Arrays.asList(91L, 92L, 94L, 95L, 97L, 98L, 100L);
+
+            Set<Long> foundIntegerSet = found.stream().map(Columns::getIntegerThing).collect(Collectors.toSet());
+
+            Assert.assertEquals(expectedIntegers.size(), foundIntegerSet.size());
+            Assert.assertTrue(foundIntegerSet.containsAll(expectedIntegers));
+        }
+    }
+
+
+    @Test
     public void testSelectIsNotNull(){
         Connection connection = helper.connect();
         Dao<Columns> dao = daoBuilder().buildDao(connection);
@@ -649,4 +682,33 @@ public class ComparatorSelectTest {
             Assert.assertEquals(expectedIntegers.size(), foundIntegerSet.size());
         }
     }
+
+    @Test
+    public void testCapitalizationNotAProblem(){
+        Connection connection = helper.connect();
+        Dao<Columns> dao = daoBuilder().buildDao(connection);
+        Long id;
+
+        LocalDateTime time = LocalDateTime.now();
+        {
+            Columns columns = new Columns();
+            columns.setStringThing("Less than test");
+            columns.setIntegerThing(762L);
+            columns.setBooleanThing(true);
+            columns.setDecimalThing(new BigDecimal("4.567"));
+            columns.setTimeStampThing(time);
+            columns.setColorThing(EnumeratedColor.Red);
+
+            id = dao.insert(columns);
+        }
+        {
+            List<Columns> found = dao.select(
+                    where("INTEGer_cOLUmn", LESS_THAN, 1234L)
+            );
+            Assert.assertEquals(1, found.size());
+            Assert.assertEquals(id, found.get(0).getId());
+        }
+
+    }
+
 }
