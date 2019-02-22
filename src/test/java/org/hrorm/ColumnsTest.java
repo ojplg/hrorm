@@ -13,6 +13,7 @@ import org.junit.Test;
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ColumnsTest {
@@ -285,5 +286,74 @@ public class ColumnsTest {
 
             Assert.assertEquals(2550L, (long) result);
         }
+    }
+
+    @Test
+    public void testSelectMany(){
+        List<Long> ids = new ArrayList<>();
+        {
+            Connection connection = helper.connect();
+            Dao<Columns> dao = daoBuilder().buildDao(connection);
+
+            for (long idx=1; idx<=100; idx++) {
+                Columns c = new Columns();
+                c.setIntegerThing(idx);
+                c.setStringThing("Select Many " + idx);
+                long id = dao.insert(c);
+                ids.add(id);
+            }
+        }
+        {
+            Connection connection = helper.connect();
+            Dao<Columns> dao = daoBuilder().buildDao(connection);
+
+            List<Columns> found = dao.selectMany(ids);
+            Assert.assertEquals(100, found.size());
+        }
+    }
+
+    @Test
+    public void testAtomicOperations(){
+        long id;
+        {
+            Connection connection = helper.connect();
+            Dao<Columns> dao = daoBuilder().buildDao(connection);
+
+            Columns c = new Columns();
+            c.setIntegerThing(34589L);
+            c.setStringThing("Test Atomic Operations");
+            id = dao.atomicInsert(c);
+        }
+        {
+            Dao<Columns> dao = daoBuilder().buildDao(helper.connect());
+            Columns found = dao.select(id);
+            Assert.assertEquals("Test Atomic Operations", found.getStringThing());
+            found.setStringThing("Updated Atomic Operations Test");
+            dao.atomicUpdate(found);
+        }
+        {
+            Dao<Columns> dao = daoBuilder().buildDao(helper.connect());
+            Columns found = dao.select(id);
+            Assert.assertEquals("Updated Atomic Operations Test", found.getStringThing());
+            dao.atomicDelete(found);
+        }
+        {
+            Dao<Columns> dao = daoBuilder().buildDao(helper.connect());
+            Columns found = dao.select(id);
+            Assert.assertNull(found);
+        }
+    }
+
+    @Test
+    public void testQueries(){
+        Connection connection = helper.connect();
+        Dao<Columns> dao = daoBuilder().buildDao(connection);
+
+        Queries queries = dao.queries();
+
+        Assert.assertTrue(queries.select().toUpperCase().contains("SELECT"));
+        Assert.assertTrue(queries.update().toUpperCase().contains("UPDATE"));
+        Assert.assertTrue(queries.insert().toUpperCase().contains("INSERT"));
+        Assert.assertTrue(queries.delete().toUpperCase().contains("DELETE"));
     }
 }
