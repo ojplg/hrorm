@@ -11,95 +11,256 @@ import java.time.LocalDateTime;
  */
 public class Where implements StatementPopulator {
 
+    /**
+     * Factory method equivalent to <code>new Where()</code>
+     *
+     * @return the new object
+     */
     public static Where where(){ return new Where(); }
 
-    public static Where where(String columnName, Operator operator, Boolean value){
-        return new Where(columnName, operator, value);
-    }
-
-    public static Where where(String columnName, Operator operator, Long value) {
-        return new Where(columnName, operator, value);
-    }
-
-    public static Where where(String columnName, Operator operator, String value){
-        return new Where(columnName, operator, value);
-    }
-
-    public static Where where(String columnName, Operator operator, BigDecimal value){
-        return new Where(columnName, operator, value);
-    }
-
-    public static Where where(String columnName, Operator operator, LocalDateTime value){
-        return new Where(columnName, operator, value);
-    }
-
+    /**
+     * Factory method equivalent to <code>new Where(subWhere)</code>.
+     *
+     * @param subWhere an existing predicate that will be grouped parenthetically
+     *                 within the new object
+     * @return the new object
+     */
     public static Where where(Where subWhere){
         return new Where(subWhere);
     }
 
+    /**
+     * Factory method equivalent to <code>new Where(columnName, operator, value)</code>.
+     * Creates a new <code>Where</code> object containing one predicate.
+     *
+     * @param columnName The column name the predicate applies to
+     * @param operator The operation used to evaluate the predicate
+     * @param value The value to compare the column values against
+     * @return the new object
+     */
+    public static Where where(String columnName, Operator operator, Boolean value){
+        return new Where(columnName, operator, value);
+    }
+
+    /**
+     * Factory method equivalent to <code>new Where(columnName, operator, value)</code>.
+     * Creates a new <code>Where</code> object containing one predicate.
+     *
+     * @param columnName The column name the predicate applies to
+     * @param operator The operation used to evaluate the predicate
+     * @param value The value to compare the column values against
+     * @return the new object
+     */
+    public static Where where(String columnName, Operator operator, Long value) {
+        return new Where(columnName, operator, value);
+    }
+
+    /**
+     * Factory method equivalent to <code>new Where(columnName, operator, value)</code>.
+     * Creates a new <code>Where</code> object containing one predicate.
+     *
+     * @param columnName The column name the predicate applies to
+     * @param operator The operation used to evaluate the predicate
+     * @param value The value to compare the column values against
+     * @return the new object
+     */
+    public static Where where(String columnName, Operator operator, String value){
+        return new Where(columnName, operator, value);
+    }
+
+    /**
+     * Factory method equivalent to <code>new Where(columnName, operator, value)</code>.
+     * Creates a new <code>Where</code> object containing one predicate.
+     *
+     * @param columnName The column name the predicate applies to
+     * @param operator The operation used to evaluate the predicate
+     * @param value The value to compare the column values against
+     * @return the new object
+     */
+    public static Where where(String columnName, Operator operator, BigDecimal value){
+        return new Where(columnName, operator, value);
+    }
+
+    /**
+     * Factory method equivalent to <code>new Where(columnName, operator, value)</code>.
+     * Creates a new <code>Where</code> object containing one predicate.
+     *
+     * @param columnName The column name the predicate applies to
+     * @param operator The operation used to evaluate the predicate
+     * @param value The value to compare the column values against
+     * @return the new object
+     */
+    public static Where where(String columnName, Operator operator, LocalDateTime value){
+        return new Where(columnName, operator, value);
+    }
+
     private final WherePredicateTree tree;
 
+    /**
+     * Creates an object with no filters.
+     */
     public Where(){
         this.tree = WherePredicateTree.EMPTY;
     }
 
+    /**
+     * Creates a new <code>Where</code> instance that is grouped,
+     * i.e. when the SQL where clause is generated, whatever is
+     * inside the passed where instance will be wrapped inside
+     * parentheses.
+     *
+     * @param subWhere The predicates to be wrapped
+     */
     public Where(Where subWhere){
         this.tree = new WherePredicateTree(subWhere.tree);
     }
 
-    public Where(WherePredicate atom){
-        tree = new WherePredicateTree(atom);
-    }
-
+    /**
+     * Create a new instance of a <code>Where</code> object
+     * containing one predicate.
+     *
+     * @param columnName The column name the predicate applies to
+     * @param operator The operation used to evaluate the predicate
+     * @param value The value to compare the column values against
+     */
     public Where(String columnName, Operator operator, Boolean value) {
         this(WherePredicate.forBoolean(columnName, operator, value));
     }
 
+    /**
+     * Create a new instance of a <code>Where</code> object
+     * containing one predicate.
+     *
+     * @param columnName The column name the predicate applies to
+     * @param operator The operation used to evaluate the predicate
+     * @param value The value to compare the column values against
+     */
     public Where(String columnName, Operator operator, Long value) {
         this(WherePredicate.forLong(columnName, operator, value));
     }
 
+    /**
+     * Create a new instance of a <code>Where</code> object
+     * containing one predicate.
+     *
+     * @param columnName The column name the predicate applies to
+     * @param operator The operation used to evaluate the predicate
+     * @param value The value to compare the column values against
+     */
     public Where(String columnName, Operator operator, String value) {
         this(WherePredicate.forString(columnName, operator, value));
     }
 
+    /**
+     * Create a new instance of a <code>Where</code> object
+     * containing one predicate.
+     *
+     * @param columnName The column name the predicate applies to
+     * @param operator The operation used to evaluate the predicate
+     * @param value The value to compare the column values against
+     */
     public Where(String columnName, Operator operator, BigDecimal value) {
         this(WherePredicate.forBigDecimal(columnName, operator, value));
     }
 
+    /**
+     * Create a new instance of a <code>Where</code> object
+     * containing one predicate.
+     *
+     * @param columnName The column name the predicate applies to
+     * @param operator The operation used to evaluate the predicate
+     * @param value The value to compare the column values against
+     */
     public Where(String columnName, Operator operator, LocalDateTime value) {
         this(WherePredicate.forLocalDateTime(columnName, operator, value));
     }
 
+    private Where(WherePredicate atom){
+        tree = new WherePredicateTree(atom);
+    }
+
+    /**
+     * Add a new predicate to the existing object by connecting the
+     * existing predicates to the passed argument with a logical and
+     * operation. The passed object will be grouped parenthetically.
+     *
+     * @param where the new predicate to add
+     * @return this object
+     */
     public Where and(Where where){
         tree.addSubtree(WherePredicateTree.Conjunction.AND, where.tree);
         return this;
     }
 
+    /**
+     * Add a new predicate to the existing object by connecting the
+     * existing predicates to the new one with a logical and.
+     *
+     * @param columnName The column name the predicate applies to
+     * @param operator The operation used to evaluate the predicate
+     * @param value The value to compare the column values against
+     * @return this object
+     */
     public Where and(String columnName, Operator operator, Long value){
         WherePredicate<Long> atom = WherePredicate.forLong(columnName, operator, value);
         tree.addAtom(WherePredicateTree.Conjunction.AND, atom);
         return this;
     }
 
+    /**
+     * Add a new predicate to the existing object by connecting the
+     * existing predicates to the new one with a logical and.
+     *
+     * @param columnName The column name the predicate applies to
+     * @param operator The operation used to evaluate the predicate
+     * @param value The value to compare the column values against
+     * @return this object
+     */
     public Where and(String columnName, Operator operator, BigDecimal value){
         WherePredicate<BigDecimal> atom = WherePredicate.forBigDecimal(columnName, operator, value);
         tree.addAtom(WherePredicateTree.Conjunction.AND, atom);
         return this;
     }
 
+    /**
+     * Add a new predicate to the existing object by connecting the
+     * existing predicates to the new one with a logical and.
+     *
+     * @param columnName The column name the predicate applies to
+     * @param operator The operation used to evaluate the predicate
+     * @param value The value to compare the column values against
+     * @return this object
+     */
     public Where and(String columnName, Operator operator, String value){
         WherePredicate<String> atom = WherePredicate.forString(columnName, operator, value);
         tree.addAtom(WherePredicateTree.Conjunction.AND, atom);
         return this;
     }
 
+    /**
+     * Add a new predicate to the existing object by connecting the
+     * existing predicates to the new one with a logical and.
+     *
+     * @param columnName The column name the predicate applies to
+     * @param operator The operation used to evaluate the predicate
+     * @param value The value to compare the column values against
+     * @return this object
+     */
     public Where and(String columnName, Operator operator, LocalDateTime value){
         WherePredicate<LocalDateTime> atom = WherePredicate.forLocalDateTime(columnName, operator, value);
         tree.addAtom(WherePredicateTree.Conjunction.AND, atom);
         return this;
     }
 
+    /**
+     * Add a new predicate to the existing object by connecting the
+     * existing predicates to the new one with a logical and.
+     *
+     * @param columnName The column name the predicate applies to
+     * @param operator The operation used to evaluate the predicate
+     * @param value The value to compare the column values against
+     * @return this object
+     */
     public Where and(String columnName, Operator operator, Boolean value){
         WherePredicate<Boolean> atom = WherePredicate.forBoolean(columnName, operator, value);
         tree.addAtom(WherePredicateTree.Conjunction.AND, atom);
