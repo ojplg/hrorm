@@ -847,49 +847,29 @@
                 <h5>By Columns</h5>
 
                 <p>Most of the time, you do not know up front what ID or IDs you are intersted in, so
-                    hrorm allows you to select by columns. To do this, we make an instance of the entity
-                    we are searching for and populate it with the values we want to match or compare to. Suppose we want
-                    to find all the people who are high school graduates and that weigh more than 100 kilograms
-                    and who have the string fragment "Bart" in their names. We start by creating an instance
-                    of the entity with the critical values to be included in our query.</p>
+                    hrorm provides ways to specify which records you are interested in.
+                    One way is by using hrorm's ability to select by columns.
+                    The idea of this interface is to use an instance of the entity class as a template
+                    or key for providing the values you want to match.
+                    Suppose we want to find all the records of people who are high school graduates and
+                    weigh 100. Create an instance of the <code>Person</code> object with those fields
+                    set, as follows.
+                </p>
 
                 <pre>
     Person personTemplate = new Person();
     personTemplate.setHighSchoolGraduate(true);
-    personTemplate.setWeight(100L);
-    personTemplate.setName("%Bart%");</pre>
+    personTemplate.setWeight(100L);</pre>
 
-                <p>Then, we create a <code>Map</code> detailing what columns we are interested in and
-                what comparisons to use when running the query.</p>
-
-                <pre>
-    Map&lt;String, Operator&gt; columnMap = new HashMap&lt;&gt;();
-    columnMap.put("IS_HIGH_SCHOOL_GRADUATE", Operator.EQUALS);
-    columnMap.put("WEIGHT", Operator.GREATER_THAN);
-    columnMap.put("NAME", Operator.LIKE);</pre>
-
-                <p>Now we are ready to query for all the matching records.</p>
+                <p>Then, we can find the matching records by passing that object and the names of the
+                    columns to filter on to the <code>selectManyByColumns</code> method on the <code>Dao</code>.</p>
 
                 <pre>
-    List&lt;Person&gt; people = personDao.selectManyByColumns(personTemplate, columnMap);</pre>
+    List&lt;Person&gt; people = personDao.selectManyByColumns(personTemplate, "IS_HIGH_SCHOOL_GRADUATE", "WEIGHT");</pre>
 
-                <p>Notice that hrorm wants the names of the database <b>columns</b>, not the fields on the object.
-                Also note that query generated will link the various parts of the where clause with "AND"s. The
-                returned records will match all the specified criteria.</p>
+                <p>Notice that hrorm wants the names of the database <b>columns</b>, not the fields on the object.</p>
 
-                <p>In addition to the like, equals, and comparison operators, hrorm supports creating ranges
-                for numeric and date types that support comparison. There are methods for both open and closed
-                ranges. The value for the field in question set in the template object becomes the low end of
-                the range, and the methods for creating the ranges accept the upper limit as an argument.</p>
-
-                <p>If we want to find records using only the equals operator, hrorm provides a convenience
-                method that does not require us to build the column name-operator map.</p>
-
-                <pre>
-    List&lt;Person&gt; people = personDao.selectManyByColumns(personTemplate, "IS_HIGH_SCHOOL_GRADUATE", "WEIGHT", "NAME");</pre>
-
-                <p>If we know that a particular query will only return 0 or 1 results (for instance, if there is
-                    a uniqueness constraint on the name field), hrorm provides a further convenience method for that.</p>
+                <p>If we know that a particular query will only return 0 or 1 results, hrorm provides a convenience method for that.</p>
 
                 <pre>
     Person personTemplate = new Person();
@@ -899,6 +879,57 @@
 
                 <p>If you use this method and hrorm finds more than one record, it will raise an exception.</p>
 
+                <h5>Where objects</h5>
+
+                <p>The templating method above can be useful, but is not the most generic mechanism provided by
+                hrorm. To support a variety of predicates hrorm provides a <code>Where</code> object that allows
+                construction of more complex filters than the exact matching of object fields.</p>
+
+                <p>
+                    A <code>Where</code> object is a collection of predicates, possibly nested, joined by
+                    the conjuctions AND and OR. A predicate is the name of a column, an operator, and a value.
+                    To find all the people who are high school graduates who weigh 100, as above, set up
+                    a where object like this:
+                </p>
+
+                <pre>
+    Where where = new Where("IS_HIGH_SCHOOL_GRADUTE", Operator.EQUALS, true);
+    where.and("WEIGHT", Operator.EQUALS, 100L);</pre>
+
+                <p>Then we can pass that to the select method to get the results.</p>
+
+                <p>Various operators are supported, not just equality. So we can now find all
+                the people whose names are like Mark and weigh between 75 and 125, as follows.</p>
+
+                <pre>
+    Where where = new Where("NAME", Operator.LIKE, "%Mark%");
+    where.and("WEIGHT", Operator.GREATER_THAN, 75L);
+    where.and("WEIGHT", Operator.LESS_THAN, 125L);</pre>
+
+                <p>We can also nest <code>Where</code> objects, like so:</p>
+
+                <pre>
+    Where where = new Where("NAME", Operator.LIKE, "%Mark%");
+    Where weightCheck = new Where("WEIGHT", Operator.GREATER_THAN, 75L);
+    weightCheck.and("WEIGHT", Operator.LESS_THAN, 125L);
+    where.or(weightCheck);</pre>
+
+                <p>This will generate SQL to find anyone who has a name that matches "Mark" *or* weighs
+                between 75 and 125.</p>
+
+                <p>By using static imports, we can rewrite the above as follows:</p>
+
+                <pre>
+    List&lt;Person&gt; records = dao.select(where("NAME", LIKE, "%Mark%")
+                                              .or(where("WEIGHT", GREATER_THAN, 75L)
+                                                   .and("WEIGHT", LESS_THAN, 125L));</pre>
+
+                <p>Which some people may find more readable.</p>
+
+                <p>Check the Javadocs for a complete list of supported operations.</p>
+
+                <p>Building where clauses can be a bit tricky. The <code>render()</code>
+                method exports the actual SQL that will be generated by hrorm at run time.</p>
             </div>
 
             <a name="update"></a>
