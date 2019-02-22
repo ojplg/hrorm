@@ -43,6 +43,7 @@
                 <a href="#select" class="sublink-1">Select</a>
                 <a href="#update" class="sublink-1">Update</a>
                 <a href="#delete" class="sublink-1">Delete</a>
+                <a href="#functions" class="sublink-1">Functions</a>
                 <a href="#atomic" class="sublink-1">Atomic</a>
                 <a href="#folding" class="sublink-1">Folding</a>
                 <a href="#sql" class="sublink-1">SQL</a>
@@ -965,6 +966,28 @@
                 <p>Deletes will automatically propagate to children, but not to siblings.</p>
 
             </div>
+
+            <a name="functions"></a>
+            <div class="card fluid">
+                <h3>Functions</h3>
+
+                <p><code>Dao</code> objects provide the ability to run some SQL functions against
+                the database records. All the supported functions are single column aggregations,
+                like COUNT, SUM, AVG, etc.</p>
+
+                <p>To use them is simple, just pass the name of the function and the column you
+                are interested in to the appropriate run method. The functions can be run using
+                the same <code>Where</code> objects as can be used for selects. To find the maximum
+                weight of everyone named "Mark" who is a high school graduate, we would run:</p>
+
+                <pre>
+    Long maximumMarkWeight = dao.runLongFunction(SqlFunction.MAX, "WEIGHT",
+                                    where("NAME", Operator.LIKE, "%MARK%")
+                                      .and("IS_HIGH_SCHOOL_GRADUATE", Operator.EQUALS, true));</pre>
+
+                <p>Check the Javadocs for the list of supported functions.</p>
+            </div>
+
 
             <a name="atomic"></a>
             <div class="card fluid">
