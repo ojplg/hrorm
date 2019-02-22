@@ -10,7 +10,7 @@ import java.util.Iterator;
  * Representation of a SQL where clause: a possibly nested list of
  * predicates that describes which records in the database to match.
  */
-public class Where implements Iterable<WherePredicate>, StatementPopulator {
+public class Where implements StatementPopulator {
 
     public static final Where EMPTY = new Where();
 
@@ -154,14 +154,9 @@ public class Where implements Iterable<WherePredicate>, StatementPopulator {
     }
 
     @Override
-    public Iterator<WherePredicate> iterator() {
-        return tree.asList().iterator();
-    }
-
-    @Override
     public void populate(PreparedStatement preparedStatement) throws SQLException {
         int idx = 1;
-        for(WherePredicate atom : this){
+        for(WherePredicate atom : this.tree.asList()){
             atom.setValue(idx, preparedStatement);
             idx++;
         }
