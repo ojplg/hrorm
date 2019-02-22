@@ -10,9 +10,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.sql.Connection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Function;
@@ -130,7 +128,7 @@ public class KeylessTest {
                     .sum();
 
             KeylessDao<Keyless> dao = Keyless.DAO_BUILDER.buildDao(connection);
-            long foldedSum = dao.foldingSelect(0L, (l, k) -> l + k.getIntegerColumn(), Where.EMPTY);
+            long foldedSum = dao.foldingSelect(0L, (l, k) -> l + k.getIntegerColumn(), Where.where());
 
             Assert.assertEquals(expectedSum, foldedSum);
         }
@@ -273,7 +271,7 @@ public class KeylessTest {
      * Also tests countByColumns for the same criteria.
      *
      */
-    private <T> void predicateTest(
+    private void predicateTest(
             Predicate<Keyless> streamFilter,
             Where where) {
 

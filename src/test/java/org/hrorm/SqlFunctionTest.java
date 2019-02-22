@@ -83,7 +83,7 @@ public class SqlFunctionTest {
         Dao<Columns> dao = daoBuilder().buildDao(helper.connect());
 
         long value = dao.runLongFunction(
-                SqlFunction.MIN, "integer_column", Where.EMPTY);
+                SqlFunction.MIN, "integer_column", Where.where());
 
         Assert.assertEquals(0, value);
     }
@@ -138,7 +138,7 @@ public class SqlFunctionTest {
     public void testAverage(){
         Dao<Columns> dao = daoBuilder().buildDao(helper.connect());
         BigDecimal avg = dao.runBigDecimalFunction(
-                SqlFunction.AVG, "decimal_column", Where.EMPTY);
+                SqlFunction.AVG, "decimal_column", Where.where());
 
         Assert.assertEquals(new BigDecimal("50.0355"), avg);
     }

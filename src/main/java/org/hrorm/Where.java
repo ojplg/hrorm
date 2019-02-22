@@ -11,8 +11,6 @@ import java.time.LocalDateTime;
  */
 public class Where implements StatementPopulator {
 
-    public static final Where EMPTY = new Where();
-
     public static Where where(){ return new Where(); }
 
     public static Where where(String columnName, Operator operator, Boolean value){
