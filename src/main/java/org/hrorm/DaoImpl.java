@@ -2,7 +2,6 @@ package org.hrorm;
 
 import java.sql.Connection;
 import java.util.List;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 /**
@@ -19,8 +18,6 @@ import java.util.stream.Collectors;
  * @param <PARENTBUILDER> The type of the object that can build a <code>PARENT</code> instance.
  */
 public class DaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> extends KeylessDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> implements Dao<ENTITY>, DaoDescriptor<ENTITY, BUILDER> {
-
-    private static final Logger logger = Logger.getLogger("org.hrorm");
 
     private final PrimaryKey<ENTITY, BUILDER> primaryKey;
     private final SqlBuilder<ENTITY> sqlBuilder;
@@ -73,7 +70,6 @@ public class DaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> extends KeylessDaoI
         BUILDER builder = supplier().get();
         primaryKey.setKey(builder, id);
         ENTITY item = buildFunction.apply(builder);
-        logger.info("Searching by " + id + " for " + item);
         List<BUILDER> items = sqlRunner.selectByColumns(sql, supplier,
                 select(primaryKeyName),
                 childrenDescriptors, item);
