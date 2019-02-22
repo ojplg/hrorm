@@ -19,13 +19,13 @@ Once you clone it, you're basically ready to go.
 
 Hrorm requires Java 8.
 
-### Improvement Ideas
+### Improvement Ideas and Questions
 
-* Expose fields in addition to columns in select statements (either set on columns at
-create time, or derive from get/set method names)
+* Where object improvements:
+    * Think about how isNull and isNotNull works, maybe something better can be found
+    * Is creating strange statements like "a OR b AND c" desirable? Should it be prohibited somehow?
+    * Can we use the column types (or field types) to improve type checking when building where clauses?
 * Add support for more Java types
-* Perhaps add a KeylessDaoBuilder: but need to think about how best to share code among 
-all the DAO builder classes while still supporting the clean types
-* Support selects that are connected with "OR" statements, not just "AND"
+* DaoBuilder classes do not share code very well. Could it be improved?
 * Support different types, e.g. String GUIDs, for primary keys
-* Add methods that allow for updates and deletes based on criteria other than primary key
+* Add methods that allow for updates and deletes based on Where objects
