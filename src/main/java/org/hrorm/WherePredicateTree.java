@@ -18,12 +18,12 @@ public class WherePredicateTree {
         AND,OR
     }
 
-    interface WherePredicateNode {
+    private interface WherePredicateNode {
         String render(String prefix);
         List<WherePredicate> asList();
     }
 
-    class WherePredicateBranch implements WherePredicateNode {
+    private static class WherePredicateBranch implements WherePredicateNode {
         private final Conjunction conjunction;
         private final WherePredicateNode leftNode;
         private final WherePredicateNode rightNode;
@@ -47,7 +47,7 @@ public class WherePredicateTree {
         }
     }
 
-    class WherePredicateLeaf implements WherePredicateNode {
+    private static class WherePredicateLeaf implements WherePredicateNode {
         private final WherePredicate atom;
 
         public WherePredicateLeaf(WherePredicate atom){
@@ -64,7 +64,7 @@ public class WherePredicateTree {
         }
     }
 
-    public static class WherePredicateGroup implements WherePredicateNode {
+    private static class WherePredicateGroup implements WherePredicateNode {
         private final WherePredicateNode node;
 
         public WherePredicateGroup(WherePredicateNode node){
@@ -81,7 +81,7 @@ public class WherePredicateTree {
         }
     }
 
-    public static class EmptyNode implements WherePredicateNode {
+    private static class EmptyNode implements WherePredicateNode {
         @Override
         public String render(String prefix) {
             return "";
@@ -105,21 +105,21 @@ public class WherePredicateTree {
         this.rootNode = node;
     }
 
+    public WherePredicateTree(WherePredicateTree subTree){
+        this.rootNode = new WherePredicateGroup(subTree.rootNode);
+    }
+
     public void addAtom(Conjunction conjunction, WherePredicate atom){
         WherePredicateLeaf newLeaf = new WherePredicateLeaf(atom);
         rootNode = new WherePredicateBranch(rootNode, conjunction, newLeaf);
     }
 
-    public void addNode(Conjunction conjunction, WherePredicateNode node){
-        rootNode = new WherePredicateBranch(rootNode, conjunction, new WherePredicateGroup(node));
+    public void addSubtree(Conjunction conjunction, WherePredicateTree subTree){
+        rootNode = new WherePredicateBranch(rootNode, conjunction, new WherePredicateGroup(subTree.rootNode));
     }
 
     public String render(String prefix){
         return rootNode.render(prefix);
-    }
-
-    public WherePredicateNode getRootNode(){
-        return rootNode;
     }
 
     public List<WherePredicate> asList(){

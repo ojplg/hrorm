@@ -47,8 +47,7 @@ public class Where implements Iterable<WherePredicate>, StatementPopulator {
     }
 
     public Where(Where subWhere){
-        WherePredicateTree.WherePredicateGroup group = new WherePredicateTree.WherePredicateGroup(subWhere.getRootNode());
-        this.tree = new WherePredicateTree(group);
+        this.tree = new WherePredicateTree(subWhere.tree);
     }
 
     public Where(WherePredicate atom){
@@ -76,7 +75,7 @@ public class Where implements Iterable<WherePredicate>, StatementPopulator {
     }
 
     public Where and(Where where){
-        tree.addNode(WherePredicateTree.Conjunction.AND, where.getRootNode());
+        tree.addSubtree(WherePredicateTree.Conjunction.AND, where.tree);
         return this;
     }
 
@@ -152,10 +151,6 @@ public class Where implements Iterable<WherePredicate>, StatementPopulator {
 
     public String render(){
         return tree.render("a.");
-    }
-
-    public WherePredicateTree.WherePredicateNode getRootNode(){
-        return tree.getRootNode();
     }
 
     @Override
