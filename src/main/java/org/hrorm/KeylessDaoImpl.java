@@ -125,6 +125,14 @@ public class KeylessDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> implements K
     }
 
     @Override
+    public List<ENTITY> selectAll(Order order) {
+        String sql = keylessSqlBuilder.select(order);
+        List<BUILDER> bs = sqlRunner.select(sql, supplier, childrenDescriptors);
+        return mapBuilders(bs);
+    }
+
+
+    @Override
     public ENTITY selectByColumns(ENTITY item, String ... columnNames){
         List<ENTITY> items = selectManyByColumns(item, columnNames);
         return fromSingletonList(items);
@@ -139,8 +147,16 @@ public class KeylessDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> implements K
     }
 
     @Override
+    public List<ENTITY> selectManyByColumns(ENTITY template, Order order, String... columnNames) {
+        ColumnSelection columnSelection = select(columnNames);
+        String sql = keylessSqlBuilder.selectByColumns(columnSelection, order);
+        List<BUILDER> bs = sqlRunner.selectByColumns(sql, supplier, select(columnNames), childrenDescriptors, template);
+        return mapBuilders(bs);
+    }
+
+    @Override
     public Long runLongFunction(SqlFunction function,
-                              String columnName,
+                                String columnName,
                                 Where where) {
         String sql = keylessSqlBuilder.selectFunction(function, columnName, where);
         return sqlRunner.runLongFunction(sql, where);
@@ -168,6 +184,13 @@ public class KeylessDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> implements K
         return mapBuilders(bs);
     }
 
+    @Override
+    public List<ENTITY> select(Where where, Order order) {
+        String sql = keylessSqlBuilder.select(where, order);
+        List<BUILDER> bs = sqlRunner.selectWhere(sql, supplier, childrenDescriptors, where);
+        return mapBuilders(bs);
+    }
+
     protected <A> A fromSingletonList(List<A> items) {
         if (items.isEmpty()) {
             return null;
@@ -177,4 +200,5 @@ public class KeylessDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> implements K
         }
         throw new HrormException("Found " + items.size() + " items.");
     }
+
 }

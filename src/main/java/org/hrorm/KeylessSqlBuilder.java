@@ -95,6 +95,10 @@ public class KeylessSqlBuilder<ENTITY> {
         return buf.toString();
     }
 
+    public String select(Order order){
+        return select() + order.render();
+    }
+
     public String select(Where where){
         String whereClause = where.render();
         if ( whereClause.length() > 0 ) {
@@ -102,6 +106,11 @@ public class KeylessSqlBuilder<ENTITY> {
         } else {
             return select();
         }
+    }
+
+    public String select(Where where, Order order){
+        String sql = select(where);
+        return sql + order.render();
     }
 
     public String selectFunction(SqlFunction function, String columnName, Where where){
@@ -144,7 +153,11 @@ public class KeylessSqlBuilder<ENTITY> {
         buf.append(selectColumnList.whereClause());
         return buf.toString();
     }
-    
+
+    public String selectByColumns(ColumnSelection columnSelection, Order order){
+        return selectByColumns(columnSelection) + order.render();
+    }
+
     public String insert(){
         StringBuilder bldr = new StringBuilder();
         bldr.append("insert into ");
