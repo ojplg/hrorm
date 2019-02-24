@@ -110,13 +110,14 @@
                         primary key.
                         Hrorm expects that this is a nullable field and that null means unpersisted.
                         Hrorm will populate this field from a sequence (see restrictions on
-                        schema below), unless you use an <a href="#immutable_models" class="sublink-1">immutable model</a>.
-                        The primary key will be used it when hrorm performs updates.
+                        schema below), unless you use an <a href="#immutable_models">immutable model</a>.
+                        The primary key will be used it when hrorm performs updates. (There is limited support for
+                        <a href="#keyless_entities">keyless entities</a>.)
                     </li>
                     <li>Hrorm expects to work with Javabean like entities with public getters and setters or
                         with entities with public getters for fields and related builder objects with setters
                         for the individual fields. (See documentation for <a
-                                href="/documentation/latest#immutable_models">Immutable Models</a>.)
+                                href="#immutable_models">Immutable Models</a>.)
                     </li>
                     <li>Hrorm expects child relationships to be modeled as <code>List</code> types exclusively. No sets
                         or arrays or other collections.
@@ -127,8 +128,7 @@
                 <h4>SQL Schema</h4>
 
                 <ul>
-                    <li>Hrorm expects every table to have a numeric primary key. No string keys or multiple column keys.
-                        Hrorm is not really appropriate for a time-series database.
+                    <li>Hrorm expects every table to have a numeric primary key, except in the case of <a href="#keyless_entities">keyless entities</a>.
                     </li>
                     <li>Hrorm will populate the primary keys on inserts with values it pulls from a sequence. You can
                         create a separate sequence for each table, or just have one overall sequence if you want. Hrorm
@@ -689,10 +689,12 @@
 
                 <p>Hrorm does have some mechanisms for supporting entities that do not have primary
                 keys. But, you cannot create a full-featured <code>Dao</code> for an entity without
-                a primary key. In these cases, you can create a <code>KeylessDao</code> which
-                has fewer methods.</p>
+                a primary key. In these cases, you can create a <code>KeylessDao</code> by using the
+                    <a href="/javadocs/latest/org/hrorm/IndirectKeylessDaoBuilder.html"><code>IndirectKeylessDaoBuilder</code></a>.
+                A <code>KeylessDao</code> does not provide all the functionality that a <code>Dao</code> does.
+                </p>
 
-                <p>Another drawback to the entities that are keyless is that they cannot be used as
+                <p>Another drawback to keyless entities is that they cannot be used as
                 child or sibling entities. Hrorm manages all relationships via keys.</p>
             </div>
 
