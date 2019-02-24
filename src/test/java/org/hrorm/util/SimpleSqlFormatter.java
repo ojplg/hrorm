@@ -12,7 +12,7 @@ public class SimpleSqlFormatter {
         In,Out;
     }
 
-    void handleOperatorCharacter(char c, ParseState parseState, StringBuffer buf){
+    static void handleOperatorCharacter(char c, ParseState parseState, StringBuffer buf){
         if ( parseState != ParseState.WhiteSpace ){
             buf.append(' ');
         }
@@ -20,7 +20,7 @@ public class SimpleSqlFormatter {
         buf.append(' ');
     }
 
-    void handleTwoCharOperator(char c, char n, ParseState parseState, StringBuffer buf){
+    static void handleTwoCharOperator(char c, char n, ParseState parseState, StringBuffer buf){
         if ( parseState != ParseState.WhiteSpace ){
             buf.append(' ');
         }
@@ -29,7 +29,7 @@ public class SimpleSqlFormatter {
         buf.append(' ');
     }
 
-    String format(String inputSql){
+    static String format(String inputSql){
 
         ParseState parseState = ParseState.Start;
         Quote quote = Quote.Out;
@@ -66,10 +66,12 @@ public class SimpleSqlFormatter {
             else if ( c == '\'' ) {
                 if ( quote == Quote.Out ){
                     quote = Quote.In;
+                    buf.append("'");
                 } else {
                     quote = Quote.Out;
+                    buf.append("'");
+                    buf.append(" ");
                 }
-                buf.append("'");
             }
             else if ( c == '=' ){
                 handleOperatorCharacter('=', parseState, buf);
