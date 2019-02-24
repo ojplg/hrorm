@@ -73,10 +73,6 @@ public class SimpleSqlFormatter {
                     buf.append(" ");
                 }
             }
-            else if ( c == '=' ){
-                handleOperatorCharacter('=', parseState, buf);
-                parseState = ParseState.WhiteSpace;
-            }
             else if ( c == ( '<' ) ){
                 if( n == '>' || n == '=' ){
                     handleTwoCharOperator(c, n, parseState, buf);
@@ -95,16 +91,8 @@ public class SimpleSqlFormatter {
                 }
                 parseState = ParseState.WhiteSpace;
             }
-            else if ( c == ( '?' )){
-                handleOperatorCharacter('?', parseState, buf);
-                parseState = ParseState.WhiteSpace;
-            }
-            else if ( c == ( '(' )){
-                handleOperatorCharacter('(', parseState, buf);
-                parseState = ParseState.WhiteSpace;
-            }
-            else if ( c == ( ')' )){
-                handleOperatorCharacter(')', parseState, buf);
+            else if ( c ==  '?' || c == '(' || c == ')' || c == '=' ){
+                handleOperatorCharacter(c, parseState, buf);
                 parseState = ParseState.WhiteSpace;
             }
             else {
