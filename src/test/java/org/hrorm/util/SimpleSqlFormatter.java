@@ -20,7 +20,15 @@ public class SimpleSqlFormatter {
         buf.append(' ');
     }
 
-    // NOTE: Mishandles two character operators like '>=' and '<='
+    void handleTwoCharOperator(char c, char n, ParseState parseState, StringBuffer buf){
+        if ( parseState != ParseState.WhiteSpace ){
+            buf.append(' ');
+        }
+        buf.append(c);
+        buf.append(n);
+        buf.append(' ');
+    }
+
     String format(String inputSql){
 
         ParseState parseState = ParseState.Start;
@@ -28,7 +36,15 @@ public class SimpleSqlFormatter {
 
         StringBuffer buf = new StringBuffer();
 
-        for( Character c : inputSql.toCharArray() ){
+        char[] charArray = inputSql.toCharArray();
+        for( int idx=0 ; idx<charArray.length ; idx++ ){
+            char c = charArray[idx];
+            Character n;
+            if( idx < charArray.length - 1) {
+                n = charArray[idx + 1];
+            } else {
+                n = null;
+            }
             if( Character.isAlphabetic(c)){
                 if ( quote == Quote.Out ) {
                     buf.append(Character.toUpperCase(c));
@@ -43,11 +59,11 @@ public class SimpleSqlFormatter {
                     parseState = ParseState.WhiteSpace;
                 }
             }
-            else if ( c.equals(',') ){
+            else if ( c == ',' ){
                 buf.append(", ");
                 parseState = ParseState.WhiteSpace;
             }
-            else if ( c.equals('\'')) {
+            else if ( c == '\'' ) {
                 if ( quote == Quote.Out ){
                     quote = Quote.In;
                 } else {
@@ -55,27 +71,37 @@ public class SimpleSqlFormatter {
                 }
                 buf.append("'");
             }
-            else if ( c.equals( '=' ) ){
+            else if ( c == '=' ){
                 handleOperatorCharacter('=', parseState, buf);
                 parseState = ParseState.WhiteSpace;
             }
-            else if ( c.equals( '<' ) ){
-                handleOperatorCharacter('<', parseState, buf);
+            else if ( c == ( '<' ) ){
+                if( n == '>' || n == '=' ){
+                    handleTwoCharOperator(c, n, parseState, buf);
+                    idx++;
+                } else {
+                    handleOperatorCharacter('<', parseState, buf);
+                }
                 parseState = ParseState.WhiteSpace;
             }
-            else if ( c.equals( '>' ) ){
-                handleOperatorCharacter('<', parseState, buf);
+            else if ( c == ( '>' ) ){
+                if (n == '=') {
+                    handleTwoCharOperator(c, n, parseState, buf);
+                    idx++;
+                } else {
+                    handleOperatorCharacter('<', parseState, buf);
+                }
                 parseState = ParseState.WhiteSpace;
             }
-            else if ( c.equals( '?' )){
+            else if ( c == ( '?' )){
                 handleOperatorCharacter('?', parseState, buf);
                 parseState = ParseState.WhiteSpace;
             }
-            else if ( c.equals( '(' )){
+            else if ( c == ( '(' )){
                 handleOperatorCharacter('(', parseState, buf);
                 parseState = ParseState.WhiteSpace;
             }
-            else if ( c.equals( ')' )){
+            else if ( c == ( ')' )){
                 handleOperatorCharacter(')', parseState, buf);
                 parseState = ParseState.WhiteSpace;
             }
