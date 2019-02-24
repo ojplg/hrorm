@@ -1020,7 +1020,8 @@
                 <p>
                     Hrorm's select methods are not lazy and so are only suitable for selecting limited
                     quantities of data. But, Hrorm does provide a way to run a select without instantiating
-                    a list of all the found objects with the <code>Dao::foldingSelect</code> method.
+                    a list of all the found objects with the
+                    <a href="/javadocs/latest/org/hrorm/KeylessDao.html#foldingSelect-T-java.util.function.BiFunction-org.hrorm.Where-"><code>foldingSelect()</code></a> method.
                     This method allows a general select to be done, and then a flexible folding operation
                     to take place on the database's returned result set.
                 </p>
