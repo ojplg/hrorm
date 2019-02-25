@@ -64,7 +64,6 @@ public class Operator {
 
     /**
      * Returns the text to be inserted in the SQL statement being built.
-     * This is not generally useful to hrorm clients.
      *
      * @return The text to insert into the SQL.
      */
