@@ -12,8 +12,8 @@ it as well as detailed descriptions of the hows and whys of hrorm and its ethos.
 There is not much to say here.
 The code builds with maven.
 Hrorm itself has no dependencies.
-To build and run the tests requires only a few things and the tests run against 
-an in-memory database.
+The tests have a few dependencies, but they are all simply jars.
+The tests run against an in memory database (H2).
 There is not much code.
 Once you clone it, you're basically ready to go.
 
@@ -25,7 +25,7 @@ Hrorm requires Java 8.
     * Think about how isNull and isNotNull works, maybe something better can be found
     * Is creating strange statements like "a OR b AND c" desirable? Should it be prohibited somehow?
     * Can we use the column types (or field types) to improve type checking when building where clauses?
-* Add support for more Java types
+* Add support for more Java types (maybe)
 * DaoBuilder classes do not share code very well. Could it be improved?
 * Support different types, e.g. String GUIDs, for primary keys
 * Add methods that allow for updates and deletes based on Where objects
