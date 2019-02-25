@@ -30,4 +30,3 @@ Hrorm requires Java 8.
 * Support different types, e.g. String GUIDs, for primary keys
 * Add methods that allow for updates and deletes based on Where objects
 * Add support for boolean fields backed by strings or ints
-* Improve docs about keyless stuff (remove outdated statements about *necessity* of keys)
