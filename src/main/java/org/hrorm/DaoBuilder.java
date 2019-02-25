@@ -225,9 +225,6 @@ public class DaoBuilder<ENTITY> implements DaoDescriptor<ENTITY, ENTITY> {
      * orphaned ingredient entry for one cup of butter. It will therefore be
      * deleted.</p>
      *
-     * <p>Contrast this behavior with the join column functionality, which describes
-     * the situation wherein the object makes no sense without the joined relation.</p>
-     *
      * @param getter The function on <code>ENTITY</code> that returns the children.
      * @param setter The function on <code>ENTITY</code> that consumes the children.
      * @param daoDescriptor The description of how the mapping for the subordinate elements
@@ -277,10 +274,9 @@ public class DaoBuilder<ENTITY> implements DaoDescriptor<ENTITY, ENTITY> {
      * Indicator that the column is a reference to an owning parent object.
      *
      * @param columnName The name of the column that holds the foreign key reference.
-     * @param <P> The type of the parent object.
      * @return This instance.
      */
-    public <P> DaoBuilder<ENTITY> withParentColumn(String columnName){
+    public DaoBuilder<ENTITY> withParentColumn(String columnName){
         internalDaoBuilder.withParentColumn(columnName);
         return this;
     }

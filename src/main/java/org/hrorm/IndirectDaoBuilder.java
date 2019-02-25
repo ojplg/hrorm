@@ -297,9 +297,6 @@ public class IndirectDaoBuilder<ENTITY, BUILDER>  implements DaoDescriptor<ENTIT
      * orphaned ingredient entry for one cup of butter. It will therefore be
      * deleted.
      *
-     * Contrast this behavior with the join column functionality, which describes
-     * the situation wherein the object makes no sense without the joined relation.
-     *
      * @param getter The function on <code>ENTITY</code> that returns the children.
      * @param setter The function on <code>ENTITY</code> that consumes the children.
      * @param childDaoDescriptor The description of how the mapping for the subordinate elements

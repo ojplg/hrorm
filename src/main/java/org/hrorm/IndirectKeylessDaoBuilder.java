@@ -208,9 +208,6 @@ public class IndirectKeylessDaoBuilder<ENTITY, BUILDER> implements KeylessDaoDes
      * orphaned ingredient entry for one cup of butter. It will therefore be
      * deleted.</p>
      *
-     * <p>Contrast this behavior with the join column functionality, which describes
-     * the situation wherein the object makes no sense without the joined relation.</p>
-     *
      * @param getter The function on <code>ENTITY</code> that returns the children.
      * @param setter The function on <code>ENTITY</code> that consumes the children.
      * @param daoDescriptor The description of how the mapping for the subordinate elements
