@@ -13,7 +13,7 @@ import java.util.function.Supplier;
  * a Java type and the table that backs it.
  *
  * <p>
- *    Using this builder (as opposed to the {@link DaoBuilder} or {@link IndirectDaoBuilder}
+ *    Using this builder (as opposed to the {@link DaoBuilder} or {@link IndirectDaoBuilder})
  *    will allow support for entities that do not have primary keys, but that support comes at
  *    a price. A <code>KeylessDao</code> supports fewer methods than a standard <code>Dao</code>
  *    and these entities cannot be joined to other objects or be children to other objects.
