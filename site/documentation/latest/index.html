@@ -1031,6 +1031,34 @@
                     in the database, and this facility exists for those times.
                 </p>
 
+                <p>If you're unfamiliar with folding, here are some quick examples which show how it
+                can be used. If you have an entity that exposes a long value and you wish to know
+                the sum of all those values, you could write:</p>
+
+                <pre>
+    Long result = dao.foldingSelect(0L,
+                                    (accumulator, entity) -> accumulator+entity.getLongValue(),
+                                    new Where());</pre>
+
+                <p>Which would be equivalent to writing:</p>
+
+                <pre>
+    Long result = dao.runLongFunction(SqlFunction.SUM, "LONG_COLUMN", new Where());</pre>
+
+                <p>Another example shows how to build up a list of items.</p>
+
+                <pre>
+    List&lt;Entity&gt; entities = dao.foldingSelect(new ArrayList&lt;&gt;(),
+                                                    (list, entity) -> list.add(entity),
+                                                    new Where());</pre>
+                <p>Which is equivalent to:</p>
+
+                <pre>
+    List&lt;Entity&gt; entities = dao.select(new Where());</pre>
+
+                <p>These two examples are a bit silly, and clearly the alternatives are better. But, folding
+                allows you to define an arbitrary accumulation function, not just adding or list building.</p>
+
             </div>
 
 
