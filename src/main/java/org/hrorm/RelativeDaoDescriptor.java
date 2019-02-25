@@ -40,7 +40,9 @@ public class RelativeDaoDescriptor<ENTITY, PARENT, ENTITYBUILDER> implements Dao
         this.buildFunction = originalDaoDescriptor.buildFunction();
     }
 
-    private List<JoinColumn<ENTITY,?, ENTITYBUILDER,?>> resetColumnPrefixes(Prefixer prefixer, String joinedTablePrefix, List<JoinColumn<ENTITY,?, ENTITYBUILDER,?>> joinColumns){
+    private List<JoinColumn<ENTITY,?, ENTITYBUILDER,?>> resetColumnPrefixes(Prefixer prefixer,
+                                                                            String joinedTablePrefix,
+                                                                            List<JoinColumn<ENTITY,?, ENTITYBUILDER,?>> joinColumns){
         List<JoinColumn<ENTITY,?, ENTITYBUILDER,?>> tmp = new ArrayList<>();
         for(JoinColumn<ENTITY,?, ENTITYBUILDER,?> column : joinColumns){
             JoinColumn<ENTITY,?, ENTITYBUILDER,?> resetColumn = column.withPrefix(joinedTablePrefix, prefixer);
