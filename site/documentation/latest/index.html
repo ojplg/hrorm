@@ -999,7 +999,7 @@
                                     where("NAME", Operator.LIKE, "%MARK%")
                                       .and("IS_HIGH_SCHOOL_GRADUATE", Operator.EQUALS, true));</pre>
 
-                <p>Check the <a href="http://localhost/javadocs/latest/org/hrorm/SqlFunction.html"><code>SqlFunction</code> Javadocs</a>
+                <p>See the <a href="http://localhost/javadocs/latest/org/hrorm/SqlFunction.html"><code>SqlFunction</code></a>
                     for the list of supported functions.</p>
             </div>
 
@@ -1070,7 +1070,8 @@
     List&lt;Entity&gt; entities = dao.select(new Where());</pre>
 
                 <p>These two examples are a bit silly, and clearly the alternatives are better. But, folding
-                allows you to define an arbitrary accumulation function, not just adding or list building.</p>
+                allows you to define an arbitrary accumulation function on whatever type you wish,
+                    not just adding sums or appending to lists.</p>
 
             </div>
 
@@ -1159,8 +1160,9 @@
                 <hr>
 
                 <p>Hrorm is designed to have a small surface area for clients. Most of the time, clients should only
-                    need to interact with three hrorm types: <code>DaoBuilder</code>, <code>Dao</code>, and
-                    <code>HrormException</code>. There are a few other types that a client may want to use,
+                    need to interact with a few hrorm types: <code>DaoBuilder</code>, <code>Dao</code>,
+                    <code>Where</code>, <code>HrormException</code>, and a couple of others.
+                    There are a few other types that a client may want to use,
                     but most of the classes in hrorm are internal to it.
 
                 <p>In spite of this, almost all the classes in hrorm are public and contain public constructors
