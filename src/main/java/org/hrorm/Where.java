@@ -129,7 +129,7 @@ public class Where implements StatementPopulator {
 
     /**
      * Creates a new <code>Where</code> instance that is grouped,
-     * i.e. when the SQL where clause is generated, whatever is
+     * that is, when the SQL where clause is generated, whatever is
      * inside the passed where instance will be wrapped inside
      * parentheses.
      *
