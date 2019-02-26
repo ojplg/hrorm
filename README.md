@@ -29,4 +29,3 @@ Hrorm requires Java 8.
 * DaoBuilder classes do not share code very well. Could it be improved?
 * Support different types, e.g. String GUIDs, for primary keys
 * Add methods that allow for updates and deletes based on Where objects
-* Add support for boolean fields backed by strings or ints
