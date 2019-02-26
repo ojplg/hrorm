@@ -10,12 +10,12 @@ import java.util.Objects;
  *
  * Most users of hrorm will have no need to directly use this.
  */
-public class BooleanConverter implements Converter<Boolean, String> {
+public class BooleanStringConverter implements Converter<Boolean, String> {
 
     private final String trueRepresentation;
     private final String falseRepresentation;
 
-    public BooleanConverter(String trueRepresentation, String falseRepresentation) {
+    public BooleanStringConverter(String trueRepresentation, String falseRepresentation) {
         this.trueRepresentation = trueRepresentation;
         this.falseRepresentation = falseRepresentation;
     }

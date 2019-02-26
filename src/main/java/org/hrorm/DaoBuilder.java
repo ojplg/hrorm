@@ -180,6 +180,38 @@ public class DaoBuilder<ENTITY> implements DaoDescriptor<ENTITY, ENTITY> {
     }
 
     /**
+     * Describes a data element that represents a true/false value
+     * and is backed by a column holding a String value. Boolean
+     * elements are persisted with the single character
+     * "T" or "F".
+     *
+     * @param columnName The name of the column that holds the data element.
+     * @param getter The function on <code>ENTITY</code> that returns the data element.
+     * @param setter The function on <code>ENTITY</code> that consumes the data element.
+     * @return This instance.
+     */
+    public DaoBuilder<ENTITY> withStringBooleanColumn(String columnName, Function<ENTITY, Boolean> getter, BiConsumer<ENTITY, Boolean> setter){
+        internalDaoBuilder.withStringBooleanColumn(columnName, getter, setter);
+        return this;
+    }
+
+    /**
+     * Describes a data element that represents a true/false value
+     * and is backed by a column holding an integer value. Boolean
+     * elements are persisted as 0 (false) or 1 (true).
+     *
+     * @param columnName The name of the column that holds the data element.
+     * @param getter The function on <code>ENTITY</code> that returns the data element.
+     * @param setter The function on <code>ENTITY</code> that consumes the data element.
+     * @return This instance.
+     */
+    public DaoBuilder<ENTITY> withIntegerBooleanColumn(String columnName, Function<ENTITY, Boolean> getter, BiConsumer<ENTITY, Boolean> setter){
+        internalDaoBuilder.withIntegerBooleanColumn(columnName, getter, setter);
+        return this;
+    }
+
+
+    /**
      * <p>Describes a data element that is represented by an <code>Object</code> of some
      * other type <code>U</code> with its own table for persistence.</p>
      *

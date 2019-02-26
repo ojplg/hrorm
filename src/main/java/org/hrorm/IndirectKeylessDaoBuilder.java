@@ -148,9 +148,8 @@ public class IndirectKeylessDaoBuilder<ENTITY, BUILDER> implements KeylessDaoDes
     }
 
     /**
-     * Describes a data element that represents a true/false value. Boolean
-     * elements are persisted to a text column with the single character
-     * "ENTITY" or "F".
+     * Describes a data element that represents a true/false value that is
+     * backed by a SQL boolean column.
      *
      * @param columnName The name of the column that holds the data element.
      * @param getter The function on <code>ENTITY</code> that returns the data element.
@@ -161,6 +160,38 @@ public class IndirectKeylessDaoBuilder<ENTITY, BUILDER> implements KeylessDaoDes
         internalDaoBuilder.withBooleanColumn(columnName, getter, setter);
         return this;
     }
+
+    /**
+     * Describes a data element that represents a true/false value
+     * and is backed by a column holding a String value. Boolean
+     * elements are persisted with the single character
+     * "T" or "F".
+     *
+     * @param columnName The name of the column that holds the data element.
+     * @param getter The function on <code>ENTITY</code> that returns the data element.
+     * @param setter The function on <code>ENTITY</code> that consumes the data element.
+     * @return This instance.
+     */
+    public IndirectKeylessDaoBuilder<ENTITY, BUILDER> withStringBooleanColumn(String columnName, Function<ENTITY, Boolean> getter, BiConsumer<BUILDER, Boolean> setter){
+        internalDaoBuilder.withStringBooleanColumn(columnName, getter, setter);
+        return this;
+    }
+
+    /**
+     * Describes a data element that represents a true/false value
+     * and is backed by a column holding an integer value. Boolean
+     * elements are persisted as 0 (false) or 1 (true).
+     *
+     * @param columnName The name of the column that holds the data element.
+     * @param getter The function on <code>ENTITY</code> that returns the data element.
+     * @param setter The function on <code>ENTITY</code> that consumes the data element.
+     * @return This instance.
+     */
+    public IndirectKeylessDaoBuilder<ENTITY, BUILDER> withIntegerBooleanColumn(String columnName, Function<ENTITY, Boolean> getter, BiConsumer<BUILDER, Boolean> setter){
+        internalDaoBuilder.withIntegerBooleanColumn(columnName, getter, setter);
+        return this;
+    }
+
 
     /**
      * <p>Describes a data element that is represented by an <code>Object</code> of some

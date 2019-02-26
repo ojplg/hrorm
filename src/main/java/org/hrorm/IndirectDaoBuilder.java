@@ -234,9 +234,8 @@ public class IndirectDaoBuilder<ENTITY, BUILDER>  implements DaoDescriptor<ENTIT
     }
 
     /**
-     * Describes a data element that represents a true/false value. Boolean
-     * elements are persisted to a text column with the single character
-     * "ENTITY" or "F".
+     * Describes a data element that represents a true/false value that is
+     * backed by a SQL boolean column.
      *
      * @param columnName The name of the column that holds the data element.
      * @param getter The function on <code>ENTITY</code> that returns the data element.
@@ -245,6 +244,41 @@ public class IndirectDaoBuilder<ENTITY, BUILDER>  implements DaoDescriptor<ENTIT
      */
     public IndirectDaoBuilder<ENTITY, BUILDER> withBooleanColumn(String columnName, Function<ENTITY, Boolean> getter, BiConsumer<BUILDER, Boolean> setter){
         Column<ENTITY, BUILDER> column = DataColumnFactory.booleanColumn(columnName, myPrefix, getter, setter, true);
+        columns.add(column);
+        lastColumnAdded = column;
+        return this;
+    }
+
+    /**
+     * Describes a data element that represents a true/false value
+     * and is backed by a column holding a String value. Boolean
+     * elements are persisted with the single character
+     * "T" or "F".
+     *
+     * @param columnName The name of the column that holds the data element.
+     * @param getter The function on <code>ENTITY</code> that returns the data element.
+     * @param setter The function on <code>ENTITY</code> that consumes the data element.
+     * @return This instance.
+     */
+    public IndirectDaoBuilder<ENTITY, BUILDER> withStringBooleanColumn(String columnName, Function<ENTITY, Boolean> getter, BiConsumer<BUILDER, Boolean> setter){
+        Column<ENTITY, BUILDER> column = DataColumnFactory.textBackedBooleanColumn(columnName, myPrefix, getter, setter, true);
+        columns.add(column);
+        lastColumnAdded = column;
+        return this;
+    }
+
+    /**
+     * Describes a data element that represents a true/false value
+     * and is backed by a column holding an integer value. Boolean
+     * elements are persisted as 0 (false) or 1 (true).
+     *
+     * @param columnName The name of the column that holds the data element.
+     * @param getter The function on <code>ENTITY</code> that returns the data element.
+     * @param setter The function on <code>ENTITY</code> that consumes the data element.
+     * @return This instance.
+     */
+    public IndirectDaoBuilder<ENTITY, BUILDER> withIntegerBooleanColumn(String columnName, Function<ENTITY, Boolean> getter, BiConsumer<BUILDER, Boolean> setter){
+        Column<ENTITY, BUILDER> column = DataColumnFactory.integerConverterColumn(columnName, myPrefix, getter, setter, BooleanLongConverter.INSTANCE, true);
         columns.add(column);
         lastColumnAdded = column;
         return this;
