@@ -1,6 +1,7 @@
 package org.hrorm;
 
 import java.sql.Connection;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -8,7 +9,6 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 /**
  * Complete definition of how a child entity is related to its parent entity.
@@ -28,6 +28,8 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
 
     private final SqlBuilder<CHILD> sqlBuilder;
 
+    private final PrimaryKey<PARENT, PARENTBUILDER> parentPrimaryKey;
+
     public ChildrenDescriptor(Function<PARENT, List<CHILD>> getter,
                               BiConsumer<PARENTBUILDER, List<CHILD>> setter,
                               DaoDescriptor<CHILD,CHILDBUILDER> childDaoDescriptor,
@@ -42,39 +44,40 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
         ParentColumn<CHILD, PARENT, CHILDBUILDER, PARENTBUILDER> parentColumn = childDaoDescriptor.parentColumn();
         parentColumn.setParentPrimaryKey(parentPrimaryKey);
         this.parentSetter = parentColumn.setter();
+        this.parentPrimaryKey = parentPrimaryKey;
     }
 
     public void populateChildren(Connection connection, PARENTBUILDER parentBuilder){
 
         PARENT parent = parentBuildFunction.apply(parentBuilder);
+        long parentId = parentPrimaryKey.getKey(parent);
 
-        CHILDBUILDER childBuilder = childDaoDescriptor.supplier().get();
-        parentSetter.accept(childBuilder, parent);
-        CHILD child = childBuilder().apply(childBuilder);
+        Where where = new Where(parentChildColumnName(), Operator.EQUALS, parentId);
 
-        ColumnSelection<CHILD, CHILDBUILDER> columnNameMap = childDaoDescriptor.select(parentChildColumnName());
-
-        String sql = sqlBuilder.selectByColumns(childDaoDescriptor.select(parentChildColumnName()));
+        String sql = sqlBuilder.select(where);
         SqlRunner<CHILD,CHILDBUILDER> sqlRunner = new SqlRunner<>(connection, childDaoDescriptor);
         List<ChildrenDescriptor<CHILD,?,CHILDBUILDER, ?>> childrenDescriptorsList = childDaoDescriptor.childrenDescriptors();
 
         Supplier<CHILDBUILDER> supplier = childDaoDescriptor.supplier();
 
-        List<CHILDBUILDER> childrenBuilders = sqlRunner.selectByColumns(
+        List<CHILDBUILDER> childrenBuilders = sqlRunner.selectWhere(
                 sql,
                 supplier,
-                columnNameMap,
                 childrenDescriptorsList,
-                child);
+                where);
 
+        List<CHILD> children = new ArrayList<>();
         for( CHILDBUILDER childrenBuilder : childrenBuilders ){
             for( ChildrenDescriptor<CHILD,?,CHILDBUILDER,?> grandChildDescriptor : grandChildrenDescriptors() ){
                 grandChildDescriptor.populateChildren(connection, childrenBuilder);
             }
         }
 
-        List<CHILD> children = childrenBuilders.stream()
-                .map (cb-> childBuilder().apply(cb)).collect(Collectors.toList());
+        for( CHILDBUILDER cb : childrenBuilders ){
+            parentSetter.accept(cb, parent);
+            CHILD c = childBuilder().apply(cb);
+            children.add(c);
+        }
 
         setter.accept(parentBuilder, children);
     }

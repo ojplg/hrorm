@@ -2,10 +2,7 @@ package org.hrorm;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Types;
 import java.util.Set;
-import java.util.concurrent.Semaphore;
 import java.util.function.BiConsumer;
 
 /**
@@ -25,33 +22,19 @@ public class NoBackReferenceParentColumn<ENTITY, PARENT, BUILDER, PARENTBUILDER>
 
     private final String name;
     private final String prefix;
-    private PrimaryKey<PARENT, PARENTBUILDER> parentPrimaryKey;
-    private boolean nullable;
-
-    private final Semaphore parentSemaphore = new Semaphore(1);
-    private PARENT parent;
 
     public NoBackReferenceParentColumn(String name, String prefix) {
         this.name = name;
         this.prefix = prefix;
-        this.nullable = false;
     }
 
     @Override
     public void setParentPrimaryKey(PrimaryKey<PARENT, PARENTBUILDER> primaryKey) {
-        this.parentPrimaryKey = primaryKey;
     }
 
     @Override
     public BiConsumer<BUILDER, PARENT> setter() {
-        return (t,p) -> {
-            try {
-                this.parentSemaphore.acquire();
-                this.parent = p;
-            } catch (InterruptedException ex){
-                throw new HrormException("Semaphore interrupted");
-            }
-        };
+        return (b,s) -> {};
     }
 
     @Override
@@ -70,23 +53,8 @@ public class NoBackReferenceParentColumn<ENTITY, PARENT, BUILDER, PARENTBUILDER>
     }
 
     @Override
-    public void setValue(ENTITY item, int index, PreparedStatement preparedStatement) throws SQLException {
-        Long parentId = getParentId();
-        if ( parentId == null ){
-            if ( nullable ){
-                preparedStatement.setNull(index, Types.INTEGER);
-            } else {
-                throw new HrormException("Tried to set a null value for " + prefix + "." + name + " which was set not nullable.");
-            }
-        } else {
-            preparedStatement.setLong(index, parentId);
-        }
-    }
-
-    private Long getParentId(){
-        Long parentId = parentPrimaryKey.getKey(parent);
-        this.parentSemaphore.release();
-        return parentId;
+    public void setValue(ENTITY item, int index, PreparedStatement preparedStatement) {
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -101,6 +69,7 @@ public class NoBackReferenceParentColumn<ENTITY, PARENT, BUILDER, PARENTBUILDER>
 
     @Override
     public void notNull() {
+        throw new UnsupportedOperationException("Parent column cannot be null.");
     }
 
     @Override

@@ -452,4 +452,31 @@ public class ParentsTest {
 
     }
 
+    @Test
+    public void parentIsSetOnChildOnLoad(){
+
+        long parentId;
+        {
+            Parent parent = new Parent();
+            parent.setName("ParentIsSetOnChildOnLoadTest");
+
+            Child child = new Child();
+            child.setNumber(34L);
+
+            parent.setChildList(Collections.singletonList(child));
+
+            Dao<Parent> parentDao = ParentChildBuilders.ParentDaoBuilder.buildDao(helper.connect());
+            parentId = parentDao.insert(parent);
+
+        }
+        {
+            Dao<Parent> parentDao = ParentChildBuilders.ParentDaoBuilder.buildDao(helper.connect());
+            Parent parent = parentDao.select(parentId);
+
+            Child child = parent.getChildByNumber(34L);
+
+            Assert.assertNotNull(child);
+            Assert.assertEquals(parent, child.getParent());
+        }
+    }
 }

@@ -2,8 +2,6 @@ package org.hrorm;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Types;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -64,18 +62,8 @@ public class ParentColumnImpl<CHILD, PARENT, CHILDBUILDER, PARENTBUILDER> implem
     }
 
     @Override
-    public void setValue(CHILD item, int index, PreparedStatement preparedStatement) throws SQLException {
-        PARENT parent = getter.apply(item);
-        Long parentId = parentPrimaryKey.getKey(parent);
-        if ( parentId == null ){
-            if ( nullable ){
-                preparedStatement.setNull(index, Types.INTEGER);
-            } else {
-                throw new HrormException("Tried to set a null value for " + prefix + "." + name + " which was set not nullable.");
-            }
-        } else {
-            preparedStatement.setLong(index, parentId);
-        }
+    public void setValue(CHILD item, int index, PreparedStatement preparedStatement) {
+        throw new UnsupportedOperationException();
     }
 
     @Override

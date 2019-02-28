@@ -27,6 +27,10 @@ public class SqlBuilder<ENTITY> implements Queries {
         return keylessSqlBuilder.select();
     }
 
+    public String select(Where where){
+        return keylessSqlBuilder.select(where);
+    }
+
     public String selectByColumns(ColumnSelection<ENTITY,?> columnSelection){
         return keylessSqlBuilder.selectByColumns(columnSelection);
     }

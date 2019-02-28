@@ -25,11 +25,15 @@ public class ImmutableThingTest {
 
     @BeforeClass
     public static void setUpDb(){
+
+        helper.dropSchema();
         helper.initializeSchema();
     }
 
     @AfterClass
     public static void cleanUpDb(){
+
+
         helper.dropSchema();
     }
 

@@ -4,6 +4,8 @@ import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Random;
@@ -153,6 +155,26 @@ public class RandomUtils {
      */
     public static String biname() {
         return name()+"-"+name();
+    }
+
+    public static String randomAlphabeticString(int minLength, int maxLength){
+        List<Character> characters = randomNumberOf(minLength, maxLength, RandomUtils::randomAlphabeticCharacter);
+        return characters.stream().map(c -> c.toString()).collect(Collectors.joining());
+    }
+
+    public static Character randomAlphabeticCharacter(){
+        return randomMemberOf(Arrays.asList('a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z',
+                                            'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'));
+    }
+
+    public static <T> List<T> randomFiltering(List<T> items){
+        List<T> filtered = new ArrayList<>();
+        for(T t : items){
+            if ( bool() ){
+                filtered.add(t);
+            }
+        }
+        return filtered;
     }
 
     /**
