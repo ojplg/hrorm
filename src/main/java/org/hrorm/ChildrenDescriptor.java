@@ -71,11 +71,8 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
             for( ChildrenDescriptor<CHILD,?,CHILDBUILDER,?> grandChildDescriptor : grandChildrenDescriptors() ){
                 grandChildDescriptor.populateChildren(connection, childrenBuilder);
             }
-        }
-
-        for( CHILDBUILDER cb : childrenBuilders ){
-            parentSetter.accept(cb, parent);
-            CHILD c = childBuilder().apply(cb);
+            parentSetter.accept(childrenBuilder, parent);
+            CHILD c = childBuilder().apply(childrenBuilder);
             children.add(c);
         }
 
