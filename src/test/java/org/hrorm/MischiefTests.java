@@ -5,7 +5,6 @@ import org.hrorm.h2.H2Helper;
 import org.hrorm.util.RandomUtils;
 import org.hrorm.util.TestLogConfig;
 import org.junit.AfterClass;
-import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -13,10 +12,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
-import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
