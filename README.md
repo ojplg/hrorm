@@ -19,6 +19,8 @@ Once you clone it, you're basically ready to go.
 
 Hrorm requires Java 8.
 
+Very short [CONTRIBUTING](/ojplg/hrorm/blob/master/CONTRIBUTING.md) doc.
+
 ### Improvement Ideas and Questions
 
 * Where object improvements:
