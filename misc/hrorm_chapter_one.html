@@ -10,8 +10,9 @@
 
 <p>
     In an <a href="https://dzone.com/articles/introducing-hrorm-a-simple-declarative-type-checke">earlier article</a>
-    I introduced Hrorm, a simple, declarative, type-checked library for building DAOs. Hrorm is an ORM tool condensed
-    down to its essence: making queries against a database and translating their results into objects. The first article
+    I introduced <a href="https://hrorm.org">Hrorm</a>, a simple, declarative, type-checked library for building DAOs.
+    Hrorm is an ORM tool condensed
+    down to its essence: making SQL queries against an RMDS and translating their results into objects. The first article
     was about why a new ORM tool was worthwhile, even when we already have many options. In this article, I want to give
     a first lesson in using Hrorm.
 </p>
@@ -38,7 +39,7 @@
 </pre>
 
 <p>
-    And here's the SQL.
+    And here's the SQL schema.
 </p>
 
 <pre>
@@ -101,12 +102,154 @@
 <p>
     The <code>DaoBuilder</code> is constructed with the name of the underlying table, and the
     constructor of the Java object. Hrorm also supports a mechanism for immutable objects without
-    no argument constructors, and you can read more about that in the hrorm documentation.
+    no argument constructors, and you can read more about that in the
+    <a href="https://hrorm.org/documentation/latest/#immutable_models">hrorm documentation</a>.
 </p>
 
 <p>
     The next line defines the primary key of the object, including the name of the column,
     the name of the sequence, and the getter and setter for the primary key.
     The remaining lines define what column names correspond with the getters and
-    setters on the Java object. 
+    setters on the Java object. The correct types must be used. The <code>ProductCategory</code>
+    also includes an instance of the converter.
 </p>
+
+<p>
+    This is all the set up Hrorm needs to manage persistence of a <code>Product</code> object.
+    As the name implies, a <code>DaoBuilder</code> is used to build actual <code>Dao</code>
+    objects. To do this, we need one other thing: a <code>java.sql.Connection</code> object,
+    as provided by the JDBC implementation of whatever database you are using. Up until now,
+    we have been working for Hrorm, but now Hrorm will start working for us.
+</p>
+
+<pre>
+    Connection connection = // somehow we get the connection from the JDBC
+    Dao&lt;Product&gt; productDao = productDaoBuilder.buildDao(connection);
+</pre>
+
+<p>Our first job is to persist an instance of a product. We create a new instance
+of the <code>Product</code> object, without setting the primary key id field. We
+pass that to the <code>Dao.insert()</code> method. The insert method will do several
+things.</p>
+
+<ol>
+    <li>It will select a new value from the <code>products_sequence</code> in the database.</li>
+    <li>It will run SQL on a prepared statement in the database that looks like
+        <code>INSERT INTO PRODUCTS (ID, NAME, ...) VALUES ( ... )</code>.</li>
+    <li>It will set the value of the new primary key onto the <code>Product</code> object.</li>
+</ol>
+
+<pre>
+    Product product = new Product();
+    product.setName("Chef Knife");
+    product.setCategory(ProductCategory.Kitchen);
+    product.setPrice(new BigDecimal("99.95"));
+    product.setSku(12345L);
+    product.setDiscontinued(false);
+    product.setFirstAvailable(LocalDateTime.of(2017, 6, 15, 0, 0));
+
+    long chefKnifeId = dao.insert(product);
+
+    connection.commit();
+</pre>
+
+<p>Note that Hrorm does not take responsibility for when to commit. It leaves that up to you,
+since the application knows what has to be a transaction, but Hrorm does not.</p>
+
+<p>Later on, when the product goes on sale, we can load it up, set the new price, and
+issue an update.</p>
+
+<pre>
+    Product chefKnife = productDao.select(chefKnifeId);
+    chefKnife.setPrice(new BigDecimal("59.95"));
+
+    productDao.update(chefKnife);
+</pre>
+
+<p>
+    Hrorm does not do any state tracking or try to issue optimized SQL. When the
+    <code>Dao.update()</code> method is called, it will update all the fields in
+    the database for the record with the primary key matching the object.
+</p>
+
+<p>
+    Hrorm also supports a <code>delete</code> method, that issues <code>DELETE</code> SQL for the particular
+    record.
+</p>
+
+<p>
+    The methods to insert, update, and delete records are quite straightforward, and there is
+    little to add to what was said above. The case of select is a bit more complicated. We have
+    already seen one <code>select</code> method above, when a single record was pulled from
+    the database by its primary key. But Hrorm supports a variety of mechanisms for doing
+    selects.
+</p>
+
+<p>
+    After selecting by primary key, the next is a mechanism called selecting by columns.
+    To use this facility an instance of the entity object is created and populated
+    with the fields to match. That instance is passed to the <code>Dao</code>
+    along with the names of the columns to match. For instance, if we wanted to find all the electronic
+    products that are discontinued, we could write code like this.
+</p>
+
+<pre>
+    Dao&lt;Product&gt; productDao = productDaoBuilder.buildDao(connection);
+
+    Product template = new Product();
+    template.setCategory(ProductCategory.Electronic);
+    template.setDiscontinued(true);
+
+    List&lt;Product&gt; products = productDao.selectManyByColumns(template, "category", "discontinued");
+</pre>
+
+<p>
+    This is a useful mechanism when you have an object instance that you want to match,
+    but it is not the most generic method that Hrorm makes available. Selecting by columns
+    only allows for checking for equality of values. Using Hrorm's <code>Where</code>
+    objects makes it possible to write much more general queries.
+</p>
+
+<p>
+    Let's say we wanted to find all the 'Miscellaneous' products that cost less
+    than $100 and were introduced in 2018. Using a <code>Where</code> object will
+    allow us to construct the query we need as follows.
+</p>
+
+<pre>
+    List<Product> products = productDao.select(
+        new Where("category", Operator.EQUALS, ProductCategory.Miscellaneous.toString())
+                .and("price", Operator.LESS_THAN, new BigDecimal("100.00"))
+                .and("first_available", Operator.GREATER_THAN_OR_EQUALS, LocalDateTime.of(2018,1,1,0,0))
+                .and("first_available", Operator.LESS_THAN_OR_EQUALS, LocalDateTime.of(2018,12,31,23,59)));
+</pre>
+
+<p>
+    A Hrorm <code>Where</code> object is a (possibly nested) collection of predicates on
+    the columns. Using the <code>org.hrorm.Operator</code> class we describe what test to use
+    for the given value. Predicates are joined using either the <code>or</code> or the <code>and</code>
+    methods.
+</p>
+
+<p>
+    The mechanisms shown above will always result in the construction of a list of objects equal
+    to the size of the result set. If you wish to run a query and make a computation on the results
+    without ever instantiating all the results in one big list, you can use the <code>Dao.foldingSelect()</code>
+    method. If you are not familiar with folding, think of the <code>java.util.Stream.reduce()</code>
+    methods. The idea is to provide a function that acts as an accumulator and it will pass
+    over each value in the result set in turn, but only use the result for its calculation, not
+    keep it around in memory.
+</p>
+
+<p>
+    The following example would compute the total of all the prices of all the discontinued items.
+    (Admittedly, this example is ridiculous, why would you ever do this? But the point is to show
+    the API in the simplest way.)
+</p>
+
+<pre>
+   BigDecimal accumulatedPrice = productDao.foldingSelect(
+        new BigDecimal(0),
+        (accumulatedCost, product) -> accumulatedCost.add(product.getPrice()),
+        new Where("discontinued", Operator.EQUALS, false));
+</pre>

@@ -1,5 +1,6 @@
 package org.hrorm;
 
+import net.bytebuddy.asm.Advice;
 import org.hrorm.examples.Product;
 import org.hrorm.examples.ProductCategory;
 import org.hrorm.h2.H2Helper;
@@ -11,7 +12,13 @@ import org.junit.Test;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.temporal.TemporalUnit;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
+/*
+ * This class contains demonstrations used in hrorm chapter one article.
+ */
 public class ProductDemo {
 
     static { TestLogConfig.load(); }
@@ -75,6 +82,107 @@ public class ProductDemo {
             Assert.assertEquals(ProductCategory.Kitchen, product.getCategory());
         }
 
+    }
+
+    @Test
+    public void testSelectByColumns(){
+
+        {
+            Dao<Product> dao = daoBuilder().buildDao(helper.connect());
+
+            for (int idx = 0; idx < 10; idx++) {
+                Product product = new Product();
+                product.setName("Electronic Item" + idx);
+                product.setCategory(ProductCategory.Electronic);
+                product.setDiscontinued(idx % 2 == 0);
+                product.setPrice(new BigDecimal("100"));
+                product.setSku((long) idx);
+                product.setFirstAvailable(LocalDateTime.now());
+
+                dao.insert(product);
+            }
+        }
+        {
+            Dao<Product> productDao = daoBuilder().buildDao(helper.connect());
+
+            Product template = new Product();
+            template.setCategory(ProductCategory.Electronic);
+            template.setDiscontinued(false);
+
+            List<Product> products = productDao.selectManyByColumns(template, "category", "discontinued");
+
+            Assert.assertEquals(5, products.size());
+        }
+    }
+
+    @Test
+    public void testSelectWhere(){
+        {
+            Dao<Product> dao = daoBuilder().buildDao(helper.connect());
+            LocalDateTime date = LocalDateTime.of(2017, 11, 1, 0,0 );
+
+            for (int idx = 0; idx < 500; idx++) {
+
+                ProductCategory productCategory = ProductCategory.values()[idx%4];
+
+                Product product = new Product();
+                product.setName(productCategory.toString() + " " + idx);
+                product.setCategory(productCategory);
+                product.setDiscontinued(idx % 2 == 0);
+                product.setPrice(new BigDecimal("" + idx + ".95"));
+                product.setSku((long) idx);
+                product.setFirstAvailable(date);
+
+                date = date.plusDays(1);
+
+                dao.insert(product);
+            }
+        }
+        {
+            Dao<Product> productDao = daoBuilder().buildDao(helper.connect());
+
+            List<Product> products = productDao.select(
+                    new Where("category", Operator.EQUALS, ProductCategory.Miscellaneous.toString())
+                            .and("price", Operator.LESS_THAN, new BigDecimal("100.00"))
+                            .and("first_available", Operator.GREATER_THAN_OR_EQUALS, LocalDateTime.of(2018,1,1,0,0))
+                            .and("first_available", Operator.LESS_THAN_OR_EQUALS, LocalDateTime.of(2018,12,31,23,59)));
+
+            Assert.assertEquals(10, products.size());
+        }
+    }
+
+    @Test
+    public void testFolding(){
+        {
+            Dao<Product> dao = daoBuilder().buildDao(helper.connect());
+            LocalDateTime date = LocalDateTime.of(2017, 11, 1, 0,0 );
+
+            for (int idx = 0; idx < 500; idx++) {
+
+                ProductCategory productCategory = ProductCategory.values()[idx%4];
+
+                Product product = new Product();
+                product.setName(productCategory.toString() + " " + idx);
+                product.setCategory(productCategory);
+                product.setDiscontinued(idx % 5 == 0);
+                product.setPrice(new BigDecimal(idx));
+                product.setSku((long) idx);
+                product.setFirstAvailable(date);
+
+                date = date.plusDays(1);
+
+                dao.insert(product);
+            }
+        }
+        {
+            Dao<Product> productDao = daoBuilder().buildDao(helper.connect());
+            BigDecimal accumulatedPrice = productDao.foldingSelect(
+                    new BigDecimal(0),
+                    (accumulatedCost, product) -> accumulatedCost.add(product.getPrice()),
+                    new Where("discontinued", Operator.EQUALS, false));
+
+            Assert.assertEquals(new BigDecimal("100000"), accumulatedPrice);
+        }
     }
 
 }
