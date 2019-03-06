@@ -8,8 +8,6 @@
 
 <body>
 
-<h4>Introduction</h4>
-
 <p>
     In an <a href="https://dzone.com/articles/introducing-hrorm-a-simple-declarative-type-checke">earlier article</a>
     I introduced <a href="https://hrorm.org">Hrorm</a>, a simple, declarative, type-checked library for building DAOs.
@@ -18,6 +16,27 @@
     was about why a new ORM tool was worthwhile, even when we already have many options. In this article, I want to give
     a first lesson in using Hrorm.
 </p>
+
+<h4>Preliminaries</h4>
+
+<p>
+    Before using any development tool, there are a number of things that have to be done: getting it, installing it,
+    configuring it, getting its dependencies (and resolving dependency conflicts), etc. In the Java world, Maven
+    has taken care of a lot of that for us, and of course you can get Hrorm via Maven. Of course, you can also just download
+    the jar file and put it in your classpath using whatever means you wish.
+</p>
+
+<p>
+    The most difficult part of setting up Hrorm is setting up your JDBC provider. This is beyond the scope of
+    this article. But once you have done that, and can create a <code>java.sql.Connection</code> to your
+    datastore, Hrorm is ready to go. Hrorm is a single jar, once it is in your classpath, it has no
+    dependencies: it just uses the Java standard libaries. Hrorm requires no container, no configuration,
+    and since it uses the JDBC interfaces and ANSI SQL, there is no per-database customization. Moreover,
+    Hrorm works with plain Java objects: it does not require your object model contain any Hrorm
+    code, annotations, or implement any of its interfaces.
+</p>
+
+<h4>Example Model</h4>
 
 <p>
     For the rest of this article, I will be talking about a simple entity model. Here's the Java, with getters and
