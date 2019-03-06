@@ -12,7 +12,7 @@
     In an <a href="https://dzone.com/articles/introducing-hrorm-a-simple-declarative-type-checke">earlier article</a>
     I introduced <a href="https://hrorm.org">Hrorm</a>, a simple, declarative, type-checked library for building DAOs.
     Hrorm is an ORM tool condensed
-    down to its essence: making SQL queries against an RMDS and translating their results into objects. The first article
+    down to its essence: making SQL queries against an RDBMS and translating their results into objects. The first article
     was about why a new ORM tool was worthwhile, even when we already have many options. In this article, I want to give
     a first lesson in using Hrorm.
 </p>
@@ -28,8 +28,9 @@
 
 <p>
     The most difficult part of setting up Hrorm is setting up your JDBC provider. This is beyond the scope of
-    this article. But once you have done that, and can create a <code>java.sql.Connection</code> to your
-    datastore, Hrorm is ready to go. Hrorm is a single jar, once it is in your classpath, it has no
+    this article, since that varies from database to database.
+    But once you have done that, and can create a <code>java.sql.Connection</code> to your
+    datastore, Hrorm is ready to go. Hrorm is a single jar, it just needs to be in your classpath. Hrorm has no
     dependencies: it just uses the Java standard libaries. Hrorm requires no container, no configuration,
     and since it uses the JDBC interfaces and ANSI SQL, there is no per-database customization. Moreover,
     Hrorm works with plain Java objects: it does not require your object model contain any Hrorm
@@ -40,7 +41,8 @@
 
 <p>
     For the rest of this article, I will be talking about a simple entity model. Here's the Java, with getters and
-    setters omitted:
+    setters omitted (though some accessors are required, Hrorm does not use reflection and especially not
+    <code>sun.misc.Unsafe</code>):
 </p>
 
 <pre>
@@ -77,19 +79,26 @@
     );
 </pre>
 
+<p>
+    As is often the case with examples of this type, it's a bit silly and artificial, but it will
+    highlight a number of the basic features of Hrorm.
+</p>
+
 <h4>Defining an Entity in Hrorm</h4>
 
 <p>
-    The first step in using Hrorm is to create a <code>DaoBuilder</code>. A <code>DaoBuilder</code>
-    contains the information necessary for mapping to and from a SQL table to a Java object.
+    To manage persistence of an entity using Hrorm we first create a <code>DaoBuilder</code>.
+    A <code>DaoBuilder</code> uses a fluent, declarative interface to describe the entity's
+    database schema and Java object model allowing Hrorm to do persistence tasks.
 </p>
 
 <p>
-    Most of the mapping we will need will be straight forward, but there is one detail that
+    Most of the mapping we will need will be straight-forward, but there is one detail that
     will require some preliminaries. Because the Java object model contains a custom enumerated
     type and the database contains a string, we need to implement a simple interface,
-    <code>org.hrorm.Converter&lt;ProductCategory, String&gt;</code>, that will handle the
-    translation.
+    <code>org.hrorm.Converter&lt;CLASS, CODE&gt;</code>, that will handle the
+    translation to and from a <code>String</code> and the enumerated type. The
+    implementation is trivial and shown below.
 </p>
 
 <pre>
@@ -108,7 +117,6 @@
 
 <p>
     The other types are directly supported. The <code>DaoBuilder</code> looks like this.
-
 </p>
 
 <pre>
@@ -124,17 +132,18 @@
 
 <p>
     The <code>DaoBuilder</code> is constructed with the name of the underlying table, and the
-    constructor of the Java object. Hrorm also supports a mechanism for immutable objects without
+    a function reference to the constructor of the Java object.
+    (Hrorm also supports a mechanism for immutable objects without
     no argument constructors, and you can read more about that in the
-    <a href="https://hrorm.org/documentation/latest/#immutable_models">hrorm documentation</a>.
+    <a href="https://hrorm.org/documentation/latest/#immutable_models">hrorm documentation</a>.)
 </p>
 
 <p>
     The next line defines the primary key of the object, including the name of the column,
-    the name of the sequence, and the getter and setter for the primary key.
+    the name of the sequence that will populate it, and the getter and setter for the primary key.
     The remaining lines define what column names correspond with the getters and
     setters on the Java object. The correct types must be used. The <code>ProductCategory</code>
-    also includes an instance of the converter.
+    also includes an instance of the converter shown above.
 </p>
 
 <h4>Using Hrorm</h4>
@@ -143,7 +152,7 @@
     This is all the set up Hrorm needs to manage persistence of a <code>Product</code> object.
     As the name implies, a <code>DaoBuilder</code> is used to build actual <code>Dao</code>
     objects. To do this, we need one other thing: a <code>java.sql.Connection</code> object,
-    as provided by the JDBC implementation of whatever database you are using. Up until now,
+    as provided by the JDBC implementation of whatever database being used. Up until now,
     we have been working for Hrorm, but now Hrorm will start working for us.
 </p>
 
@@ -152,10 +161,12 @@
     Dao&lt;Product&gt; productDao = productDaoBuilder.buildDao(connection);
 </pre>
 
-<p>Our first job is to persist an instance of a product. We create a new instance
-of the <code>Product</code> object, without setting the primary key id field. We
-pass that to the <code>Dao.insert()</code> method. The insert method will do several
-things.</p>
+<p>
+    Our first job is to persist an instance of a product. We create a new instance
+    of the <code>Product</code> object, without setting the primary key <code>id</code> field. We
+    pass that to the <code>Dao.insert()</code> method. The insert method will do several
+    things.
+</p>
 
 <ol>
     <li>It will select a new value from the <code>products_sequence</code> in the database.</li>
@@ -215,10 +226,11 @@ issue an update.</p>
 </p>
 
 <p>
-    After selecting by primary key, the next is a mechanism called selecting by columns.
-    To use this facility an instance of the entity object is created and populated
-    with the fields to match. That instance is passed to the <code>Dao</code>
-    along with the names of the columns to match. For instance, if we wanted to find all the electronic
+    First up, a way to select matching records for some template object.
+    The idea here is to create an instance of the entity class, populated
+    with some values, and then instruct Hrorm to find the matching records
+    by some subset of the table columns.
+    For instance, if we wanted to find all the electronic
     products that are discontinued, we could write code like this.
 </p>
 
@@ -302,7 +314,7 @@ more simply by running a function within SQL.</p>
 
 <p>
     The above gives the flavor of how you use Hrorm to do basic CRUD operations on a simple
-    model backed by one table. But the purpose of an RMDS is to manage <em>relations.</em>
+    model backed by one table. But the purpose of an RDBMS is to manage <em>relations.</em>
     In the final article, I will describe how to use Hrorm to model complex entities
     that have relationships. If you just cannot wait, you can read the
     <a href="https://hrorm.org/documentation/latest/#relationships">documentation</a>

@@ -1,6 +1,5 @@
 package org.hrorm;
 
-import net.bytebuddy.asm.Advice;
 import org.hrorm.examples.Product;
 import org.hrorm.examples.ProductCategory;
 import org.hrorm.h2.H2Helper;
@@ -12,9 +11,7 @@ import org.junit.Test;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.time.temporal.TemporalUnit;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 /*
  * This class contains demonstrations used in hrorm chapter one article.
