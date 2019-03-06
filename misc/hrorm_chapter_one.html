@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>A First Hrorm How-To</title>
+</head>
+
+<body>
+
+<p>
+    In an <a href="https://dzone.com/articles/introducing-hrorm-a-simple-declarative-type-checke">earlier article</a>
+    I introduced Hrorm, a simple, declarative, type-checked library for building DAOs. Hrorm is an ORM tool condensed
+    down to its essence: making queries against a database and translating their results into objects. The first article
+    was about why a new ORM tool was worthwhile, even when we already have many options. In this article, I want to give
+    a first lesson in using Hrorm.
+</p>
+
+<p>
+    For the rest of this article, I will be talking about a simple entity model. Here's the Java, with getters and
+    setters omitted:
+</p>
+
+<pre>
+    class Product {
+        private Long id;
+        private String name;
+        private ProductCategory category;
+        private BigDecimal price;
+        private long sku;
+        private boolean discontinued;
+        private LocalDateTime firstAvailable;
+    }
+
+    enum ProductCategory {
+        Kitchen,Clothing,Electronic,Miscellaneous
+    }
+</pre>
+
+<p>
+    And here's the SQL.
+</p>
+
+<pre>
+    create sequence products_sequence;
+
+    create table products (
+        id integer PRIMARY KEY,
+        name text,
+        category text,
+        price decimal,
+        sku integer,
+        discontinued boolean,
+        first_available timestamp
+    );
+</pre>
+
+<p>
+    The first step in using Hrorm is to create a <code>DaoBuilder</code>. A <code>DaoBuilder</code>
+    contains the information necessary for mapping to and from a SQL table to a Java object.
+</p>
+
+<p>
+    Most of the mapping we will need will be straight forward, but there is one detail that
+    will require some preliminaries. Because the Java object model contains a custom enumerated
+    type and the database contains a string, we need to implement a simple interface,
+    <code>org.hrorm.Converter&lt;ProductCategory, String&gt;</code>, that will handle the
+    translation.
+</p>
+
+<pre>
+    class CategoryConverter implements Converter&lt;ProductCategory, String&gt; {
+        @Override
+        public String from(ProductCategory item) {
+            return item.toString();
+        }
+
+        @Override
+        public ProductCategory to(String aString) {
+            return ProductCategory.valueOf(aString);
+        }
+    }
+</pre>
+
+<p>
+    The other types are directly supported. The <code>DaoBuilder</code> looks like this.
+
+</p>
+
+<pre>
+    DaoBuilder&lt;Product&gt; productDaoBuilder = new DaoBuilder&lt;&gt;("products", Product::new)
+                .withPrimaryKey("id", "products_sequence", Product::getId, Product::setId)
+                .withStringColumn("name", Product::getName, Product::setName)
+                .withConvertingStringColumn("category", Product::getCategory, Product::setCategory, new CategoryConverter())
+                .withBigDecimalColumn("price", Product::getPrice, Product::setPrice)
+                .withIntegerColumn("sku", Product::getSku, Product::setSku)
+                .withBooleanColumn("discontinued", Product::isDiscontinued, Product::setDiscontinued)
+                .withLocalDateTimeColumn("first_available", Product::getFirstAvailable, Product::setFirstAvailable);
+</pre>
+
+<p>
+    The <code>DaoBuilder</code> is constructed with the name of the underlying table, and the
+    constructor of the Java object. Hrorm also supports a mechanism for immutable objects without
+    no argument constructors, and you can read more about that in the hrorm documentation.
+</p>
+
+<p>
+    The next line defines the primary key of the object, including the name of the column,
+    the name of the sequence, and the getter and setter for the primary key.
+    The remaining lines define what column names correspond with the getters and
+    setters on the Java object. 
+</p>
