@@ -8,6 +8,8 @@
 
 <body>
 
+<h4>Introduction</h4>
+
 <p>
     In an <a href="https://dzone.com/articles/introducing-hrorm-a-simple-declarative-type-checke">earlier article</a>
     I introduced <a href="https://hrorm.org">Hrorm</a>, a simple, declarative, type-checked library for building DAOs.
@@ -56,6 +58,8 @@
     );
 </pre>
 
+<h4>Defining an Entity in Hrorm</h4>
+
 <p>
     The first step in using Hrorm is to create a <code>DaoBuilder</code>. A <code>DaoBuilder</code>
     contains the information necessary for mapping to and from a SQL table to a Java object.
@@ -90,13 +94,13 @@
 
 <pre>
     DaoBuilder&lt;Product&gt; productDaoBuilder = new DaoBuilder&lt;&gt;("products", Product::new)
-                .withPrimaryKey("id", "products_sequence", Product::getId, Product::setId)
-                .withStringColumn("name", Product::getName, Product::setName)
-                .withConvertingStringColumn("category", Product::getCategory, Product::setCategory, new CategoryConverter())
-                .withBigDecimalColumn("price", Product::getPrice, Product::setPrice)
-                .withIntegerColumn("sku", Product::getSku, Product::setSku)
-                .withBooleanColumn("discontinued", Product::isDiscontinued, Product::setDiscontinued)
-                .withLocalDateTimeColumn("first_available", Product::getFirstAvailable, Product::setFirstAvailable);
+            .withPrimaryKey("id", "products_sequence", Product::getId, Product::setId)
+            .withStringColumn("name", Product::getName, Product::setName)
+            .withConvertingStringColumn("category", Product::getCategory, Product::setCategory, new CategoryConverter())
+            .withBigDecimalColumn("price", Product::getPrice, Product::setPrice)
+            .withIntegerColumn("sku", Product::getSku, Product::setSku)
+            .withBooleanColumn("discontinued", Product::isDiscontinued, Product::setDiscontinued)
+            .withLocalDateTimeColumn("first_available", Product::getFirstAvailable, Product::setFirstAvailable);
 </pre>
 
 <p>
@@ -113,6 +117,8 @@
     setters on the Java object. The correct types must be used. The <code>ProductCategory</code>
     also includes an instance of the converter.
 </p>
+
+<h4>Using Hrorm</h4>
 
 <p>
     This is all the set up Hrorm needs to manage persistence of a <code>Product</code> object.
@@ -176,6 +182,8 @@ issue an update.</p>
     Hrorm also supports a <code>delete</code> method, that issues <code>DELETE</code> SQL for the particular
     record.
 </p>
+
+<h4>Various Selects</h4>
 
 <p>
     The methods to insert, update, and delete records are quite straightforward, and there is
@@ -248,8 +256,34 @@ issue an update.</p>
 </p>
 
 <pre>
-   BigDecimal accumulatedPrice = productDao.foldingSelect(
-        new BigDecimal(0),
-        (accumulatedCost, product) -> accumulatedCost.add(product.getPrice()),
-        new Where("discontinued", Operator.EQUALS, false));
+    BigDecimal accumulatedPrice = productDao.foldingSelect(
+            new BigDecimal(0),
+            (accumulatedCost, product) -> accumulatedCost.add(product.getPrice()),
+            new Where("discontinued", Operator.EQUALS, false));
 </pre>
+
+<p>The above example is silly in real terms, but it's also silly because it could be accomplished
+more simply by running a function within SQL.</p>
+
+<pre>
+    BigDecimal accumulatedPrice = productDao.runBigDecimalFunction(
+            SqlFunction.SUM,
+            "price",
+            new Where("discontinued", Operator.EQUALS, false));
+</pre>
+
+<p>
+    There are several other details that you can learn about by reading the Hrorm documentation
+    and Javadocs, but the above examples give you a good idea of the abilities Hrorm presents.
+</p>
+
+<h4>Next Steps</h4>
+
+<p>
+    The above gives the flavor of how you use Hrorm to do basic CRUD operations on a simple
+    model backed by one table. But the purpose of an RMDS is to manage <bold>relations.</bold>
+    In the final article, I will describe how to use Hrorm to model complex entities
+    that have relationships. If you just cannot wait, you can read the
+    <a href="https://hrorm.org/documentation/latest/#relationships">documentation</a>
+    today.
+</p>

@@ -174,15 +174,24 @@ public class ProductDemo {
                 dao.insert(product);
             }
         }
+        BigDecimal foldingTotal;
         {
             Dao<Product> productDao = daoBuilder().buildDao(helper.connect());
-            BigDecimal accumulatedPrice = productDao.foldingSelect(
+            foldingTotal = productDao.foldingSelect(
                     new BigDecimal(0),
                     (accumulatedCost, product) -> accumulatedCost.add(product.getPrice()),
                     new Where("discontinued", Operator.EQUALS, false));
 
-            Assert.assertEquals(new BigDecimal("100000"), accumulatedPrice);
         }
+        BigDecimal functionTotal;
+        {
+            Dao<Product> productDao = daoBuilder().buildDao(helper.connect());
+            functionTotal = productDao.runBigDecimalFunction(SqlFunction.SUM,
+                    "price",
+                    new Where("discontinued", Operator.EQUALS, false));
+        }
+        Assert.assertEquals(functionTotal, foldingTotal);
+        Assert.assertEquals(new BigDecimal("100000"), foldingTotal);
     }
 
 }
