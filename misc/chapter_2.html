@@ -16,9 +16,65 @@
     how Hrorm, a small, simple ORM tool for Java, handles relationships between entities.
 </p>
 
-<h4>Preliminaries</h4>
+<h4>On Relations</h4>
 
+<p>
+    SQL RDBMS platforms remain somewhat unfashionable. Some people seem to believe in a myth that they
+    are not scalable enough. This may be true for some very large data sets and applications,
+    but unless you work for a company with a name like Google or Amazon, your data is probably
+    easily manageable by any number of databases.
+</p>
 
+<p>
+    There is also a tendency to imagine that a storage solution with an explicit schema will
+    slow down development efforts. Many people have pointed out that you always have a schema
+    (possibly more than one) even if you have not used tools that make it explicit. In my
+    personal experience, knowing and understanding more about the systems I work on does
+    not slow me down.
+</p>
+
+<p>
+    But neither of those two things is a critical issue to me. The flaw with no-SQL, document
+    stores to me is how they manage relations. If you have data describing actors and tv shows,
+    a document just will not cover it. If you choose to make the tv shows your top level structure,
+    you will have to repeat the data about actors, since actors can appear in more than one
+    show. If you choose to make actors your top level, you have to repeat the data about shows,
+    since shows have more than one actor. Normalization is the process of figuring out what
+    your entities are, and how they relate to each other.
+</p>
+
+<p>
+    I know that document stores have references from one document to another, but RDBMS's have
+    been managing data according to a well-thought out mathematical theory for decades. To ignore
+    them feels like a step backwards to me.
+</p>
+
+<p>
+    It's the job of ORM tools like Hrorm to make the annoyances of using an RDBMS as near to
+    as easy as using the filesystem as possible. Developers should get power and security, and they
+    should not have to pay with inconvenience and aggravation. Whether or not Hrorm succeeds,
+    well, that's up to you to judge.
+</p>
+
+<h4>Living Side by Side</h4>
+
+<p>
+    One of the simplest relations two entities can have is when one always accompanies another.
+    In the United States, every city is in a state. In Java, we might model cities and states
+    like this. (The examples omit getters, setters, equals, and other Java essentials.)
+</p>
+
+<pre>
+public class State {
+    Long id;
+    String name;
+}
+
+public class City {
+    Long id;
+    String name;
+    State state;
+}</pre>
 
 </body>
 
