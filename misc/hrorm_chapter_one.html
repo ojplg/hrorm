@@ -170,6 +170,8 @@ issue an update.</p>
     chefKnife.setPrice(new BigDecimal("59.95"));
 
     productDao.update(chefKnife);
+
+    connection.commit();
 </pre>
 
 <p>
@@ -225,7 +227,7 @@ issue an update.</p>
 </p>
 
 <pre>
-    List<Product> products = productDao.select(
+    List&lt;Product&gt; products = productDao.select(
         new Where("category", Operator.EQUALS, ProductCategory.Miscellaneous.toString())
                 .and("price", Operator.LESS_THAN, new BigDecimal("100.00"))
                 .and("first_available", Operator.GREATER_THAN_OR_EQUALS, LocalDateTime.of(2018,1,1,0,0))
@@ -281,7 +283,7 @@ more simply by running a function within SQL.</p>
 
 <p>
     The above gives the flavor of how you use Hrorm to do basic CRUD operations on a simple
-    model backed by one table. But the purpose of an RMDS is to manage <bold>relations.</bold>
+    model backed by one table. But the purpose of an RMDS is to manage <em>relations.</em>
     In the final article, I will describe how to use Hrorm to model complex entities
     that have relationships. If you just cannot wait, you can read the
     <a href="https://hrorm.org/documentation/latest/#relationships">documentation</a>
