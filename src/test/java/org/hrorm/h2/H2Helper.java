@@ -69,7 +69,7 @@ public class H2Helper {
     public Connection connect() {
         try {
             Class.forName("org.h2.Driver");
-            return DriverManager.getConnection(H2ConnectionUrlPrefix + schemaName);
+            return DriverManager.getConnection(H2ConnectionUrlPrefix + schemaName + ";DATABASE_TO_UPPER=false");
         } catch (Exception ex){
             throw new RuntimeException(ex);
         }
