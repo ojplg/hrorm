@@ -45,11 +45,6 @@ public class MediaDemo {
                 .withPrimaryKey("id", "actors_sequence", Actor::getId, Actor::setId)
                 .withStringColumn("name", Actor::getName, Actor::setName);
 
-    class Association<U, V> {
-        U u;
-        V v;
-    }
-
     @Data
     static class ActorMovieAssociation {
         private Long id;
@@ -174,4 +169,76 @@ public class MediaDemo {
 
         AssertHelp.sameContents(new String[]{"High Noon", "To Catch A Thief"}, movieTitles);
     }
+
+    private static final AssociationDaoBuilder<Actor, Movie> ASSOCIATION_DAO_BUILDER =
+            new AssociationDaoBuilder<Actor, Movie>("actor_movie_associations", "id", "actor_movie_association_sequence")
+                    .withLeft("actor_id", ACTOR_DAO_BUILDER)
+                    .withRight("movie_id", MOVIE_DAO_BUILDER);
+
+    @Test
+    public void testAssociationDaoSelect(){
+        Dao<Actor> actorDao = ACTOR_DAO_BUILDER.buildDao(helper.connect());
+        Actor graceKelly = actorDao.select(where("name", Operator.EQUALS, "Grace Kelly")).get(0);
+
+        AssociationDao<Actor, Movie> associationDao = ASSOCIATION_DAO_BUILDER.buildDao(helper.connect());
+        List<Movie> movies = associationDao.findRightAssociates(graceKelly);
+
+        List<String> titles = movies.stream().map(m -> m.getTitle()).collect(Collectors.toList());
+        AssertHelp.sameContents(new String[]{"High Noon", "To Catch A Thief"}, titles);
+    }
+
+    @Test
+    public void testInsertAssociation(){
+        Dao<Actor> actorDao = ACTOR_DAO_BUILDER.buildDao(helper.connect());
+        Actor caryGrant = actorDao.select(where("name", Operator.EQUALS, "Cary Grant")).get(0);
+
+        Dao<Movie> movieDao = MOVIE_DAO_BUILDER.buildDao(helper.connect());
+        Movie philadelphiaStory = new Movie();
+        philadelphiaStory.setTitle("The Philadelphia Story");
+        movieDao.insert(philadelphiaStory);
+
+        {
+            AssociationDao<Actor, Movie> associationDao = ASSOCIATION_DAO_BUILDER.buildDao(helper.connect());
+            associationDao.insertAssociation(caryGrant, philadelphiaStory);
+        }
+        {
+            AssociationDao<Actor, Movie> associationDao = ASSOCIATION_DAO_BUILDER.buildDao(helper.connect());
+            List<Movie> movies = associationDao.findRightAssociates(caryGrant);
+            List<String> titles = movies.stream().map(m -> m.getTitle()).collect(Collectors.toList());
+            AssertHelp.sameContents(new String[]{"North By Northwest", "To Catch A Thief", "The Philadelphia Story"}, titles);
+        }
+    }
+
+    @Test
+    public void testDeleteAssociation(){
+        Dao<Actor> actorDao = ACTOR_DAO_BUILDER.buildDao(helper.connect());
+        Actor hollyHunter = actorDao.select(where("name", Operator.EQUALS, "Holly Hunter")).get(0);
+
+        Dao<Movie> movieDao = MOVIE_DAO_BUILDER.buildDao(helper.connect());
+        Movie raisingArizona = movieDao.select(where("title", Operator.EQUALS, "Raising Arizona")).get(0);
+
+        {
+            AssociationDao<Actor, Movie> associationDao = ASSOCIATION_DAO_BUILDER.buildDao(helper.connect());
+            associationDao.deleteAssociation(hollyHunter, raisingArizona);
+        }
+        {
+            AssociationDao<Actor, Movie> associationDao = ASSOCIATION_DAO_BUILDER.buildDao(helper.connect());
+            List<Movie> movies = associationDao.findRightAssociates(hollyHunter);
+            List<String> titles = movies.stream().map(m -> m.getTitle()).collect(Collectors.toList());
+            AssertHelp.sameContents(new String[]{"Broadcast News"}, titles);
+        }
+    }
+
+    @Test
+    public void testAssociationDaoSelect_LeftAssociates(){
+        Dao<Movie> movieDao = MOVIE_DAO_BUILDER.buildDao(helper.connect());
+        Movie raisingArizona = movieDao.select(where("title", Operator.EQUALS, "Raising Arizona")).get(0);
+
+        AssociationDao<Actor, Movie> associationDao = ASSOCIATION_DAO_BUILDER.buildDao(helper.connect());
+        List<Actor> actors = associationDao.findLeftAssociates(raisingArizona);
+
+        List<String> names = actors.stream().map(a -> a.getName()).collect(Collectors.toList());
+        AssertHelp.sameContents(new String[]{"Holly Hunter", "Nicolas Cage"}, names);
+    }
+
 }
