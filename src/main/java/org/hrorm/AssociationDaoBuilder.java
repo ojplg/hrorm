@@ -31,7 +31,7 @@ public class AssociationDaoBuilder<LEFT, RIGHT> {
 
         Dao<Association<LEFT, RIGHT>> internalDao = internalDaoBuilder.buildDao(connection);
 
-        return new AssociationDaoImpl<LEFT, RIGHT>(
+        return new AssociationDaoImpl<>(
                 internalDao,
                 leftColumnName,
                 rightColumnName,
