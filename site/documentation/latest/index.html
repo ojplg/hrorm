@@ -45,6 +45,7 @@
                 <a href="#select" class="sublink-1">Select</a>
                 <a href="#update" class="sublink-1">Update</a>
                 <a href="#delete" class="sublink-1">Delete</a>
+                <a href="#association_daos" class="sublink-1">Associations</a>
                 <a href="#functions" class="sublink-1">Functions</a>
                 <a href="#atomic" class="sublink-1">Atomic</a>
                 <a href="#folding" class="sublink-1">Folding</a>
@@ -1064,6 +1065,50 @@
                 <p>Deletes will automatically propagate to children, but not to siblings.</p>
 
             </div>
+
+            <a name="association_daos"></a>
+            <div class="card fluid">
+                <h3>Association DAOs</h3>
+
+                <p>As mentioned <a href="#association_relations">above</a>, <code>AssociationDao</code>
+                objects are a complete distinct interface from <code>Dao</code> objects. There are only
+                a handful of supported operations.</p>
+
+                <h5>Insert</h5>
+                <p>Assuming we have two entities, a <code>Movie</code> and an actor <code>Actor</code>
+                and we have built the association, we can create new ones as follows:</p>
+
+                <pre>
+    Connection connection = // made this from JDBC
+    AssociationDao&lt;Actor, Movie&gt; associationDao = associationDaoBuilder.buildDao(connection);
+    Movie legallyBlonde = // a persisted movie
+    Actor reeseWitherspoon = // a persisted actor
+
+    associationDao.insert(reeseWitherspoon, legallyBlonde);
+
+    connection.commit();</pre>
+
+                <h5>Delete</h5>
+
+                <p>If a connection needs to be removed, we use the <code>delete()</code> method.</p>
+
+                <pre>
+    Actor laurenceOlivier = // another actor
+    associationDao.delete(laurenceOlivier, legallyBlonde);</pre>
+
+                <h5>Selects</h5>
+
+                <p>Associations work in both directions, but we have to take care with which type was
+                on the left and which was on the right. (This has nothing to do with left or right joins,
+                just the names for the two types being associated.)</p>
+
+                <pre>
+    List&lt;Actor&gt; cast = associationDao.selectLeftAssociates(legallyBlonde);
+    List&lt;Movie&gt; career = associationDao.selectRightAssociates(reeseWitherspoon);</pre>
+
+            </div>
+
+
 
             <a name="functions"></a>
             <div class="card fluid">
