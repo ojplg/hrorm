@@ -23,7 +23,21 @@ public class AssociationDaoBuilder<LEFT, RIGHT> {
     }
 
     public AssociationDao<LEFT, RIGHT> buildDao(Connection connection){
-        throw new UnsupportedOperationException();
+        DaoBuilder<Association<LEFT, RIGHT>> internalDaoBuilder =
+                new DaoBuilder<Association<LEFT, RIGHT>>(tableName, Association::new)
+                        .withPrimaryKey(primaryKeyName, sequenceName, Association::getId, Association::setId)
+                        .withJoinColumn(leftColumnName, Association::getLeft, Association::setLeft, leftDaoDescriptor)
+                        .withJoinColumn(rightColumnName, Association::getRight, Association::setRight, rightDaoDescriptor);
+
+        Dao<Association<LEFT, RIGHT>> internalDao = internalDaoBuilder.buildDao(connection);
+
+        return new AssociationDaoImpl<LEFT, RIGHT>(
+                internalDao,
+                leftColumnName,
+                rightColumnName,
+                leftDaoDescriptor.primaryKey(),
+                rightDaoDescriptor.primaryKey()
+        );
     }
 
     public AssociationDaoBuilder<LEFT, RIGHT> withLeft(String leftColumnName,

@@ -8,6 +8,6 @@ public interface AssociationDao<LEFT,RIGHT> {
     List<RIGHT> findRightAssociates(LEFT left);
 
     Long insertAssociation(LEFT left, RIGHT right);
-    Long deleteAssociation(LEFT left, RIGHT right);
+    void deleteAssociation(LEFT left, RIGHT right);
 
 }
