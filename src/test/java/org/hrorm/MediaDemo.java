@@ -162,7 +162,6 @@ public class MediaDemo {
     public void testFindGraceKellyMovies(){
         Connection connection = helper.connect();
 
-        Dao<Movie> movieDao = MOVIE_DAO_BUILDER.buildDao(connection);
         Dao<Actor> actorDao = ACTOR_DAO_BUILDER.buildDao(connection);
         Dao<ActorMovieAssociation> actorMovieAssociationDao = ACTOR_MOVIE_ASSOCIATION_DAO_BUILDER.buildDao(connection);
 
