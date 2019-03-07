@@ -1,6 +1,6 @@
 create sequence products_sequence;
 
-create table products (
+create table products_table (
   id integer PRIMARY KEY,
   name text,
   category text,

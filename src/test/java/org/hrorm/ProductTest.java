@@ -17,19 +17,24 @@ import java.util.List;
 /*
  * This class contains demonstrations used in hrorm chapter one article.
  */
-public class ProductDemo {
+public class ProductTest {
 
     static { TestLogConfig.load(); }
 
-    private static H2Helper helper = new H2Helper("product");
+    private static H2Helper helper = new H2Helper("products");
 
     @BeforeClass
     public static void setUpDb(){
+        System.out.println("ON!");
         helper.initializeSchema();
     }
 
     @AfterClass
     public static void cleanUpDb(){
+        System.out.println("OFF!");
+        Dao<Product> dao = daoBuilder().buildDao(helper.connect());
+        List<Product> products = dao.selectAll();
+        System.out.println("FOUND " + products);
         helper.dropSchema();
     }
 
@@ -38,8 +43,8 @@ public class ProductDemo {
         helper.clearTables();
     }
 
-    private DaoBuilder<Product> daoBuilder(){
-        return new DaoBuilder<>("products", Product::new)
+    private static DaoBuilder<Product> daoBuilder(){
+        return new DaoBuilder<>("products_table", Product::new)
                 .withPrimaryKey("id", "products_sequence", Product::getId, Product::setId)
                 .withStringColumn("name", Product::getName, Product::setName)
                 .withConvertingStringColumn("category", Product::getCategory, Product::setCategory, new CategoryConverter())
@@ -49,7 +54,7 @@ public class ProductDemo {
                 .withLocalDateTimeColumn("first_available", Product::getFirstAvailable, Product::setFirstAvailable);
     }
 
-    class CategoryConverter implements Converter<ProductCategory, String> {
+    static class CategoryConverter implements Converter<ProductCategory, String> {
         @Override
         public String from(ProductCategory item) {
             return item.toString();

@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 
 import static org.hrorm.Where.where;
 
-public class MediaDemo {
+public class MediaTest {
 
     static { TestLogConfig.load(); }
 

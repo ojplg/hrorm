@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 
 import static org.hrorm.Where.where;
 
-public class ImmutableMediaDemo {
+public class ImmutableMediaTest {
 
     static { TestLogConfig.load(); }
 
