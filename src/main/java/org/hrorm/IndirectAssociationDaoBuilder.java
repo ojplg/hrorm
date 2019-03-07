@@ -4,24 +4,46 @@ import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * A mechanism for building an {@link AssociationDao} for immutable
+ * objects.
+ *
+ * @param <LEFT> The type of one of the entities being associated
+ * @param <LEFTBUILDER> The builder type for that entity
+ * @param <RIGHT> The type of the other of the entities being associated
+ * @param <RIGHTBUILDER> The builder type for the other entity
+ */
 public class IndirectAssociationDaoBuilder<LEFT, LEFTBUILDER, RIGHT, RIGHTBUILDER> {
+
+    private final DaoDescriptor<LEFT, LEFTBUILDER> leftDaoDescriptor;
+    private final DaoDescriptor<RIGHT, RIGHTBUILDER> rightDaoDescriptor;
 
     private  String tableName;
     private  String primaryKeyName;
     private  String sequenceName;
-
     private String leftColumnName;
-    private DaoDescriptor<LEFT, LEFTBUILDER> leftDaoDescriptor;
-
     private String rightColumnName;
-    private DaoDescriptor<RIGHT, RIGHTBUILDER> rightDaoDescriptor;
 
+    /**
+     * Construct a new builder instance.
+     *
+     * @param leftDaoDescriptor the <code>DaoBuilder</code> or other descriptor
+     *                          of one of the entities being associated
+     * @param rightDaoDescriptor the <code>DaoBuilder</code> or other descriptor
+     *                          of one of other of the entities being associated
+     */
     public IndirectAssociationDaoBuilder(DaoDescriptor<LEFT, LEFTBUILDER> leftDaoDescriptor,
                                          DaoDescriptor<RIGHT, RIGHTBUILDER> rightDaoDescriptor){
         this.leftDaoDescriptor = leftDaoDescriptor;
         this.rightDaoDescriptor = rightDaoDescriptor;
     }
 
+    /**
+     * Creates a new <code>AssociationDao</code> using the passed <code>Connection</code>.
+     *
+     * @param connection a connection to the underlying data store
+     * @return a newly constructed DAO
+     */
     public AssociationDao<LEFT, RIGHT> buildDao(Connection connection){
 
         if( ! ready() ){
@@ -47,26 +69,59 @@ public class IndirectAssociationDaoBuilder<LEFT, LEFTBUILDER, RIGHT, RIGHTBUILDE
         );
     }
 
+    /**
+     * Setter for the name of the association table in the database.
+     *
+     * @param tableName the database table name
+     * @return this
+     */
     public IndirectAssociationDaoBuilder<LEFT, LEFTBUILDER, RIGHT, RIGHTBUILDER> withTableName(String tableName) {
         this.tableName = tableName;
         return this;
     }
 
+    /**
+     * Setter for the primary key column name of the association table in the database.
+     *
+     * @param primaryKeyName the database column representing the primary key in the association table
+     * @return this
+     */
     public IndirectAssociationDaoBuilder<LEFT, LEFTBUILDER, RIGHT, RIGHTBUILDER> withPrimaryKeyName(String primaryKeyName) {
         this.primaryKeyName = primaryKeyName;
         return this;
     }
 
+    /**
+     * Setter for the name of the database sequence used to populate
+     * the primary key of the association table
+     *
+     * @param sequenceName the database sequence name
+     * @return this
+     */
     public IndirectAssociationDaoBuilder<LEFT, LEFTBUILDER, RIGHT, RIGHTBUILDER> withSequenceName(String sequenceName) {
         this.sequenceName = sequenceName;
         return this;
     }
 
+    /**
+     * The name of the column in the association table that references the
+     * primary key of the left entity.
+     *
+     * @param leftColumnName The column name
+     * @return this
+     */
     public IndirectAssociationDaoBuilder<LEFT, LEFTBUILDER, RIGHT, RIGHTBUILDER> withLeftColumnName(String leftColumnName) {
         this.leftColumnName = leftColumnName;
         return this;
     }
 
+    /**
+     * The name of the column in the association table that references the
+     * primary key of the right entity.
+     *
+     * @param rightColumnName The column name
+     * @return this
+     */
     public IndirectAssociationDaoBuilder<LEFT, LEFTBUILDER, RIGHT, RIGHTBUILDER> withRightColumnName(String rightColumnName) {
         this.rightColumnName = rightColumnName;
         return this;
@@ -98,6 +153,11 @@ public class IndirectAssociationDaoBuilder<LEFT, LEFTBUILDER, RIGHT, RIGHTBUILDE
         return s == null || s.isEmpty();
     }
 
+    /**
+     * Flag indicating whether or not all the necessary fields have been set.
+     *
+     * @return true if all fields have been set, false otherwise
+     */
     public boolean ready(){
         return findMissingFields().size() == 0;
     }
