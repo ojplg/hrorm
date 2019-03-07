@@ -27,12 +27,14 @@
                 <a href="#relationships" class="sublink-1">Relationships</a>
                 <a href="#parent_child_relations_concept" class="sublink-2">Parent-Child Relations</a>
                 <a href="#sibling_relations_concept" class="sublink-2">Sibling Relations</a>
+                <a href="#association_relations_concept" class="sublink-2">Association Relations</a>
                 <a href="#transactions" class="sublink-1">Transactions</a>
 
                 <a href="#daobuilders">DaoBuilders</a>
                 <a href="#one_table" class="sublink-1">One Table</a>
                 <a href="#parent_child_relations" class="sublink-1">Parent-Child Relations</a>
                 <a href="#sibling_relations" class="sublink-1">Sibling Relations</a>
+                <a href="#association_relations" class="sublink-1">Association Relations</a>
                 <a href="#immutable_models" class="sublink-1">Immutable Models</a>
                 <a href="#keyless_entities" class="sublink-1">Keyless Entities</a>
                 <a href="#constraints" class="sublink-1">Constraints</a>
@@ -204,6 +206,25 @@
                 <p>Note well: Hrorm will do nothing to prevent a dependent sibling from being deleted. The application
                     code, or database schema constraints, (or both!) must be in place to prevent orphaned records of
                     that type.</p>
+
+                <a name="association_relations_concept"></a>
+                <h4>Association Relations</h4>
+
+                <p>Hrorm supports many-to-many relations through <code>AssociationDAO</code> objects.
+                    An <code>AssociationDao</code> is an object that allows the caller
+                to create or delete links between entities. Then the associates of any individual
+                entity can be selected, in either direction.</p>
+
+                <p>As an example, think of movies and actors. Actors appear in multiple movies, and
+                movies include multiple actors. Using Hrorm we would create independent classes modeling
+                both actors and movies, and then create an <code>AssociationDao</code> allowing
+                us to load either all the actors in any movie, or all the movies that an actor
+                appeared in.</p>
+
+                <p><code>AssociationDao</code> objects do not implement the full <code>Dao</code>
+                interface. In fact, the interface is completely different. They have one purpose
+                only: for managing the links between entities. They must be backed by a table of
+                three columns: a primary key, and foreign keys to the two entities being linked.</p>
 
             </div>
 
@@ -528,6 +549,69 @@
                 <p>That will cause the reference to the parent object to be automatically
                     set when using any of the <code>Dao</code> <code>select</code> methods.</p>
 
+            </div>
+
+            <a name="association_relations"></a>
+            <div class="card fluid">
+                <h3>Association Relations</h3>
+
+                <p>
+                    Hrorm supports many-to-many relations through <code>AssociationDao</code>
+                    and <code>AssociationDaoBuilder</code> objects. The object model should be
+                    of two independent entities: neither should contain a reference to the other.
+                </p>
+
+                <p>
+                    As an example, consider the following model of actors and movies.
+                </p>
+
+                <pre>
+    public class Actor {
+        Long id;
+        String name;
+    }
+
+    public class Movie {
+        Long id;
+        String title;
+    }</pre>
+
+                <p>It does not make sense to make either the parent object or to have a single
+                reference between the two classes in either direction. But we do want to create links
+                between any pair of actors and movies. (For the following, we will assume the
+                existence of database structures and <code>DaoBuilder</code> objects for both
+                entities.)</p>
+
+                <p>
+                    The backing table for storing associations should look like this:
+                </p>
+
+                <pre>
+    create table actor_movie_associations (
+        id integer primary key,
+        movie_id integer,
+        actor_id integer
+    );</pre>
+                <p>And there should be a sequence to populate the association IDs.</p>
+
+                <p>To create an <code>AssociationDao</code>, we specify the <code>DaoBuilder</code>
+                (or <code>Dao</code>) objects of the two entities and a few details about the
+                association table. It looks like this:</p>
+
+                <pre>
+    DaoBuilder&lt;Actor&gt; actorDaoBuilder = // reference or creation
+    DaoBuilder&lt;Movie&gt; movieDaoBuilder = // reference or creation
+
+    AssociationDaoBuilder&lt;Actor, Movie&gt; actorMovieAssociationDaoBuilder =
+            new AssociationDaoBuilder&lt;&gt;(actorDaoBuilder, movieDaoBuilder)
+                    .withTableName("actor_movie_associations")
+                    .withSequenceName("actor_movie_association_sequence")
+                    .withPrimaryKeyName("id")
+                    .withLeftColumnName("actor_id")
+                    .withRightColumnName("movie_id");</pre>
+
+                <p>To create a <code>AssociationDao</code> from the builder just pass it a <code>Connection</code>.
+                There is also support for immutable models, via the <code>IndirectAssociationDao</code>.</p>
             </div>
 
             <a name="sibling_relations"></a>
