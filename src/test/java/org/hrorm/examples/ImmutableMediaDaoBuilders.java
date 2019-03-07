@@ -18,7 +18,11 @@ public class ImmutableMediaDaoBuilders {
 
 
     public static final IndirectAssociationDaoBuilder<ImmutableActor, ImmutableActor.ImmutableActorBuilder, ImmutableMovie, ImmutableMovie.ImmutableMovieBuilder> ASSOCIATION_DAO_BUILDER =
-            new IndirectAssociationDaoBuilder<ImmutableActor, ImmutableActor.ImmutableActorBuilder, ImmutableMovie, ImmutableMovie.ImmutableMovieBuilder>("actor_movie_associations", "id", "actor_movie_association_sequence")
-                    .withLeft("actor_id", ACTOR_DAO_BUILDER)
-                    .withRight("movie_id", MOVIE_DAO_BUILDER);
+            new IndirectAssociationDaoBuilder<>(ACTOR_DAO_BUILDER, MOVIE_DAO_BUILDER)
+                    .withTableName("actor_movie_associations")
+                    .withSequenceName("actor_movie_association_sequence")
+                    .withPrimaryKeyName("id")
+                    .withLeftColumnName("actor_id")
+                    .withRightColumnName("movie_id");
+
 }

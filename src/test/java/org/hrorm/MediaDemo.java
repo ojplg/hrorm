@@ -34,13 +34,13 @@ public class MediaDemo {
         helper.dropSchema();
     }
 
-    private static final DaoBuilder<Movie> MOVIE_DAO_BUILDER =
+    public static final DaoBuilder<Movie> MOVIE_DAO_BUILDER =
             new DaoBuilder<>("movies", Movie::new)
                 .withPrimaryKey("id", "movies_sequence", Movie::getId, Movie::setId)
                 .withStringColumn("title", Movie::getTitle, Movie::setTitle);
 
 
-    private static final DaoBuilder<Actor> ACTOR_DAO_BUILDER =
+    public static final DaoBuilder<Actor> ACTOR_DAO_BUILDER =
             new DaoBuilder<>("actors", Actor::new)
                 .withPrimaryKey("id", "actors_sequence", Actor::getId, Actor::setId)
                 .withStringColumn("name", Actor::getName, Actor::setName);
@@ -171,9 +171,12 @@ public class MediaDemo {
     }
 
     private static final AssociationDaoBuilder<Actor, Movie> ASSOCIATION_DAO_BUILDER =
-            new AssociationDaoBuilder<Actor, Movie>("actor_movie_associations", "id", "actor_movie_association_sequence")
-                    .withLeft("actor_id", ACTOR_DAO_BUILDER)
-                    .withRight("movie_id", MOVIE_DAO_BUILDER);
+            new AssociationDaoBuilder<>(ACTOR_DAO_BUILDER, MOVIE_DAO_BUILDER)
+                    .withTableName("actor_movie_associations")
+                    .withSequenceName("actor_movie_association_sequence")
+                    .withPrimaryKeyName("id")
+                    .withLeftColumnName("actor_id")
+                    .withRightColumnName("movie_id");
 
     @Test
     public void testAssociationDaoSelect(){
