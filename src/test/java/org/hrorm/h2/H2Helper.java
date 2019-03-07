@@ -74,6 +74,10 @@ public class H2Helper {
         }
     }
 
+    public void clearTables(){
+        tableNames.forEach(this::clearTable);
+    }
+
     public void clearTable(String tableName){
         try {
             Connection connection = connect();
