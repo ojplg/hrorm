@@ -211,7 +211,7 @@
                 <a name="association_relations_concept"></a>
                 <h4>Association Relations</h4>
 
-                <p>Hrorm supports many-to-many relations through <code>AssociationDAO</code> objects.
+                <p>Hrorm supports many-to-many relations through <code>AssociationDao</code> objects.
                     An <code>AssociationDao</code> is an object that allows the caller
                 to create or delete links between entities. Then the associates of any individual
                 entity can be selected, in either direction.</p>
@@ -611,7 +611,8 @@
                     .withLeftColumnName("actor_id")
                     .withRightColumnName("movie_id");</pre>
 
-                <p>To create a <code>AssociationDao</code> from the builder just pass it a <code>Connection</code>.
+                <p>All of the elements shown above must be set to make a valid <code>AssociationDaoBuilder</code>.
+                    To create a <code>AssociationDao</code> from the builder just pass it a <code>Connection</code>.
                 There is also support for immutable models, via the <code>IndirectAssociationDao</code>.</p>
             </div>
 
