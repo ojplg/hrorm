@@ -1,6 +1,5 @@
 package org.hrorm;
 
-import jdk.nashorn.internal.ir.annotations.Immutable;
 import org.hrorm.examples.ImmutableActor;
 import org.hrorm.examples.ImmutableMediaDaoBuilders;
 import org.hrorm.examples.ImmutableMovie;
@@ -128,7 +127,7 @@ public class ImmutableMediaDemo {
         ImmutableActor graceKelly = findActor("Grace Kelly");
 
         AssociationDao<ImmutableActor, ImmutableMovie> associationDao = ImmutableMediaDaoBuilders.ASSOCIATION_DAO_BUILDER.buildDao(helper.connect());
-        List<ImmutableMovie> movies = associationDao.findRightAssociates(graceKelly);
+        List<ImmutableMovie> movies = associationDao.selectRightAssociates(graceKelly);
 
         List<String> titles = movies.stream().map(m -> m.getTitle()).collect(Collectors.toList());
         AssertHelp.sameContents(new String[]{"High Noon", "To Catch A Thief"}, titles);
@@ -152,7 +151,7 @@ public class ImmutableMediaDemo {
         }
         {
             AssociationDao<ImmutableActor, ImmutableMovie> associationDao = ImmutableMediaDaoBuilders.ASSOCIATION_DAO_BUILDER.buildDao(helper.connect());
-            List<ImmutableMovie> movies = associationDao.findRightAssociates(caryGrant);
+            List<ImmutableMovie> movies = associationDao.selectRightAssociates(caryGrant);
             List<String> titles = movies.stream().map(m -> m.getTitle()).collect(Collectors.toList());
             AssertHelp.sameContents(new String[]{"North By Northwest", "To Catch A Thief", "The Philadelphia Story"}, titles);
         }
@@ -172,7 +171,7 @@ public class ImmutableMediaDemo {
         }
         {
             AssociationDao<ImmutableActor, ImmutableMovie> associationDao = ImmutableMediaDaoBuilders.ASSOCIATION_DAO_BUILDER.buildDao(helper.connect());
-            List<ImmutableMovie> movies = associationDao.findRightAssociates(hollyHunter);
+            List<ImmutableMovie> movies = associationDao.selectRightAssociates(hollyHunter);
             List<String> titles = movies.stream().map(m -> m.getTitle()).collect(Collectors.toList());
             AssertHelp.sameContents(new String[]{"Broadcast News"}, titles);
         }
@@ -184,7 +183,7 @@ public class ImmutableMediaDemo {
         ImmutableMovie raisingArizona = movieDao.select(where("title", Operator.EQUALS, "Raising Arizona")).get(0);
 
         AssociationDao<ImmutableActor, ImmutableMovie> associationDao =  ImmutableMediaDaoBuilders.ASSOCIATION_DAO_BUILDER.buildDao(helper.connect());
-        List<ImmutableActor> actors = associationDao.findLeftAssociates(raisingArizona);
+        List<ImmutableActor> actors = associationDao.selectLeftAssociates(raisingArizona);
 
         List<String> names = actors.stream().map(a -> a.getName()).collect(Collectors.toList());
         AssertHelp.sameContents(new String[]{"Holly Hunter", "Nicolas Cage"}, names);

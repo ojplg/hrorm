@@ -3,6 +3,19 @@ package org.hrorm;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Implementation of the <code>AssociationDao</code>.
+ *
+ * <p>
+ *     There is no need to construct this yourself.
+ *     Use the {@link AssociationDaoBuilder} or {@link IndirectAssociationDaoBuilder}.
+ * </p>
+ *
+ * @param <LEFT> The type of one of the entities being associated.
+ * @param <LEFTBUILDER> The type of the class that can construct new <code>LEFT</code> instances.
+ * @param <RIGHT> The type of the other of the entities being associated.
+ * @param <RIGHTBUILDER> The type of the class that can construct new <code>RIGHT</code> instances.
+ */
 public class AssociationDaoImpl<LEFT, LEFTBUILDER, RIGHT, RIGHTBUILDER> implements AssociationDao<LEFT, RIGHT> {
 
     private final Dao<Association<LEFT, RIGHT>> internalDao;
@@ -24,21 +37,19 @@ public class AssociationDaoImpl<LEFT, LEFTBUILDER, RIGHT, RIGHTBUILDER> implemen
     }
 
     @Override
-    public List<LEFT> findLeftAssociates(RIGHT right) {
+    public List<LEFT> selectLeftAssociates(RIGHT right) {
         Long rightId = rightPrimaryKey.getKey(right);
         Where where = new Where(rightColumnName, Operator.EQUALS, rightId);
         List<Association<LEFT, RIGHT>> associations = internalDao.select(where);
-        List<LEFT> lefts = associations.stream().map(assoc -> assoc.getLeft()).collect(Collectors.toList());
-        return lefts;
+        return associations.stream().map(Association::getLeft).collect(Collectors.toList());
     }
 
     @Override
-    public List<RIGHT> findRightAssociates(LEFT left) {
+    public List<RIGHT> selectRightAssociates(LEFT left) {
         Long leftId = leftPrimaryKey.getKey(left);
         Where where = new Where(leftColumnName, Operator.EQUALS, leftId);
         List<Association<LEFT, RIGHT>> associations = internalDao.select(where);
-        List<RIGHT> rights = associations.stream().map(assoc -> assoc.getRight()).collect(Collectors.toList());
-        return rights;
+        return associations.stream().map(Association::getRight).collect(Collectors.toList());
     }
 
     @Override
@@ -56,6 +67,6 @@ public class AssociationDaoImpl<LEFT, LEFTBUILDER, RIGHT, RIGHTBUILDER> implemen
         Where where = new Where(leftColumnName, Operator.EQUALS, leftId)
                             .and(rightColumnName, Operator.EQUALS, rightId);
         List<Association<LEFT, RIGHT>> associations = internalDao.select(where);
-        associations.forEach(assoc -> internalDao.delete(assoc));
+        associations.forEach(internalDao::delete);
     }
 }
