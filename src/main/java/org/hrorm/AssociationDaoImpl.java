@@ -3,19 +3,19 @@ package org.hrorm;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class AssociationDaoImpl<LEFT, RIGHT> implements AssociationDao<LEFT, RIGHT> {
+public class AssociationDaoImpl<LEFT, LEFTBUILDER, RIGHT, RIGHTBUILDER> implements AssociationDao<LEFT, RIGHT> {
 
     private final Dao<Association<LEFT, RIGHT>> internalDao;
     private final String leftColumnName;
     private final String rightColumnName;
-    private final PrimaryKey<LEFT, LEFT> leftPrimaryKey;
-    private final PrimaryKey<RIGHT, RIGHT> rightPrimaryKey;
+    private final PrimaryKey<LEFT, LEFTBUILDER> leftPrimaryKey;
+    private final PrimaryKey<RIGHT, RIGHTBUILDER> rightPrimaryKey;
 
     public AssociationDaoImpl(Dao<Association<LEFT, RIGHT>> internalDao,
                               String leftColumnName,
                               String rightColumnName,
-                              PrimaryKey<LEFT, LEFT> leftPrimaryKey,
-                              PrimaryKey<RIGHT, RIGHT> rightPrimaryKey){
+                              PrimaryKey<LEFT, LEFTBUILDER> leftPrimaryKey,
+                              PrimaryKey<RIGHT, RIGHTBUILDER> rightPrimaryKey){
         this.internalDao = internalDao;
         this.leftColumnName = leftColumnName;
         this.rightColumnName = rightColumnName;

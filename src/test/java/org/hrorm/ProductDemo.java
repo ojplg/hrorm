@@ -4,6 +4,7 @@ import org.hrorm.examples.Product;
 import org.hrorm.examples.ProductCategory;
 import org.hrorm.h2.H2Helper;
 import org.hrorm.util.TestLogConfig;
+import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -30,6 +31,11 @@ public class ProductDemo {
     @AfterClass
     public static void cleanUpDb(){
         helper.dropSchema();
+    }
+
+    @After
+    public void clear(){
+        helper.clearTables();
     }
 
     private DaoBuilder<Product> daoBuilder(){
