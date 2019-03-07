@@ -71,7 +71,7 @@ public class MischiefTests {
         Connection connection = helper.connect();
         {
             KeylessDao<Keyless> dao = Keyless.DAO_BUILDER.buildDao(connection);
-            dao.selectAll().forEach(System.out::println);
+            dao.selectAll();
         }
     }
 
@@ -87,8 +87,7 @@ public class MischiefTests {
         Connection connection = helper.connect();
         {
             KeylessDao<Keyless> dao = Keyless.DAO_BUILDER.buildDao(connection);
-            dao.select(Where.where("invalid_column", Operator.EQUALS, "tamaya"))
-                    .forEach(System.out::println);
+            dao.select(Where.where("invalid_column", Operator.EQUALS, "tamaya"));
         }
     }
 
@@ -97,8 +96,7 @@ public class MischiefTests {
         Connection connection = helper.connect();
         {
             KeylessDao<Keyless> dao = Keyless.DAO_BUILDER.buildDao(connection);
-            dao.select(Where.where("integer_column", Operator.LIKE, "kagiya"))
-                    .forEach(System.out::println);
+            dao.select(Where.where("integer_column", Operator.LIKE, "kagiya"));
         }
     }
 
