@@ -19,7 +19,7 @@ import java.util.stream.Stream;
  * Test operations that intentionally break HRORM in some way to ensure a good experience
  * even when screwing up.
  */
-public class MischiefTests {
+public class MischiefTest {
 
     static { TestLogConfig.load(); }
 

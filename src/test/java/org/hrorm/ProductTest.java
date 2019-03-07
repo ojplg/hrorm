@@ -4,13 +4,14 @@ import org.hrorm.examples.Product;
 import org.hrorm.examples.ProductCategory;
 import org.hrorm.h2.H2Helper;
 import org.hrorm.util.TestLogConfig;
-import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.math.BigDecimal;
+import java.sql.Connection;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -25,20 +26,15 @@ public class ProductTest {
 
     @BeforeClass
     public static void setUpDb(){
-        System.out.println("ON!");
         helper.initializeSchema();
     }
 
     @AfterClass
     public static void cleanUpDb(){
-        System.out.println("OFF!");
-        Dao<Product> dao = daoBuilder().buildDao(helper.connect());
-        List<Product> products = dao.selectAll();
-        System.out.println("FOUND " + products);
         helper.dropSchema();
     }
 
-    @After
+    @Before
     public void clear(){
         helper.clearTables();
     }
@@ -65,6 +61,8 @@ public class ProductTest {
             return ProductCategory.valueOf(aString);
         }
     }
+
+
 
     @Test
     public void testInsertAndSelect(){
@@ -123,7 +121,6 @@ public class ProductTest {
         }
     }
 
-    @Test
     public void testSelectWhere(){
         {
             Dao<Product> dao = daoBuilder().buildDao(helper.connect());
@@ -159,10 +156,10 @@ public class ProductTest {
         }
     }
 
-    @Test
     public void testFolding(){
+        Connection connection = helper.connect();
         {
-            Dao<Product> dao = daoBuilder().buildDao(helper.connect());
+            Dao<Product> dao = daoBuilder().buildDao(connection);
             LocalDateTime date = LocalDateTime.of(2017, 11, 1, 0,0 );
 
             for (int idx = 0; idx < 500; idx++) {
@@ -184,7 +181,7 @@ public class ProductTest {
         }
         BigDecimal foldingTotal;
         {
-            Dao<Product> productDao = daoBuilder().buildDao(helper.connect());
+            Dao<Product> productDao = daoBuilder().buildDao(connection);
             foldingTotal = productDao.foldingSelect(
                     new BigDecimal(0),
                     (accumulatedCost, product) -> accumulatedCost.add(product.getPrice()),
@@ -193,13 +190,20 @@ public class ProductTest {
         }
         BigDecimal functionTotal;
         {
-            Dao<Product> productDao = daoBuilder().buildDao(helper.connect());
+            Dao<Product> productDao = daoBuilder().buildDao(connection);
             functionTotal = productDao.runBigDecimalFunction(SqlFunction.SUM,
                     "price",
                     new Where("discontinued", Operator.EQUALS, false));
         }
         Assert.assertEquals(functionTotal, foldingTotal);
         Assert.assertEquals(new BigDecimal("100000"), foldingTotal);
+    }
+
+    @Test
+    public void doTests(){
+        testFolding();
+        helper.clearTables();
+        testSelectWhere();
     }
 
 }

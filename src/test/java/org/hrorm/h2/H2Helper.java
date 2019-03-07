@@ -8,7 +8,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
@@ -83,7 +82,6 @@ public class H2Helper {
         try {
             Connection connection = connect();
             Statement statement = connection.createStatement();
-            System.out.println("CLEARING TABLE " + tableName);
             statement.execute("delete from " + tableName);
         } catch (Exception ex){
             throw new RuntimeException(ex);
@@ -93,25 +91,18 @@ public class H2Helper {
     public void dropSchema(){
         Exception deferred = null;
         try {
-            System.out.println("DROPPING " + schemaName + " initialized? " + initialized + " with tables " + tableNames);
             Connection connection = connect();
             Statement statement = connection.createStatement();
             for (String sequence : sequenceNames) {
-                System.out.println("DOING THE SEQUENCE DROP OF " + sequence);
                 statement.execute("drop sequence " + sequence);
             }
             for (String table : tableNames) {
-                System.out.println("DOING THE SELECT OF " + table);
-                ResultSet resultSet = statement.executeQuery("select * from " + table);
-                System.out.println("RESULT FROM SELECT " + resultSet);
-                System.out.println("DOING THE DROP OF '" + table + "'");
                 statement.execute("drop table " + table );
             }
         } catch (Exception ex) {
             deferred = ex;
         }
         try {
-            System.out.println("DELETING FILES FOR " + schemaName);
             Path path = Paths.get("./target/db/" + schemaName + ".mv.db");
             Files.deleteIfExists(path);
             path = Paths.get("./target/db/" + schemaName + ".trace.db");
@@ -127,7 +118,6 @@ public class H2Helper {
     public void initializeSchema(){
         if ( ! initialized ) {
             try {
-                System.out.println("STARTING " + schemaName);
                 Connection connection = connect();
                 Statement statement = connection.createStatement();
                 String sql = readSchema();
