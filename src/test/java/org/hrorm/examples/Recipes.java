@@ -14,13 +14,13 @@ import java.util.List;
 public class Recipes {
 
     @Data
-    class Author {
+    static class Author {
         Long id;
         String name;
     }
 
     @Data
-    class Recipe {
+    static class Recipe {
         Long id;
         String name;
         Author author;
@@ -28,24 +28,24 @@ public class Recipes {
     }
 
     @Data
-    class Ingredient {
+    static class Ingredient {
         Long id;
         Recipe recipe;
         String name;
         long amount;
     }
 
-    DaoBuilder<Author> authorDaoBuilder = new DaoBuilder<>("AUTHOR", Author::new)
+    public static DaoBuilder<Author> authorDaoBuilder = new DaoBuilder<>("AUTHOR", Author::new)
             .withPrimaryKey("ID", "AUTHOR_SEQUENCE", Author::getId, Author::setId)
             .withStringColumn("NAME", Author::getName, Author::setName);
 
-    DaoBuilder<Ingredient> ingredientDaoBuilder = new DaoBuilder<>("INGREDIENT", Ingredient::new)
+    public static DaoBuilder<Ingredient> ingredientDaoBuilder = new DaoBuilder<>("INGREDIENT", Ingredient::new)
             .withPrimaryKey("ID", "INGREDIENT_SEQUENCE", Ingredient::getId, Ingredient::setId)
             .withParentColumn("RECIPE_ID", Ingredient::getRecipe, Ingredient::setRecipe)
             .withStringColumn("NAME", Ingredient::getName, Ingredient::setName)
             .withIntegerColumn("AMOUNT", Ingredient::getAmount, Ingredient::setAmount);
 
-    DaoBuilder<Recipe> recipeDaoBuilder = new DaoBuilder<>("RECIPE", Recipe::new)
+    public static DaoBuilder<Recipe> recipeDaoBuilder = new DaoBuilder<>("RECIPE", Recipe::new)
             .withPrimaryKey("ID", "RECIPE_SEQUENCE", Recipe::getId, Recipe::setId)
             .withStringColumn("NAME", Recipe::getName, Recipe::setName)
             .withJoinColumn("AUTHOR_ID", Recipe::getAuthor, Recipe::setAuthor, authorDaoBuilder)
