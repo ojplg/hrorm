@@ -56,7 +56,7 @@
     well, that's up to you to judge.
 </p>
 
-<h4>Living Side by Side</h4>
+<h4>Siblings</h4>
 
 <p>
     One of the simplest relations two entities can have is when one always accompanies another.
@@ -136,10 +136,10 @@ DaoBuilder&lt;City&gt; CityDaoBuilder = new DaoBuilder<>("CITY", City::new)
     cascade to the joined entity.
 </p>
 
-<h4></h4>
+<h4>Parent-Child</h4>
 
 <p>
-    A join relationship only works when one object contains a reference to exactly
+    A join relationship only works when one object contains a reference to
     one other object. What about something like a recipe, that has many ingredients?
 </p>
 
@@ -156,6 +156,12 @@ class Ingredient {
     String name;
     long amount;
 }</pre>
+
+<p>
+    Note that the <code>Ingredient</code> has a reference to its owning <code>Recipe</code>.
+    This is sometimes useful, and sometimes not. Hrorm supports object models with or without
+    back-references like this.
+</p>
 
 <p>
     That might be backed by two tables like this.
@@ -178,15 +184,44 @@ CREATE TABLE INGREDIENTS (
     These models have more significant differences than the cities and states.
     It's not just that the database description deals with keys rather than
     the entities themselves, the responsibility for managing the relationship
-    has been reversed. In object model land, the <code>Hand</code> has a listt
+    has been reversed. In object model land, the <code>Hand</code> has a list
     of <code>Fingers</code>. In the database, the <code>FINGER</code> table contains a
-    column with a foreign key.
+    column with a foreign key point to the <code>HAND</code>.
 </p>
 
 <p>
     To manage this relationship with Hrorm, we need to make special note in both
-    the recipe and ingredient <code>DaoBuilder</code> objects.
+    the recipe and ingredient <code>DaoBuilder</code> objects. Let's start with the
+    ingredient.
 </p>
+
+<pre>
+DaoBuilder&lt;Ingredient&gt; ingredientDaoBuilder = new DaoBuilder<>("INGREDIENT", Ingredient::new)
+        .withPrimaryKey("ID", "INGREDIENT_SEQUENCE", Ingredient::getId, Ingredient::setId)
+        .withParentColumn("RECIPE_ID", Ingredient::getRecipe, Ingredient::setRecipe)
+        .withStringColumn("NAME", Ingredient::getName, Ingredient::setName)
+        .withIntegerColumn("AMOUNT", Ingredient::getAmount, Ingredient::setAmount);</pre>
+
+<p>
+    Like the join example, we see that there is a special column defined: a parent column.
+    This alerts Hrorm that the column should be linked to another entity. The <code>Recipe</code>
+    <code>DaoBuilder</code> looks like this.
+</p>
+
+<pre>
+DaoBuilder&lt;Recipe&gt; recipeDaoBuilder = new DaoBuilder<>("RECIPE", Recipe::new)
+            .withPrimaryKey("ID", "RECIPE_SEQUENCE", Recipe::getId, Recipe::setId)
+            .withStringColumn("NAME", Recipe::getName, Recipe::setName)
+            .withChildren( Recipe::getIngredients, Recipe::setIngredients, ingredientDaoBuilder);</pre>
+
+<p>
+    In addition to the column definitions, there is an extra <code>withChildren()</code> call
+    that does not correspond to any column. In addition to the accessors it contains a reference
+    to the <code>Ingredient</code> <code>DaoBuilder</code>. (As above, it really cares about
+    the <code>DaoDescriptor</code>.) 
+</p>
+
+<h4>Associations</h4>
 
 </body>
 
