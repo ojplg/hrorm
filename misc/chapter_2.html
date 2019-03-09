@@ -218,7 +218,15 @@ DaoBuilder&lt;Recipe&gt; recipeDaoBuilder = new DaoBuilder<>("RECIPE", Recipe::n
     In addition to the column definitions, there is an extra <code>withChildren()</code> call
     that does not correspond to any column. In addition to the accessors it contains a reference
     to the <code>Ingredient</code> <code>DaoBuilder</code>. (As above, it really cares about
-    the <code>DaoDescriptor</code>.) 
+    the <code>DaoDescriptor</code>.)
+</p>
+
+<p>
+    What does this set-up buy us? Simply this: when we use Hrorm to read or write <code>Recipe</code>
+    objects, we can just about ignore the <code>INGREDIENT</code> table entirely. When we call
+    <code>Dao.insert()</code>, Hrorm will make sure to insert all the <code>Ingredient</code> objects
+    in the <code>Recipe</code> automatically. When we use the <code>Dao.update()</code> method, Hrorm
+    will insert, update, and delete <code>Recipe</code> objects without any intervention.
 </p>
 
 <h4>Associations</h4>
