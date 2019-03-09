@@ -76,6 +76,61 @@ public class City {
     State state;
 }</pre>
 
+<p>
+    The corresponding tables that would back this model would look almost identical.
+</p>
+
+<pre>
+CREATE TABLE STATE (
+    ID INTEGER PRIMARY KEY,
+    NAME TEXT
+);
+
+CREATE TABLE CITY (
+    ID INTEGER PRIMARY KEY,
+    NAME TEXT,
+    STATE_ID INTEGER
+);</pre>
+
+<p>
+    The biggest difference is that in the object model, we include a reference to the
+    state itself, in the database, the CITY only directly refers to the STATE's primary
+    key. Hrorm works by defining the relationship between the RDBMS SQL world and the
+    Java world by creating <code>DaoBuilder</code> objects. The Hrorm to
+    describe these entities looks like this:
+</p>
+
+<pre>
+DaoBuilder&lt;State&gt; StateDaoBuilder = new DaoBuilder<>("STATE", State::new)
+        .withPrimaryKey("ID", "STATE_SEQUENCE", State::getId, State::setId)
+        .withStringColumn("NAME", State::getName, State::setName);
+
+DaoBuilder&lt;City&gt; CityDaoBuilder = new DaoBuilder<>("CITY", City::new)
+        .withPrimaryKey("ID", "CITY_SEQUENCE", City::getId, City::setId)
+        .withStringColumn("NAME", City::getName, City::setName)
+        .withJoinColumn("STATE_ID", City::getState, City::setState, StateDaoBuilder);</pre>
+
+<p>
+    Most of that is identical to the features of Hrorm described in the previous articles.
+    The only new thing is the call to the method <code>withJoinColumn</code>. That method
+    accepts not just the column name and the accessors of the field but also a reference
+    to the <code>DaoBuilder</code> (technically, the <code>DaoDescriptor</code> an interface
+    Hrorm uses and that <code>DaoBuilder</code> implements) of the joined entity.
+</p>
+
+<p>
+    Now when we perform a select of a city from the database through Hrorm, it will not
+    just read the <code>CITY</code> table, it will create a query that looks like this:
+</p>
+
+<pre>SELECT A.ID, A.NAME, B.ID, B.NAME
+    FROM CITY A
+    LEFT JOIN STATE B ON A.STATE_ID = B.ID</pre>
+
+<p>
+    After issuing that query, Hrorm will automatically populate a <code>State</code>
+    object, and set it on the <code>City</code> object.
+</p>
 </body>
 
 </html>

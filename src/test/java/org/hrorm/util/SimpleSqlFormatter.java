@@ -29,7 +29,7 @@ public class SimpleSqlFormatter {
         buf.append(' ');
     }
 
-    static String format(String inputSql){
+    public static String format(String inputSql){
 
         ParseState parseState = ParseState.Start;
         Quote quote = Quote.Out;

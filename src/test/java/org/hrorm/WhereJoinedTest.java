@@ -4,6 +4,7 @@ import org.hrorm.examples.City;
 import org.hrorm.examples.GeographyDaos;
 import org.hrorm.examples.State;
 import org.hrorm.h2.H2Helper;
+import org.hrorm.util.SimpleSqlFormatter;
 import org.hrorm.util.TestLogConfig;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -30,6 +31,20 @@ public class WhereJoinedTest {
     @AfterClass
     public static void cleanUpDb(){
         helper.dropSchema();
+    }
+
+    @Test
+    public void testQueries(){
+        Connection connection = helper.connect();
+        Dao<City> cityDao = GeographyDaos.CityDaoBuilder.buildDao(connection);
+        Queries queries = cityDao.queries();
+        String select = queries.select();
+        SimpleSqlFormatter.assertEqualSql(
+                "select a.id as aid, a.name as aname, "
+                + "b.id as bid, b.name as bname from "
+                + "city a left join state b on a.state_id = b.id"
+                + " where 1 = 1",
+                select);
     }
 
     @Test
