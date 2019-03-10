@@ -353,7 +353,7 @@ CREATE TABLE ACTOR_MOVIE_ASSOCIATION (
 
 <pre>
 AssociationDaoBuilder&lt;Actor, Movie&gt; associationDaoBuilder =
-            new AssociationDaoBuilder<>(actorDaoBuilder, movieDaoBuilder)
+            new AssociationDaoBuilder&lt;&gt;(actorDaoBuilder, movieDaoBuilder)
                     .withTableName("ACTOR_MOVIE_ASSOCIATION")
                     .withSequenceName("ACTOR_MOVIE_ASSOCIATION_SEQUENCE")
                     .withPrimaryKeyName("ID")
