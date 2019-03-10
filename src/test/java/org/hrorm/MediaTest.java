@@ -186,7 +186,7 @@ public class MediaTest {
         AssociationDao<Actor, Movie> associationDao = ASSOCIATION_DAO_BUILDER.buildDao(helper.connect());
         List<Movie> movies = associationDao.selectRightAssociates(graceKelly);
 
-        List<String> titles = movies.stream().map(m -> m.getTitle()).collect(Collectors.toList());
+        List<String> titles = movies.stream().map(Movie::getTitle).collect(Collectors.toList());
         AssertHelp.sameContents(new String[]{"High Noon", "To Catch A Thief"}, titles);
     }
 
@@ -207,7 +207,7 @@ public class MediaTest {
         {
             AssociationDao<Actor, Movie> associationDao = ASSOCIATION_DAO_BUILDER.buildDao(helper.connect());
             List<Movie> movies = associationDao.selectRightAssociates(caryGrant);
-            List<String> titles = movies.stream().map(m -> m.getTitle()).collect(Collectors.toList());
+            List<String> titles = movies.stream().map(Movie::getTitle).collect(Collectors.toList());
             AssertHelp.sameContents(new String[]{"North By Northwest", "To Catch A Thief", "The Philadelphia Story"}, titles);
         }
     }
@@ -227,7 +227,7 @@ public class MediaTest {
         {
             AssociationDao<Actor, Movie> associationDao = ASSOCIATION_DAO_BUILDER.buildDao(helper.connect());
             List<Movie> movies = associationDao.selectRightAssociates(hollyHunter);
-            List<String> titles = movies.stream().map(m -> m.getTitle()).collect(Collectors.toList());
+            List<String> titles = movies.stream().map(Movie::getTitle).collect(Collectors.toList());
             AssertHelp.sameContents(new String[]{"Broadcast News"}, titles);
         }
     }
@@ -240,7 +240,7 @@ public class MediaTest {
         AssociationDao<Actor, Movie> associationDao = ASSOCIATION_DAO_BUILDER.buildDao(helper.connect());
         List<Actor> actors = associationDao.selectLeftAssociates(raisingArizona);
 
-        List<String> names = actors.stream().map(a -> a.getName()).collect(Collectors.toList());
+        List<String> names = actors.stream().map(Actor::getName).collect(Collectors.toList());
         AssertHelp.sameContents(new String[]{"Holly Hunter", "Nicolas Cage"}, names);
     }
 
