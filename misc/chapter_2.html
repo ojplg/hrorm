@@ -35,11 +35,11 @@
 
 <p>
     But neither of those two things is a critical issue to me. The flaw with no-SQL, document
-    stores to me is how they manage relations. If you have data describing actors and tv shows,
-    a document just will not cover it. If you choose to make the tv shows your top level structure,
+    stores to me is how they manage relations. If you have data describing actors and movies,
+    a document just will not cover it. If you choose to make the movies your top level structure,
     you will have to repeat the data about actors, since actors can appear in more than one
     show. If you choose to make actors your top level, you have to repeat the data about shows,
-    since shows have more than one actor. Normalization is the process of figuring out what
+    since shows have more than one actor. Normalization is (in part) the process of figuring out what
     your entities are, and how they relate to each other.
 </p>
 
@@ -236,7 +236,62 @@ DaoBuilder&lt;Recipe&gt; recipeDaoBuilder = new DaoBuilder<>("RECIPE", Recipe::n
 <h4>Associations</h4>
 
 <p>
+    A reader might object that neither of the above examples explains how to solve the problem
+    that was originally stated: how to manage actors and movies, or any other many-to-many relationship?
+</p>
 
+<p>
+    Hrorm only allows parent-child relationships to work one way.
+</p>
+
+<p>
+    One way of categorizing relationship models is by the arity of the relations. One-to-one, one-to-many,
+    many-to-many, etc. Hrorm does not express things in those terms. Hrorm thinks in terms of object models.
+    If one model contains a reference to zero or one instance of another model, that's a sibling relationship,
+    managed by a join. If a model contains a list of other models, that's a parent-child relationship. The arity
+    question does not enter into it. A state has many cities (one-to-many), but the join is still the approprate
+    relationship.
+</p>
+
+<p>
+    One way to model movies and actors might be as follows.
+</p>
+
+<pre>
+class Movie {
+    String title;
+    List&lt;Actor&gt; actors;
+}
+
+class Actor {
+    String name;
+    List&lt;Movide&gt; movies;
+}</pre>
+
+<p>
+    From the perspective of someone using these types, that might be a terrific interface. When you
+    want to now what actors are in a movie, you just call the accessor on the <code>Movie</code> object,
+    and visa versa. But such a model comes with some pitfalls.
+</p>
+
+<ul>
+    <li>Everyone who remembers the Kevin Bacon game can think of one problem. Loading up even one
+    movie or actor will result in a giant object graph being loaded, the transitive closure over
+    all the movies and actors related to the one being loaded, maybe the entire data set.</li>
+    <li>That's not ideal. Perhaps we will lazy-load the related movies or actors when they are
+    accessed. Now the object model cannot be made of POJOs, it has to be some kind of record plus
+    connection to the datastore (whether it's an RDBMS, a document store, or just the filesystem).</li>
+    <li>Now there's a new problem. Even after lazy loading, somehow we probably want to have some
+    kind of object pool. After all, as we walk the actor/movie graph, we do not want to have multiple
+    instances of the same movie loaded over and over again, the graph is likely to be big enough,
+    without spending memory on excess instances.</li>
+    <li>Once that is solved, you have to do some favors for the garbage collector, since nothing
+    can be collected while you have a reference to anything. Perhaps the lists can be weak
+    references?</li>
+</ul>
+
+<p>
+    This is all sounding pretty difficult, perhaps another approach is in order.
 </p>
 
 </body>
