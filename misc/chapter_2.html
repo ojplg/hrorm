@@ -292,7 +292,88 @@ class Actor {
 
 <p>
     This is all sounding pretty difficult, perhaps another approach is in order.
+    We could add a new entity that managed the relationship. In the case of actors and
+    movies this approach is very natural. The entity does not require some artifical name
+    like "<code>ActorMovieConnection</code>", since it already has a name and data
+    we want to associate with it: a role.
+</p>
 
+<pre>
+class Actor {
+    String name;
+}
+
+class Movie {
+    String title;
+}
+
+class Role {
+    String characterName;
+    Movie movie;
+    Actor actor;
+}</pre>
+
+<p>
+    The backing SQL structures for such a model are straight-forward.
+    Since each <code>Role</code> refers to one <code>Movie</code> and one
+    <code>Actor</code>, we can use Hrorm's sibling relations to manage
+    the Java/SQL divide. Then, when we want to know which actors are in
+    a particular movie (or what movies a particular actor has been in)
+    a simple select on the <code>Dao&lt;Role&gt;</code> will answer our
+    questions.
+</p>
+
+<p>
+    That is an answer, but it's a bit of a cop-out. What if we have
+    a Foo entity and a Bar entity, but there is nothing that intermediates
+    their many-to-many relationship, and we do not want to pollute the
+    object model with non-existent things? There is no choice in the
+    database, we simply must have an extra table which can record what
+    pairs of Foos and Bars are connected.
+</p>
+
+<p>
+    If we do not want a role concept in our object model, we can add
+    a SQL table like this.
+</p>
+
+<pre>
+CREATE TABLE ACTOR_MOVIE_ASSOCIATION (
+    ID INTEGER PRIMARY KEY,
+    ACTOR_ID INTEGER,
+    MOVIE_ID INTEGER
+);</pre>
+
+<p>
+    Then after the <code>DaoBuilder&lt;Actor&gt;</code> and
+    <code>DaoBuilder&lt;Movie&gt;</code> have been defined, it is
+    possible to create a special object called an <code>AssociationDao</code>.
+    It looks like this.
+</p>
+
+<pre>
+AssociationDaoBuilder&lt;Actor, Movie&gt; associationDaoBuilder =
+            new AssociationDaoBuilder<>(actorDaoBuilder, movieDaoBuilder)
+                    .withTableName("ACTOR_MOVIE_ASSOCIATION")
+                    .withSequenceName("ACTOR_MOVIE_ASSOCIATION_SEQUENCE")
+                    .withPrimaryKeyName("ID")
+                    .withLeftColumnName("ACTOR_ID")
+                    .withRightColumnName("MOVIE_ID");
+</pre>
+
+<p>
+    All the elements shown above are required. Once the <code>AssociationDaoBuilder</code>
+    has been properly initialized, it just requires a <code>java.sql.Connection</code> to
+    builder a <code>AssociationDao</code>, just as a configured <code>DaoBuilder</code> needs
+    a <code>Connection</code> to build a <code>Dao</code>.
+</p>
+
+<p>
+    An <code>AssociationDao</code> has a very limited interface. It supports the create and
+    deletion of associations. And it supports the selection of the associated entity objects
+    with any particular entity. This way we can walk the graph of <code>Actor</code> to
+    <code>Movie</code> to <code>Actor</code> again, without any of the problems that
+    the naive object model with direct references created.
 </p>
 
 </body>
