@@ -88,36 +88,10 @@ public class RandomUtils {
      * @return
      */
     public static LocalDateTime localDateTime() {
-        LocalDateTime localDateTime = LocalDateTime.now();
-        for(int i=0; i<range(5,10); i++) {
-            localDateTime = bool() ?
-                    localDateTime.plus(randomDuration())
-                    :
-                    localDateTime.minus(randomDuration());
-        }
-        return localDateTime;
-    }
 
-    /**
-     * Produces a random Duration. Max precision is MILLIS, do not use this for LocalDates.
-     * @return
-     */
-    public static Duration randomDuration() {
-        return Duration.of(
-                range(1,10),
-                randomMemberOf(
-                        Stream.of(
-                                ChronoUnit.YEARS,
-                                ChronoUnit.MONTHS,
-                                ChronoUnit.DAYS,
-                                ChronoUnit.HOURS,
-                                ChronoUnit.MINUTES,
-                                ChronoUnit.SECONDS,
-                                ChronoUnit.MILLIS
-                        )
-                                .filter(unit -> !unit.isDurationEstimated())
-                                .collect(Collectors.toList())
-                        ));
+        return LocalDateTime.of(
+                1950 + range(0,100), range(1,12), range(1,28),
+                range(0,23), range(0, 59), range(0, 59));
     }
 
     /**
