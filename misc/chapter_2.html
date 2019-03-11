@@ -368,11 +368,31 @@ AssociationDaoBuilder&lt;Actor, Movie&gt; associationDaoBuilder =
 </p>
 
 <p>
-    An <code>AssociationDao</code> has a very limited interface. It supports the create and
-    deletion of associations. And it supports the selection of the associated entity objects
-    with any particular entity. This way we can walk the graph of <code>Actor</code> to
-    <code>Movie</code> to <code>Actor</code> again, without any of the problems that
-    the naive object model with direct references created.
+    An <code>AssociationDao</code> has a very limited interface. In the current Hrorm release,
+    it has only four methods.
+</p>
+
+<pre>
+interface AssociationDao&lt;LEFT,RIGHT&gt; {
+    List&lt;LEFT&gt; selectLeftAssociates(RIGHT right);
+    List&lt;RIGHT&gt; selectRightAssociates(LEFT left);
+    Long insertAssociation(LEFT left, RIGHT right);
+    void deleteAssociation(LEFT left, RIGHT right);
+}</pre>
+
+<p>
+    Using this interface, we can walk the tree of relations between movies and actors,
+    without any of the problems outlined above.
+</p>
+
+<h4>Next Steps</h4>
+
+<p>
+    If you've read this far, and the
+    <a href="https://dzone.com/articles/introducing-hrorm-a-simple-declarative-type-checke">other</a>
+    <a href="">articles</a>
+    about Hrorm, you know most of what there is to know about it. The next step is to use it in
+    your next project.
 </p>
 
 </body>
