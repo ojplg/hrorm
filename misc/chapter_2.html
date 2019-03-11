@@ -247,7 +247,7 @@ DaoBuilder&lt;Recipe&gt; recipeDaoBuilder = new DaoBuilder<>("RECIPE", Recipe::n
     many-to-many, etc. Hrorm does not express things in those terms. Hrorm thinks in terms of object models.
     If one model contains a reference to zero or one instance of another model, that's a sibling relationship,
     managed by a join. If a model contains a list of other models, that's a parent-child relationship. The arity
-    question does not enter into it. A state has many cities (one-to-many), but the join is still the approprate
+    question does not enter into it. A state has many cities (one-to-many), but the join is still the appropriate
     relationship.
 </p>
 
@@ -263,7 +263,7 @@ class Movie {
 
 class Actor {
     String name;
-    List&lt;Movide&gt; movies;
+    List&lt;Movie&gt; movies;
 }</pre>
 
 <p>
@@ -292,7 +292,7 @@ class Actor {
     This is all sounding pretty difficult, which is why Hrorm requires parent-child relationships
     be in one direction only. Perhaps another approach is in order.
     We could add a new entity that managed the relationship. In the case of actors and
-    movies this approach is very natural. The entity does not require some artifical name
+    movies this approach is very natural. The entity does not require some artificial name
     like "<code>ActorMovieConnection</code>", since it already has a name and data
     we want to associate with it: a role.
 </p>
