@@ -13,7 +13,7 @@
     <a href="https://dzone.com/articles/introducing-hrorm-a-simple-declarative-type-checke">an introduction</a>
     and a <a href="">first lesson</a>.
     You may wish to take a look at those if you haven't before diving into this article, which will explain
-    how Hrorm, a small, simple ORM tool for Java, handles relationships between entities.
+    how Hrorm (a concise, declarative ORM library for Java) handles relationships between entities.
 </p>
 
 <h4>On Relations</h4>
@@ -38,8 +38,8 @@
     stores to me is how they manage relations. If you have data describing actors and movies,
     a document just will not cover it. If you choose to make the movies your top level structure,
     you will have to repeat the data about actors, since actors can appear in more than one
-    show. If you choose to make actors your top level, you have to repeat the data about shows,
-    since shows have more than one actor. Normalization is (in part) the process of figuring out what
+    movie. If you choose to make actors your top level, you have to repeat the data about movies,
+    since movies have more than one actor. Normalization is (in part) the process of figuring out what
     your entities are, and how they relate to each other.
 </p>
 
@@ -50,8 +50,9 @@
 </p>
 
 <p>
-    It's the job of ORM tools like Hrorm to make the annoyances of using an RDBMS as near to
-    as easy as using the filesystem as possible. Developers should get power and security, and they
+    It's the job of ORM tools like Hrorm to make the annoyances of using an RDBMS less and the
+    experience of using them as near to  as easy as using the filesystem as possible.
+    Developers should get power and security, and they
     should not have to pay with inconvenience and aggravation. Whether or not Hrorm succeeds,
     well, that's up to you to judge.
 </p>
@@ -96,8 +97,8 @@ CREATE TABLE CITY (
     The biggest difference is that in the object model, we include a reference to the
     state itself, in the database, the CITY only directly refers to the STATE's primary
     key. Hrorm works by defining the relationship between the RDBMS SQL world and the
-    Java world by creating <code>DaoBuilder</code> objects. The Hrorm to
-    describe these entities looks like this:
+    Java world by creating <code>DaoBuilder</code> objects. The Hrorm code to
+    describe these entities looks like this.
 </p>
 
 <pre>
@@ -115,22 +116,23 @@ DaoBuilder&lt;City&gt; CityDaoBuilder = new DaoBuilder<>("CITY", City::new)
     The only new thing is the call to the method <code>withJoinColumn</code>. That method
     accepts not just the column name and the accessors of the field but also a reference
     to the <code>DaoBuilder</code> (technically, the <code>DaoDescriptor</code> an interface
-    Hrorm uses and that <code>DaoBuilder</code> implements) of the joined entity.
+    Hrorm uses internally and that <code>DaoBuilder</code> implements) of the joined entity.
 </p>
 
 <p>
     Now when we perform a select of a city from the database through Hrorm, it will not
-    just read the <code>CITY</code> table, it will create a query that looks like this:
+    just read the <code>CITY</code> table, it will create a query that looks like this.
 </p>
 
 <pre>SELECT A.ID, A.NAME, B.ID, B.NAME
     FROM CITY A
-    LEFT JOIN STATE B ON A.STATE_ID = B.ID</pre>
+    LEFT JOIN STATE B ON A.STATE_ID = B.ID
+    WHERE ...</pre>
 
 <p>
     After issuing that query, Hrorm will automatically populate a <code>State</code>
-    object, and set it on the <code>City</code> object. Similarly, when wither the
-    <code>Dao.insert()</code> or <code>Dao.update</code>> method is invoked,
+    object, and set it on the <code>City</code> object. Similarly, when either the
+    <code>Dao.insert()</code> or <code>Dao.update</code> method is invoked,
     Hrorm will make sure that the correct reference is persisted. But,
     <code>Dao.delete()</code> will act only on the entity itself, it will not
     cascade to the joined entity.
@@ -160,7 +162,7 @@ class Ingredient {
 <p>
     Note that the <code>Ingredient</code> has a reference to its owning <code>Recipe</code>.
     This is sometimes useful, and sometimes not. Hrorm supports object models with or without
-    back-references like this.
+    back-references.
 </p>
 
 <p>
@@ -212,13 +214,13 @@ DaoBuilder&lt;Ingredient&gt; ingredientDaoBuilder = new DaoBuilder<>("INGREDIENT
 DaoBuilder&lt;Recipe&gt; recipeDaoBuilder = new DaoBuilder<>("RECIPE", Recipe::new)
             .withPrimaryKey("ID", "RECIPE_SEQUENCE", Recipe::getId, Recipe::setId)
             .withStringColumn("NAME", Recipe::getName, Recipe::setName)
-            .withChildren( Recipe::getIngredients, Recipe::setIngredients, ingredientDaoBuilder);</pre>
+            .withChildren(Recipe::getIngredients, Recipe::setIngredients, ingredientDaoBuilder);</pre>
 
 <p>
     In addition to the column definitions, there is an extra <code>withChildren()</code> call
-    that does not correspond to any column. In addition to the accessors it contains a reference
-    to the <code>Ingredient</code> <code>DaoBuilder</code>. (As above, it really cares about
-    the <code>DaoDescriptor</code>.)
+    that does not correspond to any column. It requires the accessors of the <code>Recipe</code> model
+    to the <code>Ingredient</code> list as well as the <code>DaoBuilder&lt;Ingredient&gt;</code>.
+    (As above, it really cares about the <code>DaoDescriptor&lt;Ingredient&gt;</code>.)
 </p>
 
 <p>
@@ -230,7 +232,7 @@ DaoBuilder&lt;Recipe&gt; recipeDaoBuilder = new DaoBuilder<>("RECIPE", Recipe::n
     will insert, update, and delete <code>Recipe</code> objects without any intervention. Naturally,
     when you perform a <code>Dao.select()</code>, Hrorm will load all the <code>Ingredient</code>
     records associated with a <code>Recipe</code>. And when we are done with the recipe, and
-    call <code>Dao.delete()</code>, all the ingredients will be deleted with the recipes.
+    call <code>Dao.delete()</code>, all the ingredients will be deleted with the recipe.
 </p>
 
 <h4>Associations</h4>
@@ -238,10 +240,6 @@ DaoBuilder&lt;Recipe&gt; recipeDaoBuilder = new DaoBuilder<>("RECIPE", Recipe::n
 <p>
     A reader might object that neither of the above examples explains how to solve the problem
     that was originally stated: how to manage actors and movies, or any other many-to-many relationship?
-</p>
-
-<p>
-    Hrorm only allows parent-child relationships to work one way.
 </p>
 
 <p>
@@ -254,7 +252,7 @@ DaoBuilder&lt;Recipe&gt; recipeDaoBuilder = new DaoBuilder<>("RECIPE", Recipe::n
 </p>
 
 <p>
-    One way to model movies and actors might be as follows.
+    Thinking only about the Java object model, it might be tempting to define classes for movies and actors as follows.
 </p>
 
 <pre>
@@ -269,7 +267,7 @@ class Actor {
 }</pre>
 
 <p>
-    From the perspective of someone using these types, that might be a terrific interface. When you
+    From the perspective of someone using these types, that it be a terrific interface. When you
     want to now what actors are in a movie, you just call the accessor on the <code>Movie</code> object,
     and visa versa. But such a model comes with some pitfalls.
 </p>
@@ -291,7 +289,8 @@ class Actor {
 </ul>
 
 <p>
-    This is all sounding pretty difficult, perhaps another approach is in order.
+    This is all sounding pretty difficult, which is why Hrorm requires parent-child relationships
+    be in one direction only. Perhaps another approach is in order.
     We could add a new entity that managed the relationship. In the case of actors and
     movies this approach is very natural. The entity does not require some artifical name
     like "<code>ActorMovieConnection</code>", since it already has a name and data
