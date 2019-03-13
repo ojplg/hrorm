@@ -1,6 +1,7 @@
-package org.hrorm.examples;
+package org.hrorm.examples.siblings;
 
 import lombok.Data;
+import org.hrorm.examples.EnumeratedColor;
 
 @Data
 public class Cousin {

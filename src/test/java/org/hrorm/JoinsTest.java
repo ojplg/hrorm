@@ -1,13 +1,11 @@
 package org.hrorm;
 
-import net.bytebuddy.build.ToStringPlugin;
-import org.hrorm.examples.Cousin;
+import org.hrorm.examples.siblings.Cousin;
 import org.hrorm.examples.EnumeratedColor;
 import org.hrorm.examples.EnumeratedColorConverter;
-import org.hrorm.examples.ParentChildBuilders;
-import org.hrorm.examples.SecondCousin;
-import org.hrorm.examples.Sibling;
-import org.hrorm.examples.Thing;
+import org.hrorm.examples.siblings.SecondCousin;
+import org.hrorm.examples.siblings.Sibling;
+import org.hrorm.examples.siblings.Thing;
 import org.hrorm.h2.H2Helper;
 import org.hrorm.util.TestLogConfig;
 import org.junit.AfterClass;

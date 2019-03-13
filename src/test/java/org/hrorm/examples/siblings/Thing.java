@@ -1,4 +1,4 @@
-package org.hrorm.examples;
+package org.hrorm.examples.siblings;
 
 import lombok.Data;
 
