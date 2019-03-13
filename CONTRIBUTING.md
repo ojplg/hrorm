@@ -1,3 +1,5 @@
+### Thanks for considering making a contribution to Hrorm.
+
 1. Go for it. Hrorm is a small, backwater project and an easy place to get your feet wet.
 1. Learn the Hrorm ethos. 
    View the [hrorm.org](https://hrorm.org) website to learn more about that. 
