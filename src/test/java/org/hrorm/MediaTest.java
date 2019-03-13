@@ -8,6 +8,7 @@ import org.hrorm.util.AssertHelp;
 import org.hrorm.util.TestLogConfig;
 import org.junit.After;
 import org.junit.AfterClass;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -202,7 +203,8 @@ public class MediaTest {
 
         {
             AssociationDao<Actor, Movie> associationDao = ASSOCIATION_DAO_BUILDER.buildDao(helper.connect());
-            associationDao.insertAssociation(caryGrant, philadelphiaStory);
+            Long id = associationDao.insertAssociation(caryGrant, philadelphiaStory);
+            Assert.assertNotNull(id);
         }
         {
             AssociationDao<Actor, Movie> associationDao = ASSOCIATION_DAO_BUILDER.buildDao(helper.connect());
