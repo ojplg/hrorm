@@ -1,4 +1,4 @@
-package org.hrorm.examples;
+package org.hrorm.examples.geography;
 
 import org.hrorm.DaoBuilder;
 

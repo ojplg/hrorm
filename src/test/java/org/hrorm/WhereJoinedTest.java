@@ -1,8 +1,8 @@
 package org.hrorm;
 
-import org.hrorm.examples.City;
-import org.hrorm.examples.GeographyDaos;
-import org.hrorm.examples.State;
+import org.hrorm.examples.geography.City;
+import org.hrorm.examples.geography.GeographyDaos;
+import org.hrorm.examples.geography.State;
 import org.hrorm.h2.H2Helper;
 import org.hrorm.util.SimpleSqlFormatter;
 import org.hrorm.util.TestLogConfig;
