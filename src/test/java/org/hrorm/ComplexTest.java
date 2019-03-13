@@ -11,7 +11,7 @@ import org.junit.Test;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class ComplexTest {
@@ -66,7 +66,7 @@ public class ComplexTest {
 
             Don don = newDon(henry);
 
-            Beth beth = newBeth(Arrays.asList(don), Arrays.asList(edith));
+            Beth beth = newBeth(Collections.singletonList(don), Collections.singletonList(edith));
             bethId = bethDao.insert(beth);
         }
         {
@@ -126,7 +126,7 @@ public class ComplexTest {
 
             Don don = newDon(henry);
 
-            Beth beth = newBeth(Arrays.asList(don), Arrays.asList(edith));
+            Beth beth = newBeth(Collections.singletonList(don), Collections.singletonList(edith));
             bethDao.insert(beth);
 
             Cal cal = newCal();
