@@ -1,8 +1,8 @@
 package org.hrorm;
 
-import org.hrorm.examples.ImmutableActor;
-import org.hrorm.examples.ImmutableMediaDaoBuilders;
-import org.hrorm.examples.ImmutableMovie;
+import org.hrorm.examples.media.ImmutableActor;
+import org.hrorm.examples.media.ImmutableMediaDaoBuilders;
+import org.hrorm.examples.media.ImmutableMovie;
 import org.hrorm.h2.H2Helper;
 import org.hrorm.util.AssertHelp;
 import org.hrorm.util.TestLogConfig;

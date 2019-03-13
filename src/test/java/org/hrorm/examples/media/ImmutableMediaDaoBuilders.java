@@ -1,4 +1,4 @@
-package org.hrorm.examples;
+package org.hrorm.examples.media;
 
 import org.hrorm.IndirectAssociationDaoBuilder;
 import org.hrorm.IndirectDaoBuilder;

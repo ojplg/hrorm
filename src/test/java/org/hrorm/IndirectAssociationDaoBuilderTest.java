@@ -1,7 +1,7 @@
 package org.hrorm;
 
-import org.hrorm.examples.Actor;
-import org.hrorm.examples.Movie;
+import org.hrorm.examples.media.Actor;
+import org.hrorm.examples.media.Movie;
 import org.junit.Assert;
 import org.junit.Test;
 

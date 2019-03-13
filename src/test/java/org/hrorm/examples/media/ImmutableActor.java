@@ -1,4 +1,4 @@
-package org.hrorm.examples;
+package org.hrorm.examples.media;
 
 import lombok.Builder;
 import lombok.Data;

@@ -1,8 +1,8 @@
 package org.hrorm;
 
 import lombok.Data;
-import org.hrorm.examples.Actor;
-import org.hrorm.examples.Movie;
+import org.hrorm.examples.media.Actor;
+import org.hrorm.examples.media.Movie;
 import org.hrorm.h2.H2Helper;
 import org.hrorm.util.AssertHelp;
 import org.hrorm.util.TestLogConfig;
