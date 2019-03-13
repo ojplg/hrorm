@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <title>hrorm - Documentation</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/mini.css/3.0.0/mini-default.min.css">
     <link rel="stylesheet" href="/css/hrorm.css">
+    <meta charset="utf-8"/>
 </head>
 <body>
 
@@ -62,7 +63,7 @@
 
         <div class="col-sm-9">
 
-            <a name="introduction"></a>
+            <a id="introduction"></a>
             <h2>Introduction</h2>
             <hr>
 
@@ -87,7 +88,7 @@
             <p>Also take a look at the <a href="/#quick_start">Quick Start</a> and <a
                     href="/javadocs/latest">Javadocs</a>.</p>
 
-            <a name="concepts"></a>
+            <a id="concepts"></a>
             <h2>Concepts</h2>
             <hr>
 
@@ -96,7 +97,7 @@
 
             <div class="card fluid">
 
-                <a name="designing_entities"></a>
+                <a id="designing_entities"></a>
                 <h2>Designing Entities</h2>
 
                 <hr>
@@ -105,7 +106,7 @@
                 and the SQL schema) are designed. Some of these restrictions are good practices regardless of
                 how database and object models are built.</p>
 
-                <a name="java_objects"></a>
+                <a id="java_objects"></a>
                 <h4>Java Objects</h4>
 
                 <ul>
@@ -127,7 +128,7 @@
                     </li>
                 </ul>
 
-                <a name="sql_schema"></a>
+                <a id="sql_schema"></a>
                 <h4>SQL Schema</h4>
 
                 <ul>
@@ -153,7 +154,7 @@
 
             <div class="card fluid">
 
-                <a name="relationships"></a>
+                <a id="relationships"></a>
                 <h3>Relationships</h3>
 
                 <hr>
@@ -164,7 +165,7 @@
                     of children, and a sibling relationship, where one object expresses a connection with another
                     entity.</p>
 
-                <a name="parent_child_relations_concept"></a>
+                <a id="parent_child_relations_concept"></a>
                 <h4>Parent-Child Relations</h4>
 
                 <p>These relations are defined by using the <code>DaoBuilder.withParent()</code> and
@@ -188,7 +189,7 @@
                     <code>DaoBuilder</code> object of both the parent and child need to understand
                     the relationship, not just one or the other.</p>
 
-                <a name="sibling_relations_concept"></a>
+                <a id="sibling_relations_concept"></a>
                 <h4>Sibling Relations</h4>
 
                 <p>These relations are defined by using the <code>DaoBuilder.withJoinColumn()</code> method.</p>
@@ -208,7 +209,7 @@
                     code, or database schema constraints, (or both!) must be in place to prevent orphaned records of
                     that type.</p>
 
-                <a name="association_relations_concept"></a>
+                <a id="association_relations_concept"></a>
                 <h4>Association Relations</h4>
 
                 <p>Hrorm supports many-to-many relations through <code>AssociationDao</code> objects.
@@ -232,7 +233,7 @@
 
             <div class="card fluid">
 
-                <a name="transactions"></a>
+                <a id="transactions"></a>
                 <h3>Transactions</h3>
 
                 <hr>
@@ -272,7 +273,7 @@
             </div>
 
 
-            <a name="daobuilders"></a>
+            <a id="daobuilders"></a>
             <h2>Dao Builders</h2>
 
             <p>Hrorm provides two kinds of builders: one for Javabean style entities (<code>DaoBuilder</code>) and
@@ -280,7 +281,7 @@
                 Both support very similar methods, and though most of the examples below show a plain
                 <code>DaoBuilder</code> building for an immutable model is almost identical.</p>
 
-            <a name="one_table"></a>
+            <a id="one_table"></a>
             <div class="card fluid">
                 <h3>One Table</h3>
                 <hr>
@@ -448,7 +449,7 @@
                     objects.</p>
             </div>
 
-            <a name="parent_child_relations"></a>
+            <a id="parent_child_relations"></a>
             <div class="card fluid">
                 <h3>Parent-Child Relations</h3>
                 <hr>
@@ -552,7 +553,7 @@
 
             </div>
 
-            <a name="association_relations"></a>
+            <a id="association_relations"></a>
             <div class="card fluid">
                 <h3>Association Relations</h3>
 
@@ -616,7 +617,7 @@
                 There is also support for immutable models, via the <code>IndirectAssociationDao</code>.</p>
             </div>
 
-            <a name="sibling_relations"></a>
+            <a id="sibling_relations"></a>
             <div class="card fluid">
                 <h3>Sibling Relations</h3>
                 <hr>
@@ -703,7 +704,7 @@
 
             <div class="card fluid">
 
-                <a name="immutable_models"></a>
+                <a id="immutable_models"></a>
                 <h3>Immutable Models</h3>
 
                 <hr>
@@ -764,7 +765,7 @@
 
             <div class="card fluid">
 
-                <a name="keyless_entities"></a>
+                <a id="keyless_entities"></a>
                 <h3>Keyless Entities</h3>
 
                 <hr>
@@ -784,7 +785,7 @@
                 child or sibling entities. Hrorm manages all relationships via keys.</p>
             </div>
 
-            <a name="constraints"></a>
+            <a id="constraints"></a>
             <div class="card fluid">
                 <h3>Constraints</h3>
                 <hr>
@@ -814,7 +815,7 @@
 
             </div>
 
-            <a name="validation"></a>
+            <a id="validation"></a>
             <div class="card fluid">
                 <h3>Validation</h3>
                 <hr>
@@ -855,7 +856,7 @@
             </div>
 
 
-            <a name="daos"></a>
+            <a id="daos"></a>
             <h2>Daos</h2>
 
             <p>To create a <code>Dao</code> from a <code>DaoBuilder</code>, just pass it a
@@ -866,7 +867,7 @@
     Connection connection = ConnectionPool.connect();
     Dao&lt;Person&gt; dao = daoBuilder.buildDao(connection);</pre>
 
-            <a name="insert"></a>
+            <a id="insert"></a>
             <div class="card fluid">
                 <h3>Insert</h3>
                 <hr>
@@ -903,7 +904,7 @@
 
             </div>
 
-            <a name="select"></a>
+            <a id="select"></a>
             <div class="card fluid">
                 <h3>Select</h3>
                 <hr>
@@ -1033,7 +1034,7 @@
 
             </div>
 
-            <a name="update"></a>
+            <a id="update"></a>
             <div class="card fluid">
                 <h3>Update</h3>
                 <hr>
@@ -1050,7 +1051,7 @@
 
             </div>
 
-            <a name="delete"></a>
+            <a id="delete"></a>
             <div class="card fluid">
                 <h3>Delete</h3>
                 <hr>
@@ -1067,7 +1068,7 @@
 
             </div>
 
-            <a name="association_daos"></a>
+            <a id="association_daos"></a>
             <div class="card fluid">
                 <h3>Association DAOs</h3>
 
@@ -1113,7 +1114,7 @@
 
 
 
-            <a name="functions"></a>
+            <a id="functions"></a>
             <div class="card fluid">
                 <h3>Functions</h3>
 
@@ -1136,7 +1137,7 @@
             </div>
 
 
-            <a name="atomic"></a>
+            <a id="atomic"></a>
             <div class="card fluid">
                 <h3>Atomic</h3>
 
@@ -1149,7 +1150,7 @@
 
             </div>
 
-            <a name="folding"></a>
+            <a id="folding"></a>
             <div class="card fluid">
                 <h3>Folding</h3>
 
@@ -1208,7 +1209,7 @@
             </div>
 
 
-            <a name="sql"></a>
+            <a id="sql"></a>
             <div class="card fluid">
                 <h3>SQL</h3>
 
@@ -1224,13 +1225,13 @@
             </div>
 
 
-            <a name="miscellaneous"></a>
+            <a id="miscellaneous"></a>
             <h2>Miscellaneous</h2>
             <hr>
 
             <div class="card fluid">
 
-                <a name="exceptions"></a>
+                <a id="exceptions"></a>
                 <h3>Exceptions</h3>
 
                 <hr>
@@ -1263,7 +1264,7 @@
 
             <div class="card fluid">
 
-                <a name="logging"></a>
+                <a id="logging"></a>
                 <h3>Logging</h3>
 
                 <hr>
@@ -1286,7 +1287,7 @@
 
             <div class="card fluid">
 
-                <a name="visibility"></a>
+                <a id="visibility"></a>
                 <h3>Visibility</h3>
 
                 <hr>
