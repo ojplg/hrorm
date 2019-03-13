@@ -436,7 +436,7 @@
                     so we could write all of the above as:</p>
 
                 <pre>
-    DaoBuilder&lt;Person&gt; daoBuilder = new DaoBuilder<>("PERSON_TABLE", Person::new)
+    DaoBuilder&lt;Person&gt; daoBuilder = new DaoBuilder&lt;&gt;("PERSON_TABLE", Person::new)
                 .withPrimaryKey("ID","PERSON_SEQUENCE", Person::getId, Person::setId)
                 .withStringColumn("NAME", Person::getName, Person::setName)
                 .withIntegerColumn("WEIGHT", Person::getWeight, Person::setWeight)
