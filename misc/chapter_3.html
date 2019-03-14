@@ -10,8 +10,31 @@
 <body>
 
 <p>
-
+    In the Java world, the hardest part of selecting tools can be the
+    over-abundance of choices. There's something ridiculous about writing
+    a new object relational mapping library. There are already a large
+    number of choices, including, the Java Persistence API,
+    now part of the standard library.
 </p>
+
+<p>
+    When I started a new project last year, I could not find what I wanted.
+</p>
+
+<ul>
+    <li>SQL generation</li>
+    <li>Simple object-based API for CRUD operations</li>
+    <li></li>
+</ul>
+
+<p>
+    And a list of things I did not want.
+</p>
+
+<ul>
+    <li>External configuration or containers</li>
+    <li>Caching or lazy-loading</li>
+</ul>
 
 <p>
     TOPICS:
@@ -22,6 +45,10 @@
     * lack of type-checking for where clauses
     * Lack of optimization (Hrorm is really slow)
     * packages/namespacing
+    * Jobs to do:
+        * Generate SQL - should be efficient (i.e. joins)
+        * Build objects from result sets
+        * Manage resources properly, closing things
 </p>
 
 </body>
