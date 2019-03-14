@@ -1,4 +1,4 @@
-package org.hrorm.examples;
+package org.hrorm.examples.parentage;
 
 import lombok.Data;
 
@@ -12,7 +12,7 @@ public class Parent {
 
     public Child getChildByNumber(Long number){
         for(Child child : childList){
-            if (number == child.getNumber()){
+            if (number.equals(child.getNumber())){
                 return child;
             }
         }

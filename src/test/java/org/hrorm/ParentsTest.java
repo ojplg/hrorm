@@ -1,10 +1,10 @@
 package org.hrorm;
 
-import org.hrorm.examples.Child;
+import org.hrorm.examples.parentage.Child;
 import org.hrorm.examples.EnumeratedColor;
-import org.hrorm.examples.Grandchild;
-import org.hrorm.examples.Parent;
-import org.hrorm.examples.ParentChildBuilders;
+import org.hrorm.examples.parentage.Grandchild;
+import org.hrorm.examples.parentage.Parent;
+import org.hrorm.examples.parentage.ParentChildBuilders;
 import org.hrorm.h2.H2Helper;
 import org.junit.AfterClass;
 import org.junit.Assert;

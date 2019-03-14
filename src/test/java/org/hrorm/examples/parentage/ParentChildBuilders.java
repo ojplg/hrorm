@@ -1,6 +1,7 @@
-package org.hrorm.examples;
+package org.hrorm.examples.parentage;
 
 import org.hrorm.DaoBuilder;
+import org.hrorm.examples.EnumeratedColorConverter;
 
 public class ParentChildBuilders {
 

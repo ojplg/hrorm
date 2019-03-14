@@ -1,7 +1,7 @@
 package org.hrorm;
 
-import org.hrorm.examples.Child;
-import org.hrorm.examples.ParentChildBuilders;
+import org.hrorm.examples.parentage.Child;
+import org.hrorm.examples.parentage.ParentChildBuilders;
 import org.hrorm.util.SimpleSqlFormatter;
 import org.junit.Test;
 

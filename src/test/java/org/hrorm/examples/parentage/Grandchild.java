@@ -1,6 +1,7 @@
-package org.hrorm.examples;
+package org.hrorm.examples.parentage;
 
 import lombok.Data;
+import org.hrorm.examples.EnumeratedColor;
 
 @Data
 public class Grandchild {
