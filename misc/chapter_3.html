@@ -13,7 +13,7 @@
     In the Java world, the hardest part of selecting tools can be the
     over-abundance of choices. There's something ridiculous about writing
     a new object relational mapping library. There are already a large
-    number of choices, including, the Java Persistence API,
+    number of choices, including the Java Persistence API,
     now part of the standard library.
 </p>
 
@@ -23,8 +23,8 @@
 
 <ul>
     <li>SQL generation</li>
-    <li>Simple object-based API for CRUD operations</li>
-    <li></li>
+    <li>Declarative, type-checked API</li>
+    <li>Simple API for CRUD operations directly on my object model</li>
 </ul>
 
 <p>
@@ -33,8 +33,45 @@
 
 <ul>
     <li>External configuration or containers</li>
-    <li>Caching or lazy-loading</li>
+    <li>Caching, threading, or laziness</li>
+    <li>Reflection, unsafe code</li>
 </ul>
+
+<p>
+    There are probably seven libraries out there that could have sufficed, but
+    I started writing my own persistence layer for my project, and that
+    became a library, and that became Hrorm.
+</p>
+
+<p>
+    Building a library for public release makes you think about some design
+    questions.
+</p>
+
+<h4>Meta-Programming</h4>
+
+<p>
+    Some languages (Lisps, Ocaml, Ruby) embrace meta-programming. Others have more
+    grudging support (C with it's macros). Others are a bit schizophrenic (Haskell
+    versus Template Haskell). I would put Java in the grudging support category.
+    Reflection exists, and has for a long time. But it's clumsy and leads to code
+    that is unexpressive and unintuitive.
+</p>
+
+<p>
+    For certain kinds of libraries, reflection is an essential part of the architecture.
+    Many go further and use <code>sun.misc.Unsafe</code>. I get nervous when my tools are
+    using the features of unsafe. I want my objects to be constructed using my methods, so
+    that the invariants I establish are obeyed. It's nothing to worry too much over, but
+    I prefer to stick with simpler code.
+</p>
+
+<p>
+    Fortunately, since Java 8, and the introduction of things that look like function
+    pointers, just using the language without any meta-programming got a lot easier.
+</p>
+
+
 
 <p>
     TOPICS:
@@ -45,6 +82,7 @@
     * lack of type-checking for where clauses
     * Lack of optimization (Hrorm is really slow)
     * packages/namespacing
+    * What basic Java types are supported
     * Jobs to do:
         * Generate SQL - should be efficient (i.e. joins)
         * Build objects from result sets
