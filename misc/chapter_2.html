@@ -36,8 +36,8 @@
 
 <p>
     But neither of those two things is a critical issue to me. The flaw with no-SQL, document
-    stores to me is how they manage relations. If you have data describing actors and movies,
-    a document just will not cover it. If you choose to make the movies your top level structure,
+    stores is in how they manage relations. If you have data describing actors and movies,
+    a document just will not suffice. If you choose to make the movies your top level structure,
     you will have to repeat the data about actors, since actors can appear in more than one
     movie. If you choose to make actors your top level, you have to repeat the data about movies,
     since movies have more than one actor. Normalization is (in part) the process of figuring out what
@@ -51,8 +51,8 @@
 </p>
 
 <p>
-    It's the job of ORM tools like Hrorm to make the annoyances of using an RDBMS less and the
-    experience of using them as near to  as easy as using the filesystem as possible.
+    It's the job of ORM tools like Hrorm to make the annoyances of using an RDBMS less. And the
+    experience of using them (almost) as easy as using text files.
     Developers should get power and security, and they
     should not have to pay with inconvenience and aggravation. Whether or not Hrorm succeeds,
     well, that's up to you to judge.
@@ -116,7 +116,7 @@ DaoBuilder&lt;City&gt; CityDaoBuilder = new DaoBuilder<>("CITY", City::new)
     Most of that is identical to the features of Hrorm described in the previous articles.
     The only new thing is the call to the method <code>withJoinColumn</code>. That method
     accepts not just the column name and the accessors of the field but also a reference
-    to the <code>DaoBuilder</code> (technically, the <code>DaoDescriptor</code> an interface
+    to the <code>DaoBuilder</code> (technically, the <code>DaoDescriptor</code>, an interface
     Hrorm uses internally and that <code>DaoBuilder</code> implements) of the joined entity.
 </p>
 
@@ -187,9 +187,9 @@ CREATE TABLE INGREDIENTS (
     These models have more significant differences than the cities and states.
     It's not just that the database description deals with keys rather than
     the entities themselves, the responsibility for managing the relationship
-    has been reversed. In object model land, the <code>Hand</code> has a list
-    of <code>Fingers</code>. In the database, the <code>FINGER</code> table contains a
-    column with a foreign key point to the <code>HAND</code>.
+    has been reversed. In object model land, the <code>Recipe</code> has a list
+    of <code>Ingredient</code> objects. In the database, the <code>INGREDIENT</code> table contains a
+    column with a foreign key point to the <code>RECIPE</code>.
 </p>
 
 <p>
@@ -268,9 +268,9 @@ class Actor {
 }</pre>
 
 <p>
-    From the perspective of someone using these types, that it be a terrific interface. When you
+    From the perspective of someone using these types, that might be a terrific interface. When you
     want to now what actors are in a movie, you just call the accessor on the <code>Movie</code> object,
-    and visa versa. But such a model comes with some pitfalls.
+    and vice versa. But such a model comes with some pitfalls.
 </p>
 
 <ul>
