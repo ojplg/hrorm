@@ -7,6 +7,11 @@ import org.junit.Test;
 
 public class SchemaTest {
 
+    // TODO: Foreign key constraints
+    // TODO: Not null columns
+    // TODO: Association tables
+    // TODO: Unique constraints? (Hrorm knows nothing about these.)
+
     @Test
     public void testCreateTableSql(){
 
