@@ -11,6 +11,7 @@ public class SchemaTest {
     // TODO: Not null columns
     // TODO: Association tables
     // TODO: Unique constraints? (Hrorm knows nothing about these.)
+    // TODO: keyless daos?
 
     @Test
     public void testCreateTableSql(){
