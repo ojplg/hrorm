@@ -12,7 +12,7 @@
 <p>
     Prior articles about <a href="https://hrorm.org">Hrorm</a> gave
     <a href="https://dzone.com/articles/introducing-hrorm-a-simple-declarative-type-checke">an introduction</a>
-    and a <a href="">first lesson</a>.
+    and a <a href="https://dzone.com/articles/the-basics-of-using-hrorm">first lesson</a>.
     You may wish to take a look at those if you haven't before diving into this article, which will explain
     how Hrorm (a concise, declarative ORM library for Java) handles relationships between entities.
 </p>
@@ -23,15 +23,14 @@
     SQL RDBMS platforms remain somewhat unfashionable. Some people seem to believe in a myth that they
     are not scalable enough. This may be true for some very large data sets and applications,
     but unless you work for a company with a name like Google or Amazon, your data is probably
-    easily manageable by any number of databases.
+    easily manageable by most popular databases.
 </p>
 
 <p>
     There is also a tendency to imagine that a storage solution with an explicit schema will
     slow down development efforts. Many people have pointed out that you always have a schema
     (possibly more than one) even if you have not used tools that make it explicit. In my
-    personal experience, knowing and understanding more about the systems I work on does
-    not slow me down.
+    experience, knowing more about the systems I work on does not slow me down.
 </p>
 
 <p>
@@ -54,8 +53,8 @@
     It's the job of ORM tools like Hrorm to make the annoyances of using an RDBMS less. And the
     experience of using them (almost) as easy as using text files.
     Developers should get power and security, and they
-    should not have to pay with inconvenience and aggravation. Whether or not Hrorm succeeds,
-    well, that's up to you to judge.
+    should not have to pay with inconvenience and aggravation. Whether or not Hrorm succeeds
+    is up to you to judge.
 </p>
 
 <h4>Siblings</h4>
@@ -189,7 +188,7 @@ CREATE TABLE INGREDIENTS (
     the entities themselves, the responsibility for managing the relationship
     has been reversed. In object model land, the <code>Recipe</code> has a list
     of <code>Ingredient</code> objects. In the database, the <code>INGREDIENT</code> table contains a
-    column with a foreign key point to the <code>RECIPE</code>.
+    column with a foreign key pointing to the <code>RECIPE</code>.
 </p>
 
 <p>
@@ -283,7 +282,7 @@ class Actor {
     <li>Now there's a new problem. Even after lazy loading, somehow we probably want to have some
     kind of object pool. After all, as we walk the actor/movie graph, we do not want to have multiple
     instances of the same movie loaded over and over again, the graph is likely to be big enough,
-    without spending memory on excess instances.</li>
+    without spending memory on repeated instances.</li>
     <li>Once that is solved, you have to do some favors for the garbage collector, since nothing
     can be collected while you have a reference to anything. Perhaps the lists can be weak
     references?</li>
