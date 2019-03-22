@@ -4,6 +4,7 @@ import org.hrorm.examples.ColumnsDaoBuilder;
 import org.hrorm.examples.Simple;
 import org.hrorm.examples.SimpleParentChildDaos;
 import org.hrorm.examples.geography.GeographyDaos;
+import org.hrorm.examples.immutables.DaoBuilders;
 import org.hrorm.h2.H2Helper;
 import org.hrorm.util.SimpleSqlFormatter;
 import org.junit.Assert;
@@ -13,7 +14,6 @@ import java.util.List;
 
 public class SchemaTest {
 
-    // TODO: Generate schema and test by instantiating inside H2
     // TODO: Association tables
     // TODO: Unique constraints? (Hrorm knows nothing about these.)
     // TODO: keyless daos?
@@ -100,6 +100,30 @@ public class SchemaTest {
 
         String expectedSql = "alter table simple_child_table add foreign key (parent_id) references simple_parent_table(id);";
         SimpleSqlFormatter.assertEqualSql(expectedSql, constraints.get(0));
+    }
+
+    @Test
+    public void testSchemaGenerationWorks(){
+        Schema schema = new Schema(
+                DaoBuilders.IMMUTABLE_OBJECT_DAO_BUILDER,
+                DaoBuilders.IMMUTABLE_SIBLING_DAO_BUILDER,
+                DaoBuilders.IMMUTABLE_CHILD_DAO_BUILDER);
+
+        String sql = schema.sql();
+
+        // check to make sure there are two constraints, i.e. things having an "alter" in them
+        String[] splits = sql.split("alter");
+        Assert.assertEquals(3, splits.length);
+
+        H2Helper helper = new H2Helper("generated_immutables");
+        helper.initializeSchema(sql);
+
+        ImmutableThingTest.doInsertAndSelectImmutableThing(helper);
+        ImmutableThingTest.doInsertAndSelectImmutableThingWithAChild(helper);
+        ImmutableThingTest.doInsertAndSelectImmutableThingWithAChildAndSibling(helper);
+        ImmutableThingTest.doTestCascadingUpdate(helper);
+
+        helper.dropSchema();
     }
 
 }

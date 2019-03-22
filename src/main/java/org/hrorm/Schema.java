@@ -84,7 +84,7 @@ public class Schema {
         buf.append(" (\n");
         if( descriptor.primaryKey() != null ){
             buf.append(descriptor.primaryKey().getName());
-            buf.append(" INTEGER PRIMARY KEY,\n");
+            buf.append(" integer primary key,\n");
         }
         List<String> columnSqls = descriptor.allColumns().stream()
                 .filter(c -> ! c.isPrimaryKey())

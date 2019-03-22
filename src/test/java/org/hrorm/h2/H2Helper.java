@@ -116,11 +116,15 @@ public class H2Helper {
     }
 
     public void initializeSchema(){
+        String sql = readSchema();
+        initializeSchema(sql);
+    }
+
+    public void initializeSchema(String sql){
         if ( ! initialized ) {
             try {
                 Connection connection = connect();
                 Statement statement = connection.createStatement();
-                String sql = readSchema();
                 statement.execute(sql);
                 initialized = true;
                 advanceSequences();
