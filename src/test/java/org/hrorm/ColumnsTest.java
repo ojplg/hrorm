@@ -1,8 +1,8 @@
 package org.hrorm;
 
 import org.hrorm.examples.Columns;
+import org.hrorm.examples.ColumnsDaoBuilder;
 import org.hrorm.examples.EnumeratedColor;
-import org.hrorm.examples.EnumeratedColorConverter;
 import org.hrorm.h2.H2Helper;
 import org.hrorm.util.TestLogConfig;
 import org.junit.AfterClass;
@@ -33,14 +33,7 @@ public class ColumnsTest {
     }
 
     private DaoBuilder<Columns> daoBuilder(){
-        return new DaoBuilder<>("columns_table", Columns::new)
-                .withPrimaryKey("id", "columns_seq", Columns::getId, Columns::setId)
-                .withStringColumn("string_column", Columns::getStringThing, Columns::setStringThing)
-                .withIntegerColumn("integer_column", Columns::getIntegerThing, Columns::setIntegerThing)
-                .withBigDecimalColumn("decimal_column", Columns::getDecimalThing, Columns::setDecimalThing)
-                .withBooleanColumn("boolean_column", Columns::getBooleanThing, Columns::setBooleanThing)
-                .withLocalDateTimeColumn("timestamp_column", Columns::getTimeStampThing, Columns::setTimeStampThing)
-                .withConvertingStringColumn("color_column", Columns::getColorThing, Columns::setColorThing, new EnumeratedColorConverter());
+        return ColumnsDaoBuilder.DAO_BUILDER;
     }
 
     @Test

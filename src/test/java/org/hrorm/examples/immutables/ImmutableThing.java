@@ -1,5 +1,4 @@
-package org.hrorm.examples;
-
+package org.hrorm.examples.immutables;
 
 import java.math.BigDecimal;
 import java.util.List;

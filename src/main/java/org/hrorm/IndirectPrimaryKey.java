@@ -112,4 +112,8 @@ public class IndirectPrimaryKey<ENTITY, BUILDER> implements PrimaryKey<ENTITY, B
     @Override
     public Set<Integer> supportedTypes() { return ColumnTypes.IntegerTypes; }
 
+    @Override
+    public boolean isNullable() {
+        return false;
+    }
 }

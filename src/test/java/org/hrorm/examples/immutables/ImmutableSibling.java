@@ -1,4 +1,4 @@
-package org.hrorm.examples;
+package org.hrorm.examples.immutables;
 
 @lombok.Data
 @lombok.Builder

@@ -92,4 +92,9 @@ public class ParentColumnImpl<CHILD, PARENT, CHILDBUILDER, PARENTBUILDER> implem
         PARENT parent = getter.apply(child);
         return parentPrimaryKey.getKey(parent);
     }
+
+    @Override
+    public boolean isNullable() {
+        return nullable;
+    }
 }

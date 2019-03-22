@@ -135,9 +135,11 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
         }
     }
 
-    private String parentChildColumnName(){
+    public String parentChildColumnName(){
         return childDaoDescriptor.parentColumn().getName();
     }
+
+    public String childTableName() { return childDaoDescriptor.tableName(); }
 
     private List<ChildrenDescriptor<CHILD,?,CHILDBUILDER,?>> grandChildrenDescriptors(){
         return childDaoDescriptor.childrenDescriptors();

@@ -79,4 +79,9 @@ public class NoBackReferenceParentColumn<ENTITY, PARENT, BUILDER, PARENTBUILDER>
     public Long getParentId(ENTITY entity) {
         return null;
     }
+
+    @Override
+    public boolean isNullable() {
+        return false;
+    }
 }
