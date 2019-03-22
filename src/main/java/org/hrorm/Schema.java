@@ -10,16 +10,41 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * The <code>Schema</code> class can be used to generate SQL to
+ * create tables, sequences, and constraints described by
+ * <code>DaoDescriptor</code> objects.
+ *
+ * <p>
+ *     The SQL generated is perhaps not ideal. It uses lowest-common
+ *     denominator like "text" and "integer" and databases have more
+ *     precise types that should probably be preferred.
+ * </p>
+ */
 public class Schema {
 
     private final Map<String, DaoDescriptor> descriptorsByTableName;
     private final Map<String, AssociationDaoDescriptor> associationDescriptorsByTableName;
     private final Set<String> sequenceNames;
 
+    /**
+     * Construct an instance.
+     *
+     * @param descriptors The <code>DaoDescriptor</code> objects to generate
+     *                    SQL for.
+     */
     public Schema(DaoDescriptor ... descriptors){
         this(descriptors, new AssociationDaoBuilder[0]);
     }
 
+    /**
+     * Construct an instance.
+     *
+     * @param daoDescriptors The <code>DaoDescriptor</code> objects to generate
+     *                    SQL for.
+     * @param associationDescriptors The <code>AssociationDaoDescriptor</code> objects
+     *                               to generate SQL for.
+     */
     public Schema(DaoDescriptor[] daoDescriptors, AssociationDaoDescriptor[] associationDescriptors){
         Map<String, DaoDescriptor> tableNameMap = new HashMap<>();
         Set<String> sequenceNames = new HashSet<>();
@@ -54,42 +79,37 @@ public class Schema {
     private List<String> joinConstraints(DaoDescriptor<?,?> descriptor){
         List<String> constraints = new ArrayList<>();
         for( JoinColumn<?,?,?,?> joinColumn : descriptor.joinColumns() ) {
-            StringBuilder buf = new StringBuilder();
-            buf.append("alter table ");
-            buf.append(descriptor.tableName());
-            buf.append(" add foreign key ( ");
-            buf.append(joinColumn.getName());
-            buf.append(" ) references ");
-            buf.append(joinColumn.getTable());
-            buf.append(" ( ");
-            buf.append(joinColumn.getJoinedTablePrimaryKeyName());
-            buf.append(" ); ");
-
-            constraints.add(buf.toString());
+            String constraint = foreignKeyConstraint(
+                    descriptor.tableName(),
+                    joinColumn.getName(),
+                    joinColumn.getTable(),
+                    joinColumn.getJoinedTablePrimaryKeyName()
+            );
+            constraints.add(constraint);
         }
         return constraints;
     }
 
     private List<String> childConstraints(DaoDescriptor<?,?> descriptor){
-
         List<String> constraints = new ArrayList<>();
         for( ChildrenDescriptor<?,?,?,?> childDescriptor : descriptor.childrenDescriptors()){
-            StringBuilder buf = new StringBuilder();
-            buf.append("alter table ");
-            buf.append(childDescriptor.childTableName());
-            buf.append(" add foreign key ( ");
-            buf.append(childDescriptor.parentChildColumnName());
-            buf.append(" ) references ");
-            buf.append(descriptor.tableName());
-            buf.append(" ( ");
-            buf.append(descriptor.primaryKey().getName());
-            buf.append(" ); ");
-
-            constraints.add(buf.toString());
+            String constraint = foreignKeyConstraint(
+                    childDescriptor.childTableName(),
+                    childDescriptor.parentChildColumnName(),
+                    descriptor.tableName(),
+                    descriptor.primaryKey().getName()
+            );
+            constraints.add(constraint);
         }
         return constraints;
     }
 
+    /**
+     * Generate the SQL CREATE statement for the requested table.
+     *
+     * @param tableName The name of the table.
+     * @return the CREATE statement
+     */
     public String createTableSql(String tableName){
         String upperCaseTableName = tableName.toUpperCase();
 
@@ -183,7 +203,11 @@ public class Schema {
         return buf.toString();
     }
 
-
+    /**
+     * All the constraints this schema contains.
+     *
+     * @return The SQL for the constraints.
+     */
     public List<String> constraints(){
         List<String> constraints = new ArrayList<>();
         for(DaoDescriptor<?,?> descriptor : descriptorsByTableName.values()){
@@ -198,10 +222,15 @@ public class Schema {
         return constraints;
     }
 
-    public String createSequenceSql(String sequenceName){
+    private String createSequenceSql(String sequenceName){
         return "create sequence " + sequenceName + ";\n";
     }
 
+    /**
+     * The SQL to create the schema described by this object.
+     *
+     * @return the SQL
+     */
     public String sql(){
         StringBuilder buf = new StringBuilder();
         for(String sequenceName : sequenceNames){

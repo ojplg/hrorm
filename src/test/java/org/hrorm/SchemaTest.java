@@ -44,11 +44,11 @@ public class SchemaTest {
 
         Schema columnsSchema = new Schema(ColumnsDaoBuilder.DAO_BUILDER);
 
-        String createSequenceSql = columnsSchema.createSequenceSql("colUMns_Seq");
+        String sql = SimpleSqlFormatter.format(columnsSchema.sql());
 
-        String expectedSql = "create sequence columns_seq;\n";
+        String expectedSql = SimpleSqlFormatter.format("create sequence columns_seq;");
 
-        SimpleSqlFormatter.assertEqualSql(expectedSql, createSequenceSql);
+        Assert.assertTrue(sql.contains(expectedSql));
     }
 
     @Test
