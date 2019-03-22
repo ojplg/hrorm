@@ -241,7 +241,8 @@
                         Parent-child relationships in hrorm are <b>owning</b> relationships. The persistence
                         of children is dependent upon the persistence of parents.</li>
                     <li>Entities can contain references to other entities without ownership, but in this case,
-                        the relationships should be one-to-one. Hrorm refers to these cases as sibling relationships.</li>
+                        the an object has a reference to a single other object.
+                        Hrorm refers to these cases as sibling relationships.</li>
                     <li>References between entities are accomplished through their primary keys in the database,
                         but through object references in Java.</li>
                 </ul>
