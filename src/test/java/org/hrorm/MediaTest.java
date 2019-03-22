@@ -1,7 +1,8 @@
 package org.hrorm;
 
-import lombok.Data;
 import org.hrorm.examples.media.Actor;
+import org.hrorm.examples.media.ActorMovieAssociation;
+import org.hrorm.examples.media.MediaDaoBuilders;
 import org.hrorm.examples.media.Movie;
 import org.hrorm.h2.H2Helper;
 import org.hrorm.util.AssertHelp;
@@ -34,30 +35,6 @@ public class MediaTest {
     public static void cleanUpDb(){
         helper.dropSchema();
     }
-
-    public static final DaoBuilder<Movie> MOVIE_DAO_BUILDER =
-            new DaoBuilder<>("movies", Movie::new)
-                .withPrimaryKey("id", "movies_sequence", Movie::getId, Movie::setId)
-                .withStringColumn("title", Movie::getTitle, Movie::setTitle);
-
-
-    public static final DaoBuilder<Actor> ACTOR_DAO_BUILDER =
-            new DaoBuilder<>("actors", Actor::new)
-                .withPrimaryKey("id", "actors_sequence", Actor::getId, Actor::setId)
-                .withStringColumn("name", Actor::getName, Actor::setName);
-
-    @Data
-    static class ActorMovieAssociation {
-        private Long id;
-        private Actor actor;
-        private Movie movie;
-    }
-
-    private static final DaoBuilder<ActorMovieAssociation> ACTOR_MOVIE_ASSOCIATION_DAO_BUILDER =
-            new DaoBuilder<>("actor_movie_associations", ActorMovieAssociation::new)
-                    .withPrimaryKey("id", "actor_movie_association_sequence", ActorMovieAssociation::getId, ActorMovieAssociation::setId)
-                    .withJoinColumn("actor_id", ActorMovieAssociation::getActor, ActorMovieAssociation::setActor, ACTOR_DAO_BUILDER)
-                    .withJoinColumn("movie_id", ActorMovieAssociation::getMovie, ActorMovieAssociation::setMovie, MOVIE_DAO_BUILDER);
 
     private static final String[] MOVIE_TITLES = new String[] {
             "High Noon",
@@ -92,7 +69,7 @@ public class MediaTest {
     };
 
     private void insertMovies(){
-        Dao<Movie> movieDao = MOVIE_DAO_BUILDER.buildDao(helper.connect());
+        Dao<Movie> movieDao = MediaDaoBuilders.MOVIE_DAO_BUILDER.buildDao(helper.connect());
         for(String title : MOVIE_TITLES){
             Movie movie = new Movie();
             movie.setTitle(title);
@@ -101,7 +78,7 @@ public class MediaTest {
     }
 
     private void insertActors(){
-        Dao<Actor> actorDao = ACTOR_DAO_BUILDER.buildDao(helper.connect());
+        Dao<Actor> actorDao = MediaDaoBuilders.ACTOR_DAO_BUILDER.buildDao(helper.connect());
         for(String name : ACTOR_NAMES){
             Actor actor = new Actor();
             actor.setName(name);
@@ -112,9 +89,9 @@ public class MediaTest {
     private void insertAssociations(){
         Connection connection = helper.connect();
 
-        Dao<Movie> movieDao = MOVIE_DAO_BUILDER.buildDao(connection);
-        Dao<Actor> actorDao = ACTOR_DAO_BUILDER.buildDao(connection);
-        Dao<ActorMovieAssociation> actorMovieAssociationDao = ACTOR_MOVIE_ASSOCIATION_DAO_BUILDER.buildDao(connection);
+        Dao<Movie> movieDao = MediaDaoBuilders.MOVIE_DAO_BUILDER.buildDao(connection);
+        Dao<Actor> actorDao = MediaDaoBuilders.ACTOR_DAO_BUILDER.buildDao(connection);
+        Dao<ActorMovieAssociation> actorMovieAssociationDao = MediaDaoBuilders.ACTOR_MOVIE_ASSOCIATION_DAO_BUILDER.buildDao(connection);
 
         List<Actor> actors = actorDao.selectAll();
         List<Movie> movies = movieDao.selectAll();
@@ -158,8 +135,8 @@ public class MediaTest {
     public void testFindGraceKellyMovies(){
         Connection connection = helper.connect();
 
-        Dao<Actor> actorDao = ACTOR_DAO_BUILDER.buildDao(connection);
-        Dao<ActorMovieAssociation> actorMovieAssociationDao = ACTOR_MOVIE_ASSOCIATION_DAO_BUILDER.buildDao(connection);
+        Dao<Actor> actorDao = MediaDaoBuilders.ACTOR_DAO_BUILDER.buildDao(connection);
+        Dao<ActorMovieAssociation> actorMovieAssociationDao = MediaDaoBuilders.ACTOR_MOVIE_ASSOCIATION_DAO_BUILDER.buildDao(connection);
 
         Actor graceKelly = actorDao.select(where("name", Operator.EQUALS, "Grace Kelly")).get(0);
 
@@ -171,20 +148,13 @@ public class MediaTest {
         AssertHelp.sameContents(new String[]{"High Noon", "To Catch A Thief"}, movieTitles);
     }
 
-    private static final AssociationDaoBuilder<Actor, Movie> ASSOCIATION_DAO_BUILDER =
-            new AssociationDaoBuilder<>(ACTOR_DAO_BUILDER, MOVIE_DAO_BUILDER)
-                    .withTableName("actor_movie_associations")
-                    .withSequenceName("actor_movie_association_sequence")
-                    .withPrimaryKeyName("id")
-                    .withLeftColumnName("actor_id")
-                    .withRightColumnName("movie_id");
 
     @Test
     public void testAssociationDaoSelect(){
-        Dao<Actor> actorDao = ACTOR_DAO_BUILDER.buildDao(helper.connect());
+        Dao<Actor> actorDao = MediaDaoBuilders.ACTOR_DAO_BUILDER.buildDao(helper.connect());
         Actor graceKelly = actorDao.select(where("name", Operator.EQUALS, "Grace Kelly")).get(0);
 
-        AssociationDao<Actor, Movie> associationDao = ASSOCIATION_DAO_BUILDER.buildDao(helper.connect());
+        AssociationDao<Actor, Movie> associationDao = MediaDaoBuilders.ASSOCIATION_DAO_BUILDER.buildDao(helper.connect());
         List<Movie> movies = associationDao.selectRightAssociates(graceKelly);
 
         List<String> titles = movies.stream().map(Movie::getTitle).collect(Collectors.toList());
@@ -193,21 +163,21 @@ public class MediaTest {
 
     @Test
     public void testInsertAssociation(){
-        Dao<Actor> actorDao = ACTOR_DAO_BUILDER.buildDao(helper.connect());
+        Dao<Actor> actorDao = MediaDaoBuilders.ACTOR_DAO_BUILDER.buildDao(helper.connect());
         Actor caryGrant = actorDao.select(where("name", Operator.EQUALS, "Cary Grant")).get(0);
 
-        Dao<Movie> movieDao = MOVIE_DAO_BUILDER.buildDao(helper.connect());
+        Dao<Movie> movieDao = MediaDaoBuilders.MOVIE_DAO_BUILDER.buildDao(helper.connect());
         Movie philadelphiaStory = new Movie();
         philadelphiaStory.setTitle("The Philadelphia Story");
         movieDao.insert(philadelphiaStory);
 
         {
-            AssociationDao<Actor, Movie> associationDao = ASSOCIATION_DAO_BUILDER.buildDao(helper.connect());
+            AssociationDao<Actor, Movie> associationDao = MediaDaoBuilders.ASSOCIATION_DAO_BUILDER.buildDao(helper.connect());
             Long id = associationDao.insertAssociation(caryGrant, philadelphiaStory);
             Assert.assertNotNull(id);
         }
         {
-            AssociationDao<Actor, Movie> associationDao = ASSOCIATION_DAO_BUILDER.buildDao(helper.connect());
+            AssociationDao<Actor, Movie> associationDao = MediaDaoBuilders.ASSOCIATION_DAO_BUILDER.buildDao(helper.connect());
             List<Movie> movies = associationDao.selectRightAssociates(caryGrant);
             List<String> titles = movies.stream().map(Movie::getTitle).collect(Collectors.toList());
             AssertHelp.sameContents(new String[]{"North By Northwest", "To Catch A Thief", "The Philadelphia Story"}, titles);
@@ -216,18 +186,18 @@ public class MediaTest {
 
     @Test
     public void testDeleteAssociation(){
-        Dao<Actor> actorDao = ACTOR_DAO_BUILDER.buildDao(helper.connect());
+        Dao<Actor> actorDao = MediaDaoBuilders.ACTOR_DAO_BUILDER.buildDao(helper.connect());
         Actor hollyHunter = actorDao.select(where("name", Operator.EQUALS, "Holly Hunter")).get(0);
 
-        Dao<Movie> movieDao = MOVIE_DAO_BUILDER.buildDao(helper.connect());
+        Dao<Movie> movieDao = MediaDaoBuilders.MOVIE_DAO_BUILDER.buildDao(helper.connect());
         Movie raisingArizona = movieDao.select(where("title", Operator.EQUALS, "Raising Arizona")).get(0);
 
         {
-            AssociationDao<Actor, Movie> associationDao = ASSOCIATION_DAO_BUILDER.buildDao(helper.connect());
+            AssociationDao<Actor, Movie> associationDao = MediaDaoBuilders.ASSOCIATION_DAO_BUILDER.buildDao(helper.connect());
             associationDao.deleteAssociation(hollyHunter, raisingArizona);
         }
         {
-            AssociationDao<Actor, Movie> associationDao = ASSOCIATION_DAO_BUILDER.buildDao(helper.connect());
+            AssociationDao<Actor, Movie> associationDao = MediaDaoBuilders.ASSOCIATION_DAO_BUILDER.buildDao(helper.connect());
             List<Movie> movies = associationDao.selectRightAssociates(hollyHunter);
             List<String> titles = movies.stream().map(Movie::getTitle).collect(Collectors.toList());
             AssertHelp.sameContents(new String[]{"Broadcast News"}, titles);
@@ -236,10 +206,10 @@ public class MediaTest {
 
     @Test
     public void testAssociationDaoSelect_LeftAssociates(){
-        Dao<Movie> movieDao = MOVIE_DAO_BUILDER.buildDao(helper.connect());
+        Dao<Movie> movieDao = MediaDaoBuilders.MOVIE_DAO_BUILDER.buildDao(helper.connect());
         Movie raisingArizona = movieDao.select(where("title", Operator.EQUALS, "Raising Arizona")).get(0);
 
-        AssociationDao<Actor, Movie> associationDao = ASSOCIATION_DAO_BUILDER.buildDao(helper.connect());
+        AssociationDao<Actor, Movie> associationDao = MediaDaoBuilders.ASSOCIATION_DAO_BUILDER.buildDao(helper.connect());
         List<Actor> actors = associationDao.selectLeftAssociates(raisingArizona);
 
         List<String> names = actors.stream().map(Actor::getName).collect(Collectors.toList());

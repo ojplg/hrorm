@@ -1,6 +1,7 @@
 package org.hrorm;
 
 import org.hrorm.examples.media.Actor;
+import org.hrorm.examples.media.MediaDaoBuilders;
 import org.hrorm.examples.media.Movie;
 import org.junit.Assert;
 import org.junit.Test;
@@ -10,7 +11,7 @@ public class IndirectAssociationDaoBuilderTest {
     @Test
     public void testReadyAfterConstruction(){
         IndirectAssociationDaoBuilder<Movie, Movie, Actor, Actor> daoBuilder =
-                new IndirectAssociationDaoBuilder<>(MediaTest.MOVIE_DAO_BUILDER, MediaTest.ACTOR_DAO_BUILDER);
+                new IndirectAssociationDaoBuilder<>(MediaDaoBuilders.MOVIE_DAO_BUILDER, MediaDaoBuilders.ACTOR_DAO_BUILDER);
 
         Assert.assertFalse(daoBuilder.ready());
     }
@@ -18,7 +19,7 @@ public class IndirectAssociationDaoBuilderTest {
     @Test
     public void testReadyAferTableName(){
         IndirectAssociationDaoBuilder<Movie, Movie, Actor, Actor> daoBuilder =
-                new IndirectAssociationDaoBuilder<>(MediaTest.MOVIE_DAO_BUILDER, MediaTest.ACTOR_DAO_BUILDER)
+                new IndirectAssociationDaoBuilder<>(MediaDaoBuilders.MOVIE_DAO_BUILDER, MediaDaoBuilders.ACTOR_DAO_BUILDER)
                 .withTableName("actor_movie_association");
 
         Assert.assertFalse(daoBuilder.ready());
@@ -27,7 +28,7 @@ public class IndirectAssociationDaoBuilderTest {
     @Test
     public void testReadyAfterSeveralSet(){
         IndirectAssociationDaoBuilder<Movie, Movie, Actor, Actor> daoBuilder =
-                new IndirectAssociationDaoBuilder<>(MediaTest.MOVIE_DAO_BUILDER, MediaTest.ACTOR_DAO_BUILDER)
+                new IndirectAssociationDaoBuilder<>(MediaDaoBuilders.MOVIE_DAO_BUILDER, MediaDaoBuilders.ACTOR_DAO_BUILDER)
                         .withTableName("actor_movie_association")
                         .withLeftColumnName("actor_id")
                         .withPrimaryKeyName("id");
@@ -38,7 +39,7 @@ public class IndirectAssociationDaoBuilderTest {
     @Test
     public void testReadyAfterAllSet(){
         IndirectAssociationDaoBuilder<Movie, Movie, Actor, Actor> daoBuilder =
-                new IndirectAssociationDaoBuilder<>(MediaTest.MOVIE_DAO_BUILDER, MediaTest.ACTOR_DAO_BUILDER)
+                new IndirectAssociationDaoBuilder<>(MediaDaoBuilders.MOVIE_DAO_BUILDER, MediaDaoBuilders.ACTOR_DAO_BUILDER)
                         .withTableName("actor_movie_association")
                         .withRightColumnName("movie_id")
                         .withLeftColumnName("actor_id")
