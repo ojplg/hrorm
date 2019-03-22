@@ -8,7 +8,7 @@ import java.sql.Connection;
  * @param <LEFT> The type of one of the entities being associated
  * @param <RIGHT> The type of the other of the entities being associated
  */
-public class AssociationDaoBuilder<LEFT, RIGHT> {
+public class AssociationDaoBuilder<LEFT, RIGHT> implements AssociationDaoDescriptor {
 
     private final IndirectAssociationDaoBuilder<LEFT, LEFT, RIGHT, RIGHT> indirectDaoBuilder;
 
@@ -90,5 +90,25 @@ public class AssociationDaoBuilder<LEFT, RIGHT> {
     public AssociationDaoBuilder<LEFT, RIGHT> withRightColumnName(String rightColumnName) {
         this.indirectDaoBuilder.withRightColumnName(rightColumnName);
         return this;
+    }
+
+    public String getTableName() {
+        return indirectDaoBuilder.getTableName();
+    }
+
+    public String getPrimaryKeyName() {
+        return indirectDaoBuilder.getPrimaryKeyName();
+    }
+
+    public String getSequenceName() {
+        return indirectDaoBuilder.getSequenceName();
+    }
+
+    public String getLeftColumnName() {
+        return indirectDaoBuilder.getLeftColumnName();
+    }
+
+    public String getRightColumnName() {
+        return indirectDaoBuilder.getRightColumnName();
     }
 }

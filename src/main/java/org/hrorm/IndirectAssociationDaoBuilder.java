@@ -13,14 +13,14 @@ import java.util.List;
  * @param <RIGHT> The type of the other of the entities being associated
  * @param <RIGHTBUILDER> The builder type for the other entity
  */
-public class IndirectAssociationDaoBuilder<LEFT, LEFTBUILDER, RIGHT, RIGHTBUILDER> {
+public class IndirectAssociationDaoBuilder<LEFT, LEFTBUILDER, RIGHT, RIGHTBUILDER> implements AssociationDaoDescriptor {
 
     private final DaoDescriptor<LEFT, LEFTBUILDER> leftDaoDescriptor;
     private final DaoDescriptor<RIGHT, RIGHTBUILDER> rightDaoDescriptor;
 
-    private  String tableName;
-    private  String primaryKeyName;
-    private  String sequenceName;
+    private String tableName;
+    private String primaryKeyName;
+    private String sequenceName;
     private String leftColumnName;
     private String rightColumnName;
 
@@ -147,6 +147,31 @@ public class IndirectAssociationDaoBuilder<LEFT, LEFTBUILDER, RIGHT, RIGHTBUILDE
         }
 
         return missing;
+    }
+
+    @Override
+    public String getTableName() {
+        return tableName;
+    }
+
+    @Override
+    public String getPrimaryKeyName() {
+        return primaryKeyName;
+    }
+
+    @Override
+    public String getSequenceName() {
+        return sequenceName;
+    }
+
+    @Override
+    public String getLeftColumnName() {
+        return leftColumnName;
+    }
+
+    @Override
+    public String getRightColumnName() {
+        return rightColumnName;
     }
 
     private boolean emptyString(String s){

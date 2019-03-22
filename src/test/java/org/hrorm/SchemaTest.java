@@ -5,6 +5,7 @@ import org.hrorm.examples.Simple;
 import org.hrorm.examples.SimpleParentChildDaos;
 import org.hrorm.examples.geography.GeographyDaos;
 import org.hrorm.examples.immutables.DaoBuilders;
+import org.hrorm.examples.media.MediaDaoBuilders;
 import org.hrorm.h2.H2Helper;
 import org.hrorm.util.SimpleSqlFormatter;
 import org.junit.Assert;
@@ -124,6 +125,23 @@ public class SchemaTest {
         ImmutableThingTest.doTestCascadingUpdate(helper);
 
         helper.dropSchema();
+    }
+
+    @Test
+    public void testAssociationDaoSchema(){
+        Schema schema = new Schema(
+                new DaoDescriptor[]{ },
+                new AssociationDaoBuilder[]{ MediaDaoBuilders.ASSOCIATION_DAO_BUILDER });
+
+        String sql = schema.createTableSql("actor_movie_associations");
+
+        String expectedSql = "create table actor_movie_associations (" +
+                " id integer primary key,\n" +
+                "    actor_id integer not null,\n" +
+                "    movie_id integer not null\n" +
+                ");";
+
+        SimpleSqlFormatter.assertEqualSql(expectedSql, sql);
     }
 
 }
