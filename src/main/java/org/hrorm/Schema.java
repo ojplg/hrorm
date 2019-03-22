@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -32,11 +31,8 @@ public class Schema {
     }
 
     private String renderColumn(Column<?,?> column){
-        String base =  column.getName() + " " + ColumnTypes.getSchemaColumnType(column);
-        if( column.isNullable() ){
-            return base;
-        }
-        return base + " not null";
+        String extension = column.isNullable() ? "" : " not null";
+        return column.getName() + " " + ColumnTypes.getSchemaColumnType(column) + extension;
     }
 
     private List<String> joinConstraints(DaoDescriptor<?,?> descriptor){
