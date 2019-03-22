@@ -105,6 +105,11 @@ public class Schema {
             buf.append("\n");
         }
 
+        for(String constraint : constraints()){
+            buf.append(constraint);
+            buf.append("\n");
+        }
+
         return buf.toString();
     }
 

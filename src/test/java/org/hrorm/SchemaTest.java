@@ -12,7 +12,7 @@ import java.util.List;
 
 public class SchemaTest {
 
-    // TODO: Foreign key constraints
+    // TODO: Generate schema and test by instantiating inside H2
     // TODO: Association tables
     // TODO: Unique constraints? (Hrorm knows nothing about these.)
     // TODO: keyless daos?
