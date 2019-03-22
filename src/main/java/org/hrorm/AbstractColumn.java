@@ -73,4 +73,8 @@ public abstract class AbstractColumn<TYPE,ENTITY,BUILDER> implements Column<ENTI
     abstract void setPreparedStatement(PreparedStatement preparedStatement, int index, TYPE value) throws SQLException;
 
     abstract int sqlType();
+
+    public boolean isNullable(){
+        return nullable;
+    }
 }

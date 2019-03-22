@@ -1,6 +1,7 @@
 package org.hrorm;
 
 import org.hrorm.examples.ColumnsDaoBuilder;
+import org.hrorm.examples.Simple;
 import org.hrorm.h2.H2Helper;
 import org.hrorm.util.SimpleSqlFormatter;
 import org.junit.Test;
@@ -8,7 +9,6 @@ import org.junit.Test;
 public class SchemaTest {
 
     // TODO: Foreign key constraints
-    // TODO: Not null columns
     // TODO: Association tables
     // TODO: Unique constraints? (Hrorm knows nothing about these.)
     // TODO: keyless daos?
@@ -53,6 +53,23 @@ public class SchemaTest {
 
         H2Helper helper = new H2Helper("columns");
         String expectedSql = helper.readSchema();
+
+        SimpleSqlFormatter.assertEqualSql(expectedSql, sql);
+    }
+
+    @Test
+    public void testNotNullColumn(){
+        DaoBuilder<Simple> daoBuilder = new DaoBuilder<>("siMplE", Simple::new)
+                .withPrimaryKey("id", "simple_seq", Simple::getId, Simple::setId)
+                .withStringColumn("field", Simple::getField, Simple::setField).notNull();
+
+        Schema schema = new Schema(daoBuilder);
+        String sql = schema.createTableSql("Simple");
+
+        String expectedSql = "create table simple (\n" +
+                " id integer primary key,\n" +
+                " field text not null\n" +
+                ");";
 
         SimpleSqlFormatter.assertEqualSql(expectedSql, sql);
     }

@@ -129,4 +129,8 @@ public class JoinColumn<ENTITY, JOINED, ENTITYBUILDER, JOINEDBUILDER> implements
     @Override
     public Set<Integer> supportedTypes() { return ColumnTypes.IntegerTypes; }
 
+    @Override
+    public boolean isNullable() {
+        return nullable;
+    }
 }

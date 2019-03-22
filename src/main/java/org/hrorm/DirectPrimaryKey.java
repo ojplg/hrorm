@@ -109,4 +109,8 @@ public class DirectPrimaryKey<ENTITY> implements PrimaryKey<ENTITY, ENTITY> {
     @Override
     public Set<Integer> supportedTypes() { return ColumnTypes.IntegerTypes; }
 
+    @Override
+    public boolean isNullable() {
+        return false;
+    }
 }

@@ -58,6 +58,13 @@ public interface Column<ENTITY, BUILDER> {
     void notNull();
 
     /**
+     * Indicator of whether or not this column is nullable or not.
+     *
+     * @return true if this column is allowed to contain null values, false otherwise.
+     */
+    boolean isNullable();
+
+    /**
      * Flag indicating whether this column represents a reference to a parent entity.
      *
      * @return true if it is a parent column, false otherwise
