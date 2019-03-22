@@ -2,6 +2,7 @@ package org.hrorm;
 
 import org.hrorm.examples.ColumnsDaoBuilder;
 import org.hrorm.examples.Simple;
+import org.hrorm.examples.SimpleParentChildDaos;
 import org.hrorm.examples.geography.GeographyDaos;
 import org.hrorm.h2.H2Helper;
 import org.hrorm.util.SimpleSqlFormatter;
@@ -79,7 +80,7 @@ public class SchemaTest {
     }
 
     @Test
-    public void testForeignKeyConstraint(){
+    public void testForeignKeyConstraintJoins(){
         Schema schema = new Schema(GeographyDaos.CityDaoBuilder, GeographyDaos.StateDaoBuilder);
 
         List<String> constraints = schema.constraints();
@@ -87,6 +88,17 @@ public class SchemaTest {
 
         String expectedSql = "alter table city add foreign key (state_id) references state(id);";
 
+        SimpleSqlFormatter.assertEqualSql(expectedSql, constraints.get(0));
+    }
+
+    @Test
+    public void testForeignKeyConstraintParentChild(){
+        Schema schema = new Schema(SimpleParentChildDaos.PARENT, SimpleParentChildDaos.CHILD);
+
+        List<String> constraints = schema.constraints();
+        Assert.assertEquals(1, constraints.size());
+
+        String expectedSql = "alter table simple_child_table add foreign key (parent_id) references simple_parent_table(id);";
         SimpleSqlFormatter.assertEqualSql(expectedSql, constraints.get(0));
     }
 

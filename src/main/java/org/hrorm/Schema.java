@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -57,6 +58,26 @@ public class Schema {
         return constraints;
     }
 
+    private List<String> childConstraints(DaoDescriptor<?,?> descriptor){
+
+        List<String> constraints = new ArrayList<>();
+        for( ChildrenDescriptor<?,?,?,?> childDescriptor : descriptor.childrenDescriptors()){
+            StringBuilder buf = new StringBuilder();
+            buf.append("alter table ");
+            buf.append(childDescriptor.childTableName());
+            buf.append(" add foreign key ( ");
+            buf.append(childDescriptor.parentChildColumnName());
+            buf.append(" ) references ");
+            buf.append(descriptor.tableName());
+            buf.append(" ( ");
+            buf.append(descriptor.primaryKey().getName());
+            buf.append(" ); ");
+
+            constraints.add(buf.toString());
+        }
+        return constraints;
+    }
+
     public String createTableSql(String tableName){
         DaoDescriptor<?,?> descriptor = descriptorsByTableName.get(tableName.toUpperCase());
 
@@ -85,6 +106,7 @@ public class Schema {
         List<String> constraints = new ArrayList<>();
         for(DaoDescriptor<?,?> descriptor : descriptorsByTableName.values()){
             constraints.addAll(joinConstraints(descriptor));
+            constraints.addAll(childConstraints(descriptor));
         }
         return constraints;
     }
