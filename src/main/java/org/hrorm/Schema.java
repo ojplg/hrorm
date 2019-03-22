@@ -35,6 +35,9 @@ public class Schema {
         for( AssociationDaoDescriptor associationDaoDescriptor : associationDescriptors){
             String tableName = associationDaoDescriptor.getTableName().toUpperCase();
             associationDaoBuilderMap.put(tableName, associationDaoDescriptor);
+
+            String sequenceName = associationDaoDescriptor.getSequenceName().toUpperCase();
+            sequenceNames.add(sequenceName);
         }
 
         this.descriptorsByTableName = Collections.unmodifiableMap(tableNameMap);
@@ -167,6 +170,12 @@ public class Schema {
             buf.append(createTableSql(tableName));
             buf.append("\n");
         }
+
+        for(String tableName : associationDescriptorsByTableName.keySet()){
+            buf.append(createTableSql(tableName));
+            buf.append("\n");
+        }
+
 
         for(String constraint : constraints()){
             buf.append(constraint);

@@ -101,7 +101,7 @@ public class SimpleSqlFormatter {
 
         }
 
-        return buf.toString();
+        return buf.toString().trim();
     }
 
     public static boolean equalSql(String expected, String string){

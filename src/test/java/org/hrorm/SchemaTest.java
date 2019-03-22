@@ -128,7 +128,7 @@ public class SchemaTest {
     }
 
     @Test
-    public void testAssociationDaoSchema(){
+    public void testAssociationDaoSchemaTables(){
         Schema schema = new Schema(
                 new DaoDescriptor[]{ },
                 new AssociationDaoBuilder[]{ MediaDaoBuilders.ASSOCIATION_DAO_BUILDER });
@@ -143,5 +143,19 @@ public class SchemaTest {
 
         SimpleSqlFormatter.assertEqualSql(expectedSql, sql);
     }
+
+    @Test
+    public void testAssociationDaoSchemaSequences(){
+        Schema schema = new Schema(
+                new DaoDescriptor[]{ },
+                new AssociationDaoBuilder[]{ MediaDaoBuilders.ASSOCIATION_DAO_BUILDER });
+
+        String sql = SimpleSqlFormatter.format(schema.sql());
+
+        String expectedSql = SimpleSqlFormatter.format("create sequence actor_movie_association_sequence;");
+
+        Assert.assertTrue(sql.contains(expectedSql));
+    }
+
 
 }
