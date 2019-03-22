@@ -1,5 +1,6 @@
 package org.hrorm;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -37,6 +38,25 @@ public class Schema {
         return base + " not null";
     }
 
+    private List<String> joinConstraints(DaoDescriptor<?,?> descriptor){
+        List<String> constraints = new ArrayList<>();
+        for( JoinColumn<?,?,?,?> joinColumn : descriptor.joinColumns() ) {
+            StringBuilder buf = new StringBuilder();
+            buf.append("alter table ");
+            buf.append(descriptor.tableName());
+            buf.append(" add foreign key ( ");
+            buf.append(joinColumn.getName());
+            buf.append(" ) references ");
+            buf.append(joinColumn.getTable());
+            buf.append(" ( ");
+            buf.append(joinColumn.getJoinedTablePrimaryKeyName());
+            buf.append(" ); ");
+
+            constraints.add(buf.toString());
+        }
+        return constraints;
+    }
+
     public String createTableSql(String tableName){
         DaoDescriptor<?,?> descriptor = descriptorsByTableName.get(tableName.toUpperCase());
 
@@ -59,6 +79,14 @@ public class Schema {
         buf.append(");\n");
 
         return buf.toString();
+    }
+
+    public List<String> constraints(){
+        List<String> constraints = new ArrayList<>();
+        for(DaoDescriptor<?,?> descriptor : descriptorsByTableName.values()){
+            constraints.addAll(joinConstraints(descriptor));
+        }
+        return constraints;
     }
 
     public String createSequenceSql(String sequenceName){

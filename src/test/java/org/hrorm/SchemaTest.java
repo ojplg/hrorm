@@ -2,9 +2,13 @@ package org.hrorm;
 
 import org.hrorm.examples.ColumnsDaoBuilder;
 import org.hrorm.examples.Simple;
+import org.hrorm.examples.geography.GeographyDaos;
 import org.hrorm.h2.H2Helper;
 import org.hrorm.util.SimpleSqlFormatter;
+import org.junit.Assert;
 import org.junit.Test;
+
+import java.util.List;
 
 public class SchemaTest {
 
@@ -72,6 +76,18 @@ public class SchemaTest {
                 ");";
 
         SimpleSqlFormatter.assertEqualSql(expectedSql, sql);
+    }
+
+    @Test
+    public void testForeignKeyConstraint(){
+        Schema schema = new Schema(GeographyDaos.CityDaoBuilder, GeographyDaos.StateDaoBuilder);
+
+        List<String> constraints = schema.constraints();
+        Assert.assertEquals(1, constraints.size());
+
+        String expectedSql = "alter table city add foreign key (state_id) references state(id);";
+
+        SimpleSqlFormatter.assertEqualSql(expectedSql, constraints.get(0));
     }
 
 }
