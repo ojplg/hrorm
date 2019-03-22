@@ -15,7 +15,6 @@ import java.util.List;
 
 public class SchemaTest {
 
-    // TODO: Association tables
     // TODO: Unique constraints? (Hrorm knows nothing about these.)
     // TODO: keyless daos?
 
@@ -157,5 +156,22 @@ public class SchemaTest {
         Assert.assertTrue(sql.contains(expectedSql));
     }
 
+    @Test
+    public void testAssociationDaoSchemaConstraints(){
+        Schema schema = new Schema(
+                new DaoDescriptor[]{ },
+                new AssociationDaoBuilder[]{ MediaDaoBuilders.ASSOCIATION_DAO_BUILDER });
+
+        String sql = SimpleSqlFormatter.format(schema.sql());
+
+        String movieConstraint = SimpleSqlFormatter.format(
+                "alter table actor_movie_associations add foreign key (movie_id) references movies(id);");
+
+        String actorConstraint = SimpleSqlFormatter.format(
+                "alter table actor_movie_associations add foreign key (actor_id) references actors(id);");
+
+        Assert.assertTrue(sql.contains(movieConstraint));
+        Assert.assertTrue(sql.contains(actorConstraint));
+    }
 
 }

@@ -10,4 +10,13 @@ public interface AssociationDaoDescriptor {
     String getLeftColumnName();
 
     String getRightColumnName();
+
+    String getLeftTableName();
+
+    String getRightTableName();
+
+    String getLeftPrimaryKeyName();
+
+    String getRightPrimaryKeyName();
+
 }

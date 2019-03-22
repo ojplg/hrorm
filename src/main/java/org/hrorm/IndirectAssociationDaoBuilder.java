@@ -174,6 +174,26 @@ public class IndirectAssociationDaoBuilder<LEFT, LEFTBUILDER, RIGHT, RIGHTBUILDE
         return rightColumnName;
     }
 
+    @Override
+    public String getLeftTableName() {
+        return leftDaoDescriptor.tableName();
+    }
+
+    @Override
+    public String getRightTableName() {
+        return rightDaoDescriptor.tableName();
+    }
+
+    @Override
+    public String getLeftPrimaryKeyName() {
+        return leftDaoDescriptor.primaryKey().getName();
+    }
+
+    @Override
+    public String getRightPrimaryKeyName() {
+        return rightDaoDescriptor.primaryKey().getName();
+    }
+
     private boolean emptyString(String s){
         return s == null || s.isEmpty();
     }

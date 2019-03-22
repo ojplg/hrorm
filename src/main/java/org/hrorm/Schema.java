@@ -1,6 +1,7 @@
 package org.hrorm;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -145,13 +146,55 @@ public class Schema {
 
         return buf.toString();
     }
-    
+
+    private List<String> associationConstraints(AssociationDaoDescriptor descriptor){
+        String leftConstraint = foreignKeyConstraint(
+                descriptor.getTableName(),
+                descriptor.getLeftColumnName(),
+                descriptor.getLeftTableName(),
+                descriptor.getLeftPrimaryKeyName()
+        );
+
+        String rightConstraint = foreignKeyConstraint(
+                descriptor.getTableName(),
+                descriptor.getRightColumnName(),
+                descriptor.getRightTableName(),
+                descriptor.getRightPrimaryKeyName()
+        );
+
+        return Arrays.asList(leftConstraint, rightConstraint);
+    }
+
+    private String foreignKeyConstraint(String tableName, String columnName, String foreignTableName, String foreignPrimaryKey){
+        StringBuilder buf = new StringBuilder();
+
+        buf.append("alter table ");
+        buf.append(tableName);
+        buf.append(" add foreign key ");
+        buf.append("(");
+        buf.append(columnName);
+        buf.append(") ");
+        buf.append(" references ");
+        buf.append(foreignTableName);
+        buf.append("(");
+        buf.append(foreignPrimaryKey);
+        buf.append(");\n");
+
+        return buf.toString();
+    }
+
+
     public List<String> constraints(){
         List<String> constraints = new ArrayList<>();
         for(DaoDescriptor<?,?> descriptor : descriptorsByTableName.values()){
             constraints.addAll(joinConstraints(descriptor));
             constraints.addAll(childConstraints(descriptor));
         }
+
+        for( AssociationDaoDescriptor descriptor : associationDescriptorsByTableName.values() ){
+            constraints.addAll(associationConstraints(descriptor));
+        }
+
         return constraints;
     }
 

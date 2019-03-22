@@ -111,4 +111,24 @@ public class AssociationDaoBuilder<LEFT, RIGHT> implements AssociationDaoDescrip
     public String getRightColumnName() {
         return indirectDaoBuilder.getRightColumnName();
     }
+
+    @Override
+    public String getLeftTableName() {
+        return indirectDaoBuilder.getLeftTableName();
+    }
+
+    @Override
+    public String getRightTableName() {
+        return indirectDaoBuilder.getRightTableName();
+    }
+
+    @Override
+    public String getLeftPrimaryKeyName() {
+        return indirectDaoBuilder.getLeftPrimaryKeyName();
+    }
+
+    @Override
+    public String getRightPrimaryKeyName() {
+        return indirectDaoBuilder.getRightPrimaryKeyName();
+    }
 }
