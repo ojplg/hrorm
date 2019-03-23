@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * The <code>Schema</code> class can be used to generate SQL to
@@ -79,7 +80,11 @@ public class Schema {
         return constraints;
     }
 
-    private String createRegularTableSql(DaoDescriptor<?,?> descriptor){
+    private Stream<String> allConstraints(DaoDescriptor<?,?> descriptor){
+        return Stream.concat(joinConstraints(descriptor).stream(), childConstraints(descriptor).stream());
+    }
+
+    private String tablesSql(DaoDescriptor<?,?> descriptor){
         StringBuilder buf = new StringBuilder();
 
         buf.append("create table ");
@@ -99,42 +104,6 @@ public class Schema {
         buf.append(");\n");
 
         return buf.toString();
-    }
-
-    private String createAssociationTableSql(AssociationDaoDescriptor descriptor){
-
-        StringBuilder buf = new StringBuilder();
-
-        buf.append("create table ");
-        buf.append(descriptor.getTableName());
-        buf.append(" (\n");
-        buf.append(descriptor.getPrimaryKeyName());
-        buf.append(" integer primary key,\n");
-        buf.append(descriptor.getLeftColumnName());
-        buf.append(" integer not null,\n");
-        buf.append(descriptor.getRightColumnName());
-        buf.append(" integer not null\n");
-        buf.append(");");
-
-        return buf.toString();
-    }
-
-    private List<String> associationConstraints(AssociationDaoDescriptor descriptor){
-        String leftConstraint = foreignKeyConstraint(
-                descriptor.getTableName(),
-                descriptor.getLeftColumnName(),
-                descriptor.getLeftTableName(),
-                descriptor.getLeftPrimaryKeyName()
-        );
-
-        String rightConstraint = foreignKeyConstraint(
-                descriptor.getTableName(),
-                descriptor.getRightColumnName(),
-                descriptor.getRightTableName(),
-                descriptor.getRightPrimaryKeyName()
-        );
-
-        return Arrays.asList(leftConstraint, rightConstraint);
     }
 
     private String foreignKeyConstraint(String tableName, String columnName, String foreignTableName, String foreignPrimaryKey){
@@ -161,13 +130,7 @@ public class Schema {
      * @return The SQL to create the constraints.
      */
     public List<String> constraints(){
-        List<String> constraints = new ArrayList<>();
-        for(DaoDescriptor<?,?> descriptor : descriptorsSet){
-            constraints.addAll(joinConstraints(descriptor));
-            constraints.addAll(childConstraints(descriptor));
-        }
-
-        return constraints;
+        return descriptorsSet.stream().flatMap(this::allConstraints).collect(Collectors.toList());
     }
 
     /**
@@ -176,11 +139,7 @@ public class Schema {
      * @return The SQL to create the sequences.
      */
     public List<String> sequences(){
-        List<String> sequences = new ArrayList<>();
-        for(String sequenceName : sequenceNames){
-            sequences.add(createSequenceSql(sequenceName));
-        }
-        return sequences;
+        return sequenceNames.stream().map(this::createSequenceSql).collect(Collectors.toList());
     }
 
     private String createSequenceSql(String sequenceName){
@@ -193,13 +152,7 @@ public class Schema {
      * @return The SQL to create the tables.
      */
     public List<String> tables(){
-        List<String> tables = new ArrayList<>();
-
-        for(DaoDescriptor descriptor : descriptorsSet){
-            tables.add(createRegularTableSql(descriptor));
-        }
-
-        return tables;
+        return descriptorsSet.stream().map(this::tablesSql).collect(Collectors.toList());
     }
 
     /**
