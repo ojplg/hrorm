@@ -292,8 +292,9 @@ public class KeylessTest {
         List<Keyless> fromDatabase = dao.select(where);
 
         // Verify
-        Assert.assertEquals(matching.size(), fromDatabase.size());
-        matching.forEach(keyless -> Assert.assertTrue(fromDatabase.contains(keyless)));
+        Assert.assertEquals("Incorrect size: ", matching.size(), fromDatabase.size());
+        matching.forEach(keyless -> Assert.assertTrue(
+                "Missing " + keyless + " from " + fromDatabase, fromDatabase.contains(keyless)));
     }
     
     
@@ -359,6 +360,5 @@ public class KeylessTest {
     public static Predicate<Keyless> like(final String stringColumn) {
         return keyless -> keyless.getStringColumn().toLowerCase().contains(stringColumn.toLowerCase());
     }
-
 
 }

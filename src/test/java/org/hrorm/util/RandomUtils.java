@@ -88,6 +88,8 @@ public class RandomUtils {
      * @return
      */
     public static LocalDateTime localDateTime() {
+        // This date time causes problems. Not sure why.
+        //return LocalDateTime.of(1964,4,26, 2, 48, 46);
 
         return LocalDateTime.of(
                 1950 + range(0,100), range(1,12), range(1,28),
