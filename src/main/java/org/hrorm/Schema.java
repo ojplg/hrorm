@@ -3,10 +3,8 @@ package org.hrorm;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -23,8 +21,8 @@ import java.util.stream.Collectors;
  */
 public class Schema {
 
-    private final Map<String, DaoDescriptor> descriptorsByTableName;
-    private final Map<String, AssociationDaoDescriptor> associationDescriptorsByTableName;
+    private final Set<DaoDescriptor> descriptorsSet;
+    private final Set<AssociationDaoDescriptor> associationDescriptorsSet;
     private final Set<String> sequenceNames;
 
     /**
@@ -46,29 +44,27 @@ public class Schema {
      *                               to generate SQL for.
      */
     public Schema(DaoDescriptor[] daoDescriptors, AssociationDaoDescriptor[] associationDescriptors){
-        Map<String, DaoDescriptor> tableNameMap = new HashMap<>();
+        Set<DaoDescriptor> tables = new HashSet<>();
         Set<String> sequenceNames = new HashSet<>();
 
         for(DaoDescriptor daoDescriptor : daoDescriptors){
-            String tableName = daoDescriptor.tableName().toUpperCase();
-            tableNameMap.put(tableName, daoDescriptor);
+            tables.add(daoDescriptor);
 
             String sequenceName = daoDescriptor.primaryKey().getSequenceName().toUpperCase();
             sequenceNames.add(sequenceName);
         }
 
-        Map<String, AssociationDaoDescriptor> associationDaoBuilderMap = new HashMap<>();
+        Set<AssociationDaoDescriptor> associationDaoBuilders = new HashSet<>();
         for( AssociationDaoDescriptor associationDaoDescriptor : associationDescriptors){
-            String tableName = associationDaoDescriptor.getTableName().toUpperCase();
-            associationDaoBuilderMap.put(tableName, associationDaoDescriptor);
+            associationDaoBuilders.add(associationDaoDescriptor);
 
             String sequenceName = associationDaoDescriptor.getSequenceName().toUpperCase();
             sequenceNames.add(sequenceName);
         }
 
-        this.descriptorsByTableName = Collections.unmodifiableMap(tableNameMap);
+        this.descriptorsSet = Collections.unmodifiableSet(tables);
         this.sequenceNames = Collections.unmodifiableSet(sequenceNames);
-        this.associationDescriptorsByTableName = Collections.unmodifiableMap(associationDaoBuilderMap);
+        this.associationDescriptorsSet = Collections.unmodifiableSet(associationDaoBuilders);
     }
 
     private String renderColumn(Column<?,?> column){
@@ -104,33 +100,11 @@ public class Schema {
         return constraints;
     }
 
-    /**
-     * Generate the SQL CREATE statement for the requested table.
-     *
-     * @param tableName The name of the table.
-     * @return the CREATE statement
-     */
-    public String createTableSql(String tableName){
-        String upperCaseTableName = tableName.toUpperCase();
-
-        if( descriptorsByTableName.containsKey(upperCaseTableName)){
-            return createRegularTableSql(tableName);
-        }
-
-        if ( associationDescriptorsByTableName.containsKey(upperCaseTableName)){
-            return createAssociationTableSql(tableName);
-        }
-
-        throw new HrormException("Do not recognize table name " + tableName);
-    }
-
-    private String createRegularTableSql(String tableName){
-        DaoDescriptor<?,?> descriptor = descriptorsByTableName.get(tableName.toUpperCase());
-
+    private String createRegularTableSql(DaoDescriptor<?,?> descriptor){
         StringBuilder buf = new StringBuilder();
 
         buf.append("create table ");
-        buf.append(tableName.toUpperCase());
+        buf.append(descriptor.tableName());
         buf.append(" (\n");
         if( descriptor.primaryKey() != null ){
             buf.append(descriptor.primaryKey().getName());
@@ -148,13 +122,12 @@ public class Schema {
         return buf.toString();
     }
 
-    private String createAssociationTableSql(String tableName){
-        AssociationDaoDescriptor descriptor = associationDescriptorsByTableName.get(tableName.toUpperCase());
+    private String createAssociationTableSql(AssociationDaoDescriptor descriptor){
 
         StringBuilder buf = new StringBuilder();
 
         buf.append("create table ");
-        buf.append(tableName);
+        buf.append(descriptor.getTableName());
         buf.append(" (\n");
         buf.append(descriptor.getPrimaryKeyName());
         buf.append(" integer primary key,\n");
@@ -206,24 +179,56 @@ public class Schema {
     /**
      * All the constraints this schema contains.
      *
-     * @return The SQL for the constraints.
+     * @return The SQL to create the constraints.
      */
     public List<String> constraints(){
         List<String> constraints = new ArrayList<>();
-        for(DaoDescriptor<?,?> descriptor : descriptorsByTableName.values()){
+        for(DaoDescriptor<?,?> descriptor : descriptorsSet){
             constraints.addAll(joinConstraints(descriptor));
             constraints.addAll(childConstraints(descriptor));
         }
 
-        for( AssociationDaoDescriptor descriptor : associationDescriptorsByTableName.values() ){
+        for( AssociationDaoDescriptor descriptor : associationDescriptorsSet ){
             constraints.addAll(associationConstraints(descriptor));
         }
 
         return constraints;
     }
 
+    /**
+     * All the sequences this schema contains.
+     *
+     * @return The SQL to create the sequences.
+     */
+    public List<String> sequences(){
+        List<String> sequences = new ArrayList<>();
+        for(String sequenceName : sequenceNames){
+            sequences.add(createSequenceSql(sequenceName));
+        }
+        return sequences;
+    }
+
     private String createSequenceSql(String sequenceName){
-        return "create sequence " + sequenceName + ";\n";
+        return "create sequence " + sequenceName + ";";
+    }
+
+    /**
+     * All the tables this schema contains.
+     *
+     * @return The SQL to create the tables.
+     */
+    public List<String> tables(){
+        List<String> tables = new ArrayList<>();
+
+        for(DaoDescriptor descriptor : descriptorsSet){
+            tables.add(createRegularTableSql(descriptor));
+        }
+
+        for(AssociationDaoDescriptor daoDescriptor : associationDescriptorsSet){
+            tables.add(createAssociationTableSql(daoDescriptor));
+        }
+
+        return tables;
     }
 
     /**
@@ -232,30 +237,11 @@ public class Schema {
      * @return the SQL
      */
     public String sql(){
-        StringBuilder buf = new StringBuilder();
-        for(String sequenceName : sequenceNames){
-            buf.append(createSequenceSql(sequenceName));
-            buf.append("\n");
-        }
+        String sequences = String.join("\n", sequences());
+        String tables = String.join("\n", tables());
+        String constraints = String.join("\n", constraints());
 
-        for(String tableName : descriptorsByTableName.keySet()){
-            buf.append(createTableSql(tableName));
-            buf.append("\n");
-        }
-
-        for(String tableName : associationDescriptorsByTableName.keySet()){
-            buf.append(createTableSql(tableName));
-            buf.append("\n");
-        }
-
-
-        for(String constraint : constraints()){
-            buf.append(constraint);
-            buf.append("\n");
-        }
-
-        return buf.toString();
+        return String.join("\n", Arrays.asList(sequences, tables, constraints));
     }
-
 
 }

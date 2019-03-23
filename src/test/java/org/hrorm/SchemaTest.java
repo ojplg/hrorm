@@ -23,7 +23,7 @@ public class SchemaTest {
 
         Schema columnsSchema = new Schema(ColumnsDaoBuilder.DAO_BUILDER);
 
-        String createTableSql = columnsSchema.createTableSql("colUMNs_table");
+        String createTableSql = columnsSchema.tables().get(0);
 
         String expectedSql = "create table columns_table (\n" +
                 "  id integer PRIMARY KEY,\n" +
@@ -69,7 +69,7 @@ public class SchemaTest {
                 .withStringColumn("field", Simple::getField, Simple::setField).notNull();
 
         Schema schema = new Schema(daoBuilder);
-        String sql = schema.createTableSql("Simple");
+        String sql = schema.tables().get(0);
 
         String expectedSql = "create table simple (\n" +
                 " id integer primary key,\n" +
@@ -132,7 +132,7 @@ public class SchemaTest {
                 new DaoDescriptor[]{ },
                 new AssociationDaoBuilder[]{ MediaDaoBuilders.ASSOCIATION_DAO_BUILDER });
 
-        String sql = schema.createTableSql("actor_movie_associations");
+        String sql = schema.tables().get(0);
 
         String expectedSql = "create table actor_movie_associations (" +
                 " id integer primary key,\n" +
