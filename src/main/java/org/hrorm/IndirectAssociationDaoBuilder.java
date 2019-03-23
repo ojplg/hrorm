@@ -3,6 +3,8 @@ package org.hrorm;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * A mechanism for building an {@link AssociationDao} for immutable
@@ -13,7 +15,8 @@ import java.util.List;
  * @param <RIGHT> The type of the other of the entities being associated
  * @param <RIGHTBUILDER> The builder type for the other entity
  */
-public class IndirectAssociationDaoBuilder<LEFT, LEFTBUILDER, RIGHT, RIGHTBUILDER> implements AssociationDaoDescriptor {
+public class IndirectAssociationDaoBuilder<LEFT, LEFTBUILDER, RIGHT, RIGHTBUILDER>
+        implements AssociationDaoDescriptor, DaoDescriptor<Association<LEFT, RIGHT>, Association<LEFT, RIGHT>> {
 
     private final DaoDescriptor<LEFT, LEFTBUILDER> leftDaoDescriptor;
     private final DaoDescriptor<RIGHT, RIGHTBUILDER> rightDaoDescriptor;
@@ -23,6 +26,8 @@ public class IndirectAssociationDaoBuilder<LEFT, LEFTBUILDER, RIGHT, RIGHTBUILDE
     private String sequenceName;
     private String leftColumnName;
     private String rightColumnName;
+
+    private DaoBuilder<Association<LEFT, RIGHT>> internalDaoBuilder;
 
     /**
      * Construct a new builder instance.
@@ -46,17 +51,7 @@ public class IndirectAssociationDaoBuilder<LEFT, LEFTBUILDER, RIGHT, RIGHTBUILDE
      */
     public AssociationDao<LEFT, RIGHT> buildDao(Connection connection){
 
-        if( ! ready() ){
-            List<String> missingFields = findMissingFields();
-            String messageDetail = String.join(", ", missingFields);
-            throw new HrormException("Need to set all fields before building the association dao. Missing: " + messageDetail);
-        }
-
-        DaoBuilder<Association<LEFT, RIGHT>> internalDaoBuilder =
-                new DaoBuilder<Association<LEFT, RIGHT>>(tableName, Association::new)
-                        .withPrimaryKey(primaryKeyName, sequenceName, Association::getId, Association::setId)
-                        .withJoinColumn(leftColumnName, Association::getLeft, Association::setLeft, leftDaoDescriptor)
-                        .withJoinColumn(rightColumnName, Association::getRight, Association::setRight, rightDaoDescriptor);
+        prepareDaoBuilder();
 
         Dao<Association<LEFT, RIGHT>> internalDao = internalDaoBuilder.buildDao(connection);
 
@@ -67,6 +62,24 @@ public class IndirectAssociationDaoBuilder<LEFT, LEFTBUILDER, RIGHT, RIGHTBUILDE
                 leftDaoDescriptor.primaryKey(),
                 rightDaoDescriptor.primaryKey()
         );
+    }
+
+    private void prepareDaoBuilder(){
+        if( internalDaoBuilder != null ){
+            return;
+        }
+
+        if( ! ready() ){
+            List<String> missingFields = findMissingFields();
+            String messageDetail = String.join(", ", missingFields);
+            throw new HrormException("Need to set all fields before building the association dao. Missing: " + messageDetail);
+        }
+
+        internalDaoBuilder =
+                new DaoBuilder<Association<LEFT, RIGHT>>(tableName, Association::new)
+                        .withPrimaryKey(primaryKeyName, sequenceName, Association::getId, Association::setId)
+                        .withJoinColumn(leftColumnName, Association::getLeft, Association::setLeft, leftDaoDescriptor).notNull()
+                        .withJoinColumn(rightColumnName, Association::getRight, Association::setRight, rightDaoDescriptor).notNull();
     }
 
     /**
@@ -205,5 +218,52 @@ public class IndirectAssociationDaoBuilder<LEFT, LEFTBUILDER, RIGHT, RIGHTBUILDE
      */
     public boolean ready(){
         return findMissingFields().size() == 0;
+    }
+
+    @Override
+    public PrimaryKey<Association<LEFT, RIGHT>, Association<LEFT, RIGHT>> primaryKey() {
+        prepareDaoBuilder();
+        return internalDaoBuilder.primaryKey();
+    }
+
+    @Override
+    public String tableName() {
+        prepareDaoBuilder();
+        return internalDaoBuilder.tableName();
+    }
+
+    @Override
+    public Supplier<Association<LEFT, RIGHT>> supplier() {
+        prepareDaoBuilder();
+        return internalDaoBuilder.supplier();
+    }
+
+    @Override
+    public List<Column<Association<LEFT, RIGHT>, Association<LEFT, RIGHT>>> dataColumns() {
+        prepareDaoBuilder();
+        return internalDaoBuilder.dataColumns();
+    }
+
+    @Override
+    public List<JoinColumn<Association<LEFT, RIGHT>, ?, Association<LEFT, RIGHT>, ?>> joinColumns() {
+        prepareDaoBuilder();
+        return internalDaoBuilder.joinColumns();
+    }
+
+    @Override
+    public List<ChildrenDescriptor<Association<LEFT, RIGHT>, ?, Association<LEFT, RIGHT>, ?>> childrenDescriptors() {
+        prepareDaoBuilder();
+        return internalDaoBuilder.childrenDescriptors();
+    }
+
+    @Override
+    public ParentColumn<Association<LEFT, RIGHT>, ?, Association<LEFT, RIGHT>, ?> parentColumn() {
+        prepareDaoBuilder();
+        return internalDaoBuilder.parentColumn();
+    }
+
+    @Override
+    public Function<Association<LEFT, RIGHT>, Association<LEFT, RIGHT>> buildFunction() {
+        return internalDaoBuilder.buildFunction();
     }
 }

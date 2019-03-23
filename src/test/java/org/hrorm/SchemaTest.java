@@ -128,9 +128,7 @@ public class SchemaTest {
 
     @Test
     public void testAssociationDaoSchemaTables(){
-        Schema schema = new Schema(
-                new DaoDescriptor[]{ },
-                new AssociationDaoBuilder[]{ MediaDaoBuilders.ASSOCIATION_DAO_BUILDER });
+        Schema schema = new Schema( MediaDaoBuilders.ASSOCIATION_DAO_BUILDER);
 
         String sql = schema.tables().get(0);
 
@@ -145,9 +143,7 @@ public class SchemaTest {
 
     @Test
     public void testAssociationDaoSchemaSequences(){
-        Schema schema = new Schema(
-                new DaoDescriptor[]{ },
-                new AssociationDaoBuilder[]{ MediaDaoBuilders.ASSOCIATION_DAO_BUILDER });
+        Schema schema = new Schema(MediaDaoBuilders.ASSOCIATION_DAO_BUILDER);
 
         String sql = SimpleSqlFormatter.format(schema.sql());
 
@@ -158,9 +154,7 @@ public class SchemaTest {
 
     @Test
     public void testAssociationDaoSchemaConstraints(){
-        Schema schema = new Schema(
-                new DaoDescriptor[]{ },
-                new AssociationDaoBuilder[]{ MediaDaoBuilders.ASSOCIATION_DAO_BUILDER });
+        Schema schema = new Schema( MediaDaoBuilders.ASSOCIATION_DAO_BUILDER );
 
         String sql = SimpleSqlFormatter.format(schema.sql());
 

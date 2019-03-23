@@ -1,6 +1,9 @@
 package org.hrorm;
 
 import java.sql.Connection;
+import java.util.List;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * A mechanism for building an {@link AssociationDao}.
@@ -8,7 +11,8 @@ import java.sql.Connection;
  * @param <LEFT> The type of one of the entities being associated
  * @param <RIGHT> The type of the other of the entities being associated
  */
-public class AssociationDaoBuilder<LEFT, RIGHT> implements AssociationDaoDescriptor {
+public class AssociationDaoBuilder<LEFT, RIGHT>
+        implements AssociationDaoDescriptor, DaoDescriptor<Association<LEFT, RIGHT>, Association<LEFT, RIGHT>> {
 
     private final IndirectAssociationDaoBuilder<LEFT, LEFT, RIGHT, RIGHT> indirectDaoBuilder;
 
@@ -130,5 +134,45 @@ public class AssociationDaoBuilder<LEFT, RIGHT> implements AssociationDaoDescrip
     @Override
     public String getRightPrimaryKeyName() {
         return indirectDaoBuilder.getRightPrimaryKeyName();
+    }
+
+    @Override
+    public PrimaryKey<Association<LEFT, RIGHT>, Association<LEFT, RIGHT>> primaryKey() {
+        return indirectDaoBuilder.primaryKey();
+    }
+
+    @Override
+    public String tableName() {
+        return indirectDaoBuilder.tableName();
+    }
+
+    @Override
+    public Supplier<Association<LEFT, RIGHT>> supplier() {
+        return indirectDaoBuilder.supplier();
+    }
+
+    @Override
+    public List<Column<Association<LEFT, RIGHT>, Association<LEFT, RIGHT>>> dataColumns() {
+        return indirectDaoBuilder.dataColumns();
+    }
+
+    @Override
+    public List<JoinColumn<Association<LEFT, RIGHT>, ?, Association<LEFT, RIGHT>, ?>> joinColumns() {
+        return indirectDaoBuilder.joinColumns();
+    }
+
+    @Override
+    public List<ChildrenDescriptor<Association<LEFT, RIGHT>, ?, Association<LEFT, RIGHT>, ?>> childrenDescriptors() {
+        return indirectDaoBuilder.childrenDescriptors();
+    }
+
+    @Override
+    public ParentColumn<Association<LEFT, RIGHT>, ?, Association<LEFT, RIGHT>, ?> parentColumn() {
+        return indirectDaoBuilder.parentColumn();
+    }
+
+    @Override
+    public Function<Association<LEFT, RIGHT>, Association<LEFT, RIGHT>> buildFunction() {
+        return indirectDaoBuilder.buildFunction();
     }
 }

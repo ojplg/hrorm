@@ -22,7 +22,6 @@ import java.util.stream.Collectors;
 public class Schema {
 
     private final Set<DaoDescriptor> descriptorsSet;
-    private final Set<AssociationDaoDescriptor> associationDescriptorsSet;
     private final Set<String> sequenceNames;
 
     /**
@@ -32,39 +31,19 @@ public class Schema {
      *                    SQL for.
      */
     public Schema(DaoDescriptor ... descriptors){
-        this(descriptors, new AssociationDaoBuilder[0]);
-    }
 
-    /**
-     * Construct an instance.
-     *
-     * @param daoDescriptors The <code>DaoDescriptor</code> objects to generate
-     *                    SQL for.
-     * @param associationDescriptors The <code>AssociationDaoDescriptor</code> objects
-     *                               to generate SQL for.
-     */
-    public Schema(DaoDescriptor[] daoDescriptors, AssociationDaoDescriptor[] associationDescriptors){
         Set<DaoDescriptor> tables = new HashSet<>();
         Set<String> sequenceNames = new HashSet<>();
 
-        for(DaoDescriptor daoDescriptor : daoDescriptors){
+        for(DaoDescriptor daoDescriptor : descriptors){
             tables.add(daoDescriptor);
 
             String sequenceName = daoDescriptor.primaryKey().getSequenceName().toUpperCase();
             sequenceNames.add(sequenceName);
         }
 
-        Set<AssociationDaoDescriptor> associationDaoBuilders = new HashSet<>();
-        for( AssociationDaoDescriptor associationDaoDescriptor : associationDescriptors){
-            associationDaoBuilders.add(associationDaoDescriptor);
-
-            String sequenceName = associationDaoDescriptor.getSequenceName().toUpperCase();
-            sequenceNames.add(sequenceName);
-        }
-
         this.descriptorsSet = Collections.unmodifiableSet(tables);
         this.sequenceNames = Collections.unmodifiableSet(sequenceNames);
-        this.associationDescriptorsSet = Collections.unmodifiableSet(associationDaoBuilders);
     }
 
     private String renderColumn(Column<?,?> column){
@@ -188,10 +167,6 @@ public class Schema {
             constraints.addAll(childConstraints(descriptor));
         }
 
-        for( AssociationDaoDescriptor descriptor : associationDescriptorsSet ){
-            constraints.addAll(associationConstraints(descriptor));
-        }
-
         return constraints;
     }
 
@@ -222,10 +197,6 @@ public class Schema {
 
         for(DaoDescriptor descriptor : descriptorsSet){
             tables.add(createRegularTableSql(descriptor));
-        }
-
-        for(AssociationDaoDescriptor daoDescriptor : associationDescriptorsSet){
-            tables.add(createAssociationTableSql(daoDescriptor));
         }
 
         return tables;
