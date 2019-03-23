@@ -1,6 +1,7 @@
 package org.hrorm;
 
 import java.sql.Connection;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -14,7 +15,16 @@ import java.util.function.Supplier;
 public class AssociationDaoBuilder<LEFT, RIGHT>
         implements DaoDescriptor<Association<LEFT, RIGHT>, Association<LEFT, RIGHT>> {
 
-    private final IndirectAssociationDaoBuilder<LEFT, LEFT, RIGHT, RIGHT> indirectDaoBuilder;
+    private final DaoDescriptor<LEFT, ?> leftDaoDescriptor;
+    private final DaoDescriptor<RIGHT, ?> rightDaoDescriptor;
+
+    private String tableName;
+    private String primaryKeyName;
+    private String sequenceName;
+    private String leftColumnName;
+    private String rightColumnName;
+
+    private DaoBuilder<Association<LEFT, RIGHT>> internalDaoBuilder;
 
     /**
      * Construct a new builder instance.
@@ -24,8 +34,10 @@ public class AssociationDaoBuilder<LEFT, RIGHT>
      * @param rightDaoDescriptor the <code>DaoBuilder</code> or other descriptor
      *                          of one of other of the entities being associated
      */
-    public AssociationDaoBuilder(DaoDescriptor<LEFT, LEFT> leftDaoDescriptor, DaoDescriptor<RIGHT, RIGHT> rightDaoDescriptor){
-        this.indirectDaoBuilder = new IndirectAssociationDaoBuilder<>(leftDaoDescriptor, rightDaoDescriptor);
+    public AssociationDaoBuilder(DaoDescriptor<LEFT, ?> leftDaoDescriptor,
+                                         DaoDescriptor<RIGHT, ?> rightDaoDescriptor){
+        this.leftDaoDescriptor = leftDaoDescriptor;
+        this.rightDaoDescriptor = rightDaoDescriptor;
     }
 
     /**
@@ -35,7 +47,36 @@ public class AssociationDaoBuilder<LEFT, RIGHT>
      * @return a newly constructed DAO
      */
     public AssociationDao<LEFT, RIGHT> buildDao(Connection connection){
-        return indirectDaoBuilder.buildDao(connection);
+
+        prepareDaoBuilder();
+
+        Dao<Association<LEFT, RIGHT>> internalDao = internalDaoBuilder.buildDao(connection);
+
+        return new AssociationDaoImpl<>(
+                internalDao,
+                leftColumnName,
+                rightColumnName,
+                leftDaoDescriptor.primaryKey(),
+                rightDaoDescriptor.primaryKey()
+        );
+    }
+
+    private void prepareDaoBuilder(){
+        if( internalDaoBuilder != null ){
+            return;
+        }
+
+        if( ! ready() ){
+            List<String> missingFields = findMissingFields();
+            String messageDetail = String.join(", ", missingFields);
+            throw new HrormException("Need to set all fields before building the association dao. Missing: " + messageDetail);
+        }
+
+        internalDaoBuilder =
+                new DaoBuilder<Association<LEFT, RIGHT>>(tableName, Association::new)
+                        .withPrimaryKey(primaryKeyName, sequenceName, Association::getId, Association::setId)
+                        .withJoinColumn(leftColumnName, Association::getLeft, Association::setLeft, leftDaoDescriptor).notNull()
+                        .withJoinColumn(rightColumnName, Association::getRight, Association::setRight, rightDaoDescriptor).notNull();
     }
 
     /**
@@ -45,7 +86,7 @@ public class AssociationDaoBuilder<LEFT, RIGHT>
      * @return this
      */
     public AssociationDaoBuilder<LEFT, RIGHT> withTableName(String tableName) {
-        indirectDaoBuilder.withTableName(tableName);
+        this.tableName = tableName;
         return this;
     }
 
@@ -56,7 +97,7 @@ public class AssociationDaoBuilder<LEFT, RIGHT>
      * @return this
      */
     public AssociationDaoBuilder<LEFT, RIGHT> withPrimaryKeyName(String primaryKeyName) {
-        this.indirectDaoBuilder.withPrimaryKeyName(primaryKeyName);
+        this.primaryKeyName = primaryKeyName;
         return this;
     }
 
@@ -68,7 +109,7 @@ public class AssociationDaoBuilder<LEFT, RIGHT>
      * @return this
      */
     public AssociationDaoBuilder<LEFT, RIGHT> withSequenceName(String sequenceName) {
-        this.indirectDaoBuilder.withSequenceName(sequenceName);
+        this.sequenceName = sequenceName;
         return this;
     }
 
@@ -80,7 +121,7 @@ public class AssociationDaoBuilder<LEFT, RIGHT>
      * @return this
      */
     public AssociationDaoBuilder<LEFT, RIGHT> withLeftColumnName(String leftColumnName) {
-        this.indirectDaoBuilder.withLeftColumnName(leftColumnName);
+        this.leftColumnName = leftColumnName;
         return this;
     }
 
@@ -92,47 +133,89 @@ public class AssociationDaoBuilder<LEFT, RIGHT>
      * @return this
      */
     public AssociationDaoBuilder<LEFT, RIGHT> withRightColumnName(String rightColumnName) {
-        this.indirectDaoBuilder.withRightColumnName(rightColumnName);
+        this.rightColumnName = rightColumnName;
         return this;
+    }
+
+    private List<String> findMissingFields(){
+        List<String> missing = new ArrayList<>();
+
+        if( emptyString(tableName) ){
+            missing.add("TableName");
+        }
+        if( emptyString(primaryKeyName) ){
+            missing.add("PrimaryKeyName");
+        }
+        if( emptyString(sequenceName) ){
+            missing.add("SequenceName");
+        }
+        if( emptyString(leftColumnName) ){
+            missing.add("LeftColumnName");
+        }
+        if( emptyString(rightColumnName) ){
+            missing.add("RightColumnName");
+        }
+
+        return missing;
+    }
+
+    private boolean emptyString(String s){
+        return s == null || s.isEmpty();
+    }
+
+    /**
+     * Flag indicating whether or not all the necessary fields have been set.
+     *
+     * @return true if all fields have been set, false otherwise
+     */
+    public boolean ready(){
+        return findMissingFields().size() == 0;
     }
 
     @Override
     public PrimaryKey<Association<LEFT, RIGHT>, Association<LEFT, RIGHT>> primaryKey() {
-        return indirectDaoBuilder.primaryKey();
+        prepareDaoBuilder();
+        return internalDaoBuilder.primaryKey();
     }
 
     @Override
     public String tableName() {
-        return indirectDaoBuilder.tableName();
+        prepareDaoBuilder();
+        return internalDaoBuilder.tableName();
     }
 
     @Override
     public Supplier<Association<LEFT, RIGHT>> supplier() {
-        return indirectDaoBuilder.supplier();
+        prepareDaoBuilder();
+        return internalDaoBuilder.supplier();
     }
 
     @Override
     public List<Column<Association<LEFT, RIGHT>, Association<LEFT, RIGHT>>> dataColumns() {
-        return indirectDaoBuilder.dataColumns();
+        prepareDaoBuilder();
+        return internalDaoBuilder.dataColumns();
     }
 
     @Override
     public List<JoinColumn<Association<LEFT, RIGHT>, ?, Association<LEFT, RIGHT>, ?>> joinColumns() {
-        return indirectDaoBuilder.joinColumns();
+        prepareDaoBuilder();
+        return internalDaoBuilder.joinColumns();
     }
 
     @Override
     public List<ChildrenDescriptor<Association<LEFT, RIGHT>, ?, Association<LEFT, RIGHT>, ?>> childrenDescriptors() {
-        return indirectDaoBuilder.childrenDescriptors();
+        prepareDaoBuilder();
+        return internalDaoBuilder.childrenDescriptors();
     }
 
     @Override
     public ParentColumn<Association<LEFT, RIGHT>, ?, Association<LEFT, RIGHT>, ?> parentColumn() {
-        return indirectDaoBuilder.parentColumn();
+        prepareDaoBuilder();
+        return internalDaoBuilder.parentColumn();
     }
 
     @Override
     public Function<Association<LEFT, RIGHT>, Association<LEFT, RIGHT>> buildFunction() {
-        return indirectDaoBuilder.buildFunction();
+        return internalDaoBuilder.buildFunction();
     }
 }

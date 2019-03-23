@@ -1,6 +1,6 @@
 package org.hrorm.examples.media;
 
-import org.hrorm.IndirectAssociationDaoBuilder;
+import org.hrorm.AssociationDaoBuilder;
 import org.hrorm.IndirectDaoBuilder;
 
 public class ImmutableMediaDaoBuilders {
@@ -17,8 +17,8 @@ public class ImmutableMediaDaoBuilders {
                     .withStringColumn("name", ImmutableActor::getName, ImmutableActor.ImmutableActorBuilder::name);
 
 
-    public static final IndirectAssociationDaoBuilder<ImmutableActor, ImmutableActor.ImmutableActorBuilder, ImmutableMovie, ImmutableMovie.ImmutableMovieBuilder> ASSOCIATION_DAO_BUILDER =
-            new IndirectAssociationDaoBuilder<>(ACTOR_DAO_BUILDER, MOVIE_DAO_BUILDER)
+    public static final AssociationDaoBuilder<ImmutableActor, ImmutableMovie> ASSOCIATION_DAO_BUILDER =
+            new AssociationDaoBuilder<>(ACTOR_DAO_BUILDER, MOVIE_DAO_BUILDER)
                     .withTableName("actor_movie_associations")
                     .withSequenceName("actor_movie_association_sequence")
                     .withPrimaryKeyName("id")

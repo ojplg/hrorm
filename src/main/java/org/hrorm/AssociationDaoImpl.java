@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
  *
  * <p>
  *     There is no need to construct this yourself.
- *     Use the {@link AssociationDaoBuilder} or {@link IndirectAssociationDaoBuilder}.
+ *     Use the {@link AssociationDaoBuilder}.
  * </p>
  *
  * @param <LEFT> The type of one of the entities being associated.
