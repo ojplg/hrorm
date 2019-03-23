@@ -16,7 +16,7 @@ import java.util.function.Supplier;
  * @param <RIGHTBUILDER> The builder type for the other entity
  */
 public class IndirectAssociationDaoBuilder<LEFT, LEFTBUILDER, RIGHT, RIGHTBUILDER>
-        implements AssociationDaoDescriptor, DaoDescriptor<Association<LEFT, RIGHT>, Association<LEFT, RIGHT>> {
+        implements DaoDescriptor<Association<LEFT, RIGHT>, Association<LEFT, RIGHT>> {
 
     private final DaoDescriptor<LEFT, LEFTBUILDER> leftDaoDescriptor;
     private final DaoDescriptor<RIGHT, RIGHTBUILDER> rightDaoDescriptor;
@@ -160,51 +160,6 @@ public class IndirectAssociationDaoBuilder<LEFT, LEFTBUILDER, RIGHT, RIGHTBUILDE
         }
 
         return missing;
-    }
-
-    @Override
-    public String getTableName() {
-        return tableName;
-    }
-
-    @Override
-    public String getPrimaryKeyName() {
-        return primaryKeyName;
-    }
-
-    @Override
-    public String getSequenceName() {
-        return sequenceName;
-    }
-
-    @Override
-    public String getLeftColumnName() {
-        return leftColumnName;
-    }
-
-    @Override
-    public String getRightColumnName() {
-        return rightColumnName;
-    }
-
-    @Override
-    public String getLeftTableName() {
-        return leftDaoDescriptor.tableName();
-    }
-
-    @Override
-    public String getRightTableName() {
-        return rightDaoDescriptor.tableName();
-    }
-
-    @Override
-    public String getLeftPrimaryKeyName() {
-        return leftDaoDescriptor.primaryKey().getName();
-    }
-
-    @Override
-    public String getRightPrimaryKeyName() {
-        return rightDaoDescriptor.primaryKey().getName();
     }
 
     private boolean emptyString(String s){
