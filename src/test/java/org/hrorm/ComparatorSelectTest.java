@@ -1,9 +1,10 @@
 package org.hrorm;
 
+import org.hrorm.database.Helper;
 import org.hrorm.examples.Columns;
 import org.hrorm.examples.EnumeratedColor;
 import org.hrorm.examples.EnumeratedColorConverter;
-import org.hrorm.h2.H2Helper;
+import org.hrorm.database.H2Helper;
 import org.hrorm.util.TestLogConfig;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -30,7 +31,7 @@ public class ComparatorSelectTest {
 
     static { TestLogConfig.load(); }
 
-    private static H2Helper helper = new H2Helper("columns");
+    private static Helper helper = new H2Helper("columns");
 
     @BeforeClass
     public static void setUpDb(){

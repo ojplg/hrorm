@@ -1,9 +1,10 @@
 package org.hrorm;
 
+import org.hrorm.database.Helper;
 import org.hrorm.examples.SimpleChild;
 import org.hrorm.examples.SimpleParent;
 import org.hrorm.examples.SimpleParentChildDaos;
-import org.hrorm.h2.H2Helper;
+import org.hrorm.database.H2Helper;
 import org.hrorm.util.RandomUtils;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -19,7 +20,7 @@ import java.util.stream.Collectors;
 
 public class SimpleParentChildTest {
 
-    private static H2Helper helper = new H2Helper("simple_parents");
+    private static Helper helper = new H2Helper("simple_parents");
 
     @BeforeClass
     public static void setUpDb(){

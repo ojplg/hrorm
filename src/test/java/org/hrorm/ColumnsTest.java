@@ -1,9 +1,11 @@
 package org.hrorm;
 
+import org.hrorm.database.Helper;
+import org.hrorm.database.PostgresHelper;
 import org.hrorm.examples.Columns;
 import org.hrorm.examples.ColumnsDaoBuilder;
 import org.hrorm.examples.EnumeratedColor;
-import org.hrorm.h2.H2Helper;
+import org.hrorm.database.H2Helper;
 import org.hrorm.util.TestLogConfig;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -12,6 +14,7 @@ import org.junit.Test;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +23,8 @@ public class ColumnsTest {
 
     static { TestLogConfig.load(); }
 
-    private static H2Helper helper = new H2Helper("columns");
+    private static Helper helper = new H2Helper("columns");
+//    private static Helper helper = new PostgresHelper("columns");
 
     @BeforeClass
     public static void setUpDb(){
@@ -37,7 +41,7 @@ public class ColumnsTest {
     }
 
     @Test
-    public void testInsertAndSelect(){
+    public void testInsertAndSelect() throws SQLException {
         Connection connection = helper.connect();
         Dao<Columns> dao = daoBuilder().buildDao(connection);
 
@@ -58,10 +62,12 @@ public class ColumnsTest {
         Assert.assertEquals(columns, dbInstance);
         Assert.assertNotNull(columns.getId());
         Assert.assertEquals(id, columns.getId());
+
+        connection.close();
     }
 
     @Test
-    public void testUpdates(){
+    public void testUpdates() throws SQLException {
         Connection connection = helper.connect();
         Dao<Columns> dao = daoBuilder().buildDao(connection);
 
@@ -91,10 +97,12 @@ public class ColumnsTest {
 
         Columns dbInstance2 = dao.select(columns.getId());
         Assert.assertEquals(columns, dbInstance2);
+
+        connection.close();
     }
 
     @Test
-    public void testSelectByColumns(){
+    public void testSelectByColumns() throws SQLException {
         Connection connection = helper.connect();
         Dao<Columns> dao = daoBuilder().buildDao(connection);
 
@@ -118,10 +126,12 @@ public class ColumnsTest {
 
         Columns dbInstance = dao.selectByColumns(template, "string_column", "integer_column", "boolean_column", "timestamp_column", "color_column");
         Assert.assertEquals(columns.getId(), dbInstance.getId());
+
+        connection.close();
     }
 
     @Test
-    public void testSelectManyByColumns(){
+    public void testSelectManyByColumns() throws SQLException {
         Connection connection = helper.connect();
         Dao<Columns> dao = daoBuilder().buildDao(connection);
 
@@ -171,10 +181,12 @@ public class ColumnsTest {
 
         List<Columns> dbInstanceList = dao.selectManyByColumns(template, "string_column", "timestamp_column");
         Assert.assertEquals(3, dbInstanceList.size());
+
+        connection.close();
     }
 
     @Test
-    public void handlesNullElements(){
+    public void handlesNullElements() throws SQLException {
         Connection connection = helper.connect();
         Dao<Columns> dao = daoBuilder().buildDao(connection);
 
@@ -184,16 +196,21 @@ public class ColumnsTest {
 
         Assert.assertNotNull(columns.getId());
         Assert.assertTrue(columns.getId()>1);
+
+        connection.close();
     }
 
     @Test
-    public void testDelete(){
+    public void testDelete() throws SQLException {
         long itemId;
         {
             Connection connection = helper.connect();
             Dao<Columns> dao = daoBuilder().buildDao(connection);
             Columns columns = new Columns();
             itemId = dao.insert(columns);
+
+            connection.commit();
+            connection.close();
         }
         {
             Connection connection = helper.connect();
@@ -201,17 +218,20 @@ public class ColumnsTest {
             Columns columns = dao.select(itemId);
             Assert.assertNotNull(columns);
             dao.delete(columns);
-        }
+
+            connection.commit();
+            connection.close();}
         {
             Connection connection = helper.connect();
             Dao<Columns> dao = daoBuilder().buildDao(connection);
             Columns columns = dao.select(itemId);
             Assert.assertNull(columns);
-        }
+
+            connection.close();}
     }
 
     @Test
-    public void testSelectByColumnsIsCaseInsensitive(){
+    public void testSelectByColumnsIsCaseInsensitive() throws SQLException {
         long itemId;
         {
             Connection connection = helper.connect();
@@ -222,6 +242,9 @@ public class ColumnsTest {
             columns.setStringThing("CASE INSENSITIVE");
             columns.setBooleanThing(true);
             itemId = dao.insert(columns);
+
+            connection.commit();
+            connection.close();
         }
         {
             Connection connection = helper.connect();
@@ -232,6 +255,9 @@ public class ColumnsTest {
 
             Columns readFromDb = dao.selectByColumns(columns, "decimal_column", "integer_column");
             Assert.assertEquals(itemId, (long) readFromDb.getId());
+
+            connection.commit();
+            connection.close();
         }
         {
             Connection connection = helper.connect();
@@ -242,6 +268,8 @@ public class ColumnsTest {
 
             Columns readFromDb = dao.selectByColumns(columns, "DECIMAL_COLUMN", "INTEGER_COLUMN");
             Assert.assertEquals(itemId, (long) readFromDb.getId());
+
+            connection.close();
         }
         {
             Connection connection = helper.connect();
@@ -252,11 +280,13 @@ public class ColumnsTest {
 
             Columns readFromDb = dao.selectByColumns(columns, "DECIMal_colUMN", "InTEGeR_COlUmn");
             Assert.assertEquals(itemId, (long) readFromDb.getId());
+
+            connection.close();
         }
     }
 
     @Test
-    public void testFoldingSelect(){
+    public void testFoldingSelect() throws SQLException {
         {
             Connection connection = helper.connect();
             Dao<Columns> dao = daoBuilder().buildDao(connection);
@@ -268,6 +298,9 @@ public class ColumnsTest {
                 c.setStringThing(label);
                 dao.insert(c);
             }
+
+            connection.commit();
+            connection.close();
         }
         {
             Connection connection = helper.connect();
@@ -278,11 +311,13 @@ public class ColumnsTest {
                     Where.where("string_column", Operator.EQUALS, "Include"));
 
             Assert.assertEquals(2550L, (long) result);
+
+            connection.close();
         }
     }
 
     @Test
-    public void testSelectMany(){
+    public void testSelectMany() throws SQLException {
         List<Long> ids = new ArrayList<>();
         {
             Connection connection = helper.connect();
@@ -295,6 +330,9 @@ public class ColumnsTest {
                 long id = dao.insert(c);
                 ids.add(id);
             }
+
+            connection.commit();
+            connection.close();
         }
         {
             Connection connection = helper.connect();
@@ -302,11 +340,13 @@ public class ColumnsTest {
 
             List<Columns> found = dao.selectMany(ids);
             Assert.assertEquals(100, found.size());
+
+            connection.close();
         }
     }
 
     @Test
-    public void testAtomicOperations(){
+    public void testAtomicOperations() throws SQLException {
         long id;
         {
             Connection connection = helper.connect();
@@ -323,6 +363,7 @@ public class ColumnsTest {
             Assert.assertEquals("Test Atomic Operations", found.getStringThing());
             found.setStringThing("Updated Atomic Operations Test");
             dao.atomicUpdate(found);
+
         }
         {
             Dao<Columns> dao = daoBuilder().buildDao(helper.connect());
@@ -331,14 +372,16 @@ public class ColumnsTest {
             dao.atomicDelete(found);
         }
         {
-            Dao<Columns> dao = daoBuilder().buildDao(helper.connect());
+            Connection connection = helper.connect();
+            Dao<Columns> dao = daoBuilder().buildDao(connection);
             Columns found = dao.select(id);
             Assert.assertNull(found);
+            connection.close();
         }
     }
 
     @Test
-    public void testQueries(){
+    public void testQueries() throws SQLException{
         Connection connection = helper.connect();
         Dao<Columns> dao = daoBuilder().buildDao(connection);
 
@@ -348,5 +391,7 @@ public class ColumnsTest {
         Assert.assertTrue(queries.update().toUpperCase().contains("UPDATE"));
         Assert.assertTrue(queries.insert().toUpperCase().contains("INSERT"));
         Assert.assertTrue(queries.delete().toUpperCase().contains("DELETE"));
+
+        connection.close();
     }
 }

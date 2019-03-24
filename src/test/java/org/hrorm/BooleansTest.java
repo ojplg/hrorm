@@ -1,7 +1,8 @@
 package org.hrorm;
 
+import org.hrorm.database.Helper;
 import org.hrorm.examples.Booleans;
-import org.hrorm.h2.H2Helper;
+import org.hrorm.database.H2Helper;
 import org.hrorm.util.TestLogConfig;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -15,7 +16,7 @@ public class BooleansTest {
 
     static { TestLogConfig.load(); }
 
-    private static H2Helper helper = new H2Helper("booleans");
+    private static Helper helper = new H2Helper("booleans");
 
     @BeforeClass
     public static void setUpDb(){

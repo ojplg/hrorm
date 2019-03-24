@@ -1,7 +1,8 @@
 package org.hrorm;
 
+import org.hrorm.database.Helper;
 import org.hrorm.examples.Keyless;
-import org.hrorm.h2.H2Helper;
+import org.hrorm.database.H2Helper;
 import org.hrorm.util.RandomUtils;
 import org.hrorm.util.TestLogConfig;
 import org.junit.AfterClass;
@@ -25,7 +26,7 @@ public class KeylessTest {
 
     static { TestLogConfig.load(); }
 
-    private static H2Helper helper = new H2Helper("keyless");
+    private static Helper helper = new H2Helper("keyless");
 
     // Make between 500-2000 random Keyless.
     // May seem high, but random sample behavior is better tested with a good number of entities.

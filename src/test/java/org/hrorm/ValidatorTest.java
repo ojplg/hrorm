@@ -1,8 +1,9 @@
 package org.hrorm;
 
+import org.hrorm.database.Helper;
 import org.hrorm.examples.Columns;
 import org.hrorm.examples.EnumeratedColorConverter;
-import org.hrorm.h2.H2Helper;
+import org.hrorm.database.H2Helper;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -12,7 +13,7 @@ import java.sql.Connection;
 
 public class ValidatorTest {
 
-    private static H2Helper helper = new H2Helper("columns");
+    private static Helper helper = new H2Helper("columns");
 
     @BeforeClass
     public static void setUpDb(){

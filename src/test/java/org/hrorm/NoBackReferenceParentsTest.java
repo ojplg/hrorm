@@ -1,7 +1,8 @@
 package org.hrorm;
 
 import lombok.Data;
-import org.hrorm.h2.H2Helper;
+import org.hrorm.database.H2Helper;
+import org.hrorm.database.Helper;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -15,7 +16,7 @@ import java.util.stream.Collectors;
 
 public class NoBackReferenceParentsTest {
 
-    private static H2Helper helper = new H2Helper("no_back_reference_parents");
+    private static Helper helper = new H2Helper("no_back_reference_parents");
 
     @BeforeClass
     public static void setUpDb(){

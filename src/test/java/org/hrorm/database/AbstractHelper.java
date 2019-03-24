@@ -1,13 +1,9 @@
-package org.hrorm.h2;
+package org.hrorm.database;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,11 +11,9 @@ import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class H2Helper {
+public abstract class AbstractHelper implements Helper {
 
-    public static final String H2ConnectionUrlPrefix = "jdbc:h2:./target/db/";
-
-    private final String schemaName;
+    protected final String schemaName;
     private boolean initialized = false;
 
     private static final Pattern createSequencePattern = Pattern.compile(
@@ -28,14 +22,15 @@ public class H2Helper {
     private static final Pattern createTablePattern = Pattern.compile(
             "create table ([a-zA-Z_]+)\\s*\\(", Pattern.CASE_INSENSITIVE);
 
-    private final List<String> sequenceNames = new ArrayList<>();
-    private final List<String> tableNames = new ArrayList<>();
+    protected final List<String> sequenceNames = new ArrayList<>();
+    protected final List<String> tableNames = new ArrayList<>();
 
-    public H2Helper(String schemaName){
+    protected AbstractHelper(String schemaName){
         this.schemaName = schemaName;
     }
 
-    public String readSchema(){
+    @Override
+    public String readSchema() {
         try {
             InputStream inputStream = this.getClass().getResourceAsStream("/schemas/" + schemaName + ".sql");
             InputStreamReader reader = new InputStreamReader(inputStream);
@@ -65,20 +60,13 @@ public class H2Helper {
         }
     }
 
-    public Connection connect() {
-        try {
-            Class.forName("org.h2.Driver");
-            return DriverManager.getConnection(H2ConnectionUrlPrefix + schemaName + ";DATABASE_TO_UPPER=false");
-        } catch (Exception ex){
-            throw new RuntimeException(ex);
-        }
-    }
-
-    public void clearTables(){
+    @Override
+    public void clearTables() {
         tableNames.forEach(this::clearTable);
     }
 
-    public void clearTable(String tableName){
+    @Override
+    public void clearTable(String tableName) {
         try {
             Connection connection = connect();
             Statement statement = connection.createStatement();
@@ -88,44 +76,17 @@ public class H2Helper {
         }
     }
 
-    public void dropSchema(){
-        Exception deferred = null;
-        try {
-            Connection connection = connect();
-            Statement statement = connection.createStatement();
-            for (String sequence : sequenceNames) {
-                statement.execute("drop sequence " + sequence);
-            }
-            for (String table : tableNames) {
-                statement.execute("drop table " + table );
-            }
-        } catch (Exception ex) {
-            deferred = ex;
-        }
-        try {
-            Path path = Paths.get("./target/db/" + schemaName + ".mv.db");
-            Files.deleteIfExists(path);
-            path = Paths.get("./target/db/" + schemaName + ".trace.db");
-            Files.deleteIfExists(path);
-        } catch (Exception ex){
-            throw new RuntimeException(ex);
-        }
-        if ( deferred != null ){
-            throw new RuntimeException(deferred);
-        }
-    }
-
-    public void initializeSchema(){
-        String sql = readSchema();
-        initializeSchema(sql);
-    }
-
-    public void initializeSchema(String sql){
+    @Override
+    public void initializeSchemaFromSql(String sql) {
         if ( ! initialized ) {
             try {
                 Connection connection = connect();
                 Statement statement = connection.createStatement();
                 statement.execute(sql);
+                connection.commit();
+                System.out.println("commited schema");
+                connection.close();
+                System.out.println("closed");
                 initialized = true;
                 advanceSequences();
             } catch (Exception ex) {
@@ -134,7 +95,14 @@ public class H2Helper {
         }
     }
 
-    public void advanceSequences(){
+    @Override
+    public void initializeSchema() {
+        String sql = readSchema();
+        initializeSchemaFromSql(sql);
+    }
+
+    @Override
+    public void advanceSequences() {
         Random random = new Random();
         try {
             Connection connection = connect();
@@ -146,9 +114,13 @@ public class H2Helper {
                     statement.execute(sql);
                 }
             }
+            System.out.println("Advanced sequences");
+            connection.commit();
+            System.out.println("committed");
+            connection.close();
+            System.out.println("closed");
         } catch (Exception ex){
             throw new RuntimeException(ex);
         }
     }
-
 }

@@ -1,8 +1,9 @@
 package org.hrorm;
 
+import org.hrorm.database.Helper;
 import org.hrorm.examples.Product;
 import org.hrorm.examples.ProductCategory;
-import org.hrorm.h2.H2Helper;
+import org.hrorm.database.H2Helper;
 import org.hrorm.util.TestLogConfig;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -22,7 +23,7 @@ public class ProductTest {
 
     static { TestLogConfig.load(); }
 
-    private static H2Helper helper = new H2Helper("products");
+    private static Helper helper = new H2Helper("products");
 
     @BeforeClass
     public static void setUpDb(){

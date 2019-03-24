@@ -1,7 +1,8 @@
 package org.hrorm;
 
+import org.hrorm.database.Helper;
 import org.hrorm.examples.Recipes;
-import org.hrorm.h2.H2Helper;
+import org.hrorm.database.H2Helper;
 import org.hrorm.util.TestLogConfig;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -13,7 +14,7 @@ public class RecipesTest {
 
     static { TestLogConfig.load(); }
 
-    private static H2Helper helper = new H2Helper("recipes");
+    private static Helper helper = new H2Helper("recipes");
 
     @BeforeClass
     public static void setUpDb(){

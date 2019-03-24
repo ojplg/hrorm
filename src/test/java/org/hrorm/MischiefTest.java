@@ -1,7 +1,8 @@
 package org.hrorm;
 
+import org.hrorm.database.Helper;
 import org.hrorm.examples.Keyless;
-import org.hrorm.h2.H2Helper;
+import org.hrorm.database.H2Helper;
 import org.hrorm.util.RandomUtils;
 import org.hrorm.util.TestLogConfig;
 import org.junit.AfterClass;
@@ -23,7 +24,7 @@ public class MischiefTest {
 
     static { TestLogConfig.load(); }
 
-    private static H2Helper helper = new H2Helper("keyless");
+    private static Helper helper = new H2Helper("keyless");
 
     private static final List<Keyless> fakeEntities = RandomUtils.randomNumberOf(50, 100, KeylessTest::randomKeyless);
 

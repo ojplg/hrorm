@@ -1,10 +1,11 @@
 package org.hrorm;
 
+import org.hrorm.database.Helper;
 import org.hrorm.examples.immutables.DaoBuilders;
 import org.hrorm.examples.immutables.ImmutableChild;
 import org.hrorm.examples.immutables.ImmutableSibling;
 import org.hrorm.examples.immutables.ImmutableThing;
-import org.hrorm.h2.H2Helper;
+import org.hrorm.database.H2Helper;
 import org.hrorm.util.TestLogConfig;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -22,7 +23,7 @@ public class ImmutableThingTest {
 
     static { TestLogConfig.load(); }
 
-    private static H2Helper HELPER = new H2Helper("immutable_thing");
+    private static Helper HELPER = new H2Helper("immutable_thing");
 
     @BeforeClass
     public static void setUpDb(){
@@ -55,7 +56,7 @@ public class ImmutableThingTest {
         doTestCascadingUpdate(HELPER);
     }
 
-    public static void doInsertAndSelectImmutableThing(H2Helper helper){
+    public static void doInsertAndSelectImmutableThing(Helper helper){
         long id;
         {
             Connection connection = helper.connect();
@@ -81,7 +82,7 @@ public class ImmutableThingTest {
         }
     }
 
-    public static void doInsertAndSelectImmutableThingWithAChild(H2Helper helper){
+    public static void doInsertAndSelectImmutableThingWithAChild(Helper helper){
         long id;
         LocalDateTime bday = LocalDateTime.now();
         {
@@ -119,7 +120,7 @@ public class ImmutableThingTest {
         }
     }
 
-    public static void doInsertAndSelectImmutableThingWithAChildAndSibling(H2Helper helper){
+    public static void doInsertAndSelectImmutableThingWithAChildAndSibling(Helper helper){
 
         long id;
         long siblingId;
@@ -180,7 +181,7 @@ public class ImmutableThingTest {
     }
 
 
-    public static void doTestCascadingUpdate(H2Helper helper){
+    public static void doTestCascadingUpdate(Helper helper){
 
         long id;
         long firstSiblingId;

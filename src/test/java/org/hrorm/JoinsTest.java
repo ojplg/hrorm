@@ -1,12 +1,13 @@
 package org.hrorm;
 
+import org.hrorm.database.Helper;
 import org.hrorm.examples.siblings.Cousin;
 import org.hrorm.examples.EnumeratedColor;
 import org.hrorm.examples.EnumeratedColorConverter;
 import org.hrorm.examples.siblings.SecondCousin;
 import org.hrorm.examples.siblings.Sibling;
 import org.hrorm.examples.siblings.Thing;
-import org.hrorm.h2.H2Helper;
+import org.hrorm.database.H2Helper;
 import org.hrorm.util.TestLogConfig;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -20,7 +21,7 @@ public class JoinsTest {
 
     static { TestLogConfig.load(); }
 
-    private static H2Helper helper = new H2Helper("joins");
+    private static Helper helper = new H2Helper("joins");
 
     @BeforeClass
     public static void setUpDb(){

@@ -1,12 +1,13 @@
 package org.hrorm;
 
+import org.hrorm.database.Helper;
 import org.hrorm.examples.ColumnsDaoBuilder;
 import org.hrorm.examples.Simple;
 import org.hrorm.examples.SimpleParentChildDaos;
 import org.hrorm.examples.geography.GeographyDaos;
 import org.hrorm.examples.immutables.DaoBuilders;
 import org.hrorm.examples.media.MediaDaoBuilders;
-import org.hrorm.h2.H2Helper;
+import org.hrorm.database.H2Helper;
 import org.hrorm.util.SimpleSqlFormatter;
 import org.junit.Assert;
 import org.junit.Test;
@@ -56,7 +57,7 @@ public class SchemaTest {
         Schema columnsSchema = new Schema(ColumnsDaoBuilder.DAO_BUILDER);
         String sql = columnsSchema.sql();
 
-        H2Helper helper = new H2Helper("columns");
+        Helper helper = new H2Helper("columns");
         String expectedSql = helper.readSchema();
 
         SimpleSqlFormatter.assertEqualSql(expectedSql, sql);
@@ -115,8 +116,8 @@ public class SchemaTest {
         String[] splits = sql.split("alter");
         Assert.assertEquals(3, splits.length);
 
-        H2Helper helper = new H2Helper("generated_immutables");
-        helper.initializeSchema(sql);
+        Helper helper = new H2Helper("generated_immutables");
+        helper.initializeSchemaFromSql(sql);
 
         ImmutableThingTest.doInsertAndSelectImmutableThing(helper);
         ImmutableThingTest.doInsertAndSelectImmutableThingWithAChild(helper);

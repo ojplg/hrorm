@@ -1,9 +1,10 @@
 package org.hrorm;
 
+import org.hrorm.database.Helper;
 import org.hrorm.examples.geography.City;
 import org.hrorm.examples.geography.GeographyDaos;
 import org.hrorm.examples.geography.State;
-import org.hrorm.h2.H2Helper;
+import org.hrorm.database.H2Helper;
 import org.hrorm.util.SimpleSqlFormatter;
 import org.hrorm.util.TestLogConfig;
 import org.junit.AfterClass;
@@ -21,7 +22,7 @@ public class WhereJoinedTest {
 
     static { TestLogConfig.load(); }
 
-    private static H2Helper helper = new H2Helper("geography");
+    private static Helper helper = new H2Helper("geography");
 
     @BeforeClass
     public static void setUpDb(){

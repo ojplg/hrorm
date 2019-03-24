@@ -2,7 +2,8 @@ package org.hrorm;
 
 import static org.hrorm.examples.Complex.*;
 
-import org.hrorm.h2.H2Helper;
+import org.hrorm.database.H2Helper;
+import org.hrorm.database.Helper;
 import org.hrorm.util.TestLogConfig;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -18,7 +19,7 @@ public class ComplexTest {
 
     static { TestLogConfig.load(); }
 
-    private static H2Helper helper = new H2Helper("complex");
+    private static Helper helper = new H2Helper("complex");
 
     @BeforeClass
     public static void setUpDb(){

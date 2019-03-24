@@ -1,11 +1,12 @@
 package org.hrorm;
 
+import org.hrorm.database.Helper;
 import org.hrorm.examples.parentage.Child;
 import org.hrorm.examples.EnumeratedColor;
 import org.hrorm.examples.parentage.Grandchild;
 import org.hrorm.examples.parentage.Parent;
 import org.hrorm.examples.parentage.ParentChildBuilders;
-import org.hrorm.h2.H2Helper;
+import org.hrorm.database.H2Helper;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -21,7 +22,7 @@ import java.util.stream.Collectors;
 
 public class ParentsTest {
 
-    private static H2Helper helper = new H2Helper("parents");
+    private static Helper helper = new H2Helper("parents");
 
     @BeforeClass
     public static void setUpDb(){

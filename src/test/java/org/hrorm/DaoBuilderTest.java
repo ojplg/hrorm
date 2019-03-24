@@ -1,6 +1,7 @@
 package org.hrorm;
 
-import org.hrorm.h2.H2Helper;
+import org.hrorm.database.H2Helper;
+import org.hrorm.database.Helper;
 import org.hrorm.util.TestLogConfig;
 import org.junit.Assert;
 import org.junit.Test;
@@ -9,13 +10,13 @@ public class DaoBuilderTest {
 
     static { TestLogConfig.load(); }
 
-    private H2Helper h2Helper = new H2Helper("columns");
+    private Helper helper = new H2Helper("columns");
 
     @Test
     public void cannotBuildDaoWithoutPrimaryKey(){
         try {
             DaoBuilder<Object> builder = new DaoBuilder<>("", Object::new);
-            builder.buildDao(h2Helper.connect());
+            builder.buildDao(helper.connect());
             Assert.fail("Should not build Dao without primary key");
         } catch (HrormException expected){
         }
