@@ -20,16 +20,15 @@ import java.util.stream.Stream;
  */
 public class Schema {
 
-    private final List<DaoDescriptor> descriptorList;
+    private final List<DaoDescriptor> descriptors;
 
     /**
      * Construct an instance.
      *
-     * @param descriptors The <code>DaoDescriptor</code> objects to generate
-     *                    SQL for.
+     * @param descriptors The <code>DaoDescriptor</code> objects to generate SQL for.
      */
     public Schema(DaoDescriptor ... descriptors){
-        this.descriptorList = Collections.unmodifiableList(Arrays.asList(descriptors));
+        this.descriptors = Collections.unmodifiableList(Arrays.asList(descriptors));
     }
 
     private String renderColumn(Column<?,?> column){
@@ -115,7 +114,7 @@ public class Schema {
      * @return The SQL to create the constraints.
      */
     public List<String> constraints(){
-        return descriptorList.stream().flatMap(this::allConstraints).collect(Collectors.toList());
+        return descriptors.stream().flatMap(this::allConstraints).collect(Collectors.toList());
     }
 
     /**
@@ -124,7 +123,7 @@ public class Schema {
      * @return The SQL to create the sequences.
      */
     public List<String> sequences(){
-        return descriptorList.stream().map(d -> createSequenceSql(d.primaryKey().getSequenceName())).collect(Collectors.toList());
+        return descriptors.stream().map(d -> createSequenceSql(d.primaryKey().getSequenceName())).collect(Collectors.toList());
     }
 
     private String createSequenceSql(String sequenceName){
@@ -137,7 +136,7 @@ public class Schema {
      * @return The SQL to create the tables.
      */
     public List<String> tables(){
-        return descriptorList.stream().map(this::tablesSql).collect(Collectors.toList());
+        return descriptors.stream().map(this::tablesSql).collect(Collectors.toList());
     }
 
     /**
