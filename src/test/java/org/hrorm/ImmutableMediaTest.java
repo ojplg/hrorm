@@ -1,10 +1,10 @@
 package org.hrorm;
 
 import org.hrorm.database.Helper;
+import org.hrorm.database.HelperFactory;
 import org.hrorm.examples.media.ImmutableActor;
 import org.hrorm.examples.media.ImmutableMediaDaoBuilders;
 import org.hrorm.examples.media.ImmutableMovie;
-import org.hrorm.database.H2Helper;
 import org.hrorm.util.AssertHelp;
 import org.hrorm.util.TestLogConfig;
 import org.junit.After;
@@ -14,6 +14,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -23,7 +24,7 @@ public class ImmutableMediaTest {
 
     static { TestLogConfig.load(); }
 
-    private static Helper helper = new H2Helper("media");
+    private static Helper helper = HelperFactory.forSchema("media");
 
     @BeforeClass
     public static void setUpDb(){
@@ -67,23 +68,29 @@ public class ImmutableMediaTest {
             { "Broadcast News", "Albert Brooks" }
     };
 
-    private void insertMovies(){
-        Dao<ImmutableMovie> movieDao = ImmutableMediaDaoBuilders.MOVIE_DAO_BUILDER.buildDao(helper.connect());
+    private void insertMovies() throws SQLException {
+        Connection connection = helper.connect();
+        Dao<ImmutableMovie> movieDao = ImmutableMediaDaoBuilders.MOVIE_DAO_BUILDER.buildDao(connection);
         for(String title : MOVIE_TITLES){
             ImmutableMovie movie = ImmutableMovie.builder().title(title).build();
             movieDao.insert(movie);
         }
+        connection.commit();
+        connection.close();
     }
 
-    private void insertActors(){
-        Dao<ImmutableActor> actorDao = ImmutableMediaDaoBuilders.ACTOR_DAO_BUILDER.buildDao(helper.connect());
+    private void insertActors() throws SQLException {
+        Connection connection = helper.connect();
+        Dao<ImmutableActor> actorDao = ImmutableMediaDaoBuilders.ACTOR_DAO_BUILDER.buildDao(connection);
         for(String name : ACTOR_NAMES){
             ImmutableActor actor = ImmutableActor.builder().name(name).build();
             actorDao.insert(actor);
         }
+        connection.commit();
+        connection.close();
     }
 
-    private void insertAssociations(){
+    private void insertAssociations() throws SQLException {
         Connection connection = helper.connect();
 
         AssociationDao<ImmutableActor, ImmutableMovie> actorMovieAssociationDao =
@@ -98,20 +105,29 @@ public class ImmutableMediaTest {
 
             actorMovieAssociationDao.insertAssociation(actor, movie);
         }
+
+        connection.commit();
+        connection.close();
     }
 
-    private ImmutableActor findActor(String name){
-        Dao<ImmutableActor> actorDao = ImmutableMediaDaoBuilders.ACTOR_DAO_BUILDER.buildDao(helper.connect());
-        return actorDao.select(where("name", Operator.EQUALS, name)).get(0);
+    private ImmutableActor findActor(String name) throws SQLException {
+        Connection connection = helper.connect();
+        Dao<ImmutableActor> actorDao = ImmutableMediaDaoBuilders.ACTOR_DAO_BUILDER.buildDao(connection);
+        ImmutableActor actor = actorDao.select(where("name", Operator.EQUALS, name)).get(0);
+        connection.close();
+        return actor;
     }
 
-    private ImmutableMovie findMovie(String title){
-        Dao<ImmutableMovie> movieDao = ImmutableMediaDaoBuilders.MOVIE_DAO_BUILDER.buildDao(helper.connect());
-        return movieDao.select(where("title", Operator.EQUALS, title)).get(0);
+    private ImmutableMovie findMovie(String title) throws SQLException {
+        Connection connection = helper.connect();
+        Dao<ImmutableMovie> movieDao = ImmutableMediaDaoBuilders.MOVIE_DAO_BUILDER.buildDao(connection);
+        ImmutableMovie movie = movieDao.select(where("title", Operator.EQUALS, title)).get(0);
+        connection.close();
+        return movie;
     }
 
     @Before
-    public void doInserts(){
+    public void doInserts() throws SQLException {
         insertActors();
         insertMovies();
         insertAssociations();
@@ -123,71 +139,89 @@ public class ImmutableMediaTest {
     }
 
     @Test
-    public void testAssociationDaoSelect(){
-        Dao<ImmutableActor> actorDao = ImmutableMediaDaoBuilders.ACTOR_DAO_BUILDER.buildDao(helper.connect());
+    public void testAssociationDaoSelect() throws SQLException {
+        Connection connection = helper.connect();
+
         ImmutableActor graceKelly = findActor("Grace Kelly");
 
-        AssociationDao<ImmutableActor, ImmutableMovie> associationDao = ImmutableMediaDaoBuilders.ASSOCIATION_DAO_BUILDER.buildDao(helper.connect());
+        AssociationDao<ImmutableActor, ImmutableMovie> associationDao = ImmutableMediaDaoBuilders.ASSOCIATION_DAO_BUILDER.buildDao(connection);
         List<ImmutableMovie> movies = associationDao.selectRightAssociates(graceKelly);
 
-        List<String> titles = movies.stream().map(m -> m.getTitle()).collect(Collectors.toList());
+        List<String> titles = movies.stream().map(ImmutableMovie::getTitle).collect(Collectors.toList());
         AssertHelp.sameContents(new String[]{"High Noon", "To Catch A Thief"}, titles);
+
+        connection.close();
     }
 
     @Test
-    public void testInsertAssociation(){
-        Dao<ImmutableActor> actorDao = ImmutableMediaDaoBuilders.ACTOR_DAO_BUILDER.buildDao(helper.connect());
-        ImmutableActor caryGrant = actorDao.select(where("name", Operator.EQUALS, "Cary Grant")).get(0);
+    public void testInsertAssociation() throws SQLException {
+
+        ImmutableActor caryGrant = findActor("Cary Grant");
 
         {
-            Dao<ImmutableMovie> movieDao = ImmutableMediaDaoBuilders.MOVIE_DAO_BUILDER.buildDao(helper.connect());
+            Connection connection = helper.connect();
+            Dao<ImmutableMovie> movieDao = ImmutableMediaDaoBuilders.MOVIE_DAO_BUILDER.buildDao(connection);
             ImmutableMovie philadelphiaStory = ImmutableMovie.builder().title("The Philadelphia Story").build();
             movieDao.insert(philadelphiaStory);
+            connection.commit();
+            connection.close();
         }
 
         {
-            AssociationDao<ImmutableActor, ImmutableMovie> associationDao = ImmutableMediaDaoBuilders.ASSOCIATION_DAO_BUILDER.buildDao(helper.connect());
+            Connection connection = helper.connect();
+            AssociationDao<ImmutableActor, ImmutableMovie> associationDao = ImmutableMediaDaoBuilders.ASSOCIATION_DAO_BUILDER.buildDao(connection);
             ImmutableMovie philadelphiaStory = findMovie("The Philadelphia Story");
             associationDao.insertAssociation(caryGrant, philadelphiaStory);
+            connection.commit();
+            connection.close();
         }
         {
-            AssociationDao<ImmutableActor, ImmutableMovie> associationDao = ImmutableMediaDaoBuilders.ASSOCIATION_DAO_BUILDER.buildDao(helper.connect());
+            Connection connection = helper.connect();
+            AssociationDao<ImmutableActor, ImmutableMovie> associationDao = ImmutableMediaDaoBuilders.ASSOCIATION_DAO_BUILDER.buildDao(connection);
             List<ImmutableMovie> movies = associationDao.selectRightAssociates(caryGrant);
-            List<String> titles = movies.stream().map(m -> m.getTitle()).collect(Collectors.toList());
+            List<String> titles = movies.stream().map(ImmutableMovie::getTitle).collect(Collectors.toList());
             AssertHelp.sameContents(new String[]{"North By Northwest", "To Catch A Thief", "The Philadelphia Story"}, titles);
+            connection.close();
         }
     }
 
     @Test
-    public void testDeleteAssociation(){
-        Dao<ImmutableActor> actorDao = ImmutableMediaDaoBuilders.ACTOR_DAO_BUILDER.buildDao(helper.connect());
-        ImmutableActor hollyHunter = actorDao.select(where("name", Operator.EQUALS, "Holly Hunter")).get(0);
-
-        Dao<ImmutableMovie> movieDao = ImmutableMediaDaoBuilders.MOVIE_DAO_BUILDER.buildDao(helper.connect());
-        ImmutableMovie raisingArizona = movieDao.select(where("title", Operator.EQUALS, "Raising Arizona")).get(0);
+    public void testDeleteAssociation() throws SQLException {
+        ImmutableActor hollyHunter = findActor("Holly Hunter");
+        ImmutableMovie raisingArizona = findMovie( "Raising Arizona");
 
         {
-            AssociationDao<ImmutableActor, ImmutableMovie> associationDao = ImmutableMediaDaoBuilders.ASSOCIATION_DAO_BUILDER.buildDao(helper.connect());
+            Connection connection = helper.connect();
+
+            AssociationDao<ImmutableActor, ImmutableMovie> associationDao = ImmutableMediaDaoBuilders.ASSOCIATION_DAO_BUILDER.buildDao(connection);
             associationDao.deleteAssociation(hollyHunter, raisingArizona);
+
+            connection.commit();
+            connection.close();
         }
         {
-            AssociationDao<ImmutableActor, ImmutableMovie> associationDao = ImmutableMediaDaoBuilders.ASSOCIATION_DAO_BUILDER.buildDao(helper.connect());
+            Connection connection = helper.connect();
+            AssociationDao<ImmutableActor, ImmutableMovie> associationDao = ImmutableMediaDaoBuilders.ASSOCIATION_DAO_BUILDER.buildDao(connection);
             List<ImmutableMovie> movies = associationDao.selectRightAssociates(hollyHunter);
-            List<String> titles = movies.stream().map(m -> m.getTitle()).collect(Collectors.toList());
+            List<String> titles = movies.stream().map(ImmutableMovie::getTitle).collect(Collectors.toList());
             AssertHelp.sameContents(new String[]{"Broadcast News"}, titles);
+
+            connection.close();
         }
     }
 
     @Test
-    public void testAssociationDaoSelect_LeftAssociates(){
-        Dao<ImmutableMovie> movieDao = ImmutableMediaDaoBuilders.MOVIE_DAO_BUILDER.buildDao(helper.connect());
-        ImmutableMovie raisingArizona = movieDao.select(where("title", Operator.EQUALS, "Raising Arizona")).get(0);
+    public void testAssociationDaoSelect_LeftAssociates() throws SQLException {
+        Connection connection = helper.connect();
+        ImmutableMovie raisingArizona = findMovie("Raising Arizona");
 
-        AssociationDao<ImmutableActor, ImmutableMovie> associationDao =  ImmutableMediaDaoBuilders.ASSOCIATION_DAO_BUILDER.buildDao(helper.connect());
+        AssociationDao<ImmutableActor, ImmutableMovie> associationDao =  ImmutableMediaDaoBuilders.ASSOCIATION_DAO_BUILDER.buildDao(connection);
         List<ImmutableActor> actors = associationDao.selectLeftAssociates(raisingArizona);
 
-        List<String> names = actors.stream().map(a -> a.getName()).collect(Collectors.toList());
+        List<String> names = actors.stream().map(ImmutableActor::getName).collect(Collectors.toList());
         AssertHelp.sameContents(new String[]{"Holly Hunter", "Nicolas Cage"}, names);
+
+        connection.close();
     }
 
 }

@@ -1,29 +1,34 @@
 package org.hrorm;
 
-import org.hrorm.database.H2Helper;
 import org.hrorm.database.Helper;
+import org.hrorm.database.HelperFactory;
 import org.hrorm.util.TestLogConfig;
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.sql.Connection;
+import java.sql.SQLException;
 
 public class DaoBuilderTest {
 
     static { TestLogConfig.load(); }
 
-    private Helper helper = new H2Helper("columns");
+    private Helper helper = HelperFactory.forSchema("columns");
 
     @Test
-    public void cannotBuildDaoWithoutPrimaryKey(){
+    public void cannotBuildDaoWithoutPrimaryKey() throws SQLException {
         try {
+            Connection connection = helper.connect();
             DaoBuilder<Object> builder = new DaoBuilder<>("", Object::new);
-            builder.buildDao(helper.connect());
+            builder.buildDao(connection);
             Assert.fail("Should not build Dao without primary key");
+            connection.close();
         } catch (HrormException expected){
         }
     }
 
     @Test
-    public void cannotResetPrimaryKey(){
+    public void cannotResetPrimaryKey() {
         try {
             DaoBuilder<Object> builder = new DaoBuilder<>("", Object::new);
             builder.withPrimaryKey("foo", "sequence",
