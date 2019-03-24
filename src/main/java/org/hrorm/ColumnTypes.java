@@ -46,7 +46,8 @@ public class ColumnTypes {
                             Types.DECIMAL,
                             Types.DOUBLE,
                             Types.FLOAT,
-                            Types.REAL
+                            Types.REAL,
+                            Types.NUMERIC
                     )));
 
 

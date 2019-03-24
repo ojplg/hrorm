@@ -59,7 +59,7 @@ public class KeylessValidator {
         try {
             String tableName = daoDescriptor.tableName();
             Statement statement = connection.createStatement();
-            ResultSet resultSet = statement.executeQuery("select top 1 * from " + tableName);
+            ResultSet resultSet = statement.executeQuery("select * from " + tableName);
             resultSet.next();
         } catch (SQLException ex){
             return Collections.singletonList(ex.getMessage());
@@ -75,7 +75,7 @@ public class KeylessValidator {
             try {
                 Statement statement = connection.createStatement();
                 String columnName = column.getName();
-                ResultSet resultSet = statement.executeQuery("select top 1 " + columnName + " from " + tableName);
+                ResultSet resultSet = statement.executeQuery("select " + columnName + " from " + tableName);
                 ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
                 int columnType = resultSetMetaData.getColumnType(1);
                 if ( ! column.supportedTypes().contains(columnType) ){

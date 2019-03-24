@@ -65,7 +65,7 @@ public class Validator extends KeylessValidator {
         try {
             String sequenceName = daoDescriptor.primaryKey().getSequenceName();
             Statement statement = connection.createStatement();
-            ResultSet resultSet = statement.executeQuery("select currval('" + sequenceName + "')");
+            ResultSet resultSet = statement.executeQuery("select nextval('" + sequenceName + "')");
             while (resultSet.next()) {
                 resultSet.getLong(1);
             }

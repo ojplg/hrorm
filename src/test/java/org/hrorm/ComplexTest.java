@@ -2,8 +2,8 @@ package org.hrorm;
 
 import static org.hrorm.examples.Complex.*;
 
-import org.hrorm.database.H2Helper;
 import org.hrorm.database.Helper;
+import org.hrorm.database.HelperFactory;
 import org.hrorm.util.TestLogConfig;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -12,6 +12,7 @@ import org.junit.Test;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
 
@@ -19,7 +20,7 @@ public class ComplexTest {
 
     static { TestLogConfig.load(); }
 
-    private static Helper helper = new H2Helper("complex");
+    private static Helper helper = HelperFactory.forSchema("complex");
 
     @BeforeClass
     public static void setUpDb(){
@@ -32,7 +33,7 @@ public class ComplexTest {
     }
 
     @Test
-    public void testSaveAndReadBeth(){
+    public void testSaveAndReadBeth() throws SQLException {
         long bethId;
         Boolean fredFlag;
         String gapInsignia;
@@ -69,6 +70,9 @@ public class ComplexTest {
 
             Beth beth = newBeth(Collections.singletonList(don), Collections.singletonList(edith));
             bethId = bethDao.insert(beth);
+
+            connection.commit();
+            connection.close();
         }
         {
             Connection connection = helper.connect();
@@ -86,11 +90,13 @@ public class ComplexTest {
             Edith edith = beth.getEdiths().get(0);
             Assert.assertEquals(fredFlag, edith.getFred().getFlag());
             Assert.assertEquals(gapInsignia, edith.getGap().getInsignia());
+
+            connection.close();
         }
     }
 
     @Test
-    public void testSaveAndReadAnn(){
+    public void testSaveAndReadAnn() throws SQLException {
         long annId;
         Boolean fredFlag;
         String gapInsignia;
@@ -135,6 +141,9 @@ public class ComplexTest {
             Ann ann = newAnn(beth, cal);
 
             annId = annDao.insert(ann);
+
+            connection.commit();
+            connection.close();
         }
         {
             Connection connection = helper.connect();
@@ -159,11 +168,12 @@ public class ComplexTest {
             Assert.assertEquals(gapInsignia, edith.getGap().getInsignia());
             Cal cal = ann.getCals().get(0);
             Assert.assertEquals(calAmount, cal.getAmount());
+            connection.close();
         }
     }
 
     @Test
-    public void testDaoValidation(){
+    public void testDaoValidation() throws SQLException {
         Connection connection = helper.connect();
         Validator.validate(connection, annDaoBuilder);
         Validator.validate(connection, bethDaoBuilder);
@@ -175,6 +185,7 @@ public class ComplexTest {
         Validator.validate(connection, henryDaoBuilder);
         Validator.validate(connection, idaDaoBuilder);
         Validator.validate(connection, julesDaoBuilder);
+        connection.close();
     }
 
 }
