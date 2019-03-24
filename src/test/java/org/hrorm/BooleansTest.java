@@ -1,8 +1,8 @@
 package org.hrorm;
 
 import org.hrorm.database.Helper;
+import org.hrorm.database.HelperFactory;
 import org.hrorm.examples.Booleans;
-import org.hrorm.database.H2Helper;
 import org.hrorm.util.TestLogConfig;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -11,12 +11,13 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 
 public class BooleansTest {
 
     static { TestLogConfig.load(); }
 
-    private static Helper helper = new H2Helper("booleans");
+    private static Helper helper = HelperFactory.forSchema("booleans");
 
     @BeforeClass
     public static void setUpDb(){
@@ -42,7 +43,7 @@ public class BooleansTest {
 
 
     @Test
-    public void testInsertAndSelect() {
+    public void testInsertAndSelect() throws SQLException {
         long id;
         {
             Connection connection = helper.connect();
@@ -54,6 +55,9 @@ public class BooleansTest {
             bools.setStringFlag(true);
 
             id = dao.insert(bools);
+
+            connection.commit();
+            connection.close();
         }
         {
             Connection connection = helper.connect();
@@ -64,11 +68,13 @@ public class BooleansTest {
             Assert.assertTrue(booleans.isBooleanFlag());
             Assert.assertTrue(booleans.isStringFlag());
             Assert.assertTrue(booleans.isIntFlag());
+
+            connection.close();
         }
     }
 
     @Test
-    public void testInsertAndUpdate(){
+    public void testInsertAndUpdate() throws SQLException {
         long id;
         {
             Connection connection = helper.connect();
@@ -80,6 +86,9 @@ public class BooleansTest {
             bools.setStringFlag(false);
 
             id = dao.insert(bools);
+
+            connection.commit();
+            connection.close();
         }
         {
             Connection connection = helper.connect();
@@ -96,6 +105,9 @@ public class BooleansTest {
             booleans.setBooleanFlag(true);
 
             dao.update(booleans);
+
+            connection.commit();
+            connection.close();
         }
         {
             Connection connection = helper.connect();
@@ -106,6 +118,8 @@ public class BooleansTest {
             Assert.assertTrue(booleans.isBooleanFlag());
             Assert.assertTrue(booleans.isStringFlag());
             Assert.assertTrue(booleans.isIntFlag());
+
+            connection.close();
         }
     }
 

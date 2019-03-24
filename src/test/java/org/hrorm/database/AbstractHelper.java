@@ -71,6 +71,8 @@ public abstract class AbstractHelper implements Helper {
             Connection connection = connect();
             Statement statement = connection.createStatement();
             statement.execute("delete from " + tableName);
+            connection.commit();
+            connection.close();
         } catch (Exception ex){
             throw new RuntimeException(ex);
         }
