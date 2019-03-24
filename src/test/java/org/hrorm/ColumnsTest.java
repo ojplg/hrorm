@@ -1,11 +1,10 @@
 package org.hrorm;
 
 import org.hrorm.database.Helper;
-import org.hrorm.database.PostgresHelper;
+import org.hrorm.database.HelperFactory;
 import org.hrorm.examples.Columns;
 import org.hrorm.examples.ColumnsDaoBuilder;
 import org.hrorm.examples.EnumeratedColor;
-import org.hrorm.database.H2Helper;
 import org.hrorm.util.TestLogConfig;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -23,8 +22,7 @@ public class ColumnsTest {
 
     static { TestLogConfig.load(); }
 
-    private static Helper helper = new H2Helper("columns");
-//    private static Helper helper = new PostgresHelper("columns");
+    private static Helper helper = HelperFactory.forSchema("columns");
 
     @BeforeClass
     public static void setUpDb(){

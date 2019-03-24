@@ -84,9 +84,7 @@ public abstract class AbstractHelper implements Helper {
                 Statement statement = connection.createStatement();
                 statement.execute(sql);
                 connection.commit();
-                System.out.println("commited schema");
                 connection.close();
-                System.out.println("closed");
                 initialized = true;
                 advanceSequences();
             } catch (Exception ex) {
@@ -114,11 +112,8 @@ public abstract class AbstractHelper implements Helper {
                     statement.execute(sql);
                 }
             }
-            System.out.println("Advanced sequences");
             connection.commit();
-            System.out.println("committed");
             connection.close();
-            System.out.println("closed");
         } catch (Exception ex){
             throw new RuntimeException(ex);
         }
