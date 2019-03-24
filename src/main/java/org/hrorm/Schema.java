@@ -123,7 +123,9 @@ public class Schema {
      * @return The SQL to create the sequences.
      */
     public List<String> sequences(){
-        return descriptors.stream().map(d -> createSequenceSql(d.primaryKey().getSequenceName())).collect(Collectors.toList());
+        return descriptors.stream()
+                .map(d -> createSequenceSql(d.primaryKey().getSequenceName()))
+                .collect(Collectors.toList());
     }
 
     private String createSequenceSql(String sequenceName){
