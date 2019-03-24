@@ -12,6 +12,7 @@ import org.junit.Test;
 import java.sql.Connection;
 import java.util.List;
 import java.util.Objects;
+import java.util.TimeZone;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -28,10 +29,11 @@ public class KeylessTest {
 
     // Make between 500-2000 random Keyless.
     // May seem high, but random sample behavior is better tested with a good number of entities.
-    private static final List<Keyless> fakeEntities = RandomUtils.randomNumberOf(500, 2000, KeylessTest::randomKeyless);
+    private static final List<Keyless> fakeEntities = RandomUtils.randomNumberOf(50, 200, KeylessTest::randomKeyless);
 
     @BeforeClass
     public static void setUpDb(){
+        TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
         helper.initializeSchema();
 
         // Insertion Phase
@@ -44,7 +46,6 @@ public class KeylessTest {
     public static void cleanUpDb(){
         helper.dropSchema();
     }
-
 
     /**
      * Comprehensively tests insert/select.
