@@ -1,12 +1,12 @@
 package org.hrorm;
 
 import org.hrorm.database.Helper;
+import org.hrorm.database.HelperFactory;
 import org.hrorm.examples.parentage.Child;
 import org.hrorm.examples.EnumeratedColor;
 import org.hrorm.examples.parentage.Grandchild;
 import org.hrorm.examples.parentage.Parent;
 import org.hrorm.examples.parentage.ParentChildBuilders;
-import org.hrorm.database.H2Helper;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -14,7 +14,6 @@ import org.junit.Test;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -22,7 +21,7 @@ import java.util.stream.Collectors;
 
 public class ParentsTest {
 
-    private static Helper helper = new H2Helper("parents");
+    private static Helper helper = HelperFactory.forSchema("parents");
 
     @BeforeClass
     public static void setUpDb(){
@@ -32,18 +31,6 @@ public class ParentsTest {
     @AfterClass
     public static void cleanUpDb(){
         helper.dropSchema();
-    }
-
-    private void deleteAll(){
-        try {
-            Connection connection = helper.connect();
-            Statement statement = connection.createStatement();
-            statement.execute("delete from grandchild_table");
-            statement.execute("delete from child_table");
-            statement.execute("delete from parent_table");
-        } catch (Exception ex){
-            throw new RuntimeException(ex);
-        }
     }
 
     @Test
@@ -72,10 +59,13 @@ public class ParentsTest {
         Assert.assertEquals(1, readItem.getChildList().size());
         Assert.assertEquals(123L, (long) readItem.getChildList().get(0).getNumber());
         Assert.assertTrue(readItem.getChildList().get(0).getId() > 1);
+
+        connection.commit();
+        connection.close();
     }
 
     @Test
-    public void testDeletesHappenOnUpdate(){
+    public void testDeletesHappenOnUpdate() throws SQLException {
         Connection connection = helper.connect();
         Dao<Parent> parentDao = ParentChildBuilders.ParentDaoBuilder.buildDao(connection);
 
@@ -99,10 +89,13 @@ public class ParentsTest {
         Parent readAfterUpdate = parentDao.select(id);
 
         Assert.assertEquals(0, readAfterUpdate.getChildList().size());
+
+        connection.commit();
+        connection.close();
     }
 
     @Test
-    public void testUpdatesPropagate(){
+    public void testUpdatesPropagate() throws SQLException {
         Connection connection = helper.connect();
         Dao<Parent> parentDao = ParentChildBuilders.ParentDaoBuilder.buildDao(connection);
 
@@ -127,10 +120,13 @@ public class ParentsTest {
         Parent readAfterUpdate = parentDao.select(id);
 
         Assert.assertEquals(55L, (long) readAfterUpdate.getChildList().get(0).getNumber());
+
+        connection.commit();
+        connection.close();
     }
 
     @Test
-    public void testSavePropagatesToGrandChildren(){
+    public void testSavePropagatesToGrandChildren() throws SQLException {
         Grandchild grandchild = new Grandchild();
         grandchild.setColor(EnumeratedColor.Green);
 
@@ -155,10 +151,13 @@ public class ParentsTest {
         Assert.assertEquals(1, readItem.getChildList().get(0).getGrandchildList().size());
         Assert.assertEquals(EnumeratedColor.Green,  readItem.getChildList().get(0).getGrandchildList().get(0).getColor());
         Assert.assertTrue(readItem.getChildList().get(0).getGrandchildList().get(0).getId() > 1);
+
+        connection.commit();
+        connection.close();
     }
 
     @Test
-    public void testUpdatesPropagatesToGrandChildren(){
+    public void testUpdatesPropagatesToGrandChildren() throws SQLException {
         long parentId;
         {
             Grandchild grandchild = new Grandchild();
@@ -176,6 +175,9 @@ public class ParentsTest {
             Dao<Parent> parentDao = ParentChildBuilders.ParentDaoBuilder.buildDao(connection);
 
             parentId = parentDao.insert(parent);
+
+            connection.commit();
+            connection.close();
         }
         {
             Connection connection = helper.connect();
@@ -188,6 +190,9 @@ public class ParentsTest {
             readItem.getChildList().get(0).getGrandchildList().get(0).setColor(EnumeratedColor.Blue);
 
             parentDao.update(readItem);
+
+            connection.commit();
+            connection.close();
         }
         {
             Connection connection = helper.connect();
@@ -199,13 +204,14 @@ public class ParentsTest {
 
             Assert.assertEquals(1, secondReadItem.getChildList().get(0).getGrandchildList().size());
             Assert.assertEquals(EnumeratedColor.Blue, secondReadItem.getChildList().get(0).getGrandchildList().get(0).getColor());
+
+            connection.close();
         }
 
     }
 
     @Test
-    public void deletionOfChildrenDoesNotOrphanGrandchildRecords(){
-        //deleteAll();
+    public void deletionOfChildrenDoesNotOrphanGrandchildRecords() throws SQLException {
 
         Grandchild grandchild = new Grandchild();
         grandchild.setColor(EnumeratedColor.Green);
@@ -247,10 +253,12 @@ public class ParentsTest {
         allGrandchildren = grandchildDao.selectAll();
         Assert.assertEquals(0, allGrandchildren.size());
 
+        connection.commit();
+        connection.close();
     }
 
     @Test
-    public void testInsertMultipleChildren(){
+    public void testInsertMultipleChildren() throws SQLException {
 
         for( int idx = 0 ; idx< 10 ; idx++ ) {
             long parentId;
@@ -270,6 +278,9 @@ public class ParentsTest {
                 Dao<Parent> parentDao = ParentChildBuilders.ParentDaoBuilder.buildDao(connection);
                 parentDao.insert(parent);
                 parentId = parent.getId();
+
+                connection.commit();
+                connection.close();
             }
             {
                 Connection connection = helper.connect();
@@ -285,20 +296,26 @@ public class ParentsTest {
                 Assert.assertTrue(numbers.contains(23L +idx));
                 Assert.assertTrue(numbers.contains(46L +idx));
                 Assert.assertTrue(numbers.contains(72L +idx));
+
+                connection.close();
             }
         }
     }
 
     @Test
-    public void testUpdateMultipleChildren(){
+    public void testUpdateMultipleChildren() throws SQLException {
 
         {
             for (int idx = 0 ; idx< 10; idx++){
                 Parent parent = new Parent();
                 parent.setName("Multi Child Parent " + idx);
 
-                Dao<Parent> parentDao = ParentChildBuilders.ParentDaoBuilder.buildDao(helper.connect());
+                Connection connection = helper.connect();
+                Dao<Parent> parentDao = ParentChildBuilders.ParentDaoBuilder.buildDao(connection);
                 parentDao.insert(parent);
+
+                connection.commit();
+                connection.close();
             }
         }
 
@@ -316,13 +333,19 @@ public class ParentsTest {
                 parent.setName("Multi Child Parent");
                 parent.setChildList(Arrays.asList(childA, childB, childC));
 
-                Dao<Parent> parentDao = ParentChildBuilders.ParentDaoBuilder.buildDao(helper.connect());
+                Connection connection = helper.connect();
+                Dao<Parent> parentDao = ParentChildBuilders.ParentDaoBuilder.buildDao(connection);
                 parentDao.insert(parent);
                 parentId = parent.getId();
+
+                connection.commit();
+                connection.close();
             }
 
             {
-                Dao<Parent> parentDao = ParentChildBuilders.ParentDaoBuilder.buildDao(helper.connect());
+
+                Connection connection = helper.connect();
+                Dao<Parent> parentDao = ParentChildBuilders.ParentDaoBuilder.buildDao(connection);
 
                 Parent readItem = parentDao.select(parentId);
 
@@ -344,10 +367,14 @@ public class ParentsTest {
                 readItem.getChildList().add(child98);
 
                 parentDao.update(readItem);
+
+                connection.commit();
+                connection.close();
             }
 
             {
-                Dao<Parent> parentDao = ParentChildBuilders.ParentDaoBuilder.buildDao(helper.connect());
+                Connection connection = helper.connect();
+                Dao<Parent> parentDao = ParentChildBuilders.ParentDaoBuilder.buildDao(connection);
 
                 Parent readItem = parentDao.select(parentId);
 
@@ -359,28 +386,35 @@ public class ParentsTest {
                 Assert.assertTrue(numbers.contains(72L + idx));
                 Assert.assertTrue(numbers.contains(54L + idx));
                 Assert.assertTrue(numbers.contains(98L + idx));
+
+                connection.close();
             }
 
         }
     }
 
     @Test
-    public void testDaoValidation(){
+    public void testDaoValidation() throws SQLException {
         Connection connection = helper.connect();
         Validator.validate(connection, ParentChildBuilders.ParentDaoBuilder);
         Validator.validate(connection, ParentChildBuilders.ChildDaoBuilder);
         Validator.validate(connection, ParentChildBuilders.GrandchildDaoBuilder);
+        connection.close();
     }
 
     @Test
-    public void testCanInsertSomethingWithParentDirectly(){
+    public void testCanInsertSomethingWithParentDirectly() throws SQLException {
         Parent parent;
         {
             parent = new Parent();
             parent.setName("DirectlySaveChildTest");
 
-            Dao<Parent> parentDao = ParentChildBuilders.ParentDaoBuilder.buildDao(helper.connect());
+            Connection connection = helper.connect();
+            Dao<Parent> parentDao = ParentChildBuilders.ParentDaoBuilder.buildDao(connection);
             parentDao.insert(parent);
+
+            connection.commit();
+            connection.close();
 
         }
         Assert.assertNotNull(parent.getId());
@@ -398,23 +432,32 @@ public class ParentsTest {
 
             child.setGrandchildList(Arrays.asList(g1, g2));
 
-            Dao<Child> childDao = ParentChildBuilders.ChildDaoBuilder.buildDao(helper.connect());
+            Connection connection = helper.connect();
+
+            Dao<Child> childDao = ParentChildBuilders.ChildDaoBuilder.buildDao(connection);
 
             childId = childDao.insert(child);
+
+            connection.commit();
+            connection.close();
         }
         {
-            Dao<Child> childDao = ParentChildBuilders.ChildDaoBuilder.buildDao(helper.connect());
+            Connection connection = helper.connect();
+
+            Dao<Child> childDao = ParentChildBuilders.ChildDaoBuilder.buildDao(connection);
             Child child = childDao.select(childId);
             Assert.assertEquals(2, child.getGrandchildList().size());
             Assert.assertEquals(123L, (long) child.getNumber());
             Assert.assertNull(child.getParent());
+            connection.commit();
+            connection.close();
         }
 
     }
 
 
     @Test
-    public void testCanUpdateSomethingWithParentDirectly(){
+    public void testCanUpdateSomethingWithParentDirectly() throws SQLException {
         long childId;
         Parent parent;
         {
@@ -429,13 +472,18 @@ public class ParentsTest {
             parent.setName("Directly Update Child Test");
             parent.setChildList(Collections.singletonList(child));
 
-            Dao<Parent> parentDao = ParentChildBuilders.ParentDaoBuilder.buildDao(helper.connect());
+            Connection connection = helper.connect();
+            Dao<Parent> parentDao = ParentChildBuilders.ParentDaoBuilder.buildDao(connection);
             parentDao.insert(parent);
 
             childId = child.getId();
+
+            connection.commit();
+            connection.close();
         }
         {
-            Dao<Child> childDao = ParentChildBuilders.ChildDaoBuilder.buildDao(helper.connect());
+            Connection connection = helper.connect();
+            Dao<Child> childDao = ParentChildBuilders.ChildDaoBuilder.buildDao(connection);
             Child child = childDao.select(childId);
 
             Assert.assertNull(child.getParent());
@@ -444,17 +492,23 @@ public class ParentsTest {
             child.setParent(parent);
 
             childDao.update(child);
+
+            connection.commit();
+            connection.close();
         }
         {
-            Dao<Child> childDao = ParentChildBuilders.ChildDaoBuilder.buildDao(helper.connect());
+            Connection connection = helper.connect();
+            Dao<Child> childDao = ParentChildBuilders.ChildDaoBuilder.buildDao(connection);
             Child child = childDao.select(childId);
             Assert.assertEquals(45325L, (long) child.getNumber());
+
+            connection.close();
         }
 
     }
 
     @Test
-    public void parentIsSetOnChildOnLoad(){
+    public void parentIsSetOnChildOnLoad() throws SQLException {
 
         long parentId;
         {
@@ -466,18 +520,24 @@ public class ParentsTest {
 
             parent.setChildList(Collections.singletonList(child));
 
-            Dao<Parent> parentDao = ParentChildBuilders.ParentDaoBuilder.buildDao(helper.connect());
+            Connection connection = helper.connect();
+            Dao<Parent> parentDao = ParentChildBuilders.ParentDaoBuilder.buildDao(connection);
             parentId = parentDao.insert(parent);
 
+            connection.commit();
+            connection.close();
         }
         {
-            Dao<Parent> parentDao = ParentChildBuilders.ParentDaoBuilder.buildDao(helper.connect());
+            Connection connection = helper.connect();
+            Dao<Parent> parentDao = ParentChildBuilders.ParentDaoBuilder.buildDao(connection);
             Parent parent = parentDao.select(parentId);
 
             Child child = parent.getChildByNumber(34L);
 
             Assert.assertNotNull(child);
             Assert.assertEquals(parent, child.getParent());
+
+            connection.close();
         }
     }
 }
