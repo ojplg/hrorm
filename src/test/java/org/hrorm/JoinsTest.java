@@ -1,13 +1,13 @@
 package org.hrorm;
 
 import org.hrorm.database.Helper;
+import org.hrorm.database.HelperFactory;
 import org.hrorm.examples.siblings.Cousin;
 import org.hrorm.examples.EnumeratedColor;
 import org.hrorm.examples.EnumeratedColorConverter;
 import org.hrorm.examples.siblings.SecondCousin;
 import org.hrorm.examples.siblings.Sibling;
 import org.hrorm.examples.siblings.Thing;
-import org.hrorm.database.H2Helper;
 import org.hrorm.util.TestLogConfig;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -15,13 +15,14 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 
 public class JoinsTest {
 
     static { TestLogConfig.load(); }
 
-    private static Helper helper = new H2Helper("joins");
+    private static Helper helper = HelperFactory.forSchema("joins");
 
     @BeforeClass
     public static void setUpDb(){
@@ -64,7 +65,7 @@ public class JoinsTest {
 
 
     @Test
-    public void testSelectLoadsSiblingAndCousin(){
+    public void testSelectLoadsSiblingAndCousin() throws SQLException {
         Connection connection = helper.connect();
 
         Dao<SecondCousin> secondCousinDao = SecondCousinDaoBuilder.buildDao(connection);
@@ -98,10 +99,13 @@ public class JoinsTest {
         Assert.assertEquals(44L, (long) readFromDb.getSibling().getNumber());
         Assert.assertEquals(EnumeratedColor.Green, readFromDb.getSibling().getCousin().getColor());
         Assert.assertEquals(now, readFromDb.getSibling().getCousin().getSecondCousin().getDateTime());
+
+        connection.commit();
+        connection.close();
     }
 
     @Test
-    public void testUpdateCorrectlyChangesReference(){
+    public void testUpdateCorrectlyChangesReference() throws SQLException {
 
         Connection connection = helper.connect();
 
@@ -146,10 +150,13 @@ public class JoinsTest {
 
         Assert.assertEquals(58L, (long) secondReadFromDb.getSibling().getNumber());
         Assert.assertEquals(now, secondReadFromDb.getSibling().getCousin().getSecondCousin().getDateTime());
+
+        connection.commit();
+        connection.close();
     }
 
     @Test
-    public void testDeletingEntityLeavesSiblingsAlone(){
+    public void testDeletingEntityLeavesSiblingsAlone() throws SQLException {
         Connection connection = helper.connect();
 
         Dao<SecondCousin> secondCousinDao = SecondCousinDaoBuilder.buildDao(connection);
@@ -192,10 +199,12 @@ public class JoinsTest {
         Assert.assertNotNull(readSibling);
         Assert.assertEquals(44L, (long) sibling.getNumber());
 
+        connection.commit();
+        connection.close();
     }
 
     @Test
-    public void testNullSiblingsAllowed(){
+    public void testNullSiblingsAllowed() throws SQLException {
         Connection connection = helper.connect();
 
         Dao<Thing> thingDao = ThingDaoBuilder.buildDao(connection);
@@ -209,10 +218,13 @@ public class JoinsTest {
 
         Assert.assertEquals("only child", readThing.getName());
         Assert.assertNull(readThing.getSibling());
+
+        connection.commit();
+        connection.close();
     }
 
     @Test
-    public void notNullSettingPreventsNullSiblings(){
+    public void notNullSettingPreventsNullSiblings() throws SQLException {
         Connection connection = helper.connect();
 
         Dao<Thing> thingDao = ThingDaoBuilderNotNullSibling.buildDao(connection);
@@ -225,16 +237,18 @@ public class JoinsTest {
             Assert.fail("Should not have inserted with a null sibling");
         } catch (HrormException expected){
         }
+        connection.close();
     }
 
     @Test
-    public void testDaoValidation(){
+    public void testDaoValidation() throws SQLException {
         Connection connection = helper.connect();
         Validator.validate(connection, ThingDaoBuilder);
         Validator.validate(connection, SecondCousinDaoBuilder);
         Validator.validate(connection, CousinDaoBuilder);
         Validator.validate(connection, SiblingDaoBuilder);
         Validator.validate(connection, ThingDaoBuilderNotNullSibling);
+        connection.close();
     }
 
 }
