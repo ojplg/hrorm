@@ -3,9 +3,7 @@ package org.hrorm;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -22,8 +20,7 @@ import java.util.stream.Stream;
  */
 public class Schema {
 
-    private final Set<DaoDescriptor> descriptorsSet;
-    private final Set<String> sequenceNames;
+    private final List<DaoDescriptor> descriptorList;
 
     /**
      * Construct an instance.
@@ -32,19 +29,7 @@ public class Schema {
      *                    SQL for.
      */
     public Schema(DaoDescriptor ... descriptors){
-
-        Set<DaoDescriptor> tables = new HashSet<>();
-        Set<String> sequenceNames = new HashSet<>();
-
-        for(DaoDescriptor daoDescriptor : descriptors){
-            tables.add(daoDescriptor);
-
-            String sequenceName = daoDescriptor.primaryKey().getSequenceName().toUpperCase();
-            sequenceNames.add(sequenceName);
-        }
-
-        this.descriptorsSet = Collections.unmodifiableSet(tables);
-        this.sequenceNames = Collections.unmodifiableSet(sequenceNames);
+        this.descriptorList = Collections.unmodifiableList(Arrays.asList(descriptors));
     }
 
     private String renderColumn(Column<?,?> column){
@@ -130,7 +115,7 @@ public class Schema {
      * @return The SQL to create the constraints.
      */
     public List<String> constraints(){
-        return descriptorsSet.stream().flatMap(this::allConstraints).collect(Collectors.toList());
+        return descriptorList.stream().flatMap(this::allConstraints).collect(Collectors.toList());
     }
 
     /**
@@ -139,7 +124,7 @@ public class Schema {
      * @return The SQL to create the sequences.
      */
     public List<String> sequences(){
-        return sequenceNames.stream().map(this::createSequenceSql).collect(Collectors.toList());
+        return descriptorList.stream().map(d -> createSequenceSql(d.primaryKey().getSequenceName())).collect(Collectors.toList());
     }
 
     private String createSequenceSql(String sequenceName){
@@ -152,7 +137,7 @@ public class Schema {
      * @return The SQL to create the tables.
      */
     public List<String> tables(){
-        return descriptorsSet.stream().map(this::tablesSql).collect(Collectors.toList());
+        return descriptorList.stream().map(this::tablesSql).collect(Collectors.toList());
     }
 
     /**
