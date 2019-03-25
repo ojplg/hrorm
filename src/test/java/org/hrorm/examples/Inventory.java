@@ -4,7 +4,6 @@ import lombok.Data;
 import org.hrorm.DaoBuilder;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -21,7 +20,7 @@ public class Inventory {
 
     DaoBuilder<Inventory> inventoryDaoBuilder = new DaoBuilder<>("INVENTORY", Inventory::new)
             .withPrimaryKey("ID", "INVENTORY_SEQUENCE", Inventory::getId, Inventory::setId)
-            .withLocalDateTimeColumn("DATE", Inventory::getDate, Inventory::setDate)
+            .withInstantColumn("DATE", Inventory::getDate, Inventory::setDate)
             .withChildren(Inventory::getStocks, Inventory::setStocks, stockDaoBuilder);
 
 }

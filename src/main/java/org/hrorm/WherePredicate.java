@@ -5,7 +5,6 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.time.LocalDateTime;
 
 /**
  * Represents a particular predicate for filtering results. For example
@@ -41,11 +40,11 @@ public class WherePredicate<T> {
         return new WherePredicate<>(columnName, operator, value, PreparedStatement::setBigDecimal);
     }
 
-    public static WherePredicate<Instant> forLocalDateTime(String columnName, Operator operator, Instant value) {
+    public static WherePredicate<Instant> forInstant(String columnName, Operator operator, Instant value) {
         return new WherePredicate<>(columnName, operator, value,
-                (preparedStatement, index, localDateTime) ->
+                (preparedStatement, index, instant) ->
                     {
-                        Timestamp sqlTime = Timestamp.from(value);
+                        Timestamp sqlTime = Timestamp.from(instant);
                         preparedStatement.setTimestamp(index, sqlTime);
                     });
     }

@@ -1,7 +1,6 @@
 package org.hrorm;
 
 import java.sql.Types;
-import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -64,7 +63,7 @@ public class ColumnTypes {
                             Types.BLOB
                     )));
 
-    public static final Set<Integer> LocalDateTimeTypes =
+    public static final Set<Integer> InstantTypes =
             Collections.unmodifiableSet(
                     new HashSet<>(Arrays.asList(
                             Types.DATE,
@@ -86,7 +85,7 @@ public class ColumnTypes {
         if ( DecimalTypes.equals(types) ){
             return "DECIMAL";
         }
-        if ( LocalDateTimeTypes.equals(types) ){
+        if ( InstantTypes.equals(types) ){
             return "TIMESTAMP";
         }
         throw new HrormException("Could not determine schema type for " + column.getName());

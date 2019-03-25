@@ -5,7 +5,6 @@ import org.hrorm.DaoBuilder;
 
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
@@ -273,7 +272,7 @@ public class Complex {
 
     public static DaoBuilder<Don> donDaoBuilder = new DaoBuilder<>("don", Don::new)
             .withPrimaryKey("id", "don_sequence", Don::getId, Don::setId)
-            .withLocalDateTimeColumn("datetime", Don::getDateTime, Don::setDateTime)
+            .withInstantColumn("datetime", Don::getDateTime, Don::setDateTime)
             .withIntegerColumn("quantity", Don::getQuantity, Don::setQuantity)
             .withChildren(Don::getHenries, Don::setHenries, henryDaoBuilder)
             .withParentColumn("beth_id", Don::getBeth, Don::setBeth);

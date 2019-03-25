@@ -17,7 +17,6 @@ import org.junit.Test;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.Instant;
-import java.time.LocalDateTime;
 
 public class JoinsTest {
 
@@ -38,7 +37,7 @@ public class JoinsTest {
     private static DaoBuilder<SecondCousin> SecondCousinDaoBuilder =
             new DaoBuilder<>("second_cousins", SecondCousin::new)
                     .withPrimaryKey("second_cousin_id", "second_cousin_seq", SecondCousin::getId, SecondCousin::setId)
-                    .withLocalDateTimeColumn("datetime", SecondCousin::getDateTime, SecondCousin::setDateTime);
+                    .withInstantColumn("datetime", SecondCousin::getDateTime, SecondCousin::setDateTime);
 
     private static DaoBuilder<Cousin> CousinDaoBuilder =
             new DaoBuilder<>("cousins", Cousin::new)

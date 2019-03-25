@@ -18,8 +18,6 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalAmount;
-import java.time.temporal.TemporalUnit;
 import java.util.List;
 
 /*
@@ -54,7 +52,7 @@ public class ProductTest {
                 .withBigDecimalColumn("price", Product::getPrice, Product::setPrice)
                 .withIntegerColumn("sku", Product::getSku, Product::setSku)
                 .withBooleanColumn("discontinued", Product::isDiscontinued, Product::setDiscontinued)
-                .withLocalDateTimeColumn("first_available", Product::getFirstAvailable, Product::setFirstAvailable);
+                .withInstantColumn("first_available", Product::getFirstAvailable, Product::setFirstAvailable);
     }
 
     static class CategoryConverter implements Converter<ProductCategory, String> {

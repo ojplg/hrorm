@@ -3,7 +3,6 @@ package org.hrorm;
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -160,8 +159,8 @@ public class DaoBuilder<ENTITY> implements DaoDescriptor<ENTITY, ENTITY> {
      * @param setter The function on <code>ENTITY</code> that consumes the data element.
      * @return This instance.
      */
-    public DaoBuilder<ENTITY> withLocalDateTimeColumn(String columnName, Function<ENTITY, Instant> getter, BiConsumer<ENTITY, Instant> setter){
-        internalDaoBuilder.withLocalDateTimeColumn(columnName, getter, setter);
+    public DaoBuilder<ENTITY> withInstantColumn(String columnName, Function<ENTITY, Instant> getter, BiConsumer<ENTITY, Instant> setter){
+        internalDaoBuilder.withInstantColumn(columnName, getter, setter);
         return this;
     }
 

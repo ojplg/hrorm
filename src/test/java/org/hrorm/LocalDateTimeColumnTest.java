@@ -11,12 +11,8 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import java.util.List;
 import java.util.Objects;
 import java.util.Random;
 
@@ -25,7 +21,7 @@ public class LocalDateTimeColumnTest {
     @Test
     public void testSetValueHandlesNulls() throws SQLException  {
 
-        AbstractColumn<Instant,Columns,Columns> column = DataColumnFactory.localDateTimeColumn(
+        AbstractColumn<Instant,Columns,Columns> column = DataColumnFactory.instantColumn(
                 "TIME COLUMN", "A", Columns::getTimeStampThing, Columns::setTimeStampThing, true);
 
         Columns columns = new Columns();
@@ -41,7 +37,7 @@ public class LocalDateTimeColumnTest {
     @Test
     public void testPopulateHandlesNulls() throws SQLException {
 
-        AbstractColumn<Instant,Columns,Columns> column = DataColumnFactory.localDateTimeColumn(
+        AbstractColumn<Instant,Columns,Columns> column = DataColumnFactory.instantColumn(
                 "TIME COLUMN", "A", Columns::getTimeStampThing, Columns::setTimeStampThing, true);
 
         Columns columns = new Columns();
@@ -56,7 +52,7 @@ public class LocalDateTimeColumnTest {
 
     @Test
     public void testPreventsNullsWhenSet() throws SQLException {
-        AbstractColumn<Instant,Columns,Columns> column = DataColumnFactory.localDateTimeColumn(
+        AbstractColumn<Instant,Columns,Columns> column = DataColumnFactory.instantColumn(
                 "TIME COLUMN", "A", Columns::getTimeStampThing, Columns::setTimeStampThing, true);
         column.notNull();
 

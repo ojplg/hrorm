@@ -1,7 +1,6 @@
 package org.hrorm.examples;
 
 import lombok.Data;
-import org.hrorm.Converter;
 import org.hrorm.Dao;
 import org.hrorm.DaoBuilder;
 import org.junit.Assert;
@@ -10,7 +9,6 @@ import org.mockito.Mockito;
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -34,7 +32,7 @@ class Person {
 
         daoBuilder.withBigDecimalColumn("HEIGHT", Person::getHeight, Person::setHeight);
 
-        daoBuilder.withLocalDateTimeColumn("BIRTHDAY", Person::getBirthday, Person::setBirthday);
+        daoBuilder.withInstantColumn("BIRTHDAY", Person::getBirthday, Person::setBirthday);
 
         daoBuilder.withBooleanColumn("IS_HIGH_SCHOOL_GRADUATE", Person::isHighSchoolGraduate, Person::setHighSchoolGraduate);
 
@@ -47,7 +45,7 @@ class Person {
                 .withStringColumn("NAME", Person::getName, Person::setName)
                 .withIntegerColumn("WEIGHT", Person::getWeight, Person::setWeight)
                 .withBigDecimalColumn("HEIGHT", Person::getHeight, Person::setHeight)
-                .withLocalDateTimeColumn("BIRTHDAY", Person::getBirthday, Person::setBirthday)
+                .withInstantColumn("BIRTHDAY", Person::getBirthday, Person::setBirthday)
                 .withBooleanColumn("IS_HIGH_SCHOOL_GRADUATE", Person::isHighSchoolGraduate, Person::setHighSchoolGraduate)
                 .withConvertingStringColumn("HAIR_COLOR", Person::getHairColor, Person::setHairColor, new HairColorConverter());
 

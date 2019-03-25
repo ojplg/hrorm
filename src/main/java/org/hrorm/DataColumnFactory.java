@@ -7,7 +7,6 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -139,7 +138,7 @@ public class DataColumnFactory {
         };
     }
 
-    public static <ENTITY,BUILDER> AbstractColumn<Instant, ENTITY, BUILDER> localDateTimeColumn(
+    public static <ENTITY,BUILDER> AbstractColumn<Instant, ENTITY, BUILDER> instantColumn(
             String name, String prefix, Function<ENTITY, Instant> getter, BiConsumer<BUILDER, Instant> setter, boolean nullable){
         return new AbstractColumn<Instant, ENTITY, BUILDER>(name, prefix, getter, setter, nullable) {
             @Override
@@ -160,7 +159,7 @@ public class DataColumnFactory {
 
             @Override
             public Column<ENTITY, BUILDER> withPrefix(String newPrefix, Prefixer prefixer) {
-                return localDateTimeColumn(getName(), newPrefix, getter, setter, nullable);
+                return instantColumn(getName(), newPrefix, getter, setter, nullable);
             }
 
             @Override
@@ -169,7 +168,7 @@ public class DataColumnFactory {
             }
 
             @Override
-            public Set<Integer> supportedTypes() { return ColumnTypes.LocalDateTimeTypes; }
+            public Set<Integer> supportedTypes() { return ColumnTypes.InstantTypes; }
         };
     }
 

@@ -40,7 +40,7 @@ public class ValidatorTest {
                 .withIntegerColumn("integer_column", Columns::getIntegerThing, Columns::setIntegerThing)
                 .withBigDecimalColumn("decimal_column", Columns::getDecimalThing, Columns::setDecimalThing)
                 .withBooleanColumn("boolean_column", Columns::getBooleanThing, Columns::setBooleanThing)
-                .withLocalDateTimeColumn("timestamp_column", Columns::getTimeStampThing, Columns::setTimeStampThing)
+                .withInstantColumn("timestamp_column", Columns::getTimeStampThing, Columns::setTimeStampThing)
                 .withConvertingStringColumn("color_column", Columns::getColorThing, Columns::setColorThing, new EnumeratedColorConverter());
 
         Connection connection = helper.connect();
@@ -57,7 +57,7 @@ public class ValidatorTest {
                 .withIntegerColumn("integer_column", Columns::getIntegerThing, Columns::setIntegerThing)
                 .withBigDecimalColumn("decimal_column", Columns::getDecimalThing, Columns::setDecimalThing)
                 .withBooleanColumn("boolean_column", Columns::getBooleanThing, Columns::setBooleanThing)
-                .withLocalDateTimeColumn("timestamp_column", Columns::getTimeStampThing, Columns::setTimeStampThing)
+                .withInstantColumn("timestamp_column", Columns::getTimeStampThing, Columns::setTimeStampThing)
                 .withConvertingStringColumn("color_column", Columns::getColorThing, Columns::setColorThing, new EnumeratedColorConverter());
 
         Connection connection = helper.connect();
@@ -81,7 +81,7 @@ public class ValidatorTest {
                 .withIntegerColumn("integer_column", Columns::getIntegerThing, Columns::setIntegerThing)
                 .withBigDecimalColumn("decimal_column", Columns::getDecimalThing, Columns::setDecimalThing)
                 .withBooleanColumn("boolean_column", Columns::getBooleanThing, Columns::setBooleanThing)
-                .withLocalDateTimeColumn("timestamp_column", Columns::getTimeStampThing, Columns::setTimeStampThing)
+                .withInstantColumn("timestamp_column", Columns::getTimeStampThing, Columns::setTimeStampThing)
                 .withConvertingStringColumn("color_column", Columns::getColorThing, Columns::setColorThing, new EnumeratedColorConverter());
 
         Connection connection = helper.connect();
@@ -103,7 +103,7 @@ public class ValidatorTest {
                 .withIntegerColumn("integer_column", Columns::getIntegerThing, Columns::setIntegerThing)
                 .withBigDecimalColumn("decimal_column", Columns::getDecimalThing, Columns::setDecimalThing)
                 .withBooleanColumn("boolean_column", Columns::getBooleanThing, Columns::setBooleanThing)
-                .withLocalDateTimeColumn("timestamp_column", Columns::getTimeStampThing, Columns::setTimeStampThing)
+                .withInstantColumn("timestamp_column", Columns::getTimeStampThing, Columns::setTimeStampThing)
                 .withConvertingStringColumn("color_column", Columns::getColorThing, Columns::setColorThing, new EnumeratedColorConverter());
 
 
@@ -126,7 +126,7 @@ public class ValidatorTest {
                 .withIntegerColumn("integer_column", Columns::getIntegerThing, Columns::setIntegerThing)
                 .withBigDecimalColumn("decimal_column", Columns::getDecimalThing, Columns::setDecimalThing)
                 .withBooleanColumn("boolean_column", Columns::getBooleanThing, Columns::setBooleanThing)
-                .withLocalDateTimeColumn("timestamp_column", Columns::getTimeStampThing, Columns::setTimeStampThing)
+                .withInstantColumn("timestamp_column", Columns::getTimeStampThing, Columns::setTimeStampThing)
                 .withConvertingStringColumn("color_column", Columns::getColorThing, Columns::setColorThing, new EnumeratedColorConverter());
 
         Connection connection = helper.connect();
@@ -151,7 +151,7 @@ public class ValidatorTest {
                 .withIntegerColumn("bad_column_name", Columns::getIntegerThing, Columns::setIntegerThing)
                 .withBigDecimalColumn("decimal_column", Columns::getDecimalThing, Columns::setDecimalThing)
                 .withBooleanColumn("boolean_column", Columns::getBooleanThing, Columns::setBooleanThing)
-                .withLocalDateTimeColumn("timestamp_column", Columns::getTimeStampThing, Columns::setTimeStampThing)
+                .withInstantColumn("timestamp_column", Columns::getTimeStampThing, Columns::setTimeStampThing)
                 .withConvertingStringColumn("color_column", Columns::getColorThing, Columns::setColorThing, new EnumeratedColorConverter());
 
         Connection connection = helper.connect();
@@ -175,7 +175,7 @@ public class ValidatorTest {
                 .withStringColumn("integer_column", c -> "", (c,s) -> {})
                 .withBigDecimalColumn("decimal_column", Columns::getDecimalThing, Columns::setDecimalThing)
                 .withBooleanColumn("boolean_column", Columns::getBooleanThing, Columns::setBooleanThing)
-                .withLocalDateTimeColumn("timestamp_column", Columns::getTimeStampThing, Columns::setTimeStampThing)
+                .withInstantColumn("timestamp_column", Columns::getTimeStampThing, Columns::setTimeStampThing)
                 .withConvertingStringColumn("color_column", Columns::getColorThing, Columns::setColorThing, new EnumeratedColorConverter());
 
         Connection connection = helper.connect();
@@ -199,7 +199,7 @@ public class ValidatorTest {
                 .withIntegerColumn("integer_column", Columns::getIntegerThing, Columns::setIntegerThing)
                 .withStringColumn("decimal_column", Columns::getStringThing, Columns::setStringThing)
                 .withBooleanColumn("boolean_column", Columns::getBooleanThing, Columns::setBooleanThing)
-                .withLocalDateTimeColumn("timestamp_column", Columns::getTimeStampThing, Columns::setTimeStampThing)
+                .withInstantColumn("timestamp_column", Columns::getTimeStampThing, Columns::setTimeStampThing)
                 .withConvertingStringColumn("Other_bad_name", Columns::getColorThing, Columns::setColorThing, new EnumeratedColorConverter());
 
         Connection connection = helper.connect();

@@ -10,7 +10,7 @@ public class ColumnsDaoBuilder {
                 .withIntegerColumn("integer_column", Columns::getIntegerThing, Columns::setIntegerThing)
                 .withBigDecimalColumn("decimal_column", Columns::getDecimalThing, Columns::setDecimalThing)
                 .withBooleanColumn("boolean_column", Columns::getBooleanThing, Columns::setBooleanThing)
-                .withLocalDateTimeColumn("timestamp_column", Columns::getTimeStampThing, Columns::setTimeStampThing)
+                .withInstantColumn("timestamp_column", Columns::getTimeStampThing, Columns::setTimeStampThing)
                 .withConvertingStringColumn("color_column", Columns::getColorThing, Columns::setColorThing, new EnumeratedColorConverter());
 
 }

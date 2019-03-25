@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.time.Instant;
-import java.time.LocalDateTime;
 
 /**
  * Representation of a SQL where clause: a possibly nested list of
@@ -197,7 +196,7 @@ public class Where implements StatementPopulator {
      * @param value The value to compare the column values against
      */
     public Where(String columnName, Operator operator, Instant value) {
-        this(WherePredicate.forLocalDateTime(columnName, operator, value));
+        this(WherePredicate.forInstant(columnName, operator, value));
     }
 
     private Where(WherePredicate atom){
@@ -272,7 +271,7 @@ public class Where implements StatementPopulator {
      * @return this object
      */
     public Where and(String columnName, Operator operator, Instant value){
-        WherePredicate<Instant> atom = WherePredicate.forLocalDateTime(columnName, operator, value);
+        WherePredicate<Instant> atom = WherePredicate.forInstant(columnName, operator, value);
         tree.addAtom(WherePredicateTree.Conjunction.AND, atom);
         return this;
     }
@@ -375,7 +374,7 @@ public class Where implements StatementPopulator {
      * @return this object
      */
     public Where or(String columnName, Operator operator, Instant value){
-        WherePredicate<Instant> atom = WherePredicate.forLocalDateTime(columnName, operator, value);
+        WherePredicate<Instant> atom = WherePredicate.forInstant(columnName, operator, value);
         tree.addAtom(WherePredicateTree.Conjunction.OR, atom);
         return this;
     }
