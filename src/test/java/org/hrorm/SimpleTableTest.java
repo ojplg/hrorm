@@ -1,6 +1,7 @@
 package org.hrorm;
 
 import org.hrorm.database.Helper;
+import org.hrorm.database.HelperFactory;
 import org.hrorm.examples.Simple;
 import org.hrorm.database.H2Helper;
 import org.junit.AfterClass;
@@ -14,7 +15,7 @@ import java.util.List;
 
 public class SimpleTableTest {
 
-    private static Helper helper = new H2Helper("simple");
+    private static Helper helper = HelperFactory.forSchema("simple");
 
     @BeforeClass
     public static void setUpDb(){
