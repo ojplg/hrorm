@@ -2,6 +2,7 @@ package org.hrorm;
 
 import org.hrorm.database.Helper;
 import org.hrorm.examples.Columns;
+import org.hrorm.examples.ColumnsDaoBuilder;
 import org.hrorm.examples.EnumeratedColorConverter;
 import org.hrorm.database.H2Helper;
 import org.hrorm.util.TestLogConfig;
@@ -36,14 +37,7 @@ public class OrderTest {
     public void clearTable() { helper.clearTable("columns_table");}
 
     private DaoBuilder<Columns> daoBuilder(){
-        return new DaoBuilder<>("columns_table", Columns::new)
-                .withPrimaryKey("id", "columns_seq", Columns::getId, Columns::setId)
-                .withStringColumn("string_column", Columns::getStringThing, Columns::setStringThing)
-                .withIntegerColumn("integer_column", Columns::getIntegerThing, Columns::setIntegerThing)
-                .withBigDecimalColumn("decimal_column", Columns::getDecimalThing, Columns::setDecimalThing)
-                .withBooleanColumn("boolean_column", Columns::getBooleanThing, Columns::setBooleanThing)
-                .withLocalDateTimeColumn("timestamp_column", Columns::getTimeStampThing, Columns::setTimeStampThing)
-                .withConvertingStringColumn("color_column", Columns::getColorThing, Columns::setColorThing, new EnumeratedColorConverter());
+        return ColumnsDaoBuilder.DAO_BUILDER;
     }
 
     @Test

@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import java.util.regex.Matcher;
@@ -38,18 +39,7 @@ public abstract class AbstractHelper implements Helper {
 
             StringBuilder wholeFileBuffer = new StringBuilder();
             bufferedReader.lines().forEach( line -> {
-
-                Matcher matcher = createSequencePattern.matcher(line);
-                if ( matcher.matches() ){
-                    String seqName = matcher.group(1);
-                    sequenceNames.add(seqName);
-                }
-
-                matcher = createTablePattern.matcher(line);
-                if ( matcher.matches()){
-                    String tableName = matcher.group(1);
-                    tableNames.add(tableName);
-                }
+                //extractNameFromLine(line);
 
                 wholeFileBuffer.append(line);
                 wholeFileBuffer.append("\n");
@@ -58,6 +48,21 @@ public abstract class AbstractHelper implements Helper {
         } catch (Exception ex){
             throw new RuntimeException(ex);
         }
+    }
+
+    private void extractNameFromLine(String line){
+        Matcher matcher = createSequencePattern.matcher(line);
+        if ( matcher.matches() ){
+            String seqName = matcher.group(1);
+            sequenceNames.add(seqName);
+        }
+
+        matcher = createTablePattern.matcher(line);
+        if ( matcher.matches()){
+            String tableName = matcher.group(1);
+            tableNames.add(tableName);
+        }
+
     }
 
     @Override
@@ -84,6 +89,7 @@ public abstract class AbstractHelper implements Helper {
             try {
                 Connection connection = connect();
                 Statement statement = connection.createStatement();
+                Arrays.asList(sql.split("\n")).stream().forEach(l -> extractNameFromLine(l));
                 statement.execute(sql);
                 connection.commit();
                 connection.close();

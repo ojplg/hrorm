@@ -1,6 +1,7 @@
 package org.hrorm;
 
 import org.hrorm.database.Helper;
+import org.hrorm.database.HelperFactory;
 import org.hrorm.examples.ColumnsDaoBuilder;
 import org.hrorm.examples.Simple;
 import org.hrorm.examples.SimpleParentChildDaos;
@@ -107,9 +108,9 @@ public class SchemaTest {
     @Test
     public void testSchemaGenerationWorks() throws SQLException {
         Schema schema = new Schema(
-                DaoBuilders.IMMUTABLE_OBJECT_DAO_BUILDER,
+                DaoBuilders.IMMUTABLE_CHILD_DAO_BUILDER,
                 DaoBuilders.IMMUTABLE_SIBLING_DAO_BUILDER,
-                DaoBuilders.IMMUTABLE_CHILD_DAO_BUILDER);
+                DaoBuilders.IMMUTABLE_OBJECT_DAO_BUILDER);
 
         String sql = schema.sql();
 
@@ -117,15 +118,19 @@ public class SchemaTest {
         String[] splits = sql.split("alter");
         Assert.assertEquals(3, splits.length);
 
-        Helper helper = new H2Helper("generated_immutables");
-        helper.initializeSchemaFromSql(sql);
+        Helper helper = HelperFactory.forSchema("generated_immutables");
+        try {
+            helper.initializeSchemaFromSql(sql);
 
-        ImmutableThingTest.doInsertAndSelectImmutableThing(helper);
-        ImmutableThingTest.doInsertAndSelectImmutableThingWithAChild(helper);
-        ImmutableThingTest.doInsertAndSelectImmutableThingWithAChildAndSibling(helper);
-        ImmutableThingTest.doTestCascadingUpdate(helper);
+            ImmutableThingTest.doInsertAndSelectImmutableThing(helper);
+            ImmutableThingTest.doInsertAndSelectImmutableThingWithAChild(helper);
+            ImmutableThingTest.doInsertAndSelectImmutableThingWithAChildAndSibling(helper);
+            ImmutableThingTest.doTestCascadingUpdate(helper);
 
-        helper.dropSchema();
+        } finally {
+            System.out.println("DROPPING!!!");
+            helper.dropSchema();
+        }
     }
 
     @Test

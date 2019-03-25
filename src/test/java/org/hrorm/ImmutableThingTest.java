@@ -28,7 +28,6 @@ public class ImmutableThingTest {
 
     @BeforeClass
     public static void setUpDb(){
-        HELPER.dropSchema();
         HELPER.initializeSchema();
     }
 

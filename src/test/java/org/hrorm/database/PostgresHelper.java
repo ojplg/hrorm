@@ -38,8 +38,6 @@ public class PostgresHelper extends AbstractHelper {
         }
     }
 
-
-
     @Override
     public void dropSchema() {
 
