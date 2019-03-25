@@ -1,11 +1,11 @@
 package org.hrorm;
 
 import org.hrorm.database.Helper;
+import org.hrorm.database.HelperFactory;
 import org.hrorm.examples.immutables.DaoBuilders;
 import org.hrorm.examples.immutables.ImmutableChild;
 import org.hrorm.examples.immutables.ImmutableSibling;
 import org.hrorm.examples.immutables.ImmutableThing;
-import org.hrorm.database.H2Helper;
 import org.hrorm.util.TestLogConfig;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -14,6 +14,7 @@ import org.junit.Test;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collections;
@@ -23,7 +24,7 @@ public class ImmutableThingTest {
 
     static { TestLogConfig.load(); }
 
-    private static Helper HELPER = new H2Helper("immutable_thing");
+    private static Helper HELPER = HelperFactory.forSchema("immutable_thing");
 
     @BeforeClass
     public static void setUpDb(){
@@ -37,26 +38,26 @@ public class ImmutableThingTest {
     }
 
     @Test
-    public void insertAndSelectImmutableThing(){
+    public void insertAndSelectImmutableThing() throws SQLException {
         doInsertAndSelectImmutableThing(HELPER);
     }
 
     @Test
-    public void insertAndSelectImmutableThingWithAChild(){
+    public void insertAndSelectImmutableThingWithAChild() throws SQLException {
         doInsertAndSelectImmutableThingWithAChild(HELPER);
     }
 
     @Test
-    public void insertAndSelectImmutableThingWithAChildAndSibling(){
+    public void insertAndSelectImmutableThingWithAChildAndSibling() throws SQLException {
         doInsertAndSelectImmutableThingWithAChildAndSibling(HELPER);
     }
 
     @Test
-    public void testCascadingUpdate() {
+    public void testCascadingUpdate() throws SQLException {
         doTestCascadingUpdate(HELPER);
     }
 
-    public static void doInsertAndSelectImmutableThing(Helper helper){
+    public static void doInsertAndSelectImmutableThing(Helper helper) throws SQLException {
         long id;
         {
             Connection connection = helper.connect();
@@ -69,6 +70,9 @@ public class ImmutableThingTest {
                     .build();
 
             id = dao.insert(it);
+
+            connection.commit();
+            connection.close();
         }
         {
             Connection connection = helper.connect();
@@ -79,10 +83,12 @@ public class ImmutableThingTest {
             Assert.assertNotNull(it.getId());
             Assert.assertEquals("test one", it.getWord());
             Assert.assertEquals(new BigDecimal("1.3"), it.getAmount());
+
+            connection.close();
         }
     }
 
-    public static void doInsertAndSelectImmutableThingWithAChild(Helper helper){
+    public static void doInsertAndSelectImmutableThingWithAChild(Helper helper) throws SQLException {
         long id;
         LocalDateTime bday = LocalDateTime.now();
         {
@@ -101,6 +107,9 @@ public class ImmutableThingTest {
                     .build();
 
             id = dao.insert(it);
+
+            connection.commit();
+            connection.close();
         }
         {
             Connection connection = helper.connect();
@@ -117,10 +126,12 @@ public class ImmutableThingTest {
             Assert.assertNotNull(it.getId());
             Assert.assertEquals(bday, child.getBirthday());
             Assert.assertTrue(child.getFlag());
+
+            connection.close();
         }
     }
 
-    public static void doInsertAndSelectImmutableThingWithAChildAndSibling(Helper helper){
+    public static void doInsertAndSelectImmutableThingWithAChildAndSibling(Helper helper) throws SQLException {
 
         long id;
         long siblingId;
@@ -134,6 +145,9 @@ public class ImmutableThingTest {
                     .build();
 
             siblingId = siblingDao.insert(sibling);
+
+            connection.commit();
+            connection.close();
         }
         {
             Connection connection = helper.connect();
@@ -155,6 +169,9 @@ public class ImmutableThingTest {
                     .build();
 
             id = dao.insert(it);
+
+            connection.commit();
+            connection.close();
         }
         {
             Connection connection = helper.connect();
@@ -177,11 +194,13 @@ public class ImmutableThingTest {
             Assert.assertNotNull(sibling);
             Assert.assertNotNull(sibling.getId());
             Assert.assertEquals("Foo the bar!", sibling.getData());
+
+            connection.close();
         }
     }
 
 
-    public static void doTestCascadingUpdate(Helper helper){
+    public static void doTestCascadingUpdate(Helper helper) throws SQLException {
 
         long id;
         long firstSiblingId;
@@ -206,6 +225,9 @@ public class ImmutableThingTest {
             firstSiblingId = siblingDao.insert(sibling1);
             secondSiblingId = siblingDao.insert(sibling2);
             thirdSiblingId = siblingDao.insert(sibling3);
+
+            connection.commit();
+            connection.close();
         }
         {
             Connection connection = helper.connect();
@@ -234,6 +256,9 @@ public class ImmutableThingTest {
                     .build();
 
             id = dao.insert(it);
+
+            connection.commit();
+            connection.close();
         }
         {
             Connection connection = helper.connect();
@@ -273,6 +298,9 @@ public class ImmutableThingTest {
                     .build();
 
             dao.update(updatedThing);
+
+            connection.commit();
+            connection.close();
         }
         {
             Connection connection = helper.connect();
@@ -296,15 +324,17 @@ public class ImmutableThingTest {
             Assert.assertNotNull(falseChild);
             Assert.assertEquals("First!", falseChild.getImmutableSibling().getData());
 
+            connection.close();
         }
     }
 
     @Test
-    public void testDaoValidation(){
+    public void testDaoValidation() throws SQLException {
         Connection connection = HELPER.connect();
         Validator.validate(connection, DaoBuilders.IMMUTABLE_CHILD_DAO_BUILDER);
         Validator.validate(connection, DaoBuilders.IMMUTABLE_SIBLING_DAO_BUILDER);
         Validator.validate(connection, DaoBuilders.IMMUTABLE_OBJECT_DAO_BUILDER);
+        connection.close();
     }
 
 }

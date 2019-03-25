@@ -12,6 +12,7 @@ import org.hrorm.util.SimpleSqlFormatter;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.sql.SQLException;
 import java.util.List;
 
 public class SchemaTest {
@@ -104,7 +105,7 @@ public class SchemaTest {
     }
 
     @Test
-    public void testSchemaGenerationWorks(){
+    public void testSchemaGenerationWorks() throws SQLException {
         Schema schema = new Schema(
                 DaoBuilders.IMMUTABLE_OBJECT_DAO_BUILDER,
                 DaoBuilders.IMMUTABLE_SIBLING_DAO_BUILDER,
