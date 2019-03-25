@@ -10,6 +10,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 
 public class ValidatorTest {
 
@@ -27,7 +28,7 @@ public class ValidatorTest {
 
 
     @Test
-    public void testGoodDaoWorks() {
+    public void testGoodDaoWorks() throws SQLException {
 
         DaoBuilder<Columns> daoBuilder = new DaoBuilder<>("columns_table", Columns::new)
                 .withPrimaryKey("id", "columns_seq", Columns::getId, Columns::setId)
@@ -41,10 +42,11 @@ public class ValidatorTest {
         Connection connection = helper.connect();
 
         Validator.validate(connection, daoBuilder);
+        connection.close();
     }
 
     @Test
-    public void testDetectsBadSeqeunceName(){
+    public void testDetectsBadSeqeunceName() throws SQLException{
         DaoBuilder<Columns> daoBuilder = new DaoBuilder<>("columns_table", Columns::new)
                 .withPrimaryKey("id", "wrong_name", Columns::getId, Columns::setId)
                 .withStringColumn("string_column", Columns::getStringThing, Columns::setStringThing)
@@ -63,10 +65,11 @@ public class ValidatorTest {
             String[] messageArray = message.split("\n");
             Assert.assertEquals(1, messageArray.length);
         }
+        connection.close();
     }
 
     @Test
-    public void testDetectsBadTableName(){
+    public void testDetectsBadTableName() throws SQLException {
 
         DaoBuilder<Columns> daoBuilder = new DaoBuilder<>("bad_table_name", Columns::new)
                 .withPrimaryKey("id", "columns_seq", Columns::getId, Columns::setId)
@@ -84,10 +87,11 @@ public class ValidatorTest {
         } catch (HrormException expected){
             // A bad table name means lots of errors, no point in trying to count
         }
+        connection.close();
     }
 
     @Test
-    public void testDetectsMissingPrimaryKey(){
+    public void testDetectsMissingPrimaryKey() throws SQLException {
 
         DaoBuilder<Columns> daoBuilder = new DaoBuilder<>("bad_table_name", Columns::new)
                 .withPrimaryKey("pk", "seq", Columns::getId, Columns::setId)
@@ -106,10 +110,11 @@ public class ValidatorTest {
         } catch (HrormException expected){
             // a bad primary key means several errors, no counting required
         }
+        connection.close();
     }
 
     @Test
-    public void testDetectsBadPrimaryKeyColumnName(){
+    public void testDetectsBadPrimaryKeyColumnName() throws SQLException {
 
         DaoBuilder<Columns> daoBuilder = new DaoBuilder<>("columns_table", Columns::new)
                 .withPrimaryKey("bad_id_name", "columns_seq", Columns::getId, Columns::setId)
@@ -129,11 +134,12 @@ public class ValidatorTest {
             String[] messageArray = message.split("\n");
             Assert.assertEquals(1, messageArray.length);
         }
+        connection.close();
     }
 
 
     @Test
-    public void testDetectsBadColumnName(){
+    public void testDetectsBadColumnName() throws SQLException {
 
         DaoBuilder<Columns> daoBuilder = new DaoBuilder<>("columns_table", Columns::new)
                 .withPrimaryKey("id", "columns_seq", Columns::getId, Columns::setId)
@@ -153,10 +159,11 @@ public class ValidatorTest {
             String[] messageArray = message.split("\n");
             Assert.assertEquals(1, messageArray.length);
         }
+        connection.close();
     }
 
     @Test
-    public void testDetectsBadColumnType(){
+    public void testDetectsBadColumnType() throws SQLException {
 
         DaoBuilder<Columns> daoBuilder = new DaoBuilder<>("columns_table", Columns::new)
                 .withPrimaryKey("id", "columns_seq", Columns::getId, Columns::setId)
@@ -176,10 +183,11 @@ public class ValidatorTest {
             String[] messageArray = message.split("\n");
             Assert.assertEquals(1, messageArray.length);
         }
+        connection.close();
     }
 
     @Test
-    public void testDetectsMultipleErrors(){
+    public void testDetectsMultipleErrors() throws SQLException {
         // four errors have been introduced
         DaoBuilder<Columns> daoBuilder = new DaoBuilder<>("columns_table", Columns::new)
                 .withPrimaryKey("id", "Wrong_Name", Columns::getId, Columns::setId)
@@ -200,7 +208,7 @@ public class ValidatorTest {
             String[] messageArray = message.split("\n");
             Assert.assertEquals(4, messageArray.length);
         }
-
+        connection.close();
     }
 
 }
