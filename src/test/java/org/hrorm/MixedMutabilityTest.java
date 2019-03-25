@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Data;
 import org.hrorm.database.H2Helper;
 import org.hrorm.database.Helper;
+import org.hrorm.database.HelperFactory;
 import org.hrorm.util.TestLogConfig;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -12,6 +13,7 @@ import org.junit.Test;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
 
@@ -19,7 +21,7 @@ public class MixedMutabilityTest {
 
     static { TestLogConfig.load(); }
 
-    private static Helper helper = new H2Helper("mixed");
+    private static Helper helper = HelperFactory.forSchema("mixed");
 
     @BeforeClass
     public static void setUpDb(){
@@ -32,15 +34,16 @@ public class MixedMutabilityTest {
     }
 
     @Test
-    public void testValidations(){
+    public void testValidations() throws SQLException {
         Connection connection = helper.connect();
         Validator.validate(connection, forkBuilder);
         Validator.validate(connection, stuckBuilder);
         Validator.validate(connection, moverBuilder);
+        connection.close();
     }
 
     @Test
-    public void testInsertAndSelect(){
+    public void testInsertAndSelect() throws SQLException {
         long id;
         {
             Connection connection = helper.connect();
@@ -66,6 +69,8 @@ public class MixedMutabilityTest {
             Dao<Mover> moverDao = moverBuilder.buildDao(connection);
 
             id = moverDao.insert(mover);
+            connection.commit();
+            connection.close();
         }
         {
             Connection connection = helper.connect();
@@ -77,6 +82,7 @@ public class MixedMutabilityTest {
 
             Assert.assertEquals(new BigDecimal("234.234"), mover.getFork().getMeasure());
             Assert.assertEquals("FooBar", mover.getStucks().get(0).getName());
+            connection.close();
         }
 
     }
