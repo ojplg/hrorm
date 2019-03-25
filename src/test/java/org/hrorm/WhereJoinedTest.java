@@ -1,10 +1,10 @@
 package org.hrorm;
 
 import org.hrorm.database.Helper;
+import org.hrorm.database.HelperFactory;
 import org.hrorm.examples.geography.City;
 import org.hrorm.examples.geography.GeographyDaos;
 import org.hrorm.examples.geography.State;
-import org.hrorm.database.H2Helper;
 import org.hrorm.util.SimpleSqlFormatter;
 import org.hrorm.util.TestLogConfig;
 import org.junit.AfterClass;
@@ -13,6 +13,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.List;
 
 import static org.hrorm.Operator.EQUALS;
@@ -22,7 +23,7 @@ public class WhereJoinedTest {
 
     static { TestLogConfig.load(); }
 
-    private static Helper helper = new H2Helper("geography");
+    private static Helper helper = HelperFactory.forSchema("geography");
 
     @BeforeClass
     public static void setUpDb(){
@@ -35,7 +36,7 @@ public class WhereJoinedTest {
     }
 
     @Test
-    public void testQueries(){
+    public void testQueries() throws SQLException {
         Connection connection = helper.connect();
         Dao<City> cityDao = GeographyDaos.CityDaoBuilder.buildDao(connection);
         Queries queries = cityDao.queries();
@@ -46,10 +47,11 @@ public class WhereJoinedTest {
                 + "city a left join state b on a.state_id = b.id"
                 + " where 1 = 1",
                 select);
+        connection.close();
     }
 
     @Test
-    public void testInsertAndSelectById(){
+    public void testInsertAndSelectById() throws SQLException {
         long cityId;
         {
             Connection connection = helper.connect();
@@ -66,6 +68,8 @@ public class WhereJoinedTest {
             Dao<City> cityDao = GeographyDaos.CityDaoBuilder.buildDao(connection);
 
             cityId = cityDao.insert(city);
+            connection.commit();
+            connection.close();
         }
         {
             Connection connection = helper.connect();
@@ -74,10 +78,11 @@ public class WhereJoinedTest {
             City frankfort = cityDao.select(cityId);
 
             Assert.assertEquals("Kentucky", frankfort.getState().getName());
+            connection.close();
         }
     }
 
-    private long insertStateWithCities(String stateName, String ... cityNames){
+    private long insertStateWithCities(String stateName, String ... cityNames) throws SQLException {
 
         Connection connection = helper.connect();
 
@@ -96,11 +101,14 @@ public class WhereJoinedTest {
             cityDao.insert(city);
         }
 
+        connection.commit();
+        connection.close();
+
         return stateId;
     }
 
     @Test
-    public void testSelectStateByCity(){
+    public void testSelectStateByCity() throws SQLException {
 
         long wisconsinId = insertStateWithCities("Wisconsin", "Milwaukee", "Madison", "Green Bay" );
         //long ohioId = insertStateWithCities("Ohio", "Cleveland", "Cincinatti", "Dayton", "Columbus" );
@@ -133,6 +141,8 @@ public class WhereJoinedTest {
         }
 
         Assert.assertTrue(wisconsinCitiesTemplateSelect.containsAll(wisconsinCitiesWhereSelect));
+
+        connection.close();
     }
 
 }
