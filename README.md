@@ -21,6 +21,13 @@ Hrorm requires Java 8.
 
 Very short [CONTRIBUTING](CONTRIBUTING.md) doc.
 
+You can also run the tests against postgres, but it takes a bit of work.
+1. Set up postgres locally
+   1. User named "hrorm_user"
+   1. Password "hrorm_password"
+   1. "hrorm_user" must own a database named "hrorm"
+1. Edit the `HelperFactory` to use the `PostgresHelper` instead of the `H2Helper`
+
 ### Improvement Ideas and Questions
 
 * Where object improvements:
