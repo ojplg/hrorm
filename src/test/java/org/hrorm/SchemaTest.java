@@ -128,7 +128,6 @@ public class SchemaTest {
             ImmutableThingTest.doTestCascadingUpdate(helper);
 
         } finally {
-            System.out.println("DROPPING!!!");
             helper.dropSchema();
         }
     }
