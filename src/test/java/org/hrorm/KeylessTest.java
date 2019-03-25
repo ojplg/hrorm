@@ -1,8 +1,8 @@
 package org.hrorm;
 
 import org.hrorm.database.Helper;
+import org.hrorm.database.HelperFactory;
 import org.hrorm.examples.Keyless;
-import org.hrorm.database.H2Helper;
 import org.hrorm.util.RandomUtils;
 import org.hrorm.util.TestLogConfig;
 import org.junit.AfterClass;
@@ -11,6 +11,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Objects;
 import java.util.TimeZone;
@@ -26,14 +27,14 @@ public class KeylessTest {
 
     static { TestLogConfig.load(); }
 
-    private static Helper helper = new H2Helper("keyless");
+    private static Helper helper = HelperFactory.forSchema("keyless");
 
     // Make between 500-2000 random Keyless.
     // May seem high, but random sample behavior is better tested with a good number of entities.
     private static final List<Keyless> fakeEntities = RandomUtils.randomNumberOf(50, 200, KeylessTest::randomKeyless);
 
     @BeforeClass
-    public static void setUpDb(){
+    public static void setUpDb() throws SQLException {
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
         helper.initializeSchema();
 
@@ -41,6 +42,8 @@ public class KeylessTest {
         Connection connection = helper.connect();
         KeylessDao<Keyless> dao = Keyless.DAO_BUILDER.buildDao(connection);
         fakeEntities.forEach(dao::insert);
+        connection.commit();
+        connection.close();
     }
 
     @AfterClass
@@ -52,8 +55,7 @@ public class KeylessTest {
      * Comprehensively tests insert/select.
      */
     @Test
-    public void testInsertAndSelect(){
-        Connection connection = helper.connect();
+    public void testInsertAndSelect() throws SQLException {
 
         // Make a random Keyless.
         Keyless keyless = randomKeyless();
@@ -63,14 +65,18 @@ public class KeylessTest {
 
         // Insertion Phase
         {
+            Connection connection = helper.connect();
             KeylessDao<Keyless> dao = Keyless.DAO_BUILDER.buildDao(connection);
             dao.insert(keyless);
 
             // For other tests- this is now in the database.
             fakeEntities.add(keyless);
+            connection.commit();
+            connection.close();
         }
         // Test Phase
         {
+            Connection connection = helper.connect();
             KeylessDao<Keyless> dao = Keyless.DAO_BUILDER.buildDao(connection);
 
             Keyless template = new Keyless();
@@ -80,6 +86,7 @@ public class KeylessTest {
 
             Assert.assertNotNull(dbInstance);
             Assert.assertEquals(keyless.getIntegerColumn(), dbInstance.getIntegerColumn());
+            connection.close();
         }
     }
 
@@ -87,17 +94,18 @@ public class KeylessTest {
      * This comprehensively tests selectAll().
      */
     @Test
-    public void testSelectAll() {
+    public void testSelectAll() throws SQLException {
         Connection connection = helper.connect();
-        {
-            KeylessDao<Keyless> dao = Keyless.DAO_BUILDER.buildDao(connection);
-            List<Keyless> allSelected = dao.selectAll();
 
-            // We should select the same number we inserted, and every one of our generated keyless
-            // should be present in the selection.
-            Assert.assertEquals(fakeEntities.size(), allSelected.size());
-            fakeEntities.forEach(expected -> Assert.assertTrue(allSelected.contains(expected)));
-        }
+        KeylessDao<Keyless> dao = Keyless.DAO_BUILDER.buildDao(connection);
+        List<Keyless> allSelected = dao.selectAll();
+
+        // We should select the same number we inserted, and every one of our generated keyless
+        // should be present in the selection.
+        Assert.assertEquals(fakeEntities.size(), allSelected.size());
+        fakeEntities.forEach(expected -> Assert.assertTrue(allSelected.contains(expected)));
+
+        connection.close();
     }
 
 
@@ -105,165 +113,155 @@ public class KeylessTest {
      * This comprehensively tests selectManyByColumns.
      */
     @Test
-    public void testSelectByColumns() {
+    public void testSelectByColumns() throws SQLException {
         Connection connection = helper.connect();
-        {
-            // We should do a sampleTest on every field type, so delegate this to a specialized method.
-            KeylessDao<Keyless> dao = Keyless.DAO_BUILDER.buildDao(connection);
-            sampleTest(dao, Keyless::getStringColumn, "string_column");
-            sampleTest(dao, Keyless::getDecimalColumn, "decimal_column");
-            sampleTest(dao, Keyless::getIntegerColumn, "integer_column");
-            sampleTest(dao, Keyless::isBooleanColumn, "boolean_column");
-            sampleTest(dao, Keyless::getTimeStampColumn, "timestamp_column");
-        }
+        // We should do a sampleTest on every field type, so delegate this to a specialized method.
+        KeylessDao<Keyless> dao = Keyless.DAO_BUILDER.buildDao(connection);
+        sampleTest(dao, Keyless::getStringColumn, "string_column");
+        sampleTest(dao, Keyless::getDecimalColumn, "decimal_column");
+        sampleTest(dao, Keyless::getIntegerColumn, "integer_column");
+        sampleTest(dao, Keyless::isBooleanColumn, "boolean_column");
+        sampleTest(dao, Keyless::getTimeStampColumn, "timestamp_column");
+        connection.close();
     }
 
     /**
      * This comprehensively tests foldingSelect.
      */
     @Test
-    public void testFoldingSelect() {
+    public void testFoldingSelect() throws SQLException {
         Connection connection = helper.connect();
-        {
-            long expectedSum = fakeEntities.stream()
-                    .mapToLong(Keyless::getIntegerColumn)
-                    .sum();
+        long expectedSum = fakeEntities.stream()
+                .mapToLong(Keyless::getIntegerColumn)
+                .sum();
 
-            KeylessDao<Keyless> dao = Keyless.DAO_BUILDER.buildDao(connection);
-            long foldedSum = dao.foldingSelect(0L, (l, k) -> l + k.getIntegerColumn(), Where.where());
+        KeylessDao<Keyless> dao = Keyless.DAO_BUILDER.buildDao(connection);
+        long foldedSum = dao.foldingSelect(0L, (l, k) -> l + k.getIntegerColumn(), Where.where());
 
-            Assert.assertEquals(expectedSum, foldedSum);
-        }
+        Assert.assertEquals(expectedSum, foldedSum);
+        connection.close();
     }
 
     @Test
-    public void testValidate(){
-        try {
-            KeylessValidator.validate(helper.connect(), Keyless.DAO_BUILDER);
-        } catch( HrormException ex) {
-            Assert.fail(ex.getMessage());
-        }
+    public void testValidate() throws SQLException {
+        Connection connection = helper.connect();
+        KeylessValidator.validate(connection, Keyless.DAO_BUILDER);
+        connection.close();
     }
 
     /**
      * Comprehensive LIKE Operator test.
      */
     @Test
-    public void likeOperatorTest() {
+    public void likeOperatorTest() throws SQLException {
         Connection connection = helper.connect();
-        {
-            // Build a template Using a random name.
-            final Keyless template = new Keyless();
+
+        // Build a template Using a random name.
+        final Keyless template = new Keyless();
+        template.setStringColumn(RandomUtils.name());
+
+        // Get all matching Keyless, case-insensitive.
+        List<Keyless> matching = fakeEntities.stream()
+            .filter(like(template.getStringColumn()))
+            .collect(Collectors.toList());
+
+        // Is zero results (highly unlikely) uninteresting? Remove this then...
+        while (matching.isEmpty()) {
             template.setStringColumn(RandomUtils.name());
-
-            // Get all matching Keyless, case-insensitive.
-            List<Keyless> matching = fakeEntities.stream()
-                .filter(like(template.getStringColumn()))
-                .collect(Collectors.toList());
-
-            // Is zero results (highly unlikely) uninteresting? Remove this then...
-            while (matching.isEmpty()) {
-                template.setStringColumn(RandomUtils.name());
-                matching = fakeEntities.stream()
-                        .filter(like(template.getStringColumn()))
-                        .collect(Collectors.toList());
-            }
-
-            KeylessDao<Keyless> dao = Keyless.DAO_BUILDER.buildDao(connection);
-
-            List<Keyless> fromDatabase = dao.select( Where.where("string_column", Operator.LIKE, '%'+template.getStringColumn()+'%'));
-
-            Assert.assertEquals(matching.size(), fromDatabase.size());
-            matching.forEach(keyless -> Assert.assertTrue(fromDatabase.contains(keyless)));
-
+            matching = fakeEntities.stream()
+                    .filter(like(template.getStringColumn()))
+                    .collect(Collectors.toList());
         }
+
+        KeylessDao<Keyless> dao = Keyless.DAO_BUILDER.buildDao(connection);
+
+        List<Keyless> fromDatabase = dao.select( Where.where("string_column", Operator.LIKE, '%'+template.getStringColumn()+'%'));
+
+        Assert.assertEquals(matching.size(), fromDatabase.size());
+        matching.forEach(keyless -> Assert.assertTrue(fromDatabase.contains(keyless)));
+
+        connection.close();
     }
 
     @Test
-    public void decimalOperatorTests() {
-        {
-            // Build a template using a known used value.
-            final Keyless template = new Keyless();
-            template.setDecimalColumn(RandomUtils.randomDistinctFieldValue(fakeEntities, Keyless::getDecimalColumn));
+    public void decimalOperatorTests() throws SQLException {
+        // Build a template using a known used value.
+        final Keyless template = new Keyless();
+        template.setDecimalColumn(RandomUtils.randomDistinctFieldValue(fakeEntities, Keyless::getDecimalColumn));
 
-            predicateTest(
-                    equalTo(template, Keyless::getDecimalColumn),
-                    Where.where("decimal_column", Operator.EQUALS, template.getDecimalColumn()));
+        predicateTest(
+                equalTo(template, Keyless::getDecimalColumn),
+                Where.where("decimal_column", Operator.EQUALS, template.getDecimalColumn()));
 
-            predicateTest(
-                    lessThan(template, Keyless::getDecimalColumn),
-                    Where.where("decimal_column", Operator.LESS_THAN, template.getDecimalColumn()));
+        predicateTest(
+                lessThan(template, Keyless::getDecimalColumn),
+                Where.where("decimal_column", Operator.LESS_THAN, template.getDecimalColumn()));
 
-            predicateTest(
-                    lessThanOrEqual(template, Keyless::getDecimalColumn),
-                    Where.where("decimal_column", Operator.LESS_THAN_OR_EQUALS, template.getDecimalColumn()));
+        predicateTest(
+                lessThanOrEqual(template, Keyless::getDecimalColumn),
+                Where.where("decimal_column", Operator.LESS_THAN_OR_EQUALS, template.getDecimalColumn()));
 
-            predicateTest(
-                    greaterThan(template, Keyless::getDecimalColumn),
-                    Where.where("decimal_column", Operator.GREATER_THAN, template.getDecimalColumn()));
+        predicateTest(
+                greaterThan(template, Keyless::getDecimalColumn),
+                Where.where("decimal_column", Operator.GREATER_THAN, template.getDecimalColumn()));
 
-            predicateTest(
-                    greaterThanOrEqual(template, Keyless::getDecimalColumn),
-                    Where.where("decimal_column", Operator.GREATER_THAN_OR_EQUALS, template.getDecimalColumn()));
-        }
+        predicateTest(
+                greaterThanOrEqual(template, Keyless::getDecimalColumn),
+                Where.where("decimal_column", Operator.GREATER_THAN_OR_EQUALS, template.getDecimalColumn()));
     }
 
     @Test
-    public void integerOperatorTests() {
-        {
-            // Build a template using a known used value.
-            final Keyless template = new Keyless();
-            template.setIntegerColumn(RandomUtils.randomDistinctFieldValue(fakeEntities, Keyless::getIntegerColumn));
+    public void integerOperatorTests() throws SQLException {
+        // Build a template using a known used value.
+        final Keyless template = new Keyless();
+        template.setIntegerColumn(RandomUtils.randomDistinctFieldValue(fakeEntities, Keyless::getIntegerColumn));
 
-            predicateTest(
-                    equalTo(template, Keyless::getIntegerColumn),
-                    Where.where("integer_column", Operator.EQUALS, template.getIntegerColumn()));
+        predicateTest(
+                equalTo(template, Keyless::getIntegerColumn),
+                Where.where("integer_column", Operator.EQUALS, template.getIntegerColumn()));
 
-            predicateTest(
-                    lessThan(template, Keyless::getIntegerColumn),
-                    Where.where("integer_column", Operator.LESS_THAN, template.getIntegerColumn()));
+        predicateTest(
+                lessThan(template, Keyless::getIntegerColumn),
+                Where.where("integer_column", Operator.LESS_THAN, template.getIntegerColumn()));
 
-            predicateTest(
-                    lessThanOrEqual(template, Keyless::getIntegerColumn),
-                    Where.where("integer_column", Operator.LESS_THAN_OR_EQUALS, template.getIntegerColumn()));
+        predicateTest(
+                lessThanOrEqual(template, Keyless::getIntegerColumn),
+                Where.where("integer_column", Operator.LESS_THAN_OR_EQUALS, template.getIntegerColumn()));
 
-            predicateTest(
-                    greaterThan(template, Keyless::getIntegerColumn),
-                    Where.where("integer_column", Operator.GREATER_THAN, template.getIntegerColumn()));
+        predicateTest(
+                greaterThan(template, Keyless::getIntegerColumn),
+                Where.where("integer_column", Operator.GREATER_THAN, template.getIntegerColumn()));
 
-            predicateTest(
-                    greaterThanOrEqual(template, Keyless::getIntegerColumn),
-                    Where.where("integer_column", Operator.GREATER_THAN_OR_EQUALS, template.getIntegerColumn()));
-        }
+        predicateTest(
+                greaterThanOrEqual(template, Keyless::getIntegerColumn),
+                Where.where("integer_column", Operator.GREATER_THAN_OR_EQUALS, template.getIntegerColumn()));
     }
 
     @Test
-    public void timestampOperatorTests() {
-        {
-            // Build a template using a known used value.
-            final Keyless template = new Keyless();
-            template.setTimeStampColumn(RandomUtils.randomDistinctFieldValue(fakeEntities, Keyless::getTimeStampColumn));
+    public void timestampOperatorTests() throws SQLException {
+        // Build a template using a known used value.
+        final Keyless template = new Keyless();
+        template.setTimeStampColumn(RandomUtils.randomDistinctFieldValue(fakeEntities, Keyless::getTimeStampColumn));
 
-            predicateTest(
-                    equalTo(template, Keyless::getTimeStampColumn),
-                    Where.where("timestamp_column", Operator.EQUALS, template.getTimeStampColumn()));
+        predicateTest(
+                equalTo(template, Keyless::getTimeStampColumn),
+                Where.where("timestamp_column", Operator.EQUALS, template.getTimeStampColumn()));
 
-            predicateTest(
-                    lessThan(template, Keyless::getTimeStampColumn),
-                    Where.where("timestamp_column", Operator.LESS_THAN, template.getTimeStampColumn()));
+        predicateTest(
+                lessThan(template, Keyless::getTimeStampColumn),
+                Where.where("timestamp_column", Operator.LESS_THAN, template.getTimeStampColumn()));
 
-            predicateTest(
-                    lessThanOrEqual(template, Keyless::getTimeStampColumn),
-                    Where.where("timestamp_column", Operator.LESS_THAN_OR_EQUALS, template.getTimeStampColumn()));
+        predicateTest(
+                lessThanOrEqual(template, Keyless::getTimeStampColumn),
+                Where.where("timestamp_column", Operator.LESS_THAN_OR_EQUALS, template.getTimeStampColumn()));
 
-            predicateTest(
-                    greaterThan(template, Keyless::getTimeStampColumn),
-                    Where.where("timestamp_column", Operator.GREATER_THAN, template.getTimeStampColumn()));
+        predicateTest(
+                greaterThan(template, Keyless::getTimeStampColumn),
+                Where.where("timestamp_column", Operator.GREATER_THAN, template.getTimeStampColumn()));
 
-            predicateTest(
-                    greaterThanOrEqual(template, Keyless::getTimeStampColumn),
-                    Where.where("timestamp_column", Operator.GREATER_THAN_OR_EQUALS, template.getTimeStampColumn()));
-        }
+        predicateTest(
+                greaterThanOrEqual(template, Keyless::getTimeStampColumn),
+                Where.where("timestamp_column", Operator.GREATER_THAN_OR_EQUALS, template.getTimeStampColumn()));
     }
 
     /**
@@ -275,7 +273,7 @@ public class KeylessTest {
      */
     private void predicateTest(
             Predicate<Keyless> streamFilter,
-            Where where) {
+            Where where) throws SQLException {
 
         // DAO Setup
         Connection connection = helper.connect();
@@ -297,6 +295,8 @@ public class KeylessTest {
         Assert.assertEquals("Incorrect size: ", matching.size(), fromDatabase.size());
         matching.forEach(keyless -> Assert.assertTrue(
                 "Missing " + keyless + " from " + fromDatabase, fromDatabase.contains(keyless)));
+
+        connection.close();
     }
     
     
