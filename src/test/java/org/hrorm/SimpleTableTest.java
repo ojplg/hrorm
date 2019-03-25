@@ -9,7 +9,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.sql.Connection;
-import java.sql.Statement;
+import java.sql.SQLException;
 import java.util.List;
 
 public class SimpleTableTest {
@@ -32,18 +32,8 @@ public class SimpleTableTest {
                 .withStringColumn("field", Simple::getField, Simple::setField);
     }
 
-    private void deleteAll(){
-        try {
-            Connection connection = helper.connect();
-            Statement statement = connection.createStatement();
-            statement.execute("delete from simple");
-        } catch (Exception ex){
-            throw new RuntimeException(ex);
-        }
-    }
-
     @Test
-    public void testInsertSetsPrimaryKey(){
+    public void testInsertSetsPrimaryKey() throws SQLException {
         Connection connection = helper.connect();
         Dao<Simple> dao = daoBuilder().buildDao(connection);
 
@@ -53,10 +43,12 @@ public class SimpleTableTest {
         dao.insert(simple);
 
         Assert.assertTrue(simple.getId() > 0);
+        connection.commit();
+        connection.close();
     }
 
     @Test
-    public void testInsertAndSelect(){
+    public void testInsertAndSelect() throws SQLException {
         Connection connection = helper.connect();
         Dao<Simple> dao = daoBuilder().buildDao(connection);
 
@@ -68,10 +60,12 @@ public class SimpleTableTest {
         Simple dbInstance = dao.select(simple.getId());
 
         Assert.assertEquals("InsertSelectTest", dbInstance.getField());
+        connection.commit();
+        connection.close();
     }
 
     @Test
-    public void testUpdates(){
+    public void testUpdates() throws SQLException {
         Connection connection = helper.connect();
         Dao<Simple> dao = daoBuilder().buildDao(connection);
 
@@ -88,10 +82,12 @@ public class SimpleTableTest {
 
         dbInstance = dao.select(simple.getId());
         Assert.assertEquals("UpdateTest New Value", dbInstance.getField());
+        connection.commit();
+        connection.close();
     }
 
     @Test
-    public void testSelectByColumn(){
+    public void testSelectByColumn() throws SQLException {
         Connection connection = helper.connect();
         Dao<Simple> dao = daoBuilder().buildDao(connection);
 
@@ -105,10 +101,12 @@ public class SimpleTableTest {
 
         Simple dbInstance = dao.selectByColumns(template, "field");
         Assert.assertEquals(simple.getId(), dbInstance.getId());
+        connection.commit();
+        connection.close();
     }
 
     @Test
-    public void testDelete(){
+    public void testDelete() throws SQLException {
         Connection connection = helper.connect();
         Dao<Simple> dao = daoBuilder().buildDao(connection);
 
@@ -124,12 +122,15 @@ public class SimpleTableTest {
 
         Simple fromDbAfterDelete = dao.select(simple.getId());
         Assert.assertNull(fromDbAfterDelete);
+        connection.commit();
+        connection.close();
+
     }
 
     @Test
-    public void testSelectAll(){
+    public void testSelectAll() throws SQLException {
 
-        deleteAll();
+        helper.clearTables();
 
         Connection connection = helper.connect();
 
@@ -150,5 +151,7 @@ public class SimpleTableTest {
         List<Simple> items = dao.selectAll();
 
         Assert.assertEquals(3, items.size());
+        connection.commit();
+        connection.close();
     }
 }
