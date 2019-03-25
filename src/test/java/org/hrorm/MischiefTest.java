@@ -1,11 +1,12 @@
 package org.hrorm;
 
 import org.hrorm.database.Helper;
+import org.hrorm.database.HelperFactory;
 import org.hrorm.examples.Keyless;
-import org.hrorm.database.H2Helper;
 import org.hrorm.util.RandomUtils;
 import org.hrorm.util.TestLogConfig;
 import org.junit.AfterClass;
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -24,7 +25,7 @@ public class MischiefTest {
 
     static { TestLogConfig.load(); }
 
-    private static Helper helper = new H2Helper("keyless");
+    private static Helper helper = HelperFactory.forSchema("keyless");
 
     private static final List<Keyless> fakeEntities = RandomUtils.randomNumberOf(50, 100, KeylessTest::randomKeyless);
 
@@ -44,7 +45,7 @@ public class MischiefTest {
                 "integer_column,",
                 "decimal_column,",
                 "boolean_column,",
-                "timestamp_column,",
+                "timestamp_column",
                 ")",
                 "VALUES",
                 "(null, null, null, null, null)"
@@ -54,6 +55,7 @@ public class MischiefTest {
             st.executeUpdate();
         }
         st.close();
+        connection.commit();
         connection.close();
     }
 
@@ -68,12 +70,12 @@ public class MischiefTest {
      * auto-unboxing when the setters were called.
      */
     @Test
-    public void testReifyAll() {
+    public void testReifyAll() throws SQLException {
         Connection connection = helper.connect();
-        {
-            KeylessDao<Keyless> dao = Keyless.DAO_BUILDER.buildDao(connection);
-            dao.selectAll();
-        }
+        KeylessDao<Keyless> dao = Keyless.DAO_BUILDER.buildDao(connection);
+        List<Keyless> items = dao.selectAll();
+        Assert.assertTrue(items.size() > 0);
+        connection.close();
     }
 
     /**
@@ -84,21 +86,19 @@ public class MischiefTest {
      */
 
     @Test(expected = HrormException.class) // TODO: Validate and throw dedicated exception
-    public void testIntentionalBadColumnQuery() {
+    public void testIntentionalBadColumnQuery() throws SQLException {
         Connection connection = helper.connect();
-        {
-            KeylessDao<Keyless> dao = Keyless.DAO_BUILDER.buildDao(connection);
-            dao.select(Where.where("invalid_column", Operator.EQUALS, "tamaya"));
-        }
+        KeylessDao<Keyless> dao = Keyless.DAO_BUILDER.buildDao(connection);
+        dao.select(Where.where("invalid_column", Operator.EQUALS, "tamaya"));
+        connection.close();
     }
 
     @Test(expected = HrormException.class) // TODO: Validate and throw dedicated exception
-    public void testBadColumnTypeQuery() {
+    public void testBadColumnTypeQuery() throws SQLException {
         Connection connection = helper.connect();
-        {
-            KeylessDao<Keyless> dao = Keyless.DAO_BUILDER.buildDao(connection);
-            dao.select(Where.where("integer_column", Operator.LIKE, "kagiya"));
-        }
+        KeylessDao<Keyless> dao = Keyless.DAO_BUILDER.buildDao(connection);
+        dao.select(Where.where("integer_column", Operator.LIKE, "kagiya"));
+        connection.close();
     }
 
 }
