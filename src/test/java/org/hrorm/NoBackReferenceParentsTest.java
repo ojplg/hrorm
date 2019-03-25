@@ -3,6 +3,7 @@ package org.hrorm;
 import lombok.Data;
 import org.hrorm.database.H2Helper;
 import org.hrorm.database.Helper;
+import org.hrorm.database.HelperFactory;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -16,7 +17,7 @@ import java.util.stream.Collectors;
 
 public class NoBackReferenceParentsTest {
 
-    private static Helper helper = new H2Helper("no_back_reference_parents");
+    private static Helper helper = HelperFactory.forSchema("no_back_reference_parents");
 
     @BeforeClass
     public static void setUpDb(){
@@ -73,6 +74,7 @@ public class NoBackReferenceParentsTest {
             Dao<SimpleParent> dao = simpleParentDaoBuilder.buildDao(connection);
             parentId = dao.insert(parent);
             connection.commit();
+            connection.close();
         }
         {
             Connection connection = helper.connect();
@@ -82,16 +84,17 @@ public class NoBackReferenceParentsTest {
             Assert.assertEquals(100, parent.getSimpleChildList().size());
 
             List<Long> numbers = parent.getSimpleChildList().stream()
-                    .map(c -> c.getNumber()).collect(Collectors.toList());
+                    .map(SimpleChild::getNumber).collect(Collectors.toList());
 
             for(long idx=1; idx<=100; idx++){
                 Assert.assertTrue(numbers.contains(idx));
             }
+            connection.close();
         }
     }
 
     @Test
-    public void testUpdateChildren(){
+    public void testUpdateChildren() throws SQLException {
         long parentId;
         {
             SimpleParent parent = new SimpleParent();
@@ -109,6 +112,8 @@ public class NoBackReferenceParentsTest {
             Connection connection = helper.connect();
             Dao<SimpleParent> dao = simpleParentDaoBuilder.buildDao(connection);
             parentId = dao.insert(parent);
+            connection.commit();
+            connection.close();
         }
         {
             Connection connection = helper.connect();
@@ -123,6 +128,8 @@ public class NoBackReferenceParentsTest {
             }
 
             dao.update(parent);
+            connection.commit();
+            connection.close();
         }
         {
             Connection connection = helper.connect();
@@ -132,11 +139,12 @@ public class NoBackReferenceParentsTest {
             Assert.assertEquals(10, parent.getSimpleChildList().size());
 
             List<Long> numbers = parent.getSimpleChildList().stream()
-                    .map(c -> c.getNumber()).collect(Collectors.toList());
+                    .map(SimpleChild::getNumber).collect(Collectors.toList());
 
             for(long idx=3; idx<=30; idx+=3){
                 Assert.assertTrue(numbers.contains(idx));
             }
+            connection.close();
         }
 
     }

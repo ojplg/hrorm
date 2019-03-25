@@ -1,9 +1,9 @@
 package org.hrorm;
 
 import org.hrorm.database.Helper;
+import org.hrorm.database.HelperFactory;
 import org.hrorm.examples.Product;
 import org.hrorm.examples.ProductCategory;
-import org.hrorm.database.H2Helper;
 import org.hrorm.util.TestLogConfig;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -13,6 +13,7 @@ import org.junit.Test;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -23,7 +24,7 @@ public class ProductTest {
 
     static { TestLogConfig.load(); }
 
-    private static Helper helper = new H2Helper("products");
+    private static Helper helper = HelperFactory.forSchema("products");
 
     @BeforeClass
     public static void setUpDb(){
@@ -66,11 +67,12 @@ public class ProductTest {
 
 
     @Test
-    public void testInsertAndSelect(){
+    public void testInsertAndSelect() throws SQLException {
 
         long id;
         {
-            Dao<Product> dao = daoBuilder().buildDao(helper.connect());
+            Connection connection = helper.connect();
+            Dao<Product> dao = daoBuilder().buildDao(connection);
 
             Product product = new Product();
             product.setName("Chef Knife");
@@ -81,21 +83,26 @@ public class ProductTest {
             product.setFirstAvailable(LocalDateTime.of(2017, 6, 15, 0, 0));
 
             id = dao.insert(product);
+            connection.commit();
+            connection.close();
         }
         {
-            Dao<Product> dao = daoBuilder().buildDao(helper.connect());
+            Connection connection = helper.connect();
+            Dao<Product> dao = daoBuilder().buildDao(connection);
             Product product = dao.select(id);
 
             Assert.assertEquals(ProductCategory.Kitchen, product.getCategory());
+            connection.close();
         }
 
     }
 
     @Test
-    public void testSelectByColumns(){
+    public void testSelectByColumns() throws SQLException {
 
         {
-            Dao<Product> dao = daoBuilder().buildDao(helper.connect());
+            Connection connection = helper.connect();
+            Dao<Product> dao = daoBuilder().buildDao(connection);
 
             for (int idx = 0; idx < 10; idx++) {
                 Product product = new Product();
@@ -108,23 +115,29 @@ public class ProductTest {
 
                 dao.insert(product);
             }
+            connection.commit();
+            connection.close();
         }
         {
-            Dao<Product> productDao = daoBuilder().buildDao(helper.connect());
+            Connection connection = helper.connect();
+            Dao<Product> dao = daoBuilder().buildDao(connection);
 
             Product template = new Product();
             template.setCategory(ProductCategory.Electronic);
             template.setDiscontinued(false);
 
-            List<Product> products = productDao.selectManyByColumns(template, "category", "discontinued");
+            List<Product> products = dao.selectManyByColumns(template, "category", "discontinued");
 
             Assert.assertEquals(5, products.size());
+
+            connection.close();
         }
     }
 
-    public void testSelectWhere(){
+    public void testSelectWhere() throws SQLException {
         {
-            Dao<Product> dao = daoBuilder().buildDao(helper.connect());
+            Connection connection = helper.connect();
+            Dao<Product> dao = daoBuilder().buildDao(connection);
             LocalDateTime date = LocalDateTime.of(2017, 11, 1, 0,0 );
 
             for (int idx = 0; idx < 500; idx++) {
@@ -143,23 +156,27 @@ public class ProductTest {
 
                 dao.insert(product);
             }
+            connection.commit();
+            connection.close();
         }
         {
-            Dao<Product> productDao = daoBuilder().buildDao(helper.connect());
+            Connection connection = helper.connect();
+            Dao<Product> dao = daoBuilder().buildDao(connection);
 
-            List<Product> products = productDao.select(
+            List<Product> products = dao.select(
                     new Where("category", Operator.EQUALS, ProductCategory.Miscellaneous.toString())
                             .and("price", Operator.LESS_THAN, new BigDecimal("100.00"))
                             .and("first_available", Operator.GREATER_THAN_OR_EQUALS, LocalDateTime.of(2018,1,1,0,0))
                             .and("first_available", Operator.LESS_THAN_OR_EQUALS, LocalDateTime.of(2018,12,31,23,59)));
 
             Assert.assertEquals(10, products.size());
+            connection.close();
         }
     }
 
-    public void testFolding(){
-        Connection connection = helper.connect();
+    public void testFolding() throws SQLException {
         {
+            Connection connection = helper.connect();
             Dao<Product> dao = daoBuilder().buildDao(connection);
             LocalDateTime date = LocalDateTime.of(2017, 11, 1, 0,0 );
 
@@ -179,29 +196,35 @@ public class ProductTest {
 
                 dao.insert(product);
             }
+            connection.commit();
+            connection.close();
         }
         BigDecimal foldingTotal;
         {
+            Connection connection = helper.connect();
             Dao<Product> productDao = daoBuilder().buildDao(connection);
             foldingTotal = productDao.foldingSelect(
                     new BigDecimal(0),
                     (accumulatedCost, product) -> accumulatedCost.add(product.getPrice()),
                     new Where("discontinued", Operator.EQUALS, false));
 
+            connection.close();
         }
         BigDecimal functionTotal;
         {
+            Connection connection = helper.connect();
             Dao<Product> productDao = daoBuilder().buildDao(connection);
             functionTotal = productDao.runBigDecimalFunction(SqlFunction.SUM,
                     "price",
                     new Where("discontinued", Operator.EQUALS, false));
+            connection.close();
         }
         Assert.assertEquals(functionTotal, foldingTotal);
         Assert.assertEquals(new BigDecimal("100000"), foldingTotal);
     }
 
     @Test
-    public void doTests(){
+    public void doTests() throws SQLException {
         testFolding();
         helper.clearTables();
         testSelectWhere();

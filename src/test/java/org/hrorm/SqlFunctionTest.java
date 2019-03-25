@@ -1,10 +1,10 @@
 package org.hrorm;
 
 import org.hrorm.database.Helper;
+import org.hrorm.database.HelperFactory;
 import org.hrorm.examples.Columns;
+import org.hrorm.examples.ColumnsDaoBuilder;
 import org.hrorm.examples.EnumeratedColor;
-import org.hrorm.examples.EnumeratedColorConverter;
-import org.hrorm.database.H2Helper;
 import org.hrorm.util.TestLogConfig;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -14,6 +14,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.math.BigDecimal;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
@@ -22,7 +24,7 @@ public class SqlFunctionTest {
 
     static { TestLogConfig.load(); }
 
-    private static Helper helper = new H2Helper("columns");
+    private static Helper helper = HelperFactory.forSchema("columns");
 
     @BeforeClass
     public static void setUpDb(){
@@ -35,11 +37,16 @@ public class SqlFunctionTest {
     }
 
     @After
-    public void clearTable() { helper.clearTable("columns_table");}
+    public void clearTable() { helper.clearTables(); }
+
+    private DaoBuilder<Columns> daoBuilder(){
+        return ColumnsDaoBuilder.DAO_BUILDER;
+    }
 
     @Before
-    public void insertRecords(){
-        Dao<Columns> dao = daoBuilder().buildDao(helper.connect());
+    public void insertRecords() throws SQLException {
+        Connection connection = helper.connect();
+        Dao<Columns> dao = daoBuilder().buildDao(connection);
         for(int idx=0; idx<100; idx++){
             Columns columns = new Columns();
 
@@ -52,57 +59,52 @@ public class SqlFunctionTest {
 
             dao.insert(columns);
         }
-    }
-
-    private DaoBuilder<Columns> daoBuilder(){
-        return new DaoBuilder<>("columns_table", Columns::new)
-                .withPrimaryKey("id", "columns_seq", Columns::getId, Columns::setId)
-                .withStringColumn("string_column", Columns::getStringThing, Columns::setStringThing)
-                .withIntegerColumn("integer_column", Columns::getIntegerThing, Columns::setIntegerThing)
-                .withBigDecimalColumn("decimal_column", Columns::getDecimalThing, Columns::setDecimalThing)
-                .withBooleanColumn("boolean_column", Columns::getBooleanThing, Columns::setBooleanThing)
-                .withLocalDateTimeColumn("timestamp_column", Columns::getTimeStampThing, Columns::setTimeStampThing)
-                .withConvertingStringColumn("color_column", Columns::getColorThing, Columns::setColorThing, new EnumeratedColorConverter());
+        connection.commit();
+        connection.close();
     }
 
     @Test
-    public void testCount(){
-
-        Dao<Columns> dao = daoBuilder().buildDao(helper.connect());
+    public void testCount() throws SQLException {
+        Connection connection = helper.connect();
+        Dao<Columns> dao = daoBuilder().buildDao(connection);
 
         long count = dao.runLongFunction(
                 SqlFunction.COUNT, "id", Where.where("integer_column", Operator.GREATER_THAN_OR_EQUALS, 50L));
 
         Assert.assertEquals(50L, count);
+        connection.close();
     }
 
 
     @Test
-    public void testMin(){
-
-        Dao<Columns> dao = daoBuilder().buildDao(helper.connect());
+    public void testMin() throws SQLException {
+        Connection connection = helper.connect();
+        Dao<Columns> dao = daoBuilder().buildDao(connection);
 
         long value = dao.runLongFunction(
                 SqlFunction.MIN, "integer_column", Where.where());
 
         Assert.assertEquals(0, value);
+        connection.close();
     }
 
     @Test
-    public void testMax(){
-        Dao<Columns> dao = daoBuilder().buildDao(helper.connect());
+    public void testMax() throws SQLException {
+        Connection connection = helper.connect();
+        Dao<Columns> dao = daoBuilder().buildDao(connection);
 
         long result = dao.runLongFunction(
                 SqlFunction.MAX, "integer_column",
                 Where.where("string_column", Operator.LIKE, "Function%"));
         Assert.assertEquals(99, result);
-
+        connection.close();
     }
 
     @Test
-    public void testSum(){
+    public void testSum() throws SQLException {
 
-        Dao<Columns> dao = daoBuilder().buildDao(helper.connect());
+        Connection connection = helper.connect();
+        Dao<Columns> dao = daoBuilder().buildDao(connection);
 
         long sum = dao.runLongFunction(
                 SqlFunction.SUM,
@@ -111,16 +113,17 @@ public class SqlFunctionTest {
                         .and("decimal_column", Operator.LESS_THAN, new BigDecimal("50.7")) );
 
         Assert.assertEquals(650, sum);
-
+        connection.close();
     }
 
     @Test
-    public void testBigDecimalSum(){
+    public void testBigDecimalSum() throws SQLException {
         Columns template = new Columns();
         template.setBooleanThing(true);
         template.setDecimalThing(new BigDecimal("50.7"));
 
-        Dao<Columns> dao = daoBuilder().buildDao(helper.connect());
+        Connection connection = helper.connect();
+        Dao<Columns> dao = daoBuilder().buildDao(connection);
 
         Map<String, Operator> whereMap = new HashMap<>();
         whereMap.put("boolean_column", Operator.EQUALS);
@@ -132,14 +135,17 @@ public class SqlFunctionTest {
                         .and("decimal_column", Operator.LESS_THAN, new BigDecimal("50.7")));
 
         Assert.assertEquals(new BigDecimal("658.30"), sum);
+        connection.close();
     }
 
     @Test
-    public void testAverage(){
-        Dao<Columns> dao = daoBuilder().buildDao(helper.connect());
+    public void testAverage() throws SQLException {
+        Connection connection = helper.connect();
+        Dao<Columns> dao = daoBuilder().buildDao(connection);
         BigDecimal avg = dao.runBigDecimalFunction(
                 SqlFunction.AVG, "decimal_column", Where.where());
+        connection.close();
 
-        Assert.assertEquals(new BigDecimal("50.0355"), avg);
+        Assert.assertEquals(0, new BigDecimal("50.0355").compareTo(avg));
     }
 }
