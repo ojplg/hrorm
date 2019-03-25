@@ -1,10 +1,10 @@
 package org.hrorm;
 
 import org.hrorm.database.Helper;
+import org.hrorm.database.HelperFactory;
 import org.hrorm.examples.SimpleChild;
 import org.hrorm.examples.SimpleParent;
 import org.hrorm.examples.SimpleParentChildDaos;
-import org.hrorm.database.H2Helper;
 import org.hrorm.util.RandomUtils;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -12,6 +12,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -20,7 +21,7 @@ import java.util.stream.Collectors;
 
 public class SimpleParentChildTest {
 
-    private static Helper helper = new H2Helper("simple_parents");
+    private static Helper helper = HelperFactory.forSchema("simple_parents");
 
     @BeforeClass
     public static void setUpDb(){
@@ -33,11 +34,11 @@ public class SimpleParentChildTest {
     }
 
     @Test
-    public void runOnceTest(){
+    public void runOnceTest() throws SQLException {
         testInsertUpdateSelect();
     }
 
-    private void runManyTimes(){
+    private void runManyTimes() throws SQLException {
         int numberTimes = RandomUtils.range(10,20);
         for(int idx=0; idx<numberTimes; idx++){
             testInsertUpdateSelect();
@@ -45,10 +46,11 @@ public class SimpleParentChildTest {
     }
 
     @Test
-    public void runMultipleThreads(){
+    public void runMultipleThreads() throws SQLException {
         int numberThreads = RandomUtils.range(2,10);
         final CountDownLatch latch = new CountDownLatch(numberThreads);
         List<AssertionError> errors = new ArrayList<>();
+        List<SQLException> exceptions = new ArrayList<>();
         for(int idx=0; idx<numberThreads; idx++){
             Thread thread = new Thread(
                     () -> {
@@ -57,6 +59,8 @@ public class SimpleParentChildTest {
                             latch.countDown();
                         } catch (AssertionError failure){
                             errors.add(failure);
+                        } catch (SQLException ex){
+                            exceptions.add(ex);
                         }
                     });
             thread.start();
@@ -68,13 +72,17 @@ public class SimpleParentChildTest {
                 throw errors.get(0);
             }
 
+            if( exceptions.size() > 0 ){
+                throw exceptions.get(0);
+            }
+
             Assert.assertTrue(completed);
         } catch (InterruptedException ex){
             Assert.fail(ex.getMessage());
         }
     }
 
-    private void testInsertUpdateSelect(){
+    private void testInsertUpdateSelect() throws SQLException {
         long parentId;
         String parentName;
         List<String> childNames;
@@ -93,6 +101,8 @@ public class SimpleParentChildTest {
             Dao<SimpleParent> dao = SimpleParentChildDaos.PARENT.buildDao(connection);
 
             parentId = dao.insert(parent);
+            connection.commit();
+            connection.close();
         }
         {
             Connection connection = helper.connect();
@@ -121,6 +131,8 @@ public class SimpleParentChildTest {
             parent.setChildren(newChildren);
 
             dao.update(parent);
+            connection.commit();
+            connection.close();
         }
         {
             Connection connection = helper.connect();
@@ -134,6 +146,7 @@ public class SimpleParentChildTest {
             List<String> names = extractNames(children);
 
             assertSameContent(names, childNames);
+            connection.close();
         }
     }
 
