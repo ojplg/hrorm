@@ -1,10 +1,9 @@
 package org.hrorm;
 
 import org.hrorm.database.Helper;
+import org.hrorm.database.HelperFactory;
 import org.hrorm.examples.Columns;
 import org.hrorm.examples.ColumnsDaoBuilder;
-import org.hrorm.examples.EnumeratedColorConverter;
-import org.hrorm.database.H2Helper;
 import org.hrorm.util.TestLogConfig;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -12,6 +11,8 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -21,7 +22,7 @@ public class OrderTest {
 
     static { TestLogConfig.load(); }
 
-    private static Helper helper = new H2Helper("columns");
+    private static Helper helper = HelperFactory.forSchema("columns");
 
     @BeforeClass
     public static void setUpDb(){
@@ -41,7 +42,7 @@ public class OrderTest {
     }
 
     @Test
-    public void testOrder(){
+    public void testOrder() throws SQLException {
 
         {
             List<Long> numbers = new ArrayList<>();
@@ -50,29 +51,35 @@ public class OrderTest {
             }
             Collections.shuffle(numbers);
 
-            Dao<Columns> dao = daoBuilder().buildDao(helper.connect());
+            Connection connection = helper.connect();
+            Dao<Columns> dao = daoBuilder().buildDao(connection);
 
             for (Long number : numbers) {
                 Columns columns = new Columns();
                 columns.setIntegerThing(number);
                 dao.insert(columns);
             }
+            connection.commit();
+            connection.close();
         }
         {
-            Dao<Columns> dao = daoBuilder().buildDao(helper.connect());
+            Connection connection = helper.connect();
+            Dao<Columns> dao = daoBuilder().buildDao(connection);
             List<Columns> ordered = dao.select(new Where(), Order.ascending("integer_column"));
             Assert.assertTrue(ordered.size() > 10 );
             for(long idx=0 ; idx< 100; idx++ ){
                 Columns columns = ordered.get((int) idx);
                 Assert.assertEquals(idx, (long) columns.getIntegerThing());
             }
+            connection.close();
         }
     }
 
     @Test
-    public void testOrderDescending(){
+    public void testOrderDescending() throws SQLException {
         {
-            Dao<Columns> dao = daoBuilder().buildDao(helper.connect());
+            Connection connection = helper.connect();
+            Dao<Columns> dao = daoBuilder().buildDao(connection);
 
             List<String> strings = Arrays.asList( "a", "b" , "c" , "d", "e" , "f" , "g", "h", "i", "a" , "a" , "b" , "c", "d");
             Collections.shuffle(strings);
@@ -81,9 +88,12 @@ public class OrderTest {
                 columns.setStringThing(s);
                 dao.insert(columns);
             }
+            connection.commit();
+            connection.close();
         }
         {
-            Dao<Columns> dao = daoBuilder().buildDao(helper.connect());
+            Connection connection = helper.connect();
+            Dao<Columns> dao = daoBuilder().buildDao(connection);
 
             String lastString = "z";
             List<Columns> ordered = dao.select(new Where(), Order.descending("string_column"));
@@ -95,13 +105,15 @@ public class OrderTest {
                 Assert.assertTrue(nextString.compareTo(lastString) <= 0);
                 lastString = nextString;
             }
+            connection.close();
         }
     }
 
     @Test
-    public void testOrderingWorksOnTwoColumns(){
+    public void testOrderingWorksOnTwoColumns() throws SQLException {
         {
-            Dao<Columns> dao = daoBuilder().buildDao(helper.connect());
+            Connection connection = helper.connect();
+            Dao<Columns> dao = daoBuilder().buildDao(connection);
 
             List<String> strings = Arrays.asList( "a", "b" , "c" , "d", "e" , "f" , "g", "h", "i", "a" , "a" , "b" , "c", "d", "e");
             List<Long> numbers = new ArrayList<>();
@@ -119,12 +131,17 @@ public class OrderTest {
                     dao.insert(columns);
                 }
             }
+            connection.commit();
+            connection.close();
         }
         {
-            Dao<Columns> dao = daoBuilder().buildDao(helper.connect());
+            Connection connection = helper.connect();
+            Dao<Columns> dao = daoBuilder().buildDao(connection);
             List<Columns> ordered = dao.select(Where.where("integer_column", Operator.GREATER_THAN, 5L)
                                                 .and("integer_column", Operator.LESS_THAN, 15L),
                                                 Order.ascending("string_column", "integer_column"));
+
+            connection.close();
 
             Assert.assertTrue(ordered.size() > 10 );
 
@@ -142,7 +159,7 @@ public class OrderTest {
     }
 
     @Test
-    public void testOrderForSelectAll(){
+    public void testOrderForSelectAll() throws SQLException {
 
         {
             List<Long> numbers = new ArrayList<>();
@@ -151,16 +168,20 @@ public class OrderTest {
             }
             Collections.shuffle(numbers);
 
-            Dao<Columns> dao = daoBuilder().buildDao(helper.connect());
+            Connection connection = helper.connect();
+            Dao<Columns> dao = daoBuilder().buildDao(connection);
 
             for (Long number : numbers) {
                 Columns columns = new Columns();
                 columns.setIntegerThing(number);
                 dao.insert(columns);
             }
+            connection.commit();
+            connection.close();
         }
         {
-            Dao<Columns> dao = daoBuilder().buildDao(helper.connect());
+            Connection connection = helper.connect();
+            Dao<Columns> dao = daoBuilder().buildDao(connection);
             List<Columns> ordered = dao.selectAll(Order.descending("integer_column"));
             Assert.assertEquals(100, ordered.size() );
             long last = 100;
@@ -169,13 +190,15 @@ public class OrderTest {
                 Assert.assertEquals(last - 1, (long) columns.getIntegerThing());
                 last = columns.getIntegerThing();
             }
+            connection.close();
         }
     }
 
     @Test
-    public void testOrderingSelectByColumns(){
+    public void testOrderingSelectByColumns() throws SQLException {
         {
-            Dao<Columns> dao = daoBuilder().buildDao(helper.connect());
+            Connection connection = helper.connect();
+            Dao<Columns> dao = daoBuilder().buildDao(connection);
 
             List<String> strings = Arrays.asList( "a", "b" , "c" , "d", "e" , "f" , "g", "h", "i", "a" , "a" , "b" , "c", "d", "e");
             List<Long> numbers = new ArrayList<>();
@@ -193,9 +216,12 @@ public class OrderTest {
                     dao.insert(columns);
                 }
             }
+            connection.commit();
+            connection.close();
         }
         {
-            Dao<Columns> dao = daoBuilder().buildDao(helper.connect());
+            Connection connection = helper.connect();
+            Dao<Columns> dao = daoBuilder().buildDao(connection);
 
             Columns template = new Columns();
             template.setStringThing("a");
@@ -212,6 +238,7 @@ public class OrderTest {
                 Assert.assertTrue(lastNumber <= columns.getIntegerThing());
                 lastNumber = columns.getIntegerThing();
             }
+            connection.close();
         }
     }
 
