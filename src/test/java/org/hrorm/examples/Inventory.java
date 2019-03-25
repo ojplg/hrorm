@@ -3,13 +3,14 @@ package org.hrorm.examples;
 import lombok.Data;
 import org.hrorm.DaoBuilder;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
 public class Inventory {
     Long id;
-    LocalDateTime date;
+    Instant date;
     List<Stock> stocks;
 
     DaoBuilder<Stock> stockDaoBuilder = new DaoBuilder<>("STOCK", Stock::new)

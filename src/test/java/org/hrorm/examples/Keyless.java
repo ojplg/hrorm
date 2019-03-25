@@ -4,6 +4,7 @@ import lombok.Data;
 import org.hrorm.IndirectKeylessDaoBuilder;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
@@ -22,7 +23,7 @@ public class Keyless {
     private long integerColumn;
     private BigDecimal decimalColumn;
     private boolean booleanColumn;
-    private LocalDateTime timeStampColumn;
+    private Instant timeStampColumn;
 
 
     @Override

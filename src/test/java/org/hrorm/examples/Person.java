@@ -9,6 +9,7 @@ import org.mockito.Mockito;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -18,7 +19,7 @@ class Person {
     String name;
     long weight;
     BigDecimal height;
-    LocalDateTime birthday;
+    Instant birthday;
     boolean isHighSchoolGraduate;
     HairColor hairColor;
 

@@ -14,7 +14,12 @@ import org.junit.Test;
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalAmount;
+import java.time.temporal.TemporalUnit;
 import java.util.List;
 
 /*
@@ -80,7 +85,7 @@ public class ProductTest {
             product.setPrice(new BigDecimal("99.95"));
             product.setSku(12345L);
             product.setDiscontinued(false);
-            product.setFirstAvailable(LocalDateTime.of(2017, 6, 15, 0, 0));
+            product.setFirstAvailable(LocalDateTime.of(2017, 6, 15, 0, 0).toInstant(ZoneOffset.UTC));
 
             id = dao.insert(product);
             connection.commit();
@@ -111,7 +116,7 @@ public class ProductTest {
                 product.setDiscontinued(idx % 2 == 0);
                 product.setPrice(new BigDecimal("100"));
                 product.setSku((long) idx);
-                product.setFirstAvailable(LocalDateTime.now());
+                product.setFirstAvailable(Instant.now());
 
                 dao.insert(product);
             }
@@ -138,7 +143,7 @@ public class ProductTest {
         {
             Connection connection = helper.connect();
             Dao<Product> dao = daoBuilder().buildDao(connection);
-            LocalDateTime date = LocalDateTime.of(2017, 11, 1, 0,0 );
+            Instant date = LocalDateTime.of(2017, 11, 1, 0,0 ).toInstant(ZoneOffset.UTC);
 
             for (int idx = 0; idx < 500; idx++) {
 
@@ -152,7 +157,7 @@ public class ProductTest {
                 product.setSku((long) idx);
                 product.setFirstAvailable(date);
 
-                date = date.plusDays(1);
+                date = date.plus(1, ChronoUnit.DAYS);
 
                 dao.insert(product);
             }
@@ -163,11 +168,14 @@ public class ProductTest {
             Connection connection = helper.connect();
             Dao<Product> dao = daoBuilder().buildDao(connection);
 
+            Instant start = LocalDateTime.of(2018,1,1,0,0).toInstant(ZoneOffset.UTC);
+            Instant end = LocalDateTime.of(2018,12,31,23,59).toInstant(ZoneOffset.UTC);
+
             List<Product> products = dao.select(
                     new Where("category", Operator.EQUALS, ProductCategory.Miscellaneous.toString())
                             .and("price", Operator.LESS_THAN, new BigDecimal("100.00"))
-                            .and("first_available", Operator.GREATER_THAN_OR_EQUALS, LocalDateTime.of(2018,1,1,0,0))
-                            .and("first_available", Operator.LESS_THAN_OR_EQUALS, LocalDateTime.of(2018,12,31,23,59)));
+                            .and("first_available", Operator.GREATER_THAN_OR_EQUALS, start)
+                            .and("first_available", Operator.LESS_THAN_OR_EQUALS, end));
 
             Assert.assertEquals(10, products.size());
             connection.close();
@@ -178,7 +186,7 @@ public class ProductTest {
         {
             Connection connection = helper.connect();
             Dao<Product> dao = daoBuilder().buildDao(connection);
-            LocalDateTime date = LocalDateTime.of(2017, 11, 1, 0,0 );
+            Instant date =  LocalDateTime.of(2017, 11, 1, 0,0 ).toInstant(ZoneOffset.UTC);
 
             for (int idx = 0; idx < 500; idx++) {
 
@@ -192,7 +200,7 @@ public class ProductTest {
                 product.setSku((long) idx);
                 product.setFirstAvailable(date);
 
-                date = date.plusDays(1);
+                date = date.plus(1, ChronoUnit.DAYS);
 
                 dao.insert(product);
             }

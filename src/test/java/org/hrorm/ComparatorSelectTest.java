@@ -15,7 +15,9 @@ import org.junit.Test;
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.List;
@@ -56,7 +58,7 @@ public class ComparatorSelectTest {
         Connection connection = helper.connect();
         Dao<Columns> dao = daoBuilder().buildDao(connection);
 
-        LocalDateTime time = LocalDateTime.now();
+        Instant time = Instant.now();
 
         Columns columns = new Columns();
         columns.setStringThing("InsertSelectTest");
@@ -82,7 +84,7 @@ public class ComparatorSelectTest {
     public void testSelectStringLike() throws SQLException {
         Long id;
 
-        LocalDateTime time = LocalDateTime.now();
+        Instant time = Instant.now();
         {
             Connection connection = helper.connect();
             Dao<Columns> dao = daoBuilder().buildDao(connection);
@@ -116,7 +118,7 @@ public class ComparatorSelectTest {
     @Test
     public void testSelectStringUnlike() throws SQLException {
 
-        LocalDateTime time = LocalDateTime.now();
+        Instant time = Instant.now();
         {
             Connection connection = helper.connect();
             Dao<Columns> dao = daoBuilder().buildDao(connection);
@@ -152,7 +154,7 @@ public class ComparatorSelectTest {
     public void testLessThanInteger() throws SQLException {
         Long id;
 
-        LocalDateTime time = LocalDateTime.now();
+        Instant time = Instant.now();
         {
             Connection connection = helper.connect();
             Dao<Columns> dao = daoBuilder().buildDao(connection);
@@ -188,7 +190,7 @@ public class ComparatorSelectTest {
     @Test
     public void testLessThanInteger_Fails() throws SQLException {
 
-        LocalDateTime time = LocalDateTime.now();
+        Instant time = Instant.now();
         {
             Connection connection = helper.connect();
             Dao<Columns> dao = daoBuilder().buildDao(connection);
@@ -224,7 +226,7 @@ public class ComparatorSelectTest {
     public void testLessThanDecimal() throws SQLException {
         Long id;
 
-        LocalDateTime time = LocalDateTime.now();
+        Instant time = Instant.now();
         {
             Connection connection = helper.connect();
             Dao<Columns> dao = daoBuilder().buildDao(connection);
@@ -259,7 +261,7 @@ public class ComparatorSelectTest {
     @Test
     public void testLessThanDecimal_Fails() throws SQLException {
 
-        LocalDateTime time = LocalDateTime.now();
+        Instant time = Instant.now();
         {
             Connection connection = helper.connect();
             Dao<Columns> dao = daoBuilder().buildDao(connection);
@@ -294,7 +296,7 @@ public class ComparatorSelectTest {
     public void testWorksWithAnds() throws SQLException {
         Long id;
 
-        LocalDateTime time = LocalDateTime.now();
+        Instant time = Instant.now();
         {
             Connection connection = helper.connect();
             Dao<Columns> dao = daoBuilder().buildDao(connection);
@@ -331,7 +333,7 @@ public class ComparatorSelectTest {
     @Test
     public void testAnyFailedComparisonFails() throws SQLException {
 
-        LocalDateTime time = LocalDateTime.now();
+        Instant time = Instant.now();
         {
             Connection connection = helper.connect();
             Dao<Columns> dao = daoBuilder().buildDao(connection);
@@ -541,7 +543,7 @@ public class ComparatorSelectTest {
             Dao<Columns> dao = daoBuilder().buildDao(connection);
 
             for(int number = 1; number<=25; number++){
-                LocalDateTime dateTime = LocalDateTime.of(2018, 3, number, 10, 30);
+                Instant dateTime = LocalDateTime.of(2018, 3, number, 10, 30).toInstant(ZoneOffset.UTC);
                 Columns columns = new Columns();
                 columns.setStringThing("DateOpenRangeTest");
                 columns.setTimeStampThing(dateTime);
@@ -562,8 +564,11 @@ public class ComparatorSelectTest {
             Connection connection = helper.connect();
             Dao<Columns> dao = daoBuilder().buildDao(connection);
 
-            List<Columns> filtered = dao.select(where("timestamp_column", Operator.GREATER_THAN, LocalDateTime.of(2018, 3, 7, 9, 30))
-                    .and("timestamp_column", Operator.LESS_THAN, LocalDateTime.of(2018, 3, 22, 5, 5)));
+            Instant start = (LocalDateTime.of(2018, 3, 7, 9, 30)).toInstant(ZoneOffset.UTC);
+            Instant end = (LocalDateTime.of(2018, 3, 22, 5, 5)).toInstant(ZoneOffset.UTC);
+
+            List<Columns> filtered = dao.select(where("timestamp_column", Operator.GREATER_THAN, start)
+                    .and("timestamp_column", Operator.LESS_THAN, end));
             Assert.assertEquals(15, filtered.size());
             connection.close();
         }
@@ -575,7 +580,7 @@ public class ComparatorSelectTest {
             Connection connection = helper.connect();
             Dao<Columns> dao = daoBuilder().buildDao(connection);
             for(int number = 1; number<=25; number++){
-                LocalDateTime dateTime = LocalDateTime.of(2018, 3, number, 10, 30);
+                Instant dateTime = LocalDateTime.of(2018, 3, number, 10, 30).toInstant(ZoneOffset.UTC);
                 Columns columns = new Columns();
                 columns.setStringThing("DateOpenRangeTest");
                 columns.setTimeStampThing(dateTime);
@@ -594,9 +599,13 @@ public class ComparatorSelectTest {
         {
             Connection connection = helper.connect();
             Dao<Columns> dao = daoBuilder().buildDao(connection);
+
+            Instant start = (LocalDateTime.of(2018, 3, 7, 10, 30)).toInstant(ZoneOffset.UTC);
+            Instant end = (LocalDateTime.of(2018, 3, 22, 10, 30)).toInstant(ZoneOffset.UTC);
+
             List<Columns> filtered = dao.select(
-                    where("timestamp_column", Operator.GREATER_THAN_OR_EQUALS, LocalDateTime.of(2018, 3, 7, 10, 30))
-                    .and("timestamp_column", Operator.LESS_THAN_OR_EQUALS, LocalDateTime.of(2018, 3, 22, 10, 30)));
+                    where("timestamp_column", Operator.GREATER_THAN_OR_EQUALS, start)
+                     .and("timestamp_column", Operator.LESS_THAN_OR_EQUALS, end));
             Assert.assertEquals(16, filtered.size());
             connection.close();
         }
@@ -605,7 +614,7 @@ public class ComparatorSelectTest {
     @Test
     public void testFluentSelectNesting() throws SQLException {
 
-        LocalDateTime time = LocalDateTime.now();
+        Instant time = Instant.now();
         {
             Connection connection = helper.connect();
             Dao<Columns> dao = daoBuilder().buildDao(connection);
@@ -649,7 +658,7 @@ public class ComparatorSelectTest {
     @Test
     public void testSelectNotEquals() throws SQLException {
 
-        LocalDateTime time = LocalDateTime.now();
+        Instant time = Instant.now();
         {
             Connection connection = helper.connect();
             Dao<Columns> dao = daoBuilder().buildDao(connection);
@@ -686,7 +695,7 @@ public class ComparatorSelectTest {
     @Test
     public void testSelectNotLike() throws SQLException {
 
-        LocalDateTime time = LocalDateTime.now();
+        Instant time = Instant.now();
         {
             Connection connection = helper.connect();
             Dao<Columns> dao = daoBuilder().buildDao(connection);
@@ -723,7 +732,7 @@ public class ComparatorSelectTest {
     @Test
     public void testSelectIsNull() throws SQLException {
 
-        LocalDateTime time = LocalDateTime.now();
+        Instant time = Instant.now();
         {
             Connection connection = helper.connect();
             Dao<Columns> dao = daoBuilder().buildDao(connection);
@@ -757,7 +766,7 @@ public class ComparatorSelectTest {
     @Test
     public void testSelectIsNullWithAndClause() throws SQLException {
 
-        LocalDateTime time = LocalDateTime.now();
+        Instant time = Instant.now();
         {
             Connection connection = helper.connect();
             Dao<Columns> dao = daoBuilder().buildDao(connection);
@@ -797,7 +806,7 @@ public class ComparatorSelectTest {
     @Test
     public void testSelectIsNotNull() throws SQLException {
 
-        LocalDateTime time = LocalDateTime.now();
+        Instant time = Instant.now();
         {
             Connection connection = helper.connect();
             Dao<Columns> dao = daoBuilder().buildDao(connection);
@@ -831,8 +840,8 @@ public class ComparatorSelectTest {
     @Test
     public void testSelectWithOrSubclause() throws SQLException {
 
-        LocalDateTime runTime = LocalDateTime.now();
-        LocalDateTime iteratedTime = runTime;
+        Instant runTime = Instant.now();
+        Instant iteratedTime = runTime;
         {
             Connection connection = helper.connect();
             Dao<Columns> dao = daoBuilder().buildDao(connection);
@@ -854,8 +863,8 @@ public class ComparatorSelectTest {
         {
             Connection connection = helper.connect();
             Dao<Columns> dao = daoBuilder().buildDao(connection);
-            LocalDateTime startTime = runTime.plus(72, ChronoUnit.DAYS).minus(1, ChronoUnit.HOURS);
-            LocalDateTime endTime = runTime.plus(83, ChronoUnit.DAYS).plus(1, ChronoUnit.HOURS);
+            Instant startTime = runTime.plus(72, ChronoUnit.DAYS).minus(1, ChronoUnit.HOURS);
+            Instant endTime = runTime.plus(83, ChronoUnit.DAYS).plus(1, ChronoUnit.HOURS);
             List<Columns> found = dao.select(where("string_column",LIKE,"%7")
                                                 .or(where("timestamp_column", GREATER_THAN, startTime)
                                                     .and("timestamp_column", LESS_THAN, endTime)));
@@ -878,7 +887,7 @@ public class ComparatorSelectTest {
     public void testCapitalizationNotAProblem() throws SQLException {
         Long id;
 
-        LocalDateTime time = LocalDateTime.now();
+        Instant time = Instant.now();
         {
             Connection connection = helper.connect();
             Dao<Columns> dao = daoBuilder().buildDao(connection);

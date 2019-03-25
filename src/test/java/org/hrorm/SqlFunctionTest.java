@@ -16,6 +16,7 @@ import org.junit.Test;
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
@@ -51,7 +52,7 @@ public class SqlFunctionTest {
             Columns columns = new Columns();
 
             columns.setStringThing("FunctionTest_" + idx);
-            columns.setTimeStampThing(LocalDateTime.now());
+            columns.setTimeStampThing(Instant.now());
             columns.setIntegerThing((long) idx);
             columns.setDecimalThing(new BigDecimal(idx + "." + idx));
             columns.setBooleanThing(idx % 2 == 0);

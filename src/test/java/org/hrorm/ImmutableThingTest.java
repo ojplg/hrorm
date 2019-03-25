@@ -15,7 +15,9 @@ import org.junit.Test;
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -89,7 +91,7 @@ public class ImmutableThingTest {
 
     public static void doInsertAndSelectImmutableThingWithAChild(Helper helper) throws SQLException {
         long id;
-        LocalDateTime bday = LocalDateTime.now();
+        Instant bday = Instant.now();
         {
             Connection connection = helper.connect();
             Dao<ImmutableThing> dao = DaoBuilders.IMMUTABLE_OBJECT_DAO_BUILDER.buildDao(connection);
@@ -134,7 +136,7 @@ public class ImmutableThingTest {
 
         long id;
         long siblingId;
-        LocalDateTime bday = LocalDateTime.now();
+        Instant bday = Instant.now();
         {
             Connection connection = helper.connect();
             Dao<ImmutableSibling> siblingDao = DaoBuilders.IMMUTABLE_SIBLING_DAO_BUILDER.buildDao(connection);
@@ -205,8 +207,8 @@ public class ImmutableThingTest {
         long firstSiblingId;
         long secondSiblingId;
         long thirdSiblingId;
-        LocalDateTime bday = LocalDateTime.now();
-        LocalDateTime otherDay = LocalDateTime.of(2018, 10, 7, 3, 34);
+        Instant bday = Instant.now();
+        Instant otherDay = LocalDateTime.of(2018, 10, 7, 3, 34).toInstant(ZoneOffset.UTC);
         {
             Connection connection = helper.connect();
             Dao<ImmutableSibling> siblingDao = DaoBuilders.IMMUTABLE_SIBLING_DAO_BUILDER.buildDao(connection);

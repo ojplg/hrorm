@@ -3,6 +3,7 @@ package org.hrorm;
 import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.time.LocalDateTime;
 
 /**
@@ -90,7 +91,7 @@ public class Where implements StatementPopulator {
      * @param value The value to compare the column values against
      * @return the new object
      */
-    public static Where where(String columnName, Operator operator, LocalDateTime value){
+    public static Where where(String columnName, Operator operator, Instant value){
         return new Where(columnName, operator, value);
     }
 
@@ -195,7 +196,7 @@ public class Where implements StatementPopulator {
      * @param operator The operation used to evaluate the predicate
      * @param value The value to compare the column values against
      */
-    public Where(String columnName, Operator operator, LocalDateTime value) {
+    public Where(String columnName, Operator operator, Instant value) {
         this(WherePredicate.forLocalDateTime(columnName, operator, value));
     }
 
@@ -270,8 +271,8 @@ public class Where implements StatementPopulator {
      * @param value The value to compare the column values against
      * @return this object
      */
-    public Where and(String columnName, Operator operator, LocalDateTime value){
-        WherePredicate<LocalDateTime> atom = WherePredicate.forLocalDateTime(columnName, operator, value);
+    public Where and(String columnName, Operator operator, Instant value){
+        WherePredicate<Instant> atom = WherePredicate.forLocalDateTime(columnName, operator, value);
         tree.addAtom(WherePredicateTree.Conjunction.AND, atom);
         return this;
     }
@@ -373,8 +374,8 @@ public class Where implements StatementPopulator {
      * @param value The value to compare the column values against
      * @return this object
      */
-    public Where or(String columnName, Operator operator, LocalDateTime value){
-        WherePredicate<LocalDateTime> atom = WherePredicate.forLocalDateTime(columnName, operator, value);
+    public Where or(String columnName, Operator operator, Instant value){
+        WherePredicate<Instant> atom = WherePredicate.forLocalDateTime(columnName, operator, value);
         tree.addAtom(WherePredicateTree.Conjunction.OR, atom);
         return this;
     }

@@ -16,6 +16,7 @@ import org.junit.Test;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.time.LocalDateTime;
 
 public class JoinsTest {
@@ -73,7 +74,7 @@ public class JoinsTest {
         Dao<Sibling> siblingDao = SiblingDaoBuilder.buildDao(connection);
         Dao<Thing> thingDao = ThingDaoBuilder.buildDao(connection);
 
-        LocalDateTime now = LocalDateTime.now();
+        Instant now = Instant.now();
 
         SecondCousin secondCousin = new SecondCousin();
         secondCousin.setDateTime(now);
@@ -114,7 +115,7 @@ public class JoinsTest {
         Dao<Sibling> siblingDao = SiblingDaoBuilder.buildDao(connection);
         Dao<Thing> thingDao = ThingDaoBuilder.buildDao(connection);
 
-        LocalDateTime now = LocalDateTime.now();
+        Instant now = Instant.now();
 
         SecondCousin secondCousin = new SecondCousin();
         secondCousin.setDateTime(now);
@@ -164,7 +165,7 @@ public class JoinsTest {
         Dao<Sibling> siblingDao = SiblingDaoBuilder.buildDao(connection);
         Dao<Thing> thingDao = ThingDaoBuilder.buildDao(connection);
 
-        LocalDateTime now = LocalDateTime.now();
+        Instant now = Instant.now();
 
         SecondCousin secondCousin = new SecondCousin();
         secondCousin.setDateTime(now);

@@ -2,7 +2,9 @@ package org.hrorm.util;
 
 import java.math.BigDecimal;
 import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -87,7 +89,7 @@ public class RandomUtils {
      * Produces a random LocalDateTime.
      * @return
      */
-    public static LocalDateTime localDateTime() {
+    public static Instant localDateTime() {
         // FIXME: TODO:
         // Why are some dates a problem?
         // This date time causes problems. Not sure why.
@@ -95,7 +97,7 @@ public class RandomUtils {
 
         return LocalDateTime.of(
                 1950 + range(0,100), range(1,12), range(1,28),
-                range(0,23), range(0, 59), range(0, 59));
+                range(0,23), range(0, 59), range(0, 59)).toInstant(ZoneOffset.UTC);
     }
 
     /**

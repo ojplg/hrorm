@@ -4,6 +4,7 @@ import lombok.Data;
 import org.hrorm.DaoBuilder;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
@@ -107,7 +108,7 @@ public class Complex {
     @Data
     public static class Don {
         Long id;
-        LocalDateTime dateTime;
+        Instant dateTime;
         Long quantity;
         Beth beth;
         List<Henry> henries;
@@ -125,7 +126,7 @@ public class Complex {
 
     public static Don newDon(Henry ... henries){
         Don don = new Don();
-        don.setDateTime(LocalDateTime.now());
+        don.setDateTime(Instant.now());
         don.setQuantity((long) random.nextInt(1000000));
         don.setHenries(Arrays.asList(henries));
         return don;

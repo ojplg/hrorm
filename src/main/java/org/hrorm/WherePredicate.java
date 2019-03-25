@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.time.Instant;
 import java.time.LocalDateTime;
 
 /**
@@ -40,11 +41,11 @@ public class WherePredicate<T> {
         return new WherePredicate<>(columnName, operator, value, PreparedStatement::setBigDecimal);
     }
 
-    public static WherePredicate<LocalDateTime> forLocalDateTime(String columnName, Operator operator, LocalDateTime value) {
+    public static WherePredicate<Instant> forLocalDateTime(String columnName, Operator operator, Instant value) {
         return new WherePredicate<>(columnName, operator, value,
                 (preparedStatement, index, localDateTime) ->
                     {
-                        Timestamp sqlTime = Timestamp.valueOf(value);
+                        Timestamp sqlTime = Timestamp.from(value);
                         preparedStatement.setTimestamp(index, sqlTime);
                     });
     }

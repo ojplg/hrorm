@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.sql.Types;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.function.BiConsumer;
@@ -138,22 +139,22 @@ public class DataColumnFactory {
         };
     }
 
-    public static <ENTITY,BUILDER> AbstractColumn<LocalDateTime, ENTITY, BUILDER> localDateTimeColumn(
-            String name, String prefix, Function<ENTITY, LocalDateTime> getter, BiConsumer<BUILDER, LocalDateTime> setter, boolean nullable){
-        return new AbstractColumn<LocalDateTime, ENTITY, BUILDER>(name, prefix, getter, setter, nullable) {
+    public static <ENTITY,BUILDER> AbstractColumn<Instant, ENTITY, BUILDER> localDateTimeColumn(
+            String name, String prefix, Function<ENTITY, Instant> getter, BiConsumer<BUILDER, Instant> setter, boolean nullable){
+        return new AbstractColumn<Instant, ENTITY, BUILDER>(name, prefix, getter, setter, nullable) {
             @Override
-            public LocalDateTime fromResultSet(ResultSet resultSet, String columnName) throws SQLException {
+            public Instant fromResultSet(ResultSet resultSet, String columnName) throws SQLException {
                 Timestamp sqlTime = resultSet.getTimestamp(columnName);
-                LocalDateTime value = null;
+                Instant value = null;
                 if ( sqlTime != null ) {
-                    value = sqlTime.toLocalDateTime();
+                    value = sqlTime.toInstant();
                 }
                 return value;
             }
 
             @Override
-            public void setPreparedStatement(PreparedStatement preparedStatement, int index, LocalDateTime value) throws SQLException {
-                Timestamp sqlTime = Timestamp.valueOf(value);
+            public void setPreparedStatement(PreparedStatement preparedStatement, int index, Instant value) throws SQLException {
+                Timestamp sqlTime = Timestamp.from(value);
                 preparedStatement.setTimestamp(index, sqlTime);
             }
 

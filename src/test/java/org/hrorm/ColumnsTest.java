@@ -14,7 +14,9 @@ import org.junit.Test;
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,7 +45,7 @@ public class ColumnsTest {
         Connection connection = helper.connect();
         Dao<Columns> dao = daoBuilder().buildDao(connection);
 
-        LocalDateTime time = LocalDateTime.now();
+        Instant time = Instant.now();
 
         Columns columns = new Columns();
         columns.setStringThing("InsertSelectTest");
@@ -69,7 +71,7 @@ public class ColumnsTest {
         Connection connection = helper.connect();
         Dao<Columns> dao = daoBuilder().buildDao(connection);
 
-        LocalDateTime dec1 = LocalDateTime.of(2018, 12, 1, 3, 45);
+        Instant dec1 = LocalDateTime.of(2018, 12, 1, 3, 45).toInstant(ZoneOffset.UTC);
 
         Columns columns = new Columns();
         columns.setStringThing("UpdateTest");
@@ -83,7 +85,7 @@ public class ColumnsTest {
         Columns dbInstance = dao.select(columns.getId());
         Assert.assertEquals(columns, dbInstance);
 
-        LocalDateTime oct5 = LocalDateTime.of(2019, 10, 5, 4, 45);
+        Instant oct5 = LocalDateTime.of(2019, 10, 5, 4, 45).toInstant(ZoneOffset.UTC);
 
         columns.setStringThing("UpdateTest New Value");
         columns.setIntegerThing(1234L);
@@ -104,7 +106,7 @@ public class ColumnsTest {
         Connection connection = helper.connect();
         Dao<Columns> dao = daoBuilder().buildDao(connection);
 
-        LocalDateTime dec1 = LocalDateTime.of(2018, 12, 1, 3, 45);
+        Instant dec1 = LocalDateTime.of(2018, 12, 1, 3, 45).toInstant(ZoneOffset.UTC);
 
         Columns columns = new Columns();
         columns.setStringThing("Select By Column Test");
@@ -133,7 +135,7 @@ public class ColumnsTest {
         Connection connection = helper.connect();
         Dao<Columns> dao = daoBuilder().buildDao(connection);
 
-        LocalDateTime dec1 = LocalDateTime.of(2018, 12, 1, 3, 45);
+        Instant dec1 = LocalDateTime.of(2018, 12, 1, 3, 45).toInstant(ZoneOffset.UTC);
 
         Columns columns1 = new Columns();
         columns1.setStringThing("Select Many By Column Test");
@@ -162,7 +164,7 @@ public class ColumnsTest {
 
         dao.insert(columns3);
 
-        LocalDateTime oct5 = LocalDateTime.of(2019, 10, 5, 4, 45);
+        Instant oct5 = LocalDateTime.of(2019, 10, 5, 4, 45).toInstant(ZoneOffset.UTC);
 
         Columns columns4 = new Columns();
         columns4.setStringThing("Select Many By Column Test");
