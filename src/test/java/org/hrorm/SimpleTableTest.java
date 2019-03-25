@@ -3,7 +3,6 @@ package org.hrorm;
 import org.hrorm.database.Helper;
 import org.hrorm.database.HelperFactory;
 import org.hrorm.examples.Simple;
-import org.hrorm.database.H2Helper;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;

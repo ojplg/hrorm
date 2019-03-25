@@ -6,7 +6,6 @@ import org.hrorm.examples.media.Actor;
 import org.hrorm.examples.media.ActorMovieAssociation;
 import org.hrorm.examples.media.MediaDaoBuilders;
 import org.hrorm.examples.media.Movie;
-import org.hrorm.database.H2Helper;
 import org.hrorm.util.AssertHelp;
 import org.hrorm.util.TestLogConfig;
 import org.junit.After;
@@ -168,7 +167,7 @@ public class MediaTest {
         Dao<Actor> actorDao = MediaDaoBuilders.ACTOR_DAO_BUILDER.buildDao(connection);
         Actor graceKelly = actorDao.select(where("name", Operator.EQUALS, "Grace Kelly")).get(0);
 
-        AssociationDao<Actor, Movie> associationDao = MediaDaoBuilders.ASSOCIATION_DAO_BUILDER.buildDao(helper.connect());
+        AssociationDao<Actor, Movie> associationDao = MediaDaoBuilders.ASSOCIATION_DAO_BUILDER.buildDao(connection);
         List<Movie> movies = associationDao.selectRightAssociates(graceKelly);
 
         List<String> titles = movies.stream().map(Movie::getTitle).collect(Collectors.toList());
@@ -250,7 +249,7 @@ public class MediaTest {
         Dao<Movie> movieDao = MediaDaoBuilders.MOVIE_DAO_BUILDER.buildDao(connection);
         Movie raisingArizona = movieDao.select(where("title", Operator.EQUALS, "Raising Arizona")).get(0);
 
-        AssociationDao<Actor, Movie> associationDao = MediaDaoBuilders.ASSOCIATION_DAO_BUILDER.buildDao(helper.connect());
+        AssociationDao<Actor, Movie> associationDao = MediaDaoBuilders.ASSOCIATION_DAO_BUILDER.buildDao(connection);
         List<Actor> actors = associationDao.selectLeftAssociates(raisingArizona);
 
         List<String> names = actors.stream().map(Actor::getName).collect(Collectors.toList());
