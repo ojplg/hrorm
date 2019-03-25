@@ -14,6 +14,10 @@ import java.sql.SQLException;
 
 public class ValidatorTest {
 
+    // TODO: How to test this for other connections?
+    // With Postgres, after the first error, it will not
+    // keep working, just reporting the connection is in a bad state.
+    // Perhaps the validator should ask for a connection factory?
     private static Helper helper = new H2Helper("columns");
 
     @BeforeClass
