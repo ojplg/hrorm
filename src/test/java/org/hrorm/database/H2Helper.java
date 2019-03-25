@@ -19,7 +19,8 @@ public class H2Helper extends AbstractHelper {
     public Connection connect() {
         try {
             Class.forName("org.h2.Driver");
-            return DriverManager.getConnection(H2ConnectionUrlPrefix + schemaName + ";DATABASE_TO_UPPER=false");
+            String url = H2ConnectionUrlPrefix + schemaName;
+            return DriverManager.getConnection(url);
         } catch (Exception ex){
             throw new RuntimeException(ex);
         }
@@ -37,6 +38,8 @@ public class H2Helper extends AbstractHelper {
             for (String table : tableNames) {
                 statement.execute("drop table " + table );
             }
+            connection.commit();
+            connection.close();
         } catch (Exception ex) {
             deferred = ex;
         }
