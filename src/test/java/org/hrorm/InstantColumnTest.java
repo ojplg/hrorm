@@ -16,7 +16,7 @@ import java.time.ZonedDateTime;
 import java.util.Objects;
 import java.util.Random;
 
-public class LocalDateTimeColumnTest {
+public class InstantColumnTest {
 
     @Test
     public void testSetValueHandlesNulls() throws SQLException  {
@@ -84,7 +84,7 @@ public class LocalDateTimeColumnTest {
         int failCount = 0;
         int successCount = 0;
 
-        ZoneId[] zones = new ZoneId[]{ZoneId.of("America/Chicago"), ZoneId.of("UTC") };
+        ZoneId[] zones = new ZoneId[]{ZoneId.of("America/Chicago"), ZoneId.of("UTC"), ZoneId.systemDefault() };
 
         for(ZoneId zoneId : zones ) {
             for(int year=1950; year<2050; year++){
@@ -107,7 +107,7 @@ public class LocalDateTimeColumnTest {
         }
 
         Assert.assertEquals(0, failCount);
-        Assert.assertEquals(264000, successCount);
+        Assert.assertEquals(396000, successCount);
     }
 
 }
