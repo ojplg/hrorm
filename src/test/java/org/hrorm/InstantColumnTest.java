@@ -13,11 +13,9 @@ import java.sql.Types;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.Objects;
 import java.util.Random;
-import java.util.TimeZone;
 
 public class InstantColumnTest {
 
@@ -76,45 +74,57 @@ public class InstantColumnTest {
         Instant instant = Instant.from(startTime);
         Timestamp timestamp = Timestamp.from(instant);
         Instant recoveredInstant = timestamp.toInstant();
-        ZonedDateTime recoveredZonedDateTime = ZonedDateTime.ofInstant(recoveredInstant, zoneId);
-        return Objects.equals(startTime, recoveredZonedDateTime);
+        return Objects.equals(instant, recoveredInstant);
     }
 
-    private boolean checkConversionToLocalDateTime(int year, int month, int day, int hour, int minute, int second, int nano){
-        ZoneId zoneId = ZoneId.systemDefault();
-        LocalDateTime localDateTime = LocalDateTime.of(year, month, day, hour, minute, second, nano);
+    /*
+    @Test
+    public void testUnderstandingTimestamps(){
+        int year = 2018;
+        int month = 3;
+        int day = 11;
+        int hour = 2;
+        int minute = 0;
+        int second = 0;
+        int nanos = 0;
 
-        ZonedDateTime zonedDateTime = localDateTime.atZone(zoneId);
-        //ZoneOffset zoneOffset = zonedDateTime.getOffset();
-        Instant instant = zonedDateTime.toInstant();
-        Timestamp timestamp = Timestamp.from(instant);
-        Instant recoveredInstant = timestamp.toInstant();
-        ZonedDateTime recoveredZonedDateTime = ZonedDateTime.ofInstant(recoveredInstant, zoneId);
-        LocalDateTime recoveredLocalDateTime = recoveredZonedDateTime.toLocalDateTime();
-        boolean same = Objects.equals(recoveredLocalDateTime, localDateTime);
-        if( ! same ) {
-            System.out.println("------");
-            System.out.println(zoneId);
-            System.out.println(localDateTime);
-            System.out.println(zonedDateTime);
-            System.out.println(instant);
-            System.out.println(timestamp);
-            System.out.println(recoveredInstant);
-            System.out.println(recoveredZonedDateTime);
-            System.out.println(recoveredLocalDateTime);
-        }
+        LocalDateTime localDateTime = LocalDateTime.of(year, month, day, hour, minute, second, nanos);
+        Assert.assertEquals(2, localDateTime.getHour());
+        Timestamp timestamp = Timestamp.valueOf(localDateTime);
+        Assert.assertEquals(3, timestamp.getHours());
+        LocalDateTime recoveredLocalDateTIme = timestamp.toLocalDateTime();
+        Assert.assertEquals(3, recoveredLocalDateTIme.getHour());
 
-        return same;
+        Instant instant = Instant.from(ZonedDateTime.of(localDateTime, ZoneId.systemDefault()));
+
     }
 
     @Test
-    public void testZonedDateTimeConversions(){
+    public void testUnderstandingInstants(){
+        int year = 2018;
+        int month = 3;
+        int day = 11;
+        int hour = 2;
+        int minute = 0;
+        int second = 0;
+        int nanos = 0;
+
+        LocalDateTime localDateTime = LocalDateTime.of(year, month, day, hour, minute, second, nanos);
+        Assert.assertEquals(2, localDateTime.getHour());
+        Instant instant = Instant.from(ZonedDateTime.of(localDateTime, ZoneId.systemDefault()));
+        LocalDateTime recoveredLocalDateTime = LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
+        Assert.assertEquals(3, recoveredLocalDateTime.getHour());
+    }
+    */
+
+    @Test
+    public void testInstantConversions(){
         Random random = new Random();
 
         int failCount = 0;
         int successCount = 0;
 
-        ZoneId[] zones = new ZoneId[]{ZoneId.of("America/Chicago"), ZoneId.of("UTC"), ZoneId.systemDefault() };
+        ZoneId[] zones = new ZoneId[]{ZoneId.of("America/Chicago"), ZoneId.of("UTC") };
 
         int testCount = 0;
 
@@ -127,19 +137,12 @@ public class InstantColumnTest {
                             int minute = random.nextInt(60);
                             int second = random.nextInt(60);
                             int nanos = random.nextInt(100000);
-                            ZonedDateTime zonedDateTime = LocalDateTime.now().atZone(zoneId);
                             boolean success = checkInstantConversion(year, month, day, hour, minute, second, nanos, zoneId);
                             if( success ){
                                 successCount++;
                             } else {
                                 failCount++;
                             }
-//                            success = checkConversionToLocalDateTime(year, month, day, hour, minute, second, nanos);
-//                            if( success ){
-//                                successCount++;
-//                            } else {
-//                                failCount++;
-//                            }
                         }
                     }
                 }
