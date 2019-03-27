@@ -54,6 +54,8 @@
 
 
                 <a href="#miscellaneous">Miscellaneous</a>
+                <a href="#dates_and_times" class="sublink-1">Dates and Times</a>
+                <a href="#schema" class="sublink-1">Schema</a>
                 <a href="#exceptions" class="sublink-1">Exceptions</a>
                 <a href="#logging" class="sublink-1">Logging</a>
                 <a href="#visibility" class="sublink-1">Visibility</a>
@@ -1117,6 +1119,7 @@
             <a id="functions"></a>
             <div class="card fluid">
                 <h3>Functions</h3>
+                <hr>
 
                 <p><code>Dao</code> objects provide the ability to run some SQL functions against
                 the database records. All the supported functions are single column aggregations,
@@ -1140,6 +1143,7 @@
             <a id="atomic"></a>
             <div class="card fluid">
                 <h3>Atomic</h3>
+                <hr>
 
                 <p>In addition to the <code>insert</code>, <code>update</code>, and <code>delete</code>
                     methods, hrorm <code>Dao</code> objects provide variants of those methods
@@ -1153,6 +1157,7 @@
             <a id="folding"></a>
             <div class="card fluid">
                 <h3>Folding</h3>
+                <hr>
 
                 <p>Many ORMs (and other database connectivity tools) provide some mechanism for lazily
                     loading data. This is a useful feature since it's quite common to work on data sets
@@ -1212,6 +1217,7 @@
             <a id="sql"></a>
             <div class="card fluid">
                 <h3>SQL</h3>
+                <hr>
 
                 <p>The <code>SQL</code> that hrorm generates to make a <code>Dao</code> can be accessed by
                     calling the <code>queries()</code> method. The <code>SQL</code> is formatted
@@ -1227,13 +1233,162 @@
 
             <a id="miscellaneous"></a>
             <h2>Miscellaneous</h2>
-            <hr>
+
+            <div class="card fluid">
+
+                <a id="dates_and_times"></a>
+                <h3>Dates and Times</h3>
+                <hr>
+
+                <p>
+                    Storing dates and times is important to many applications. Hrorm of course tries to
+                    support this endeavor, but user caution is advised.
+                </p>
+
+                <p>
+                    Databases support a myriad varieties of dates and times, but the oldest and most
+                    established is the time zone free timestamp, which generally is some amount of time
+                    offset from some zero point. (Number of seconds, including fractional amounds, since
+                    00:00:00 1-Jan-1970 or something.) What this means to you might vary.
+                </p>
+
+                <p>
+                    The JDBC supports the timestamp concept above through the type <code>java.sql.Timestamp</code>,
+                    which is implemented as an extension of the widely hated (and mostly deprecated)
+                    <code>java.util.Date</code>. One reason (among many) that people dislike the <code>java.util.Date</code>
+                    type is because it isn't even a date. It's a date and time. Except it's not that, it's a timestamp,
+                    an offset from the epoch as above. So, already we are in trouble, since the primary means of
+                    persisting date and time information of all sorts is through a mutable type of
+                    deprecated methods of confusing meaning difficult to translate to the very good options
+                    available in the <code>java.time</code> package.
+                </p>
+
+                <p>
+                    For a tool like hrorm, the most important thing is to expose functionality to the user
+                    in a very general way, which means using the JDBC. As always, the hrorm philosophy is
+                    to not try to be all things to all people, since the peculiarities of your needs and
+                    the underlying database capabilties are so diverse, it's better to just get out of the way.
+                    That said, for most of what you need dates and times for, timestamps work just fine, given
+                    some care. Yes, if you're just storing a date in your model, there's some precision you do
+                    not need, but so what? And if you want to make sure you remember what time zone or offset
+                    from UTC you need to attach to a persisted timestamp, you can use another column for that.
+                    Or, if your application always does things one way, you can hard code logic for conversions.
+                </p>
+
+                <p>
+                    The <code>java.sql.Timestamp</code> was retrofitted with converters to and from two
+                    concrete classes of the <code>java.time</code> package, <code>Instant</code> and
+                    <code>LocalDateTime</code>. For a more modern framework like Hrorm, those are the
+                    only two real contenders for what to expose on its interfaces.
+                </p>
+
+                <p>
+                    <code>LocalDateTime</code> is probably more useful for most applications. It has obvious
+                    ways to access information like day of the week or hour of the day that are not directly
+                    available from an <code>Instant</code>. It's probably the go to choice when modeling domain classes
+                    that involve date time values. With the caveat that if all you want is a date (or a time)
+                    you can use a smaller more focused type.
+                </p>
+
+                <p>
+                    Nevertheless, Hrorm chooses to expose <code>java.time.Instant</code>. Why?
+                    Because it creates better guarantees about storing the values you give it
+                    and being able to recover them. Consider the following sad example.
+                </p>
+
+                <pre>
+    int year = 2018;
+    int month = 3;
+    int day = 11;
+    int hour = 2;
+    int minute = 0;
+    int second = 0;
+    int nanos = 0;
+
+    LocalDateTime localDateTime = LocalDateTime.of(year, month, day, hour, minute, second, nanos);
+    Assert.assertEquals(2, localDateTime.getHour());
+    Timestamp timestamp = Timestamp.valueOf(localDateTime);
+    Assert.assertEquals(3, timestamp.getHours());
+    LocalDateTime recoveredLocalDateTIme = timestamp.toLocalDateTime();
+    Assert.assertEquals(3, recoveredLocalDateTIme.getHour());</pre>
+
+                <p>
+                    Leaving aside that the getHours() call is deprecated on <code>Timestamp</code>,
+                    on my computer and JVM, which is in the "America/Chicago" time zone, the
+                    above tests all pass. (On my computer, but maybe not on yours!)
+                    So, the time you thought you were putting into the
+                    database is not the time you will get out.
+                </p>
+
+                <p>
+                    What's happening? The time initially created does not really exist: at that
+                    precise moment, the clocks sprang forward in "America/Chicago" and we
+                    never had a 2AM on 11 March 2018. Despite neither of the classes involved
+                    having a time zone component, conversion between them implicitly uses a
+                    time zone, and changes the hour. It's perhaps unfortunate that the
+                    <code>LocalDateTime</code> allows construction of what is perhaps an illegal
+                    instance, but it's not an illegal instance until it's combined with a time
+                    zone. For all it knew at construction time, I was talking about that time
+                    in some other time zone. (Perhaps the word "Local" was a bad choice. It means
+                    local to somewhere, not local to where you happen to be. Maybe they should have
+                    called in "<code>UnzonedDateTime</code>"?)
+                </p>
+
+                <p>
+                    The <code>Instant</code> conversions have no such problem, but of course,
+                    you have to be careful when your model converts from a date type to an instant
+                    type, since pitfalls exist. (Again, the following tests all pass on my computer,
+                    but perhaps not on yours!)
+                </p>
+
+                <pre>
+    int year = 2018;
+    int month = 3;
+    int day = 11;
+    int hour = 2;
+    int minute = 0;
+    int second = 0;
+    int nanos = 0;
+
+    LocalDateTime localDateTime = LocalDateTime.of(year, month, day, hour, minute, second, nanos);
+    Assert.assertEquals(2, localDateTime.getHour());
+    Instant instant = Instant.from(ZonedDateTime.of(localDateTime, ZoneId.systemDefault()));
+    LocalDateTime recoveredLocalDateTime = LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
+    Assert.assertEquals(3, recoveredLocalDateTime.getHour());</pre>
+
+                <p>
+                    What hour does the <code>Instant</code> show? The question makes no sense: an
+                    instant only has an hour within the context of a particular time zone.
+                </p>
+
+                <p>
+                    So, Hrorm tries to follow it's philosophy as best it can: there is a problematic
+                    issue exposed, but it's up to the client code to solve it. But at least what hrorm
+                    does is predictable, the <code>Instant</code> you choose to store will be
+                    the <code>Instant</code> that is returned to you.
+                </p>
+            </div>
+
+            <div class="card fluid">
+
+                <a id="schema"></a>
+                <h3>Schema</h3>
+                <hr>
+
+                <p>
+                    Hrorm provides a mechanism for generating your database schema through its
+                    <code>Schema</code> object. Using it is simple. Pass your <code>DaoBuilder</code>
+                    objects to the <code>Schema</code> constructor and call the <code>sql()</code>
+                    method to get a <code>String</code> of the SQL to generate tables, sequences,
+                    and constraints.
+                </p>
+
+            </div>
 
             <div class="card fluid">
 
                 <a id="exceptions"></a>
                 <h3>Exceptions</h3>
-
                 <hr>
 
                 <p>Hrorm thinks that checked exceptions are a mistake. In an application with a database dependency,
@@ -1307,141 +1462,6 @@
 
             </div>
 
-            <div class="card fluid">
-
-                <a id="dates_and_times"></a>
-                <h3>Dates and Times</h3>
-
-                <hr/>
-
-                <p>
-                    Storing dates and times is important to many applications. Hrorm of course tries to
-                    support this endeavor, but user caution is advised.
-                </p>
-
-                <p>
-                    Databases support a myriad varieties of dates and times, but the oldest and most
-                    established is the time zone free timestamp, which generally is some amount of time
-                    offset from some zero point. (Number of seconds, including fractional amounds, since
-                    00:00:00 1-Jan-1970 or something.) What this means to you might vary.
-                </p>
-
-                <p>
-                    The JDBC supports the timestamp concept above through the type <code>java.sql.Timestamp</code>,
-                    which is implemented as an extension of the widely hated (and mostly deprecated)
-                    <code>java.util.Date</code>. One reason (among many) that people dislike the <code>java.util.Date</code>
-                    type is because it isn't even a date. It's a date and time. Except it's not that, it's a timestamp,
-                    an offset from the epoch as above. So, already we are in trouble, since the primary means of
-                    persisting date and time information of all sorts is through a mutable type of
-                    deprecated methods of confusing meaning difficult to translate to the very good options
-                    available in the <code>java.time</code> package.
-                </p>
-
-                <p>
-                    For a tool like hrorm, the most important thing is to expose functionality to the user
-                    in a very general way, which means using the JDBC. As always, the hrorm philosophy is
-                    to not try to be all things to all people, since the peculiarities of your needs and
-                    the underlying database capabilties are so diverse, it's better to just get out of the way.
-                    That said, for most of what you need dates and times for, timestamps work just fine, given
-                    some care. Yes, if you're just storing a date in your model, there's some precision you do
-                    not need, but so what? And if you want to make sure you remember what time zone or offset
-                    from UTC you need to attach to a persisted timestamp, you can use another column for that.
-                    Or, if your application always does things one way, you can hard code logic for conversions.
-                </p>
-
-                <p>
-                    The <code>java.sql.Timestamp</code> was retrofitted with converters to and from two
-                    concrete classes of the <code>java.time</code> package, <code>Instant</code> and
-                    <code>LocalDateTime</code>. For a more modern framework like Hrorm, those are the
-                    only two real contenders for what to expose on its interfaces.
-                </p>
-
-                <p>
-                    <code>LocalDateTime</code> is probably more useful for most applications. It has obvious
-                    ways to access information like day of the week or hour of the day that are not directly
-                    available from an <code>Instant</code>. It's probably the go to choice when modeling domain classes
-                    that involve date time values. With the caveat that if all you want is a date (or a time)
-                    you can use a smaller more focused type.
-                </p>
-
-                <p>
-                    Nevertheless, Hrorm chooses to expose <code>java.time.Instant</code>. Why?
-                    Because it creates better guarantees about storing the values you give it
-                    and being able to recover them. Consider the following sad example.
-                </p>
-
-<pre>
-    int year = 2018;
-    int month = 3;
-    int day = 11;
-    int hour = 2;
-    int minute = 0;
-    int second = 0;
-    int nanos = 0;
-
-    LocalDateTime localDateTime = LocalDateTime.of(year, month, day, hour, minute, second, nanos);
-    Assert.assertEquals(2, localDateTime.getHour());
-    Timestamp timestamp = Timestamp.valueOf(localDateTime);
-    Assert.assertEquals(3, timestamp.getHours());
-    LocalDateTime recoveredLocalDateTIme = timestamp.toLocalDateTime();
-    Assert.assertEquals(3, recoveredLocalDateTIme.getHour());</pre>
-
-                <p>
-                    Leaving aside that the getHours() call is deprecated on <code>Timestamp</code>,
-                    on my computer and JVM, which is in the "America/Chicago" time zone, the
-                    above tests all pass. (On my computer, but maybe not on yours!)
-                    So, the time you thought you were putting into the
-                    database is not the time you will get out.
-                </p>
-
-                <p>
-                    What's happening? The time initially created does not really exist: at that
-                    precise moment, the clocks sprang forward in "America/Chicago" and we
-                    never had a 2AM on 11 March 2018. Despite neither of the classes involved
-                    having a time zone component, conversion between them implicitly uses a
-                    time zone, and changes the hour. It's perhaps unfortunate that the
-                    <code>LocalDateTime</code> allows construction of what is perhaps an illegal
-                    instance, but it's not an illegal instance until it's combined with a time
-                    zone. For all it knew at construction time, I was talking about that time
-                    in some other time zone. (Perhaps the word "Local" was a bad choice. It means
-                    local to somewhere, not local to where you happen to be. Maybe they should have
-                    called in "<code>UnzonedDateTime</code>"?)
-                </p>
-
-                <p>
-                    The <code>Instant</code> conversions have no such problem, but of course,
-                    you have to be careful when your model converts from a date type to an instant
-                    type, since pitfalls exist. (Again, the following tests all pass on my computer,
-                    but perhaps not on yours!)
-                </p>
-
-<pre>
-    int year = 2018;
-    int month = 3;
-    int day = 11;
-    int hour = 2;
-    int minute = 0;
-    int second = 0;
-    int nanos = 0;
-
-    LocalDateTime localDateTime = LocalDateTime.of(year, month, day, hour, minute, second, nanos);
-    Assert.assertEquals(2, localDateTime.getHour());
-    Instant instant = Instant.from(ZonedDateTime.of(localDateTime, ZoneId.systemDefault()));
-    LocalDateTime recoveredLocalDateTime = LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
-    Assert.assertEquals(3, recoveredLocalDateTime.getHour());</pre>
-
-                <p>
-                    What hour does the <code>Instant</code> show? The question makes no sense: an
-                    instant only has an hour within the context of a particular time zone.
-                </p>
-
-                <p>
-                    So, Hrorm tries to follow it's philosophy as best it can: there is a problematic
-                    issue exposed, but it's up to the client code to solve it. But at least what hrorm
-                    does is predictable, the <code>Instant</code> you choose to store will be
-                    the <code>Instant</code> that is returned to you.
-                </p>
-            </div>
         </div>
 
     </div>
