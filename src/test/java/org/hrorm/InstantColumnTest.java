@@ -88,14 +88,14 @@ public class InstantColumnTest {
         int second = 0;
         int nanos = 0;
 
-        LocalDateTime localDateTime = LocalDateTime.of(year, month, day, hour, minute, second, nanos);
-        Assert.assertEquals(2, localDateTime.getHour());
-        Timestamp timestamp = Timestamp.valueOf(localDateTime);
+        LocalDateTime instant = LocalDateTime.of(year, month, day, hour, minute, second, nanos);
+        Assert.assertEquals(2, instant.getHour());
+        Timestamp timestamp = Timestamp.valueOf(instant);
         Assert.assertEquals(3, timestamp.getHours());
         LocalDateTime recoveredLocalDateTIme = timestamp.toLocalDateTime();
         Assert.assertEquals(3, recoveredLocalDateTIme.getHour());
 
-        Instant instant = Instant.from(ZonedDateTime.of(localDateTime, ZoneId.systemDefault()));
+        Instant instant = Instant.from(ZonedDateTime.of(instant, ZoneId.systemDefault()));
 
     }
 
@@ -109,9 +109,9 @@ public class InstantColumnTest {
         int second = 0;
         int nanos = 0;
 
-        LocalDateTime localDateTime = LocalDateTime.of(year, month, day, hour, minute, second, nanos);
-        Assert.assertEquals(2, localDateTime.getHour());
-        Instant instant = Instant.from(ZonedDateTime.of(localDateTime, ZoneId.systemDefault()));
+        LocalDateTime instant = LocalDateTime.of(year, month, day, hour, minute, second, nanos);
+        Assert.assertEquals(2, instant.getHour());
+        Instant instant = Instant.from(ZonedDateTime.of(instant, ZoneId.systemDefault()));
         LocalDateTime recoveredLocalDateTime = LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
         Assert.assertEquals(3, recoveredLocalDateTime.getHour());
     }

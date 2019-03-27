@@ -85,19 +85,11 @@ public class RandomUtils {
         return randomMemberOf(possibleValues);
     }
 
-    /**
-     * Produces a random LocalDateTime.
-     * @return
+    /*
+     * Produces a random Instant.
      */
-    public static Instant localDateTime() {
-        // FIXME: TODO:
-        // Why are some dates a problem?
-        // This date time causes problems. Not sure why.
-        //return LocalDateTime.of(1964,4,26, 2, 48, 46);
-
-        return LocalDateTime.of(
-                1950 + range(0,100), range(1,12), range(1,28),
-                range(0,23), range(0, 59), range(0, 59)).toInstant(ZoneOffset.UTC);
+    public static Instant instant() {
+        return Instant.ofEpochMilli(range(-10000000, 1000000000));
     }
 
     /**

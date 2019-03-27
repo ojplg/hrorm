@@ -332,7 +332,7 @@ public class KeylessTest {
         keyless.setIntegerColumn(RandomUtils.range(0, 10));
         keyless.setBooleanColumn(RandomUtils.bool());
         keyless.setDecimalColumn(RandomUtils.bigDecimal()); // Probably Unique
-        keyless.setTimeStampColumn(RandomUtils.localDateTime()); // Probably Unique, millisecond precision
+        keyless.setTimeStampColumn(RandomUtils.instant()); // Probably Unique, millisecond precision
         return keyless;
     }
 
