@@ -6,8 +6,13 @@ import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.Statement;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 
 public class H2Helper extends AbstractHelper {
+
+    public static final Pattern unqiueConstraintMatcher = Pattern.compile("alter table \\w+ add constraint \\w+ unique.*");
 
     public static final String H2ConnectionUrlPrefix = "jdbc:h2:./target/db/";
 
@@ -54,5 +59,17 @@ public class H2Helper extends AbstractHelper {
         if ( deferred != null ){
             throw new RuntimeException(deferred);
         }
+    }
+
+    @Override
+    public String filterSql(String sql) {
+        StringBuffer buf = new StringBuffer();
+        for(String line : sql.split("\n")){
+            // H2 does not support uniqueness constraints
+            if( ! unqiueConstraintMatcher.matcher(line).matches() ) {
+                buf.append(line);
+            }
+        }
+        return buf.toString();
     }
 }

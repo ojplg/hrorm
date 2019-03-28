@@ -9,6 +9,7 @@ import org.hrorm.examples.geography.GeographyDaos;
 import org.hrorm.examples.immutables.DaoBuilders;
 import org.hrorm.examples.media.MediaDaoBuilders;
 import org.hrorm.database.H2Helper;
+import org.hrorm.util.ListUtil;
 import org.hrorm.util.SimpleSqlFormatter;
 import org.junit.Assert;
 import org.junit.Test;
@@ -18,7 +19,6 @@ import java.util.List;
 
 public class SchemaTest {
 
-    // TODO: Unique constraints? (Hrorm knows nothing about these.)
     // TODO: keyless daos?
 
     @Test
@@ -114,9 +114,9 @@ public class SchemaTest {
 
         String sql = schema.sql();
 
-        // check to make sure there are two constraints, i.e. things having an "alter" in them
+        // check the correct number of constraints are created
         String[] splits = sql.split("alter");
-        Assert.assertEquals(3, splits.length);
+        Assert.assertEquals(4, splits.length);
 
         Helper helper = HelperFactory.forSchema("generated_immutables");
         try {
@@ -172,6 +172,22 @@ public class SchemaTest {
 
         Assert.assertTrue(sql.contains(movieConstraint));
         Assert.assertTrue(sql.contains(actorConstraint));
+    }
+
+    @Test
+    public void testUniquenessConstraintsCreated(){
+        Schema schema = new Schema(
+                DaoBuilders.IMMUTABLE_SIBLING_DAO_BUILDER);
+
+        List<String> constraints = ListUtil.map(schema.constraints(),SimpleSqlFormatter::format);
+
+        String expectedSql = SimpleSqlFormatter.format(
+          "alter table immutable_sibling "
+                + " add constraint immutable_sibling_unique__id__data "
+                + " unique ( id, data );"
+        );
+
+        Assert.assertTrue(constraints.contains(expectedSql));
     }
 
 }

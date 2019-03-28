@@ -19,7 +19,7 @@ import java.util.function.Supplier;
  *
  * @param <ENTITY> The class that the Dao will support.
  */
-public class DaoBuilder<ENTITY> implements DaoDescriptor<ENTITY, ENTITY> {
+public class DaoBuilder<ENTITY> implements SchemaDescriptor<ENTITY, ENTITY> {
 
     private final IndirectDaoBuilder<ENTITY, ENTITY> internalDaoBuilder;
 
@@ -325,4 +325,13 @@ public class DaoBuilder<ENTITY> implements DaoDescriptor<ENTITY, ENTITY> {
         return this;
     }
 
+    public DaoBuilder<ENTITY> withUniqueConstraint(String ... columnNames){
+        this.internalDaoBuilder.withUniqueConstraint(columnNames);
+        return this;
+    }
+
+    @Override
+    public List<List<String>> uniquenessConstraints() {
+        return internalDaoBuilder.uniquenessConstraints();
+    }
 }

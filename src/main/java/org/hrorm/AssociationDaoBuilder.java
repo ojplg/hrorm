@@ -2,6 +2,7 @@ package org.hrorm;
 
 import java.sql.Connection;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -13,7 +14,7 @@ import java.util.function.Supplier;
  * @param <RIGHT> The type of the other of the entities being associated
  */
 public class AssociationDaoBuilder<LEFT, RIGHT>
-        implements DaoDescriptor<Association<LEFT, RIGHT>, Association<LEFT, RIGHT>> {
+        implements SchemaDescriptor<Association<LEFT, RIGHT>, Association<LEFT, RIGHT>> {
 
     private final DaoDescriptor<LEFT, ?> leftDaoDescriptor;
     private final DaoDescriptor<RIGHT, ?> rightDaoDescriptor;
@@ -217,5 +218,10 @@ public class AssociationDaoBuilder<LEFT, RIGHT>
     @Override
     public Function<Association<LEFT, RIGHT>, Association<LEFT, RIGHT>> buildFunction() {
         return internalDaoBuilder.buildFunction();
+    }
+
+    @Override
+    public List<List<String>> uniquenessConstraints() {
+        return Collections.emptyList();
     }
 }

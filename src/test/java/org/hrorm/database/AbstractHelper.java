@@ -39,8 +39,6 @@ public abstract class AbstractHelper implements Helper {
 
             StringBuilder wholeFileBuffer = new StringBuilder();
             bufferedReader.lines().forEach( line -> {
-                //extractNameFromLine(line);
-
                 wholeFileBuffer.append(line);
                 wholeFileBuffer.append("\n");
             });
@@ -89,6 +87,7 @@ public abstract class AbstractHelper implements Helper {
             try {
                 Connection connection = connect();
                 Statement statement = connection.createStatement();
+                sql = filterSql(sql);
                 Arrays.asList(sql.split("\n")).stream().forEach(l -> extractNameFromLine(l));
                 statement.execute(sql);
                 connection.commit();
@@ -125,5 +124,9 @@ public abstract class AbstractHelper implements Helper {
         } catch (Exception ex){
             throw new RuntimeException(ex);
         }
+    }
+
+    public String filterSql(String sql){
+        return sql;
     }
 }

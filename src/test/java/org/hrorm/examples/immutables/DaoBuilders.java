@@ -6,7 +6,8 @@ public class DaoBuilders {
     public static final IndirectDaoBuilder<ImmutableSibling, ImmutableSibling.ImmutableSiblingBuilder> IMMUTABLE_SIBLING_DAO_BUILDER =
             new IndirectDaoBuilder<>("immutable_sibling", ImmutableSibling::builder, ImmutableSibling.ImmutableSiblingBuilder::build )
                     .withPrimaryKey("id", "immutable_sibling_seq", ImmutableSibling::getId, ImmutableSibling.ImmutableSiblingBuilder::id)
-                    .withStringColumn("data", ImmutableSibling::getData, ImmutableSibling.ImmutableSiblingBuilder::data);
+                    .withStringColumn("data", ImmutableSibling::getData, ImmutableSibling.ImmutableSiblingBuilder::data)
+                    .withUniqueConstraint("id","data");
 
     public static final IndirectDaoBuilder<ImmutableChild, ImmutableChild.ImmutableChildBuilder> IMMUTABLE_CHILD_DAO_BUILDER =
             new IndirectDaoBuilder<>("immutable_child", ImmutableChild::builder, ImmutableChild.ImmutableChildBuilder::build)

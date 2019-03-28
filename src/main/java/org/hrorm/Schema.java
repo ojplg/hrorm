@@ -20,14 +20,14 @@ import java.util.stream.Stream;
  */
 public class Schema {
 
-    private final List<DaoDescriptor> descriptors;
+    private final List<SchemaDescriptor> descriptors;
 
     /**
      * Construct an instance.
      *
      * @param descriptors The <code>DaoDescriptor</code> objects to generate SQL for.
      */
-    public Schema(DaoDescriptor ... descriptors){
+    public Schema(SchemaDescriptor ... descriptors){
         this.descriptors = Collections.unmodifiableList(Arrays.asList(descriptors));
     }
 
@@ -64,8 +64,34 @@ public class Schema {
         return constraints;
     }
 
-    private Stream<String> allConstraints(DaoDescriptor<?,?> descriptor){
-        return Stream.concat(joinConstraints(descriptor).stream(), childConstraints(descriptor).stream());
+    private String uniquenessConstraint(String tableName, List<String> columnNames){
+        StringBuilder buf = new StringBuilder();
+        buf.append("alter table ");
+        buf.append(tableName);
+        buf.append(" add constraint ");
+        buf.append(tableName);
+        buf.append("_unique__");
+        buf.append(String.join("__", columnNames));
+        buf.append(" unique (");
+        buf.append(String.join(", ", columnNames));
+        buf.append(");");
+        return buf.toString();
+    }
+
+    private List<String> uniquenessConstraints(SchemaDescriptor<?,?> descriptor){
+        List<String> constraints = new ArrayList<>();
+        for(List<String> columnNames : descriptor.uniquenessConstraints()){
+            String constraint = uniquenessConstraint(descriptor.tableName(), columnNames);
+            constraints.add(constraint);
+        }
+        return constraints;
+    }
+
+    private Stream<String> allConstraints(SchemaDescriptor<?,?> descriptor){
+        return Stream.of(
+                joinConstraints(descriptor).stream(),
+                childConstraints(descriptor).stream(),
+                uniquenessConstraints(descriptor).stream()).flatMap(s -> s);
     }
 
     private String tablesSql(DaoDescriptor<?,?> descriptor){
