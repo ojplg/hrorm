@@ -421,4 +421,14 @@ public class IndirectDaoBuilder<ENTITY, BUILDER>  implements DaoDescriptor<ENTIT
         return this;
     }
 
+    public <T> IndirectDaoBuilder<ENTITY, BUILDER> withGenericColumn(String columnName,
+                                                                     Function<ENTITY, T> getter,
+                                                                     BiConsumer<BUILDER, T> setter,
+                                                                     GenericColumn<T> genericColumn){
+        Column<ENTITY, BUILDER> column = DataColumnFactory.genericColumn(columnName, myPrefix, getter, setter, genericColumn, true);
+        columns.add(column);
+        lastColumnAdded = column;
+        return this;
+    }
+
 }

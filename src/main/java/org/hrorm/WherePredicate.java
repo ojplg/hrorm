@@ -19,11 +19,6 @@ import java.time.Instant;
  */
 public class WherePredicate<T> {
 
-    @FunctionalInterface
-    interface PreparedStatementSetter<VALUE> {
-        void apply(PreparedStatement preparedStatement, int index, VALUE value) throws SQLException;
-    }
-
     public static WherePredicate<Boolean> forBoolean(String columnName, Operator operator, Boolean value) {
         return new WherePredicate<>(columnName, operator, value, PreparedStatement::setBoolean);
     }
