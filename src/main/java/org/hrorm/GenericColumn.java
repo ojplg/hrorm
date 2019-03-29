@@ -21,7 +21,8 @@ import java.sql.SQLException;
  * <pre>{@code
  * GenericColumn<Integer> integerColumn = new GenericColumn<>(
  *     PreparedStatement::setInt,
- *     ResultSet::getInt);
+ *     ResultSet::getInt,
+ *     java.sql.Types.Integer);
  * }</pre>
  *
  * @param <TYPE> The Java type represented by the column.
@@ -36,16 +37,26 @@ public class GenericColumn<TYPE> {
     /**
      * Create a generic column instance to support the <code>TYPE</code>.
      *
-     * @param preparedStatementSetter The method 
-     * @param resultReader
+     * @param preparedStatementSetter The method used to set the type onto a prepared statement.
+     * @param resultReader The method used to read the value out of a result set.
+     * @param sqlType The value of this column type, as defined in <code>java.sql.Types</code>
      */
-    public GenericColumn(PreparedStatementSetter<TYPE> preparedStatementSetter, ResultSetReader<TYPE> resultReader){
-        this.sqlType = null;
+    public GenericColumn(PreparedStatementSetter<TYPE> preparedStatementSetter, ResultSetReader<TYPE> resultReader, int sqlType){
+        this.sqlType = sqlType;
         this.sqlString = "";
         this.preparedStatementSetter = preparedStatementSetter;
         this.resultReader = resultReader;
     }
 
+    /**
+     * Create a generic column instance to support the <code>TYPE</code>.
+     *
+     * @param preparedStatementSetter The method used to set the type onto a prepared statement.
+     * @param resultReader The method used to read the value out of a result set.
+     * @param sqlType The value of this column type, as defined in <code>java.sql.Types</code>
+     * @param sqlString The name of the type in the SQL schema. This optional value can be set
+     *                  if you wish to generate your schema using a {@link Schema} object.
+     */
     public GenericColumn(PreparedStatementSetter<TYPE> preparedStatementSetter, ResultSetReader<TYPE> resultReader, int sqlType, String sqlString){
         this.sqlType = sqlType;
         this.preparedStatementSetter = preparedStatementSetter;
