@@ -72,6 +72,8 @@ public class ColumnTypes {
                     )));
 
     public static String getSchemaColumnType(Column<?,?> column){
+        // FIXME: this is lame. Columns should know their types.
+
         Set<Integer> types = column.supportedTypes();
         if ( BooleanTypes.equals(types) ){
             return "BOOLEAN";
@@ -87,6 +89,10 @@ public class ColumnTypes {
         }
         if ( InstantTypes.equals(types) ){
             return "TIMESTAMP";
+        }
+
+        if ( IntegerTypes.containsAll(column.supportedTypes())){
+            return "INTEGER";
         }
         throw new HrormException("Could not determine schema type for " + column.getName());
     }
