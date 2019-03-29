@@ -51,9 +51,8 @@ public class GenericColumnTest {
                 .withGenericColumn("data", Foo::getData, Foo::setData, integerColumn);
     }
 
-
     @Test
-    public void insertAndSelectItem() throws SQLException {
+    public void insertAndSelectItem() {
         Long id = helper.useAndCommitConnection( connection -> {
 
             Dao<Foo> dao = daoBuilder().buildDao(connection);
