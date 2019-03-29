@@ -45,6 +45,9 @@ public class DataColumnFactory {
 
             @Override
             public Set<Integer> supportedTypes() { return ColumnTypes.DecimalTypes; }
+
+            @Override
+            public String getSqlType() { return "decimal"; }
         };
     }
 
@@ -73,6 +76,9 @@ public class DataColumnFactory {
 
             @Override
             public Set<Integer> supportedTypes() { return ColumnTypes.IntegerTypes; }
+
+            @Override
+            public String getSqlType() { return "integer"; }
         };
     }
 
@@ -101,6 +107,9 @@ public class DataColumnFactory {
 
             @Override
             public Set<Integer> supportedTypes() { return ColumnTypes.BooleanTypes; }
+
+            @Override
+            public String getSqlType() { return "boolean"; }
         };
     }
 
@@ -135,6 +144,9 @@ public class DataColumnFactory {
 
             @Override
             public Set<Integer> supportedTypes() { return ColumnTypes.StringTypes; }
+
+            @Override
+            public String getSqlType() { return "text"; }
         };
     }
 
@@ -169,6 +181,9 @@ public class DataColumnFactory {
 
             @Override
             public Set<Integer> supportedTypes() { return ColumnTypes.InstantTypes; }
+
+            @Override
+            public String getSqlType() { return "timestamp"; }
         };
     }
 
@@ -207,6 +222,9 @@ public class DataColumnFactory {
 
             @Override
             public Set<Integer> supportedTypes() { return ColumnTypes.StringTypes; }
+
+            @Override
+            public String getSqlType() { return "text"; }
         };
     }
 
@@ -245,6 +263,9 @@ public class DataColumnFactory {
 
             @Override
             public Set<Integer> supportedTypes() { return ColumnTypes.IntegerTypes; }
+
+            @Override
+            public String getSqlType() { return "integer"; }
         };
     }
 

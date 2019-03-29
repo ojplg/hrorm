@@ -133,4 +133,7 @@ public class JoinColumn<ENTITY, JOINED, ENTITYBUILDER, JOINEDBUILDER> implements
     public boolean isNullable() {
         return nullable;
     }
+
+    @Override
+    public String getSqlType() { return "integer"; }
 }

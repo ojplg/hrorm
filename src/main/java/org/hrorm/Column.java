@@ -102,4 +102,12 @@ public interface Column<ENTITY, BUILDER> {
      * @return The types that should be handled by this column type.
      */
     Set<Integer> supportedTypes();
+
+    /**
+     * Returns the name of the column type in SQL, e.g. "text" for <code>String</code>,
+     * "decimal" for <code>BigDecimal</code>.
+     *
+     * @return The SQL name of the type.
+     */
+    String getSqlType();
 }
