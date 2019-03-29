@@ -11,7 +11,6 @@ import org.junit.Test;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Types;
 
 public class GenericColumnTest {
