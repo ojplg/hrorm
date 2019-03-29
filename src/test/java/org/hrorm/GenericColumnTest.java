@@ -42,7 +42,8 @@ public class GenericColumnTest {
         GenericColumn<Integer> integerColumn = new GenericColumn<>(
                 PreparedStatement::setInt,
                 ResultSet::getInt,
-                Types.INTEGER
+                Types.INTEGER,
+                "integer"
         );
 
         return new IndirectDaoBuilder<>("foo_table", Foo::new, f -> f)

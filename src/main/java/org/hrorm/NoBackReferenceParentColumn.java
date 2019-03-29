@@ -84,4 +84,7 @@ public class NoBackReferenceParentColumn<ENTITY, PARENT, BUILDER, PARENTBUILDER>
     public boolean isNullable() {
         return false;
     }
+
+    @Override
+    public String getSqlType() { return "integer"; }
 }

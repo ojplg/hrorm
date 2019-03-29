@@ -113,4 +113,7 @@ public class DirectPrimaryKey<ENTITY> implements PrimaryKey<ENTITY, ENTITY> {
     public boolean isNullable() {
         return false;
     }
+
+    @Override
+    public String getSqlType() { return "integer"; }
 }

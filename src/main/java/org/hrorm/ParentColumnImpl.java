@@ -97,4 +97,7 @@ public class ParentColumnImpl<CHILD, PARENT, CHILDBUILDER, PARENTBUILDER> implem
     public boolean isNullable() {
         return nullable;
     }
+
+    @Override
+    public String getSqlType() { return "integer"; }
 }

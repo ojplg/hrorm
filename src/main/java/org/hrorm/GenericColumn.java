@@ -29,19 +29,22 @@ import java.sql.SQLException;
 public class GenericColumn<TYPE> {
 
     private final Integer sqlType;
+    private final String sqlString;
     private final PreparedStatementSetter<TYPE> preparedStatementSetter;
     private final ResultSetReader<TYPE> resultReader;
 
     public GenericColumn(PreparedStatementSetter<TYPE> preparedStatementSetter, ResultSetReader<TYPE> resultReader){
         this.sqlType = null;
+        this.sqlString = "";
         this.preparedStatementSetter = preparedStatementSetter;
         this.resultReader = resultReader;
     }
 
-    public GenericColumn(PreparedStatementSetter<TYPE> preparedStatementSetter, ResultSetReader<TYPE> resultReader, int sqlType){
+    public GenericColumn(PreparedStatementSetter<TYPE> preparedStatementSetter, ResultSetReader<TYPE> resultReader, int sqlType, String sqlString){
         this.sqlType = sqlType;
         this.preparedStatementSetter = preparedStatementSetter;
         this.resultReader = resultReader;
+        this.sqlString = sqlString;
     }
 
     TYPE fromResultSet(ResultSet resultSet, String columnName) throws SQLException {
@@ -54,6 +57,10 @@ public class GenericColumn<TYPE> {
 
     int sqlType() {
         return sqlType;
+    }
+
+    String getSqlType(){
+        return sqlString;
     }
 
 }

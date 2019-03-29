@@ -33,7 +33,7 @@ public class Schema {
 
     private String renderColumn(Column<?,?> column){
         String extension = column.isNullable() ? "" : " not null";
-        return column.getName() + " " + ColumnTypes.getSchemaColumnType(column) + extension;
+        return column.getName() + " " + column.getSqlType() + extension;
     }
 
     private List<String> joinConstraints(DaoDescriptor<?,?> descriptor){
