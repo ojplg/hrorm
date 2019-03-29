@@ -41,13 +41,13 @@ public class GenericColumnTest {
     }
 
     private static IndirectDaoBuilder<Foo,Foo> daoBuilder(){
-        GenericColumn<Integer> integerColumn = new GenericColumn<Integer>(
+        GenericColumn<Integer> integerColumn = new GenericColumn<>(
                 PreparedStatement::setInt,
                 ResultSet::getInt,
                 Types.INTEGER
         );
 
-        return new IndirectDaoBuilder<Foo,Foo>("foo_table", Foo::new, f -> f)
+        return new IndirectDaoBuilder<>("foo_table", Foo::new, f -> f)
                 .withPrimaryKey("id", "foo_seq", Foo::getId, Foo::setId)
                 .withGenericColumn("data", Foo::getData, Foo::setData, integerColumn);
     }
@@ -77,6 +77,5 @@ public class GenericColumnTest {
 
             connection.close();
         }
-
     }
 }
