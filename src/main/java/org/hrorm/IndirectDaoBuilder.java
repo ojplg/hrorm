@@ -421,11 +421,56 @@ public class IndirectDaoBuilder<ENTITY, BUILDER>  implements DaoDescriptor<ENTIT
         return this;
     }
 
+    /**
+     * Describes a data element of type <code>T</code> that can be stored in
+     * a <code>GenericColumn</code>.
+     *
+     * <p>
+     * This interface exists to allow clients to inject whatever column types
+     * they need into Hrorm.
+     * </p>
+     *
+     * @param columnName The name of the column in the table that holds the primary key.
+     * @param getter The function to call to get the value from an object instance.
+     * @param setter The function to call to set the value onto an object instance.
+     * @param genericColumn The column that supports type <code>T</code>.
+     * @param <T> The type of the data element on the entity.
+     * @return This instance.
+     */
     public <T> IndirectDaoBuilder<ENTITY, BUILDER> withGenericColumn(String columnName,
                                                                      Function<ENTITY, T> getter,
                                                                      BiConsumer<BUILDER, T> setter,
                                                                      GenericColumn<T> genericColumn){
         Column<ENTITY, BUILDER> column = DataColumnFactory.genericColumn(columnName, myPrefix, getter, setter, genericColumn, true);
+        columns.add(column);
+        lastColumnAdded = column;
+        return this;
+    }
+
+    /**
+     * Describes a data element of type <code>U</code> that can be stored in
+     * a <code>GenericColumn</code> that stores objects of type <code>T</code>.
+     *
+     * <p>
+     * This interface exists to allow clients to inject whatever column types
+     * they need into Hrorm.
+     * </p>
+     *
+     * @param columnName The name of the column in the table that holds the primary key.
+     * @param getter The function to call to get the value from an object instance.
+     * @param setter The function to call to set the value onto an object instance.
+     * @param genericColumn The column that supports type <code>T</code>.
+     * @param converter A converter that can translate between types <code>T</code> and <code>U</code>.
+     * @param <T> The type of the data element that can be persisted.
+     * @param <U> The type of the data element as it exists on the entity object.
+     * @return This instance.
+     */
+    public <T,U> IndirectDaoBuilder<ENTITY, BUILDER> withConvertedGenericColumn(String columnName,
+                                                                                Function<ENTITY, U> getter,
+                                                                                BiConsumer<BUILDER, U> setter,
+                                                                                GenericColumn<T> genericColumn,
+                                                                                Converter<U,T> converter){
+        Column<ENTITY, BUILDER> column = DataColumnFactory.convertedGenericColumn(columnName, myPrefix, getter, setter, genericColumn, converter, true);
         columns.add(column);
         lastColumnAdded = column;
         return this;

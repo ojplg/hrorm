@@ -36,6 +36,7 @@ public class GenericColumnTest {
     static class Foo {
         private Long id;
         private Integer data;
+        private String junk;
     }
 
     private static IndirectDaoBuilder<Foo,Foo> daoBuilder(){
@@ -46,9 +47,22 @@ public class GenericColumnTest {
                 "integer"
         );
 
+        Converter<String, Integer> converter = new Converter<String, Integer>() {
+            @Override
+            public Integer from(String item) {
+                return Integer.parseInt(item);
+            }
+
+            @Override
+            public String to(Integer integer) {
+                return integer.toString();
+            }
+        };
+
         return new IndirectDaoBuilder<>("foo_table", Foo::new, f -> f)
                 .withPrimaryKey("id", "foo_seq", Foo::getId, Foo::setId)
-                .withGenericColumn("data", Foo::getData, Foo::setData, integerColumn);
+                .withGenericColumn("data", Foo::getData, Foo::setData, integerColumn)
+                .withConvertedGenericColumn("junk", Foo::getJunk, Foo::setJunk, integerColumn, converter);
     }
 
     @Test
@@ -59,6 +73,7 @@ public class GenericColumnTest {
 
             Foo foo = new Foo();
             foo.setData(32);
+            foo.setJunk("6732");
 
             return  dao.insert(foo);
         });
@@ -66,6 +81,7 @@ public class GenericColumnTest {
             Dao<Foo> dao = daoBuilder().buildDao(connection);
             Foo foo = dao.select(id);
             Assert.assertEquals(32, (int) foo.getData());
+            Assert.assertEquals("6732", foo.getJunk());
         });
     }
 }

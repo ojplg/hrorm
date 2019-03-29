@@ -319,4 +319,44 @@ public class DataColumnFactory {
             }
         };
     }
+
+    public static <T, U, ENTITY, BUILDER> AbstractColumn<U, ENTITY, BUILDER> convertedGenericColumn(
+            String name, String prefix, Function<ENTITY, U> getter, BiConsumer<BUILDER, U> setter,
+            GenericColumn<T> genericColumn, Converter<U,T> converter, boolean nullable) {
+
+        return new AbstractColumn<U, ENTITY, BUILDER>(name, prefix, getter, setter, nullable) {
+            @Override
+            U fromResultSet(ResultSet resultSet, String columnName) throws SQLException {
+                T columnValue = genericColumn.fromResultSet(resultSet, columnName);
+                return converter.to(columnValue);
+            }
+
+            @Override
+            void setPreparedStatement(PreparedStatement preparedStatement, int index, U value) throws SQLException {
+                T columnValue = converter.from(value);
+                genericColumn.setPreparedStatement(preparedStatement, index, columnValue);
+            }
+
+            @Override
+            int sqlType() {
+                return genericColumn.sqlType();
+            }
+
+            @Override
+            public Column<ENTITY, BUILDER> withPrefix(String newPrefix, Prefixer prefixer) {
+                return convertedGenericColumn(getName(), newPrefix, getter, setter, genericColumn, converter, nullable);
+            }
+
+            @Override
+            public Set<Integer> supportedTypes() {
+                return Collections.singleton(genericColumn.sqlType());
+            }
+
+            @Override
+            public String getSqlType() {
+                return genericColumn.getSqlType();
+            }
+        };
+    }
+
 }

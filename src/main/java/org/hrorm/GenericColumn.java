@@ -15,7 +15,7 @@ import java.sql.SQLException;
  * </p>
  *
  * <p>
- *      To create a column for <code>Integer</code>, do the following:
+ *      For example, to create a column for <code>Integer</code>, do the following:
  * </p>
  *
  * <pre>{@code
@@ -33,6 +33,12 @@ public class GenericColumn<TYPE> {
     private final PreparedStatementSetter<TYPE> preparedStatementSetter;
     private final ResultSetReader<TYPE> resultReader;
 
+    /**
+     * Create a generic column instance to support the <code>TYPE</code>.
+     *
+     * @param preparedStatementSetter The method 
+     * @param resultReader
+     */
     public GenericColumn(PreparedStatementSetter<TYPE> preparedStatementSetter, ResultSetReader<TYPE> resultReader){
         this.sqlType = null;
         this.sqlString = "";
@@ -47,19 +53,19 @@ public class GenericColumn<TYPE> {
         this.sqlString = sqlString;
     }
 
-    TYPE fromResultSet(ResultSet resultSet, String columnName) throws SQLException {
+    public TYPE fromResultSet(ResultSet resultSet, String columnName) throws SQLException {
         return resultReader.read(resultSet, columnName);
     }
 
-    void setPreparedStatement(PreparedStatement preparedStatement, int index, TYPE value) throws SQLException {
+    public void setPreparedStatement(PreparedStatement preparedStatement, int index, TYPE value) throws SQLException {
         preparedStatementSetter.apply(preparedStatement, index, value);
     }
 
-    int sqlType() {
+    public int sqlType() {
         return sqlType;
     }
 
-    String getSqlType(){
+    public String getSqlType(){
         return sqlString;
     }
 
