@@ -9,7 +9,6 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -55,27 +54,19 @@ public class GenericColumnTest {
 
     @Test
     public void insertAndSelectItem() throws SQLException {
-        Long id;
-        {
-            Connection connection = helper.connect();
+        Long id = helper.useAndCommitConnection( connection -> {
+
             Dao<Foo> dao = daoBuilder().buildDao(connection);
 
             Foo foo = new Foo();
             foo.setData(32);
 
-            id = dao.insert(foo);
-
-            connection.commit();
-            connection.close();
-        }
-        {
-            Connection connection = helper.connect();
+            return  dao.insert(foo);
+        });
+        helper.useConnection(connection -> {
             Dao<Foo> dao = daoBuilder().buildDao(connection);
-
             Foo foo = dao.select(id);
             Assert.assertEquals(32, (int) foo.getData());
-
-            connection.close();
-        }
+        });
     }
 }

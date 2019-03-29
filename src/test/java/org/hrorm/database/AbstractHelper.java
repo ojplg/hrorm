@@ -4,11 +4,14 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -126,4 +129,55 @@ public abstract class AbstractHelper implements Helper {
             throw new RuntimeException(ex);
         }
     }
+
+    public void useConnection(Consumer<Connection> consumer){
+        Connection connection = null;
+        try {
+            connection = connect();
+            consumer.accept(connection);
+        } finally {
+            try {
+                if ( connection != null ) {
+                    connection.close();
+                }
+            } catch (SQLException ex){
+                throw new RuntimeException(ex);
+            }
+        }
+    }
+
+    public <T> T useConnection(Function<Connection, T> function){
+        Connection connection = null;
+        try {
+            connection = connect();
+            return function.apply(connection);
+        } finally {
+            try {
+                if ( connection != null ) {
+                    connection.close();
+                }
+            } catch (SQLException ex){
+                throw new RuntimeException(ex);
+            }
+        }
+    }
+
+    public <T> T useAndCommitConnection(Function<Connection, T> function) {
+        try {
+            Connection connection = null;
+            try {
+                connection = connect();
+                T value = function.apply(connection);
+                connection.commit();
+                return value;
+            } finally {
+                if (connection != null) {
+                    connection.close();
+                }
+            }
+        } catch (SQLException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
 }

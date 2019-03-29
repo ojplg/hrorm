@@ -1,6 +1,8 @@
 package org.hrorm.database;
 
 import java.sql.Connection;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 public interface Helper {
     String readSchema();
@@ -18,4 +20,10 @@ public interface Helper {
     void initializeSchemaFromSql(String sql);
 
     void advanceSequences();
+
+    void useConnection(Consumer<Connection> consumer);
+
+    <T> T useConnection(Function<Connection, T> function);
+
+    <T> T useAndCommitConnection(Function<Connection, T> function);
 }
