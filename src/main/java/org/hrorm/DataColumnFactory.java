@@ -315,7 +315,7 @@ public class DataColumnFactory {
 
             @Override
             public String getSqlType() {
-                return genericColumn.getSqlType();
+                return genericColumn.getSqlTypeName();
             }
         };
     }
@@ -354,7 +354,7 @@ public class DataColumnFactory {
 
             @Override
             public String getSqlType() {
-                return genericColumn.getSqlType();
+                return genericColumn.getSqlTypeName();
             }
         };
     }

@@ -30,7 +30,7 @@ import java.sql.SQLException;
 public class GenericColumn<TYPE> {
 
     private final Integer sqlType;
-    private final String sqlString;
+    private final String sqlTypeName;
     private final PreparedStatementSetter<TYPE> preparedStatementSetter;
     private final ResultSetReader<TYPE> resultReader;
 
@@ -43,7 +43,7 @@ public class GenericColumn<TYPE> {
      */
     public GenericColumn(PreparedStatementSetter<TYPE> preparedStatementSetter, ResultSetReader<TYPE> resultReader, int sqlType){
         this.sqlType = sqlType;
-        this.sqlString = "";
+        this.sqlTypeName = "";
         this.preparedStatementSetter = preparedStatementSetter;
         this.resultReader = resultReader;
     }
@@ -54,14 +54,14 @@ public class GenericColumn<TYPE> {
      * @param preparedStatementSetter The method used to set the type onto a prepared statement.
      * @param resultReader The method used to read the value out of a result set.
      * @param sqlType The value of this column type, as defined in <code>java.sql.Types</code>
-     * @param sqlString The name of the type in the SQL schema. This optional value can be set
+     * @param sqlTypeName The name of the type in the SQL schema. This optional value can be set
      *                  if you wish to generate your schema using a {@link Schema} object.
      */
-    public GenericColumn(PreparedStatementSetter<TYPE> preparedStatementSetter, ResultSetReader<TYPE> resultReader, int sqlType, String sqlString){
+    public GenericColumn(PreparedStatementSetter<TYPE> preparedStatementSetter, ResultSetReader<TYPE> resultReader, int sqlType, String sqlTypeName){
         this.sqlType = sqlType;
         this.preparedStatementSetter = preparedStatementSetter;
         this.resultReader = resultReader;
-        this.sqlString = sqlString;
+        this.sqlTypeName = sqlTypeName;
     }
 
     public TYPE fromResultSet(ResultSet resultSet, String columnName) throws SQLException {
@@ -76,8 +76,8 @@ public class GenericColumn<TYPE> {
         return sqlType;
     }
 
-    public String getSqlType(){
-        return sqlString;
+    public String getSqlTypeName(){
+        return sqlTypeName;
     }
 
 }
