@@ -1,13 +1,12 @@
 package org.hrorm;
 
-import org.hrorm.util.FluentMethod;
+import org.hrorm.util.HrormMethod;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class DaoBuilderConsistencyTest {
 
@@ -23,11 +22,11 @@ public class DaoBuilderConsistencyTest {
 
     public void testEquivalencyOfFluentMethods(Class classA, Class classB, List<String> skippableMethods) {
 
-        List<FluentMethod> classAMethods = findFluentMethods(classA);
-        List<FluentMethod> classBMethods = findFluentMethods(classB);
+        List<HrormMethod> classAMethods = findFluentMethods(classA);
+        List<HrormMethod> classBMethods = findFluentMethods(classB);
 
         int cnt = 0;
-        for(FluentMethod fm : classAMethods){
+        for(HrormMethod fm : classAMethods){
             if( ! skippableMethods.contains(fm.methodName()) ) {
                 boolean equivalentExists = classBMethods.stream().anyMatch(f -> f.equivalent(fm));
                 Assert.assertTrue("No match for " + fm, equivalentExists);
@@ -38,16 +37,13 @@ public class DaoBuilderConsistencyTest {
         Assert.assertEquals(classAMethods.size() - skippableMethods.size(), classBMethods.size());
     }
 
-    public List<FluentMethod> findFluentMethods(Class klass) {
-        List<FluentMethod> fluentMethods = new ArrayList<>();
-
-        for(Method method : klass.getMethods()){
-            if( method.getReturnType().equals(klass)) {
-                fluentMethods.add(new FluentMethod(method));
-            }
-        }
-
-        return fluentMethods;
+    public List<HrormMethod> findFluentMethods(Class klass) {
+        List<HrormMethod> methods = HrormMethod.fromClass(klass);
+        return methods.stream().filter(HrormMethod::isFluent).collect(Collectors.toList());
     }
 
+    public List<HrormMethod> findNonFluentMethods(Class klass){
+        List<HrormMethod> methods = HrormMethod.fromClass(klass);
+        return methods.stream().filter(hm -> ! hm.isFluent()).collect(Collectors.toList());
+    }
 }
