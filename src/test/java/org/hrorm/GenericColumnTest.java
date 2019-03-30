@@ -55,6 +55,9 @@ public class GenericColumnTest {
 
             @Override
             public String to(Integer integer) {
+                if( integer == null ){
+                    return null;
+                }
                 return integer.toString();
             }
         };
@@ -84,4 +87,23 @@ public class GenericColumnTest {
             Assert.assertEquals("6732", foo.getJunk());
         });
     }
+
+    @Test
+    public void testNulls() {
+        Long id = helper.useConnection( connection -> {
+
+            Dao<Foo> dao = daoBuilder().buildDao(connection);
+
+            Foo foo = new Foo();
+
+            return  dao.insert(foo);
+        });
+        helper.useConnection(connection -> {
+            Dao<Foo> dao = daoBuilder().buildDao(connection);
+            Foo foo = dao.select(id);
+            Assert.assertNull(foo.getData());
+            Assert.assertNull(foo.getJunk());
+        });
+    }
+
 }

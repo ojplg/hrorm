@@ -62,7 +62,11 @@ public class GenericColumn<TYPE> {
     }
 
     public TYPE fromResultSet(ResultSet resultSet, String columnName) throws SQLException {
-        return resultReader.read(resultSet, columnName);
+        TYPE value = resultReader.read(resultSet, columnName);
+        if( resultSet.wasNull() ){
+            return null;
+        }
+        return value;
     }
 
     public void setPreparedStatement(PreparedStatement preparedStatement, int index, TYPE value) throws SQLException {
