@@ -329,7 +329,7 @@ public class KeylessTest {
     public static Keyless randomKeyless() {
         Keyless keyless = new Keyless();
         keyless.setStringColumn(RandomUtils.biname());
-        keyless.setIntegerColumn(RandomUtils.range(0, 10));
+        keyless.setIntegerColumn((long) RandomUtils.range(0, 10));
         keyless.setBooleanColumn(RandomUtils.bool());
         keyless.setDecimalColumn(RandomUtils.bigDecimal()); // Probably Unique
         keyless.setTimeStampColumn(RandomUtils.instant()); // Probably Unique, millisecond precision

@@ -56,7 +56,11 @@ public class DataColumnFactory {
         return new AbstractColumn<Long, ENTITY, BUILDER>(name, prefix, getter, setter, nullable) {
             @Override
             public Long fromResultSet(ResultSet resultSet, String columnName) throws SQLException {
-                return resultSet.getLong(columnName);
+                Long result = resultSet.getLong(columnName);
+                if( resultSet.wasNull() ){
+                    return null;
+                }
+                return result;
             }
 
             @Override

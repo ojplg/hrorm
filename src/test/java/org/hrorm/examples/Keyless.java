@@ -19,7 +19,7 @@ public class Keyless {
                     .withInstantColumn("timestamp_column", Keyless::getTimeStampColumn, Keyless::setTimeStampColumn);
 
     private String stringColumn;
-    private long integerColumn;
+    private Long integerColumn;
     private BigDecimal decimalColumn;
     private Boolean booleanColumn;
     private Instant timeStampColumn;
