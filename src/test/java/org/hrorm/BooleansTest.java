@@ -38,7 +38,10 @@ public class BooleansTest {
                 .withPrimaryKey("id", "booleans_sequence", Booleans::getId, Booleans::setId)
                 .withBooleanColumn("boolean_column", Booleans::isBooleanFlag, Booleans::setBooleanFlag)
                 .withStringBooleanColumn("string_column", Booleans::isStringFlag, Booleans::setStringFlag)
-                .withIntegerBooleanColumn("integer_column", Booleans::isIntFlag, Booleans::setIntFlag);
+                .withIntegerBooleanColumn("integer_column", Booleans::isIntFlag, Booleans::setIntFlag)
+                .withIntegerBooleanColumn("integer_object_column", Booleans::getIntegerObjectFlag, Booleans::setIntegerObjectFlag)
+                .withBooleanColumn("object_column", Booleans::getObjectFlag, Booleans::setObjectFlag)
+                .withStringBooleanColumn("string_object_column", Booleans::getStringObjectFlag, Booleans::setStringObjectFlag);
     }
 
 
@@ -53,6 +56,9 @@ public class BooleansTest {
             bools.setBooleanFlag(true);
             bools.setIntFlag(true);
             bools.setStringFlag(true);
+            bools.setIntegerObjectFlag(true);
+            bools.setObjectFlag(null);
+            bools.setStringObjectFlag(false);
 
             id = dao.insert(bools);
 
@@ -68,6 +74,9 @@ public class BooleansTest {
             Assert.assertTrue(booleans.isBooleanFlag());
             Assert.assertTrue(booleans.isStringFlag());
             Assert.assertTrue(booleans.isIntFlag());
+            Assert.assertTrue(booleans.getIntegerObjectFlag());
+            Assert.assertNull(booleans.getObjectFlag());
+            Assert.assertFalse(booleans.getStringObjectFlag());
 
             connection.close();
         }
@@ -84,6 +93,9 @@ public class BooleansTest {
             bools.setBooleanFlag(false);
             bools.setIntFlag(false);
             bools.setStringFlag(false);
+            bools.setIntegerObjectFlag(null);
+            bools.setStringObjectFlag(true);
+            bools.setObjectFlag(false);
 
             id = dao.insert(bools);
 
@@ -99,10 +111,16 @@ public class BooleansTest {
             Assert.assertFalse(booleans.isBooleanFlag());
             Assert.assertFalse(booleans.isStringFlag());
             Assert.assertFalse(booleans.isIntFlag());
+            Assert.assertNull(booleans.getIntegerObjectFlag());
+            Assert.assertTrue(booleans.getStringObjectFlag());
+            Assert.assertFalse(booleans.getObjectFlag());
 
             booleans.setStringFlag(true);
             booleans.setIntFlag(true);
             booleans.setBooleanFlag(true);
+            booleans.setIntegerObjectFlag(false);
+            booleans.setStringObjectFlag(null);
+            booleans.setObjectFlag(true);
 
             dao.update(booleans);
 
@@ -118,6 +136,9 @@ public class BooleansTest {
             Assert.assertTrue(booleans.isBooleanFlag());
             Assert.assertTrue(booleans.isStringFlag());
             Assert.assertTrue(booleans.isIntFlag());
+            Assert.assertFalse(booleans.getIntegerObjectFlag());
+            Assert.assertNull(booleans.getStringObjectFlag());
+            Assert.assertTrue(booleans.getObjectFlag());
 
             connection.close();
         }

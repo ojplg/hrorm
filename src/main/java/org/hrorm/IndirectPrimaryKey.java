@@ -116,4 +116,7 @@ public class IndirectPrimaryKey<ENTITY, BUILDER> implements PrimaryKey<ENTITY, B
     public boolean isNullable() {
         return false;
     }
+
+    @Override
+    public String getSqlType() { return "integer"; }
 }

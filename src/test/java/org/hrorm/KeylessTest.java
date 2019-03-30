@@ -120,7 +120,7 @@ public class KeylessTest {
         sampleTest(dao, Keyless::getStringColumn, "string_column");
         sampleTest(dao, Keyless::getDecimalColumn, "decimal_column");
         sampleTest(dao, Keyless::getIntegerColumn, "integer_column");
-        sampleTest(dao, Keyless::isBooleanColumn, "boolean_column");
+        sampleTest(dao, Keyless::getBooleanColumn, "boolean_column");
         sampleTest(dao, Keyless::getTimeStampColumn, "timestamp_column");
         connection.close();
     }
@@ -329,7 +329,7 @@ public class KeylessTest {
     public static Keyless randomKeyless() {
         Keyless keyless = new Keyless();
         keyless.setStringColumn(RandomUtils.biname());
-        keyless.setIntegerColumn(RandomUtils.range(0, 10));
+        keyless.setIntegerColumn((long) RandomUtils.range(0, 10));
         keyless.setBooleanColumn(RandomUtils.bool());
         keyless.setDecimalColumn(RandomUtils.bigDecimal()); // Probably Unique
         keyless.setTimeStampColumn(RandomUtils.instant()); // Probably Unique, millisecond precision

@@ -45,6 +45,9 @@ public class DataColumnFactory {
 
             @Override
             public Set<Integer> supportedTypes() { return ColumnTypes.DecimalTypes; }
+
+            @Override
+            public String getSqlType() { return "decimal"; }
         };
     }
 
@@ -53,7 +56,11 @@ public class DataColumnFactory {
         return new AbstractColumn<Long, ENTITY, BUILDER>(name, prefix, getter, setter, nullable) {
             @Override
             public Long fromResultSet(ResultSet resultSet, String columnName) throws SQLException {
-                return resultSet.getLong(columnName);
+                Long result = resultSet.getLong(columnName);
+                if( resultSet.wasNull() ){
+                    return null;
+                }
+                return result;
             }
 
             @Override
@@ -73,6 +80,9 @@ public class DataColumnFactory {
 
             @Override
             public Set<Integer> supportedTypes() { return ColumnTypes.IntegerTypes; }
+
+            @Override
+            public String getSqlType() { return "integer"; }
         };
     }
 
@@ -81,7 +91,11 @@ public class DataColumnFactory {
         return new AbstractColumn<Boolean, ENTITY, BUILDER>(name, prefix, getter, setter, nullable) {
             @Override
             public Boolean fromResultSet(ResultSet resultSet, String columnName) throws SQLException {
-                return resultSet.getBoolean(columnName);
+                Boolean result = resultSet.getBoolean(columnName);
+                if ( resultSet.wasNull() ){
+                    return null;
+                }
+                return result;
             }
 
             @Override
@@ -101,6 +115,9 @@ public class DataColumnFactory {
 
             @Override
             public Set<Integer> supportedTypes() { return ColumnTypes.BooleanTypes; }
+
+            @Override
+            public String getSqlType() { return "boolean"; }
         };
     }
 
@@ -135,6 +152,9 @@ public class DataColumnFactory {
 
             @Override
             public Set<Integer> supportedTypes() { return ColumnTypes.StringTypes; }
+
+            @Override
+            public String getSqlType() { return "text"; }
         };
     }
 
@@ -169,6 +189,9 @@ public class DataColumnFactory {
 
             @Override
             public Set<Integer> supportedTypes() { return ColumnTypes.InstantTypes; }
+
+            @Override
+            public String getSqlType() { return "timestamp"; }
         };
     }
 
@@ -207,6 +230,9 @@ public class DataColumnFactory {
 
             @Override
             public Set<Integer> supportedTypes() { return ColumnTypes.StringTypes; }
+
+            @Override
+            public String getSqlType() { return "text"; }
         };
     }
 
@@ -218,7 +244,7 @@ public class DataColumnFactory {
             @Override
             public E fromResultSet(ResultSet resultSet, String columnName) throws SQLException {
                 Long code = resultSet.getLong(columnName);
-                if ( code == null ) {
+                if ( resultSet.wasNull() ) {
                     return null;
                 }
                 return converter.to(code);
@@ -245,6 +271,9 @@ public class DataColumnFactory {
 
             @Override
             public Set<Integer> supportedTypes() { return ColumnTypes.IntegerTypes; }
+
+            @Override
+            public String getSqlType() { return "integer"; }
         };
     }
 
