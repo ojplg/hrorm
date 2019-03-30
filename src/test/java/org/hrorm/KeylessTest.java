@@ -120,7 +120,7 @@ public class KeylessTest {
         sampleTest(dao, Keyless::getStringColumn, "string_column");
         sampleTest(dao, Keyless::getDecimalColumn, "decimal_column");
         sampleTest(dao, Keyless::getIntegerColumn, "integer_column");
-        sampleTest(dao, Keyless::isBooleanColumn, "boolean_column");
+        sampleTest(dao, Keyless::getBooleanColumn, "boolean_column");
         sampleTest(dao, Keyless::getTimeStampColumn, "timestamp_column");
         connection.close();
     }
