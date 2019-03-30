@@ -91,7 +91,11 @@ public class DataColumnFactory {
         return new AbstractColumn<Boolean, ENTITY, BUILDER>(name, prefix, getter, setter, nullable) {
             @Override
             public Boolean fromResultSet(ResultSet resultSet, String columnName) throws SQLException {
-                return resultSet.getBoolean(columnName);
+                Boolean result = resultSet.getBoolean(columnName);
+                if ( resultSet.wasNull() ){
+                    return null;
+                }
+                return result;
             }
 
             @Override
@@ -248,7 +252,7 @@ public class DataColumnFactory {
             @Override
             public E fromResultSet(ResultSet resultSet, String columnName) throws SQLException {
                 Long code = resultSet.getLong(columnName);
-                if (code == null) {
+                if ( resultSet.wasNull() ) {
                     return null;
                 }
                 return converter.to(code);
