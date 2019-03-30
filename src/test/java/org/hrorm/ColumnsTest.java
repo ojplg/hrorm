@@ -67,6 +67,31 @@ public class ColumnsTest {
     }
 
     @Test
+    public void testNulls() throws SQLException {
+        Long id;
+        {
+            Connection connection = helper.connect();
+            Dao<Columns> dao = daoBuilder().buildDao(connection);
+            Columns columns = new Columns();
+            id = dao.insert(columns);
+            connection.commit();
+            connection.close();
+        }
+        {
+            Connection connection = helper.connect();
+            Dao<Columns> dao = daoBuilder().buildDao(connection);
+            Columns columns = dao.select(id);
+
+            Assert.assertNull(columns.getIntegerThing());
+            Assert.assertNull(columns.getBooleanThing());
+            Assert.assertNull(columns.getTimeStampThing());
+            Assert.assertNull(columns.getColorThing());
+            Assert.assertNull(columns.getStringThing());
+            Assert.assertNull(columns.getDecimalThing());
+        }
+    }
+
+    @Test
     public void testUpdates() throws SQLException {
         Connection connection = helper.connect();
         Dao<Columns> dao = daoBuilder().buildDao(connection);

@@ -15,13 +15,13 @@ public class Keyless {
                     .withStringColumn("string_column", Keyless::getStringColumn, Keyless::setStringColumn)
                     .withIntegerColumn("integer_column", Keyless::getIntegerColumn, Keyless::setIntegerColumn)
                     .withBigDecimalColumn("decimal_column", Keyless::getDecimalColumn, Keyless::setDecimalColumn)
-                    .withBooleanColumn("boolean_column", Keyless::isBooleanColumn, Keyless::setBooleanColumn)
+                    .withBooleanColumn("boolean_column", Keyless::getBooleanColumn, Keyless::setBooleanColumn)
                     .withInstantColumn("timestamp_column", Keyless::getTimeStampColumn, Keyless::setTimeStampColumn);
 
     private String stringColumn;
-    private long integerColumn;
+    private Long integerColumn;
     private BigDecimal decimalColumn;
-    private boolean booleanColumn;
+    private Boolean booleanColumn;
     private Instant timeStampColumn;
 
 
