@@ -1,5 +1,7 @@
 package org.hrorm.database;
 
+import org.hrorm.Transactor;
+
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -32,6 +34,8 @@ public abstract class AbstractHelper implements Helper {
     protected AbstractHelper(String schemaName){
         this.schemaName = schemaName;
     }
+
+    private final Transactor transactor = new Transactor(this::connect);
 
     @Override
     public String readSchema() {
@@ -131,53 +135,10 @@ public abstract class AbstractHelper implements Helper {
     }
 
     public void useConnection(Consumer<Connection> consumer){
-        Connection connection = null;
-        try {
-            connection = connect();
-            consumer.accept(connection);
-        } finally {
-            try {
-                if ( connection != null ) {
-                    connection.close();
-                }
-            } catch (SQLException ex){
-                throw new RuntimeException(ex);
-            }
-        }
+        transactor.runAndCommit(consumer);
     }
 
     public <T> T useConnection(Function<Connection, T> function){
-        Connection connection = null;
-        try {
-            connection = connect();
-            return function.apply(connection);
-        } finally {
-            try {
-                if ( connection != null ) {
-                    connection.close();
-                }
-            } catch (SQLException ex){
-                throw new RuntimeException(ex);
-            }
-        }
+        return transactor.runAndCommit(function);
     }
-
-    public <T> T useAndCommitConnection(Function<Connection, T> function) {
-        try {
-            Connection connection = null;
-            try {
-                connection = connect();
-                T value = function.apply(connection);
-                connection.commit();
-                return value;
-            } finally {
-                if (connection != null) {
-                    connection.close();
-                }
-            }
-        } catch (SQLException ex) {
-            throw new RuntimeException(ex);
-        }
-    }
-
 }

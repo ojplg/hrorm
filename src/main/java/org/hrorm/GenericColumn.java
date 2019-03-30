@@ -39,13 +39,10 @@ public class GenericColumn<TYPE> {
      *
      * @param preparedStatementSetter The method used to set the type onto a prepared statement.
      * @param resultReader The method used to read the value out of a result set.
-     * @param sqlType The value of this column type, as defined in <code>java.sql.Types</code>
+     * @param sqlType The kind of this column type, as defined in <code>java.sql.Types</code>
      */
     public GenericColumn(PreparedStatementSetter<TYPE> preparedStatementSetter, ResultSetReader<TYPE> resultReader, int sqlType){
-        this.sqlType = sqlType;
-        this.sqlTypeName = "";
-        this.preparedStatementSetter = preparedStatementSetter;
-        this.resultReader = resultReader;
+        this(preparedStatementSetter, resultReader, sqlType, null);
     }
 
     /**
@@ -53,9 +50,9 @@ public class GenericColumn<TYPE> {
      *
      * @param preparedStatementSetter The method used to set the type onto a prepared statement.
      * @param resultReader The method used to read the value out of a result set.
-     * @param sqlType The value of this column type, as defined in <code>java.sql.Types</code>
+     * @param sqlType The kind of this column type, as defined in <code>java.sql.Types</code>
      * @param sqlTypeName The name of the type in the SQL schema. This optional value can be set
-     *                  if you wish to generate your schema using a {@link Schema} object.
+     *                    if you wish to generate your schema using a {@link Schema} object.
      */
     public GenericColumn(PreparedStatementSetter<TYPE> preparedStatementSetter, ResultSetReader<TYPE> resultReader, int sqlType, String sqlTypeName){
         this.sqlType = sqlType;

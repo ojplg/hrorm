@@ -67,7 +67,7 @@ public class GenericColumnTest {
 
     @Test
     public void insertAndSelectItem() {
-        Long id = helper.useAndCommitConnection( connection -> {
+        Long id = helper.useConnection( connection -> {
 
             Dao<Foo> dao = daoBuilder().buildDao(connection);
 
