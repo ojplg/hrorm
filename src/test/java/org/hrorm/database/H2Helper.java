@@ -6,7 +6,6 @@ import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.Statement;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
@@ -68,6 +67,7 @@ public class H2Helper extends AbstractHelper {
             // H2 does not support uniqueness constraints
             if( ! unqiueConstraintMatcher.matcher(line).matches() ) {
                 buf.append(line);
+                buf.append("\n");
             }
         }
         return buf.toString();

@@ -3,8 +3,8 @@ package org.hrorm.database;
 public class HelperFactory {
 
     public static Helper forSchema(String schemaName){
-//        return h2Helper(schemaName);
-        return postgresHelper(schemaName);
+        return h2Helper(schemaName);
+//        return postgresHelper(schemaName);
     }
 
     public static Helper h2Helper(String schemaName){
