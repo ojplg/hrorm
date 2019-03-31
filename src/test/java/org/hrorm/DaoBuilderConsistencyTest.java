@@ -1,6 +1,6 @@
 package org.hrorm;
 
-import org.hrorm.util.HrormMethod;
+import org.hrorm.util.MethodWrapper;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -35,20 +35,20 @@ public class DaoBuilderConsistencyTest {
     }
 
     public void testEquivalencyOfNonFluentMethods(Class classA, Class classB, List<String> skippableMethods) {
-        List<HrormMethod> classAMethods = findNonFluentMethods(classA);
-        List<HrormMethod> classBMethods = findNonFluentMethods(classB);
+        List<MethodWrapper> classAMethods = findNonFluentMethods(classA);
+        List<MethodWrapper> classBMethods = findNonFluentMethods(classB);
         testMethodEquivalency(classAMethods, classBMethods, skippableMethods);
     }
 
     public void testEquivalencyOfFluentMethods(Class classA, Class classB, List<String> skippableMethods) {
-        List<HrormMethod> classAMethods = findFluentMethods(classA);
-        List<HrormMethod> classBMethods = findFluentMethods(classB);
+        List<MethodWrapper> classAMethods = findFluentMethods(classA);
+        List<MethodWrapper> classBMethods = findFluentMethods(classB);
         testMethodEquivalency(classAMethods, classBMethods, skippableMethods);
     }
 
-    public void testMethodEquivalency(List<HrormMethod> expected, List<HrormMethod> subject, List<String> skippableMethods){
+    public void testMethodEquivalency(List<MethodWrapper> expected, List<MethodWrapper> subject, List<String> skippableMethods){
         int cnt = 0;
-        for(HrormMethod fm : expected){
+        for(MethodWrapper fm : expected){
             if( ! skippableMethods.contains(fm.methodName()) ) {
                 boolean equivalentExists = subject.stream().anyMatch(f -> f.equivalent(fm));
                 Assert.assertTrue("No match for " + fm, equivalentExists);
@@ -60,13 +60,13 @@ public class DaoBuilderConsistencyTest {
 
     }
 
-    public List<HrormMethod> findFluentMethods(Class klass) {
-        List<HrormMethod> methods = HrormMethod.fromClass(klass);
-        return methods.stream().filter(HrormMethod::isFluent).collect(Collectors.toList());
+    public List<MethodWrapper> findFluentMethods(Class klass) {
+        List<MethodWrapper> methods = MethodWrapper.fromClass(klass);
+        return methods.stream().filter(MethodWrapper::isFluent).collect(Collectors.toList());
     }
 
-    public List<HrormMethod> findNonFluentMethods(Class klass){
-        List<HrormMethod> methods = HrormMethod.fromClass(klass);
+    public List<MethodWrapper> findNonFluentMethods(Class klass){
+        List<MethodWrapper> methods = MethodWrapper.fromClass(klass);
         return methods.stream().filter(hm -> ! hm.isFluent()).collect(Collectors.toList());
     }
 }

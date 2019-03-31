@@ -5,12 +5,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class HrormMethod {
+public class MethodWrapper {
 
-    public static List<HrormMethod> fromClass(Class klass){
-        List<HrormMethod> methods = new ArrayList<>();
+    public static List<MethodWrapper> fromClass(Class klass){
+        List<MethodWrapper> methods = new ArrayList<>();
         for(Method method : klass.getMethods()){
-            methods.add(new HrormMethod(klass, method));
+            methods.add(new MethodWrapper(klass, method));
         }
         return methods;
     }
@@ -18,12 +18,12 @@ public class HrormMethod {
     private final Class klass;
     private final Method method;
 
-    public HrormMethod(Class klass, Method method){
+    public MethodWrapper(Class klass, Method method){
         this.method = method;
         this.klass = klass;
     }
 
-    public boolean equivalent(HrormMethod that){
+    public boolean equivalent(MethodWrapper that){
         if ( this.isFluent() && that.isFluent()) {
             return this.method.getName().equals(that.method.getName())
                     && Arrays.equals(this.method.getParameterTypes(), that.method.getParameterTypes());
@@ -34,7 +34,7 @@ public class HrormMethod {
     }
 
     public String toString(){
-        return "HrormMethod " + method.getName() + " with args " + Arrays.asList(method.getParameterTypes());
+        return "MethodWrapper " + method.getName() + " with args " + Arrays.asList(method.getParameterTypes());
     }
 
     public String methodName(){
