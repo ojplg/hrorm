@@ -34,7 +34,7 @@ public class HrormMethod {
     }
 
     public String toString(){
-        return "HrormMethod " + method.getName() + " with args " + method.getParameterTypes();
+        return "HrormMethod " + method.getName() + " with args " + Arrays.asList(method.getParameterTypes());
     }
 
     public String methodName(){

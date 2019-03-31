@@ -4,6 +4,7 @@ import org.hrorm.util.HrormMethod;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -20,21 +21,43 @@ public class DaoBuilderConsistencyTest {
         testEquivalencyOfFluentMethods(indirectDaoBuilderClass, keylessDaoBuilderClass, Collections.singletonList("withPrimaryKey"));
     }
 
-    public void testEquivalencyOfFluentMethods(Class classA, Class classB, List<String> skippableMethods) {
+    @Test
+    public void testEquivalencyOfNonFluentMethods() throws Exception {
+        Class indirectDaoBuilderClass = Class.forName("org.hrorm.IndirectDaoBuilder");
+        Class daoBuilderClass = Class.forName("org.hrorm.DaoBuilder");
+        Class keylessDaoBuilderClass = Class.forName("org.hrorm.IndirectKeylessDaoBuilder");
 
+        // FIXME: This method needs to be moved to the KeylessDaoBuilder ... Ugh
+        testEquivalencyOfNonFluentMethods(indirectDaoBuilderClass, daoBuilderClass, Arrays.asList("buildKeylessDao"));
+        // FIXME: See above. Then extra method in KeylessDaoBuilder can be moved
+//        testEquivalencyOfNonFluentMethods(indirectDaoBuilderClass, keylessDaoBuilderClass,
+//                Arrays.asList("buildKeylessDao", "buildQueries", "primaryKey", "buildDao"));
+    }
+
+    public void testEquivalencyOfNonFluentMethods(Class classA, Class classB, List<String> skippableMethods) {
+        List<HrormMethod> classAMethods = findNonFluentMethods(classA);
+        List<HrormMethod> classBMethods = findNonFluentMethods(classB);
+        testMethodEquivalency(classAMethods, classBMethods, skippableMethods);
+    }
+
+    public void testEquivalencyOfFluentMethods(Class classA, Class classB, List<String> skippableMethods) {
         List<HrormMethod> classAMethods = findFluentMethods(classA);
         List<HrormMethod> classBMethods = findFluentMethods(classB);
+        testMethodEquivalency(classAMethods, classBMethods, skippableMethods);
+    }
 
+    public void testMethodEquivalency(List<HrormMethod> expected, List<HrormMethod> subject, List<String> skippableMethods){
         int cnt = 0;
-        for(HrormMethod fm : classAMethods){
+        for(HrormMethod fm : expected){
             if( ! skippableMethods.contains(fm.methodName()) ) {
-                boolean equivalentExists = classBMethods.stream().anyMatch(f -> f.equivalent(fm));
+                boolean equivalentExists = subject.stream().anyMatch(f -> f.equivalent(fm));
                 Assert.assertTrue("No match for " + fm, equivalentExists);
                 cnt++;
             }
         }
         Assert.assertTrue(cnt > 10);
-        Assert.assertEquals(classAMethods.size() - skippableMethods.size(), classBMethods.size());
+        Assert.assertEquals(expected.size() - skippableMethods.size(), subject.size());
+
     }
 
     public List<HrormMethod> findFluentMethods(Class klass) {
