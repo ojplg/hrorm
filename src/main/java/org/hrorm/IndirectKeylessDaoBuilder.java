@@ -290,4 +290,23 @@ public class IndirectKeylessDaoBuilder<ENTITY, BUILDER> implements KeylessDaoDes
         return this;
     }
 
+
+    public <T> IndirectKeylessDaoBuilder<ENTITY, BUILDER> withGenericColumn(String columnName,
+                                                                     Function<ENTITY, T> getter,
+                                                                     BiConsumer<BUILDER, T> setter,
+                                                                     GenericColumn<T> genericColumn){
+        internalDaoBuilder.withGenericColumn(columnName, getter, setter, genericColumn);
+        return this;
+    }
+
+
+    public <T,U> IndirectKeylessDaoBuilder<ENTITY, BUILDER> withConvertedGenericColumn(String columnName,
+                                                                                Function<ENTITY, U> getter,
+                                                                                BiConsumer<BUILDER, U> setter,
+                                                                                GenericColumn<T> genericColumn,
+                                                                                Converter<U,T> converter){
+        internalDaoBuilder.withConvertedGenericColumn(columnName, getter, setter, genericColumn, converter);
+        return this;
+    }
+
 }

@@ -325,4 +325,23 @@ public class DaoBuilder<ENTITY> implements DaoDescriptor<ENTITY, ENTITY> {
         return this;
     }
 
+
+    public <T> DaoBuilder<ENTITY> withGenericColumn(String columnName,
+                                                                            Function<ENTITY, T> getter,
+                                                                            BiConsumer<ENTITY, T> setter,
+                                                                            GenericColumn<T> genericColumn){
+        internalDaoBuilder.withGenericColumn(columnName, getter, setter, genericColumn);
+        return this;
+    }
+
+
+    public <T,U> DaoBuilder<ENTITY> withConvertedGenericColumn(String columnName,
+                                                                                       Function<ENTITY, U> getter,
+                                                                                       BiConsumer<ENTITY, U> setter,
+                                                                                       GenericColumn<T> genericColumn,
+                                                                                       Converter<U,T> converter){
+        internalDaoBuilder.withConvertedGenericColumn(columnName, getter, setter, genericColumn, converter);
+        return this;
+    }
+
 }
