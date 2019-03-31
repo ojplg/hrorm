@@ -37,7 +37,7 @@ public class KeylessDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> implements K
     protected final Function<BUILDER, ENTITY> buildFunction;
 
     public KeylessDaoImpl(Connection connection,
-                          DaoDescriptor<ENTITY, BUILDER> daoDescriptor){
+                          KeylessDaoDescriptor<ENTITY, BUILDER> daoDescriptor){
         this.connection = connection;
         this.tableName = daoDescriptor.tableName();
         this.dataColumns = Collections.unmodifiableList(new ArrayList<>(daoDescriptor.dataColumns()));

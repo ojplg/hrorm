@@ -21,7 +21,7 @@ public class KeylessSqlBuilder<ENTITY> {
     private final List<? extends Column<ENTITY,?>> dataColumns;
     private final List<? extends JoinColumn<ENTITY, ?, ?, ?>> joinColumns;
 
-    public KeylessSqlBuilder(DaoDescriptor<ENTITY,?> daoDescriptor){
+    public KeylessSqlBuilder(KeylessDaoDescriptor<ENTITY,?> daoDescriptor){
         this.table = daoDescriptor.tableName();
         this.dataColumns = daoDescriptor.dataColumnsWithParent();
         this.joinColumns = daoDescriptor.joinColumns();

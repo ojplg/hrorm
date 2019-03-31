@@ -24,6 +24,7 @@ public class DaoBuilder<ENTITY> implements DaoDescriptor<ENTITY, ENTITY> {
     private final IndirectDaoBuilder<ENTITY, ENTITY> internalDaoBuilder;
 
     private final Consumer<PrimaryKey<ENTITY,ENTITY>> primaryKeyConsumer;
+    // FIXME: Should be no need for this
     private final String myPrefix;
 
     /**
@@ -60,6 +61,10 @@ public class DaoBuilder<ENTITY> implements DaoDescriptor<ENTITY, ENTITY> {
         return internalDaoBuilder.primaryKey();
     }
 
+    public String getPrefix(){
+        return myPrefix;
+    }
+
     @Override
     public List<ChildrenDescriptor<ENTITY, ?, ENTITY, ?>> childrenDescriptors() {
         return internalDaoBuilder.childrenDescriptors();
@@ -71,6 +76,8 @@ public class DaoBuilder<ENTITY> implements DaoDescriptor<ENTITY, ENTITY> {
     }
 
     public List<JoinColumn<ENTITY, ?, ENTITY, ?>> joinColumns() { return internalDaoBuilder.joinColumns(); }
+
+
 
     @Override
     public Function<ENTITY, ENTITY> buildFunction() {

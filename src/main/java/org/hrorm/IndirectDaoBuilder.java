@@ -26,21 +26,11 @@ import java.util.function.Supplier;
  */
 public class IndirectDaoBuilder<ENTITY, BUILDER>  implements DaoDescriptor<ENTITY, BUILDER> {
 
-    private final String tableName;
-    private final String myPrefix;
-    private final Function<BUILDER, ENTITY> buildFunction;
-    private final Supplier<BUILDER> supplier;
+    private final IndirectKeylessDaoBuilder<ENTITY, BUILDER> keylessDaoBuilder;
 
-    private final Prefixer prefixer;
-
-    private final List<Column<ENTITY, BUILDER>> columns = new ArrayList<>();
-    private final List<JoinColumn<ENTITY,?, BUILDER,?>> joinColumns = new ArrayList<>();
     private final List<ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors = new ArrayList<>();
 
     private PrimaryKey<ENTITY, BUILDER> primaryKey;
-    private ParentColumn<ENTITY,?, BUILDER,?> parentColumn;
-
-    private Column<ENTITY, BUILDER> lastColumnAdded;
 
     static class BuilderHolder<T,TB> {
         IndirectDaoBuilder<T,TB> daoBuilder;
@@ -53,7 +43,7 @@ public class IndirectDaoBuilder<ENTITY, BUILDER>  implements DaoDescriptor<ENTIT
         BuilderHolder<T,T> holder = new BuilderHolder<>();
         holder.daoBuilder = daoBuilder;
         holder.primaryKeyConsumer = daoBuilder::acceptPrimaryKey;
-        holder.myPrefix = daoBuilder.myPrefix;
+        holder.myPrefix = daoBuilder.getPrefix();
         return holder;
     }
 
@@ -62,7 +52,6 @@ public class IndirectDaoBuilder<ENTITY, BUILDER>  implements DaoDescriptor<ENTIT
             throw new HrormException("Attempt to set a second primary key");
         }
         this.primaryKey = primaryKey;
-        columns.add(primaryKey);
     }
 
     /**
@@ -73,25 +62,24 @@ public class IndirectDaoBuilder<ENTITY, BUILDER>  implements DaoDescriptor<ENTIT
      * @param buildFunction How to create an instance of the entity class from its builder.
      */
     public IndirectDaoBuilder(String tableName, Supplier<BUILDER> supplier, Function<BUILDER, ENTITY> buildFunction){
-        this.tableName = tableName;
-        this.supplier = supplier;
-        this.prefixer = new Prefixer();
-        this.myPrefix = this.prefixer.nextPrefix();
-        this.buildFunction = buildFunction;
+        this.keylessDaoBuilder = new IndirectKeylessDaoBuilder<>(tableName, supplier, buildFunction);
     }
 
     @Override
     public String tableName() {
-        return tableName;
+        return keylessDaoBuilder.tableName();
     }
 
     @Override
     public Supplier<BUILDER> supplier() {
-        return supplier;
+        return keylessDaoBuilder.supplier();
     }
 
     @Override
     public List<Column<ENTITY, BUILDER>> dataColumns() {
+        ArrayList<Column<ENTITY, BUILDER>> columns = new ArrayList<>();
+        columns.add(primaryKey);
+        columns.addAll(keylessDaoBuilder.dataColumns());
         return columns;
     }
 
@@ -107,14 +95,20 @@ public class IndirectDaoBuilder<ENTITY, BUILDER>  implements DaoDescriptor<ENTIT
 
     @Override
     public ParentColumn<ENTITY, ?, BUILDER, ?> parentColumn() {
-        return parentColumn;
+        return keylessDaoBuilder.parentColumn();
     }
 
-    public List<JoinColumn<ENTITY, ?, BUILDER, ?>> joinColumns() { return joinColumns; }
+    public List<JoinColumn<ENTITY, ?, BUILDER, ?>> joinColumns() {
+        return keylessDaoBuilder.joinColumns();
+    }
+
+    public String getPrefix() {
+        return keylessDaoBuilder.getPrefix();
+    }
 
     @Override
     public Function<BUILDER, ENTITY> buildFunction() {
-        return buildFunction;
+        return keylessDaoBuilder.buildFunction();
     }
 
     /**
@@ -129,20 +123,6 @@ public class IndirectDaoBuilder<ENTITY, BUILDER>  implements DaoDescriptor<ENTIT
             throw new HrormException("Cannot create a Dao without a primary key.");
         }
         return new DaoImpl<>(connection, this);
-    }
-
-    /**
-     * Creates a {@link Dao} for performing CRUD operations of type <code>ENTITY</code>.
-     *
-     * @param connection The SQL connection this <code>Dao</code> will use
-     *                   for its operations.
-     * @return The newly created <code>Dao</code>.
-     */
-    public KeylessDao<ENTITY> buildKeylessDao(Connection connection){
-        if( primaryKey == null){
-            return new KeylessDaoImpl<>(connection, this);
-        }
-        return buildDao(connection);
     }
 
     /**
@@ -163,9 +143,7 @@ public class IndirectDaoBuilder<ENTITY, BUILDER>  implements DaoDescriptor<ENTIT
      * @return This instance.
      */
     public IndirectDaoBuilder<ENTITY, BUILDER> withStringColumn(String columnName, Function<ENTITY, String> getter, BiConsumer<BUILDER, String> setter){
-        Column<ENTITY, BUILDER> column = DataColumnFactory.stringColumn(columnName, myPrefix, getter, setter, true);
-        columns.add(column);
-        lastColumnAdded = column;
+        keylessDaoBuilder.withStringColumn(columnName, getter, setter);
         return this;
     }
 
@@ -178,9 +156,7 @@ public class IndirectDaoBuilder<ENTITY, BUILDER>  implements DaoDescriptor<ENTIT
      * @return This instance.
      */
     public IndirectDaoBuilder<ENTITY, BUILDER> withIntegerColumn(String columnName, Function<ENTITY, Long> getter, BiConsumer<BUILDER, Long> setter){
-        Column<ENTITY, BUILDER> column = DataColumnFactory.longColumn(columnName, myPrefix, getter, setter, true);
-        columns.add(column);
-        lastColumnAdded = column;
+        keylessDaoBuilder.withIntegerColumn(columnName, getter, setter);
         return this;
     }
 
@@ -193,9 +169,7 @@ public class IndirectDaoBuilder<ENTITY, BUILDER>  implements DaoDescriptor<ENTIT
      * @return This instance.
      */
     public IndirectDaoBuilder<ENTITY, BUILDER> withBigDecimalColumn(String columnName, Function<ENTITY, BigDecimal> getter, BiConsumer<BUILDER, BigDecimal> setter){
-        Column<ENTITY, BUILDER> column = DataColumnFactory.bigDecimalColumn(columnName, myPrefix, getter, setter, true);
-        columns.add(column);
-        lastColumnAdded = column;
+        keylessDaoBuilder.withBigDecimalColumn(columnName, getter, setter);
         return this;
     }
 
@@ -212,9 +186,7 @@ public class IndirectDaoBuilder<ENTITY, BUILDER>  implements DaoDescriptor<ENTIT
      * @return This instance.
      */
     public <E> IndirectDaoBuilder<ENTITY, BUILDER> withConvertingStringColumn(String columnName, Function<ENTITY, E> getter, BiConsumer<BUILDER, E> setter, Converter<E, String> converter){
-        Column<ENTITY, BUILDER> column = DataColumnFactory.stringConverterColumn(columnName, myPrefix, getter, setter, converter, true);
-        columns.add(column);
-        lastColumnAdded = column;
+        keylessDaoBuilder.withConvertingStringColumn(columnName, getter, setter, converter);
         return this;
     }
 
@@ -227,9 +199,7 @@ public class IndirectDaoBuilder<ENTITY, BUILDER>  implements DaoDescriptor<ENTIT
      * @return This instance.
      */
     public IndirectDaoBuilder<ENTITY, BUILDER> withInstantColumn(String columnName, Function<ENTITY, Instant> getter, BiConsumer<BUILDER, Instant> setter){
-        Column<ENTITY, BUILDER> column = DataColumnFactory.instantColumn(columnName, myPrefix, getter, setter, true);
-        columns.add(column);
-        lastColumnAdded = column;
+        keylessDaoBuilder.withInstantColumn(columnName, getter, setter);
         return this;
     }
 
@@ -243,9 +213,7 @@ public class IndirectDaoBuilder<ENTITY, BUILDER>  implements DaoDescriptor<ENTIT
      * @return This instance.
      */
     public IndirectDaoBuilder<ENTITY, BUILDER> withBooleanColumn(String columnName, Function<ENTITY, Boolean> getter, BiConsumer<BUILDER, Boolean> setter){
-        Column<ENTITY, BUILDER> column = DataColumnFactory.booleanColumn(columnName, myPrefix, getter, setter, true);
-        columns.add(column);
-        lastColumnAdded = column;
+        keylessDaoBuilder.withBooleanColumn(columnName, getter, setter);
         return this;
     }
 
@@ -261,9 +229,7 @@ public class IndirectDaoBuilder<ENTITY, BUILDER>  implements DaoDescriptor<ENTIT
      * @return This instance.
      */
     public IndirectDaoBuilder<ENTITY, BUILDER> withStringBooleanColumn(String columnName, Function<ENTITY, Boolean> getter, BiConsumer<BUILDER, Boolean> setter){
-        Column<ENTITY, BUILDER> column = DataColumnFactory.textBackedBooleanColumn(columnName, myPrefix, getter, setter, true);
-        columns.add(column);
-        lastColumnAdded = column;
+        keylessDaoBuilder.withStringBooleanColumn(columnName, getter, setter);
         return this;
     }
 
@@ -278,9 +244,7 @@ public class IndirectDaoBuilder<ENTITY, BUILDER>  implements DaoDescriptor<ENTIT
      * @return This instance.
      */
     public IndirectDaoBuilder<ENTITY, BUILDER> withIntegerBooleanColumn(String columnName, Function<ENTITY, Boolean> getter, BiConsumer<BUILDER, Boolean> setter){
-        Column<ENTITY, BUILDER> column = DataColumnFactory.integerConverterColumn(columnName, myPrefix, getter, setter, BooleanLongConverter.INSTANCE, true);
-        columns.add(column);
-        lastColumnAdded = column;
+        keylessDaoBuilder.withIntegerBooleanColumn(columnName, getter, setter);
         return this;
     }
 
@@ -308,9 +272,7 @@ public class IndirectDaoBuilder<ENTITY, BUILDER>  implements DaoDescriptor<ENTIT
      * @return This instance.
      */
     public <U> IndirectDaoBuilder<ENTITY, BUILDER> withJoinColumn(String columnName, Function<ENTITY, U> getter, BiConsumer<BUILDER,U> setter, DaoDescriptor<U,?> daoDescriptor){
-        JoinColumn<ENTITY,U, BUILDER,?> joinColumn = new JoinColumn<>(columnName, myPrefix, prefixer, getter, setter, daoDescriptor, true);
-        joinColumns.add(joinColumn);
-        lastColumnAdded = joinColumn;
+        keylessDaoBuilder.withJoinColumn(columnName, getter, setter, daoDescriptor);
         return this;
     }
 
@@ -348,7 +310,7 @@ public class IndirectDaoBuilder<ENTITY, BUILDER>  implements DaoDescriptor<ENTIT
         }
 
         ChildrenDescriptor<ENTITY, CHILD, BUILDER, CHILDBUILDER> childrenDescriptor
-                = new ChildrenDescriptor<>(getter, setter, childDaoDescriptor, primaryKey, buildFunction);
+                = new ChildrenDescriptor<>(getter, setter, childDaoDescriptor, primaryKey, keylessDaoBuilder.buildFunction());
 
         childrenDescriptors.add(childrenDescriptor);
         return this;
@@ -366,7 +328,7 @@ public class IndirectDaoBuilder<ENTITY, BUILDER>  implements DaoDescriptor<ENTIT
      * @return This instance.
      */
     public IndirectDaoBuilder<ENTITY, BUILDER> withPrimaryKey(String columnName, String sequenceName, Function<ENTITY, Long> getter, BiConsumer<BUILDER, Long> setter){
-        PrimaryKey<ENTITY, BUILDER> key = new IndirectPrimaryKey<>(myPrefix, columnName, sequenceName, getter, setter);
+        PrimaryKey<ENTITY, BUILDER> key = new IndirectPrimaryKey<>(keylessDaoBuilder.getPrefix(), columnName, sequenceName, getter, setter);
         acceptPrimaryKey(key);
         return this;
     }
@@ -381,12 +343,7 @@ public class IndirectDaoBuilder<ENTITY, BUILDER>  implements DaoDescriptor<ENTIT
      * @return This instance.
      */
     public <P> IndirectDaoBuilder<ENTITY, BUILDER> withParentColumn(String columnName, Function<ENTITY,P> getter, BiConsumer<BUILDER,P> setter){
-        if ( parentColumn != null ){
-            throw new HrormException("Attempt to set a second parent");
-        }
-        ParentColumnImpl<ENTITY,P, BUILDER,?> column = new ParentColumnImpl<>(columnName, myPrefix, getter, setter);
-        lastColumnAdded = column;
-        parentColumn = column;
+        keylessDaoBuilder.withParentColumn(columnName, getter, setter);
         return this;
     }
 
@@ -398,12 +355,7 @@ public class IndirectDaoBuilder<ENTITY, BUILDER>  implements DaoDescriptor<ENTIT
      * @return This instance.
      */
     public <P> IndirectDaoBuilder<ENTITY, BUILDER> withParentColumn(String columnName){
-        if ( parentColumn != null ){
-            throw new HrormException("Attempt to set a second parent");
-        }
-        NoBackReferenceParentColumn<ENTITY,P, BUILDER,?> column = new NoBackReferenceParentColumn<>(columnName, myPrefix);
-        lastColumnAdded = column;
-        parentColumn = column;
+        keylessDaoBuilder.withParentColumn(columnName);
         return this;
     }
 
@@ -414,10 +366,7 @@ public class IndirectDaoBuilder<ENTITY, BUILDER>  implements DaoDescriptor<ENTIT
      * @return This instance.
      */
     public IndirectDaoBuilder<ENTITY, BUILDER> notNull(){
-        if ( lastColumnAdded == null ){
-            throw new HrormException("No column to set as not null has been added.");
-        }
-        lastColumnAdded.notNull();
+        keylessDaoBuilder.notNull();
         return this;
     }
 
@@ -441,9 +390,7 @@ public class IndirectDaoBuilder<ENTITY, BUILDER>  implements DaoDescriptor<ENTIT
                                                                      Function<ENTITY, T> getter,
                                                                      BiConsumer<BUILDER, T> setter,
                                                                      GenericColumn<T> genericColumn){
-        Column<ENTITY, BUILDER> column = DataColumnFactory.genericColumn(columnName, myPrefix, getter, setter, genericColumn, true);
-        columns.add(column);
-        lastColumnAdded = column;
+        keylessDaoBuilder.withGenericColumn(columnName, getter, setter, genericColumn);
         return this;
     }
 
@@ -470,9 +417,7 @@ public class IndirectDaoBuilder<ENTITY, BUILDER>  implements DaoDescriptor<ENTIT
                                                                                 BiConsumer<BUILDER, U> setter,
                                                                                 GenericColumn<T> genericColumn,
                                                                                 Converter<U,T> converter){
-        Column<ENTITY, BUILDER> column = DataColumnFactory.convertedGenericColumn(columnName, myPrefix, getter, setter, genericColumn, converter, true);
-        columns.add(column);
-        lastColumnAdded = column;
+        keylessDaoBuilder.withConvertedGenericColumn(columnName, getter, setter, genericColumn, converter);
         return this;
     }
 

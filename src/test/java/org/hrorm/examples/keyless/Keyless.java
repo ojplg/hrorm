@@ -1,4 +1,4 @@
-package org.hrorm.examples;
+package org.hrorm.examples.keyless;
 
 import lombok.Data;
 import org.hrorm.IndirectKeylessDaoBuilder;

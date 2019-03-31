@@ -18,7 +18,7 @@ public class DaoBuilderConsistencyTest {
         Class keylessDaoBuilderClass = Class.forName("org.hrorm.IndirectKeylessDaoBuilder");
 
         testEquivalencyOfFluentMethods(indirectDaoBuilderClass, daoBuilderClass, Collections.emptyList());
-        testEquivalencyOfFluentMethods(indirectDaoBuilderClass, keylessDaoBuilderClass, Collections.singletonList("withPrimaryKey"));
+        testEquivalencyOfFluentMethods(indirectDaoBuilderClass, keylessDaoBuilderClass, Arrays.asList("withPrimaryKey", "withChildren"));
     }
 
     @Test
@@ -27,11 +27,10 @@ public class DaoBuilderConsistencyTest {
         Class daoBuilderClass = Class.forName("org.hrorm.DaoBuilder");
         Class keylessDaoBuilderClass = Class.forName("org.hrorm.IndirectKeylessDaoBuilder");
 
-        // FIXME: This method needs to be moved to the KeylessDaoBuilder ... Ugh
-        testEquivalencyOfNonFluentMethods(indirectDaoBuilderClass, daoBuilderClass, Arrays.asList("buildKeylessDao"));
+        testEquivalencyOfNonFluentMethods(indirectDaoBuilderClass, daoBuilderClass, Collections.emptyList());
         // FIXME: See above. Then extra method in KeylessDaoBuilder can be moved
-//        testEquivalencyOfNonFluentMethods(indirectDaoBuilderClass, keylessDaoBuilderClass,
-//                Arrays.asList("buildKeylessDao", "buildQueries", "primaryKey", "buildDao"));
+        testEquivalencyOfNonFluentMethods(indirectDaoBuilderClass, keylessDaoBuilderClass,
+                Arrays.asList( "buildQueries", "primaryKey", "buildDao"));
     }
 
     public void testEquivalencyOfNonFluentMethods(Class classA, Class classB, List<String> skippableMethods) {
@@ -56,7 +55,12 @@ public class DaoBuilderConsistencyTest {
             }
         }
         Assert.assertTrue(cnt > 10);
-        Assert.assertEquals(expected.size() - skippableMethods.size(), subject.size());
+
+        List<MethodWrapper> expectedWithoutSkipped = expected.stream().filter(mw -> ! skippableMethods.contains(mw.methodName())).collect(Collectors.toList());
+        List<MethodWrapper> subjectWithoutSkipped = subject.stream().filter(mw -> ! skippableMethods.contains(mw.methodName())).collect(Collectors.toList());
+
+
+        Assert.assertEquals(expectedWithoutSkipped.size(), subjectWithoutSkipped.size());
 
     }
 

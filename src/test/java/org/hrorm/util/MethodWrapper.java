@@ -3,15 +3,17 @@ package org.hrorm.util;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
-public class MethodWrapper {
+public class MethodWrapper implements Comparable<MethodWrapper> {
 
     public static List<MethodWrapper> fromClass(Class klass){
         List<MethodWrapper> methods = new ArrayList<>();
         for(Method method : klass.getMethods()){
             methods.add(new MethodWrapper(klass, method));
         }
+        Collections.sort(methods);
         return methods;
     }
 
@@ -43,5 +45,10 @@ public class MethodWrapper {
 
     public boolean isFluent(){
         return method.getReturnType().equals(klass);
+    }
+
+    @Override
+    public int compareTo(MethodWrapper o) {
+        return this.methodName().compareTo(o.methodName());
     }
 }
