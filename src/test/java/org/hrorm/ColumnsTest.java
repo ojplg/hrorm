@@ -88,6 +88,8 @@ public class ColumnsTest {
             Assert.assertNull(columns.getColorThing());
             Assert.assertNull(columns.getStringThing());
             Assert.assertNull(columns.getDecimalThing());
+
+            connection.close();
         }
     }
 
