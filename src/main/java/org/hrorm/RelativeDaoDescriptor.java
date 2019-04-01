@@ -102,9 +102,6 @@ public class RelativeDaoDescriptor<ENTITY, PARENT, ENTITYBUILDER> implements Dao
 
     @Override
     public List<Column<ENTITY, ENTITYBUILDER>> nonJoinColumns() {
-        System.out.println("Getting relative columns for " + tableName);
-        System.out.println("   primary key " + primaryKey);
-        System.out.println("   data columns " + dataColumns);
         return ColumnCollection.nonJoinColumns(primaryKey, parentColumn, dataColumns);
     }
 }

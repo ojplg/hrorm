@@ -74,9 +74,7 @@ public class JoinColumn<ENTITY, JOINED, ENTITYBUILDER, JOINEDBUILDER> implements
         JOINEDBUILDER joinedBuilder = daoDescriptor.supplier().get();
         for (Column<JOINED, JOINEDBUILDER> column: daoDescriptor.nonJoinColumns()) {
             PopulateResult result = column.populate(joinedBuilder, resultSet);
-            System.out.println("GOT RESULT FOR " + column.getPrefix() + "." + column.getName() + " -> " + result);
             if ( result == PopulateResult.NoPrimaryKey ){
-                System.out.println("TRYING TO IGNORE!");
                 return PopulateResult.Ignore;
             }
         }

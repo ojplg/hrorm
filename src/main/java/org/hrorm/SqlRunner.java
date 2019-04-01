@@ -44,8 +44,6 @@ public class SqlRunner<ENTITY, BUILDER> {
                                          ColumnSelection<ENTITY,BUILDER> columnSelection,
                                          List<? extends ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors,
                                          ENTITY item){
-        System.out.println("Working with " + childrenDescriptors);
-
         BiFunction<List<BUILDER>, BUILDER, List<BUILDER>> accumulator =
                 (list, b) -> { list.add(b); return list; };
         StatementPopulator populator = columnSelection.buildPopulator(item);
@@ -197,16 +195,12 @@ public class SqlRunner<ENTITY, BUILDER> {
 
             int idx = 1;
             for(Column<ENTITY, BUILDER> column : allColumns){
-                if( isUpdate ){
-                    System.out.println(idx + " : " + column);
-                }
                 if( column.isPrimaryKey() ) {
                     if ( ! isUpdate ) {
                         preparedStatement.setLong(idx, envelope.getId());
                         idx++;
                     }
                 } else if ( column.isParentColumn() ){
-                    System.out.println("TRYING TO SET PARENT " + column.getName() + " " + envelope.getParentId() + " on index " + idx);
                     preparedStatement.setLong(idx, envelope.getParentId());
                     idx++;
                 } else if ( ! column.isPrimaryKey()  ){
