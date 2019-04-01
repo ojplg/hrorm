@@ -46,7 +46,7 @@ public class Schema {
 
     private String renderColumn(Column<?,?> column){
         String extension = column.isNullable() ? "" : " not null";
-        return column.getName() + " " + column.getSqlType() + extension;
+        return column.getName() + " " + column.getSqlTypeName() + extension;
     }
 
     private Stream<String> joinConstraints(KeylessDaoDescriptor<?,?> descriptor){

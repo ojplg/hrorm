@@ -81,6 +81,13 @@ public class ColumnCollection<ENTITY,BUILDER> {
         lastColumnAdded.notNull();
     }
 
+    public void setLastColumnSqlTypeName(String sqlTypeName){
+        if (lastColumnAdded == null) {
+            throw new HrormException("No column to set SQL type name has been added.");
+        }
+        lastColumnAdded.setSqlTypeName(sqlTypeName);
+    }
+
     public List<Column<ENTITY, BUILDER>> nonJoinColumns() {
         return nonJoinColumns(primaryKey, parentColumn, dataColumns);
     }

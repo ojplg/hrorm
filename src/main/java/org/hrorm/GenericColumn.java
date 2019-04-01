@@ -42,7 +42,10 @@ public class GenericColumn<TYPE> {
      * @param sqlType The kind of this column type, as defined in <code>java.sql.Types</code>
      */
     public GenericColumn(PreparedStatementSetter<TYPE> preparedStatementSetter, ResultSetReader<TYPE> resultReader, int sqlType){
-        this(preparedStatementSetter, resultReader, sqlType, null);
+        this.sqlType = sqlType;
+        this.preparedStatementSetter = preparedStatementSetter;
+        this.resultReader = resultReader;
+        this.sqlTypeName = "UNSET";
     }
 
     /**

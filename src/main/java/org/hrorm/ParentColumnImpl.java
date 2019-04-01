@@ -27,6 +27,7 @@ public class ParentColumnImpl<CHILD, PARENT, CHILDBUILDER, PARENTBUILDER> implem
     private final Function<CHILD, PARENT> getter;
     private PrimaryKey<PARENT, PARENTBUILDER> parentPrimaryKey;
     private boolean nullable;
+    private String sqlTypeName;
 
     public ParentColumnImpl(String name, String prefix, Function<CHILD, PARENT> getter, BiConsumer<CHILDBUILDER, PARENT> setter) {
         this.name = name;
@@ -99,5 +100,8 @@ public class ParentColumnImpl<CHILD, PARENT, CHILDBUILDER, PARENTBUILDER> implem
     }
 
     @Override
-    public String getSqlType() { return "integer"; }
+    public String getSqlTypeName() { return sqlTypeName; }
+
+    @Override
+    public void setSqlTypeName(String sqlTypeName) { this.sqlTypeName = sqlTypeName; }
 }

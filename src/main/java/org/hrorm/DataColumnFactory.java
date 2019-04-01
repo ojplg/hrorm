@@ -23,7 +23,7 @@ public class DataColumnFactory {
 
     public static <ENTITY, BUILDER> AbstractColumn<BigDecimal, ENTITY, BUILDER> bigDecimalColumn(
             String name, String prefix, Function<ENTITY, BigDecimal> getter, BiConsumer<BUILDER, BigDecimal> setter, boolean nullable) {
-        return new AbstractColumn<BigDecimal, ENTITY, BUILDER>(name, prefix, getter, setter, nullable) {
+        return new AbstractColumn<BigDecimal, ENTITY, BUILDER>(name, prefix, getter, setter, nullable,"decimal") {
             @Override
             public BigDecimal fromResultSet(ResultSet resultSet, String columnName) throws SQLException {
                 return resultSet.getBigDecimal(columnName);
@@ -48,14 +48,12 @@ public class DataColumnFactory {
             public Set<Integer> supportedTypes() {
                 return ColumnTypes.DecimalTypes;
             }
-            @Override
-            public String getSqlType() { return "decimal"; }
         };
     }
 
     public static <ENTITY, BUILDER> AbstractColumn<Long, ENTITY, BUILDER> longColumn(
             String name, String prefix, Function<ENTITY, Long> getter, BiConsumer<BUILDER, Long> setter, boolean nullable) {
-        return new AbstractColumn<Long, ENTITY, BUILDER>(name, prefix, getter, setter, nullable) {
+        return new AbstractColumn<Long, ENTITY, BUILDER>(name, prefix, getter, setter, nullable, "integer") {
             @Override
             public Long fromResultSet(ResultSet resultSet, String columnName) throws SQLException {
                 Long result = resultSet.getLong(columnName);
@@ -84,15 +82,12 @@ public class DataColumnFactory {
             public Set<Integer> supportedTypes() {
                 return ColumnTypes.IntegerTypes;
             }
-
-            @Override
-            public String getSqlType() { return "integer"; }
         };
     }
 
     public static <ENTITY, BUILDER> AbstractColumn<Boolean, ENTITY, BUILDER> booleanColumn(
             String name, String prefix, Function<ENTITY, Boolean> getter, BiConsumer<BUILDER, Boolean> setter, boolean nullable) {
-        return new AbstractColumn<Boolean, ENTITY, BUILDER>(name, prefix, getter, setter, nullable) {
+        return new AbstractColumn<Boolean, ENTITY, BUILDER>(name, prefix, getter, setter, nullable, "boolean") {
             @Override
             public Boolean fromResultSet(ResultSet resultSet, String columnName) throws SQLException {
                 Boolean result = resultSet.getBoolean(columnName);
@@ -121,9 +116,6 @@ public class DataColumnFactory {
             public Set<Integer> supportedTypes() {
                 return ColumnTypes.BooleanTypes;
             }
-
-            @Override
-            public String getSqlType() { return "boolean"; }
         };
     }
 
@@ -135,7 +127,7 @@ public class DataColumnFactory {
 
     public static <ENTITY, BUILDER> AbstractColumn<String, ENTITY, BUILDER> stringColumn(
             String name, String prefix, Function<ENTITY, String> getter, BiConsumer<BUILDER, String> setter, boolean nullable) {
-        return new AbstractColumn<String, ENTITY, BUILDER>(name, prefix, getter, setter, nullable) {
+        return new AbstractColumn<String, ENTITY, BUILDER>(name, prefix, getter, setter, nullable, "text") {
             @Override
             public String fromResultSet(ResultSet resultSet, String columnName) throws SQLException {
                 return resultSet.getString(columnName);
@@ -160,15 +152,12 @@ public class DataColumnFactory {
             public Set<Integer> supportedTypes() {
                 return ColumnTypes.StringTypes;
             }
-
-            @Override
-            public String getSqlType() { return "text"; }
         };
     }
 
     public static <ENTITY, BUILDER> AbstractColumn<Instant, ENTITY, BUILDER> instantColumn(
             String name, String prefix, Function<ENTITY, Instant> getter, BiConsumer<BUILDER, Instant> setter, boolean nullable) {
-        return new AbstractColumn<Instant, ENTITY, BUILDER>(name, prefix, getter, setter, nullable) {
+        return new AbstractColumn<Instant, ENTITY, BUILDER>(name, prefix, getter, setter, nullable, "timestamp") {
             @Override
             public Instant fromResultSet(ResultSet resultSet, String columnName) throws SQLException {
                 Timestamp sqlTime = resultSet.getTimestamp(columnName);
@@ -199,9 +188,6 @@ public class DataColumnFactory {
             public Set<Integer> supportedTypes() {
                 return ColumnTypes.InstantTypes;
             }
-
-            @Override
-            public String getSqlType() { return "timestamp"; }
         };
     }
 
@@ -209,7 +195,7 @@ public class DataColumnFactory {
     public static <E, ENTITY, BUILDER> AbstractColumn<E, ENTITY, BUILDER> stringConverterColumn(
             String name, String prefix, Function<ENTITY, E> getter, BiConsumer<BUILDER, E> setter,
             Converter<E, String> converter, boolean nullable) {
-        return new AbstractColumn<E, ENTITY, BUILDER>(name, prefix, getter, setter, nullable) {
+        return new AbstractColumn<E, ENTITY, BUILDER>(name, prefix, getter, setter, nullable, "text") {
             @Override
             public E fromResultSet(ResultSet resultSet, String columnName) throws SQLException {
                 String code = resultSet.getString(columnName);
@@ -242,9 +228,6 @@ public class DataColumnFactory {
             public Set<Integer> supportedTypes() {
                 return ColumnTypes.StringTypes;
             }
-
-            @Override
-            public String getSqlType() { return "text"; }
         };
     }
 
@@ -252,7 +235,7 @@ public class DataColumnFactory {
     public static <E, ENTITY, BUILDER> AbstractColumn<E, ENTITY, BUILDER> integerConverterColumn(
             String name, String prefix, Function<ENTITY, E> getter, BiConsumer<BUILDER, E> setter,
             Converter<E, Long> converter, boolean nullable) {
-        return new AbstractColumn<E, ENTITY, BUILDER>(name, prefix, getter, setter, nullable) {
+        return new AbstractColumn<E, ENTITY, BUILDER>(name, prefix, getter, setter, nullable, "integer") {
             @Override
             public E fromResultSet(ResultSet resultSet, String columnName) throws SQLException {
                 Long code = resultSet.getLong(columnName);
@@ -285,9 +268,6 @@ public class DataColumnFactory {
             public Set<Integer> supportedTypes() {
                 return ColumnTypes.IntegerTypes;
             }
-
-            @Override
-            public String getSqlType() { return "integer"; }
         };
     }
 
@@ -295,7 +275,7 @@ public class DataColumnFactory {
             String name, String prefix, Function<ENTITY, E> getter, BiConsumer<BUILDER, E> setter,
             GenericColumn<E> genericColumn, boolean nullable) {
 
-        return new AbstractColumn<E, ENTITY, BUILDER>(name, prefix, getter, setter, nullable) {
+        return new AbstractColumn<E, ENTITY, BUILDER>(name, prefix, getter, setter, nullable, genericColumn.getSqlTypeName()) {
             @Override
             E fromResultSet(ResultSet resultSet, String columnName) throws SQLException {
                 return genericColumn.fromResultSet(resultSet, columnName);
@@ -321,10 +301,6 @@ public class DataColumnFactory {
                 return Collections.singleton(genericColumn.sqlType());
             }
 
-            @Override
-            public String getSqlType() {
-                return genericColumn.getSqlTypeName();
-            }
         };
     }
 
@@ -332,7 +308,7 @@ public class DataColumnFactory {
             String name, String prefix, Function<ENTITY, U> getter, BiConsumer<BUILDER, U> setter,
             GenericColumn<T> genericColumn, Converter<U,T> converter, boolean nullable) {
 
-        return new AbstractColumn<U, ENTITY, BUILDER>(name, prefix, getter, setter, nullable) {
+        return new AbstractColumn<U, ENTITY, BUILDER>(name, prefix, getter, setter, nullable, genericColumn.getSqlTypeName()) {
             @Override
             U fromResultSet(ResultSet resultSet, String columnName) throws SQLException {
                 T columnValue = genericColumn.fromResultSet(resultSet, columnName);
@@ -360,10 +336,6 @@ public class DataColumnFactory {
                 return Collections.singleton(genericColumn.sqlType());
             }
 
-            @Override
-            public String getSqlType() {
-                return genericColumn.getSqlTypeName();
-            }
         };
     }
 

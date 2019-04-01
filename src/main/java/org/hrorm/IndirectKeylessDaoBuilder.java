@@ -226,6 +226,20 @@ public class IndirectKeylessDaoBuilder<ENTITY, BUILDER> implements KeylessDaoDes
         return this;
     }
 
+    /**
+     * Set the SQL type for the most recently added column. This is used
+     * only when generating schema. If you wish to make sure that a column
+     * has type "<code>VARCHAR2(100)</code>" instead of just "<code>TEXT</code>" you
+     * can do so here. This make no difference to the queries that hrorm generates
+     * or how results are parsed.
+     *
+     * @param sqlTypeName The name of the column in SQL.
+     * @return This instance.
+     */
+    public IndirectKeylessDaoBuilder<ENTITY, BUILDER> setSqlTypeName(String sqlTypeName){
+        columnCollection.setLastColumnSqlTypeName(sqlTypeName);
+        return this;
+    }
 
     public <T> IndirectKeylessDaoBuilder<ENTITY, BUILDER> withGenericColumn(String columnName,
                                                                      Function<ENTITY, T> getter,

@@ -12,26 +12,39 @@ import java.util.stream.Collectors;
 public class DaoBuilderConsistencyTest {
 
     @Test
-    public void testEquivalencyOfFluentMethods() throws Exception {
+    public void testEquivalencyOfFluentMethods_DirectVersusIndirect() throws Exception {
+        Class daoBuilderClass = Class.forName("org.hrorm.DaoBuilder");
         Class indirectDaoBuilderClass = Class.forName("org.hrorm.IndirectDaoBuilder");
+
+        testEquivalencyOfFluentMethods(daoBuilderClass, indirectDaoBuilderClass, Collections.emptyList());
+    }
+
+    @Test
+    public void testEquivalencyOfFluentMethods_DirectVersusKeyless() throws Exception {
         Class daoBuilderClass = Class.forName("org.hrorm.DaoBuilder");
         Class keylessDaoBuilderClass = Class.forName("org.hrorm.IndirectKeylessDaoBuilder");
 
-        testEquivalencyOfFluentMethods(indirectDaoBuilderClass, daoBuilderClass, Collections.emptyList());
-        testEquivalencyOfFluentMethods(indirectDaoBuilderClass, keylessDaoBuilderClass,
+        testEquivalencyOfFluentMethods(daoBuilderClass, keylessDaoBuilderClass,
                 Arrays.asList("withPrimaryKey", "withChildren", "withParentColumn", "withUniqueConstraint"));
     }
 
     @Test
-    public void testEquivalencyOfNonFluentMethods() throws Exception {
+    public void testEquivalencyOfNonFluentMethods_DirectVersusIndirect() throws Exception {
+        Class daoBuilderClass = Class.forName("org.hrorm.DaoBuilder");
         Class indirectDaoBuilderClass = Class.forName("org.hrorm.IndirectDaoBuilder");
+
+        testEquivalencyOfNonFluentMethods(indirectDaoBuilderClass, daoBuilderClass, Collections.emptyList());
+    }
+
+    @Test
+    public void testEquivalencyOfNonFluentMethods_DirectVersusKeyless() throws Exception {
         Class daoBuilderClass = Class.forName("org.hrorm.DaoBuilder");
         Class keylessDaoBuilderClass = Class.forName("org.hrorm.IndirectKeylessDaoBuilder");
 
-        testEquivalencyOfNonFluentMethods(indirectDaoBuilderClass, daoBuilderClass, Collections.emptyList());
-        testEquivalencyOfNonFluentMethods(indirectDaoBuilderClass, keylessDaoBuilderClass,
+        testEquivalencyOfNonFluentMethods(daoBuilderClass, keylessDaoBuilderClass,
                 Arrays.asList( "buildQueries", "primaryKey", "buildDao", "hasParent", "parentColumn", "childrenDescriptors", "uniquenessConstraints"));
     }
+
 
     public void testEquivalencyOfNonFluentMethods(Class classA, Class classB, List<String> skippableMethods) {
         List<MethodWrapper> classAMethods = findNonFluentMethods(classA);

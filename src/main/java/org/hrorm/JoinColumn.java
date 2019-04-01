@@ -35,6 +35,8 @@ public class JoinColumn<ENTITY, JOINED, ENTITYBUILDER, JOINEDBUILDER> implements
 
     private Function<JOINEDBUILDER, JOINED> joinBuilder;
 
+    private String sqlTypeName = "integer";
+
     public JoinColumn(String name, String joinedTablePrefix, Prefixer prefixer, Function<ENTITY, JOINED> getter, BiConsumer<ENTITYBUILDER, JOINED> setter, DaoDescriptor<JOINED, JOINEDBUILDER> daoDescriptor, boolean nullable){
         this.name = name;
         this.prefix = prefixer.nextPrefix();
@@ -135,5 +137,10 @@ public class JoinColumn<ENTITY, JOINED, ENTITYBUILDER, JOINEDBUILDER> implements
     }
 
     @Override
-    public String getSqlType() { return "integer"; }
+    public String getSqlTypeName() { return sqlTypeName; }
+
+    @Override
+    public void setSqlTypeName(String sqlTypeName) {
+        this.sqlTypeName = sqlTypeName;
+    }
 }

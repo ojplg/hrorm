@@ -109,5 +109,7 @@ public interface Column<ENTITY, BUILDER> {
      *
      * @return The SQL name of the type.
      */
-    String getSqlType();
+    String getSqlTypeName();
+
+    void setSqlTypeName(String sqlTypeName);
 }

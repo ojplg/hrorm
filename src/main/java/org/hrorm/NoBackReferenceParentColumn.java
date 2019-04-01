@@ -23,6 +23,8 @@ public class NoBackReferenceParentColumn<ENTITY, PARENT, BUILDER, PARENTBUILDER>
     private final String name;
     private final String prefix;
 
+    private String sqlTypeName = "integer";
+
     public NoBackReferenceParentColumn(String name, String prefix) {
         this.name = name;
         this.prefix = prefix;
@@ -86,5 +88,10 @@ public class NoBackReferenceParentColumn<ENTITY, PARENT, BUILDER, PARENTBUILDER>
     }
 
     @Override
-    public String getSqlType() { return "integer"; }
+    public String getSqlTypeName() { return sqlTypeName; }
+
+    @Override
+    public void setSqlTypeName(String sqlTypeName) {
+        this.sqlTypeName = sqlTypeName;
+    }
 }

@@ -190,4 +190,39 @@ public class SchemaTest {
         Assert.assertTrue(constraints.contains(expectedSql));
     }
 
+
+    @Test
+    public void testSetSqlTypeName(){
+        DaoBuilder<Simple> daoBuilder = new DaoBuilder<>("siMplE", Simple::new)
+                .withPrimaryKey("id", "simple_seq", Simple::getId, Simple::setId)
+                .withStringColumn("field", Simple::getField, Simple::setField).setSqlTypeName("varchar");
+
+        Schema schema = new Schema(daoBuilder);
+        String sql = schema.tables().get(0);
+
+        String expectedSql = "create table simple (\n" +
+                " id integer primary key,\n" +
+                " field varchar\n" +
+                ");";
+
+        SimpleSqlFormatter.assertEqualSql(expectedSql, sql);
+    }
+
+    @Test
+    public void testSetSqlTypeNameAndNotNull(){
+        DaoBuilder<Simple> daoBuilder = new DaoBuilder<>("siMplE", Simple::new)
+                .withPrimaryKey("id", "simple_seq", Simple::getId, Simple::setId)
+                .withStringColumn("field", Simple::getField, Simple::setField).notNull().setSqlTypeName("varchar");
+
+        Schema schema = new Schema(daoBuilder);
+        String sql = schema.tables().get(0);
+
+        String expectedSql = "create table simple (\n" +
+                " id integer primary key,\n" +
+                " field varchar not null\n" +
+                ");";
+
+        SimpleSqlFormatter.assertEqualSql(expectedSql, sql);
+    }
+
 }

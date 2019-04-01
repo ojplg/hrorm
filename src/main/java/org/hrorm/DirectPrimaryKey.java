@@ -25,6 +25,8 @@ public class DirectPrimaryKey<ENTITY> implements PrimaryKey<ENTITY, ENTITY> {
     private final BiConsumer<ENTITY, Long> setter;
     private final Function<ENTITY, Long> getter;
 
+    private String sqlTypeName = "integer";
+
     public DirectPrimaryKey(String prefix,
                             String name,
                             String sequenceName,
@@ -115,5 +117,10 @@ public class DirectPrimaryKey<ENTITY> implements PrimaryKey<ENTITY, ENTITY> {
     }
 
     @Override
-    public String getSqlType() { return "integer"; }
+    public String getSqlTypeName() { return sqlTypeName; }
+
+    @Override
+    public void setSqlTypeName(String sqlTypeName) {
+        this.sqlTypeName = sqlTypeName;
+    }
 }
