@@ -51,7 +51,11 @@ public interface KeylessDaoDescriptor<ENTITY, ENTITYBUILDER> {
      */
     List<JoinColumn<ENTITY, ?, ENTITYBUILDER, ?>> joinColumns();
 
-
+    /**
+     * The mechanism for building a new entity instance.
+     *
+     * @return the build function
+     */
     Function<ENTITYBUILDER, ENTITY> buildFunction();
 
     /**
@@ -61,9 +65,16 @@ public interface KeylessDaoDescriptor<ENTITY, ENTITYBUILDER> {
      */
     List<Column<ENTITY, ENTITYBUILDER>> allColumns();
 
+
     default ColumnSelection<ENTITY, ENTITYBUILDER> select(String... columnNames) {
         return new ColumnSelection(allColumns(), columnNames);
     }
 
+    /**
+     * All the columns in the DAO, except those that represent joins
+     * to other entities, including primary key and parent column.
+     *
+     * @return
+     */
     List<Column<ENTITY, ENTITYBUILDER>> nonJoinColumns();
 }

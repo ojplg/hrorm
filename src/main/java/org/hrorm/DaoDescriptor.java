@@ -24,8 +24,20 @@ public interface DaoDescriptor<ENTITY, ENTITYBUILDER> extends KeylessDaoDescript
      */
     PrimaryKey<ENTITY, ENTITYBUILDER> primaryKey();
 
+    /**
+     * The parent column, if there is one, of the <code>ENTITY</code>.
+     *
+     * @param <P> The type of the parent entity.
+     * @param <PB> The type of the parent entity's builder class.
+     * @return The parent column.
+     */
     <P,PB> ParentColumn<ENTITY, P, ENTITYBUILDER, PB> parentColumn();
 
+    /**
+     * Indicator of whether or not this entity has a parent.
+     *
+     * @return true if there is a parent, or false otherwise.
+     */
     default boolean hasParent(){
         return parentColumn() != null;
     }
