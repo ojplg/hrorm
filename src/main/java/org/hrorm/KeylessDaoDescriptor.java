@@ -1,7 +1,5 @@
 package org.hrorm;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -74,7 +72,7 @@ public interface KeylessDaoDescriptor<ENTITY, ENTITYBUILDER> {
      * All the columns in the DAO, except those that represent joins
      * to other entities, including primary key and parent column.
      *
-     * @return
+     * @return all the data and other non-join columns
      */
     List<Column<ENTITY, ENTITYBUILDER>> nonJoinColumns();
 }

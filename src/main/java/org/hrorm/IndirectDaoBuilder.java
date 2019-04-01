@@ -365,8 +365,8 @@ public class IndirectDaoBuilder<ENTITY, BUILDER>  implements DaoDescriptor<ENTIT
      * @param columnName The name of the column that holds the foreign key reference.
      * @return This instance.
      */
-    public <P> IndirectDaoBuilder<ENTITY, BUILDER> withParentColumn(String columnName) {
-        NoBackReferenceParentColumn<ENTITY, P, BUILDER, ?> column = new NoBackReferenceParentColumn<>(columnName, getPrefix());
+    public IndirectDaoBuilder<ENTITY, BUILDER> withParentColumn(String columnName) {
+        NoBackReferenceParentColumn<ENTITY, ?, BUILDER, ?> column = new NoBackReferenceParentColumn<>(columnName, getPrefix());
         columnCollection.setParentColumn(column);
         return this;
     }
