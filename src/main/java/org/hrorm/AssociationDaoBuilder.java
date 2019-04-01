@@ -189,7 +189,7 @@ public class AssociationDaoBuilder<LEFT, RIGHT>
         prepareDaoBuilder();
         return internalDaoBuilder.supplier();
     }
-    
+
     @Override
     public List<ChildrenDescriptor<Association<LEFT, RIGHT>, ?, Association<LEFT, RIGHT>, ?>> childrenDescriptors() {
         prepareDaoBuilder();
