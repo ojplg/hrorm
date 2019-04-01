@@ -29,7 +29,7 @@ public class DaoBuilderConsistencyTest {
 
         testEquivalencyOfNonFluentMethods(indirectDaoBuilderClass, daoBuilderClass, Collections.emptyList());
         testEquivalencyOfNonFluentMethods(indirectDaoBuilderClass, keylessDaoBuilderClass,
-                Arrays.asList( "buildQueries", "primaryKey", "buildDao", "hasParent", "parentColumn"));
+                Arrays.asList( "buildQueries", "primaryKey", "buildDao", "hasParent", "parentColumn", "childrenDescriptors"));
     }
 
     public void testEquivalencyOfNonFluentMethods(Class classA, Class classB, List<String> skippableMethods) {

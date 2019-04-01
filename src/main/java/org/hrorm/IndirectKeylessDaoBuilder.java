@@ -59,11 +59,6 @@ public class IndirectKeylessDaoBuilder<ENTITY, BUILDER> implements KeylessDaoDes
         return columnCollection.nonJoinColumns();
     }
 
-    @Override
-    public List<ChildrenDescriptor<ENTITY, ?, BUILDER, ?>> childrenDescriptors() {
-        return Collections.emptyList();
-    }
-
     public String getPrefix(){
         return daoBuilderHelper.getPrefix();
     }

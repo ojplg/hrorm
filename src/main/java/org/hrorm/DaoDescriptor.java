@@ -30,4 +30,11 @@ public interface DaoDescriptor<ENTITY, ENTITYBUILDER> extends KeylessDaoDescript
         return parentColumn() != null;
     }
 
+    /**
+     * The definitions of any entities that are owned by type <code>ENTITY</code>
+     *
+     * @return all the owned entities
+     */
+    List<ChildrenDescriptor<ENTITY, ?, ENTITYBUILDER, ?>> childrenDescriptors();
+
 }

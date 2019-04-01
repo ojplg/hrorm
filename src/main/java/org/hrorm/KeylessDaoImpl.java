@@ -82,11 +82,6 @@ public class KeylessDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> implements K
     public Supplier<BUILDER> supplier() { return supplier; }
 
     @Override
-    public List<ChildrenDescriptor<ENTITY, ?, BUILDER, ?>> childrenDescriptors() {
-        return Collections.emptyList();
-    }
-
-    @Override
     public Function<BUILDER, ENTITY> buildFunction() { return buildFunction; }
 
     @Override

@@ -54,6 +54,11 @@ public class DaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> extends KeylessDaoI
     }
 
     @Override
+    public List<ChildrenDescriptor<ENTITY, ?, BUILDER, ?>> childrenDescriptors() {
+        return childrenDescriptors;
+    }
+
+    @Override
     public Long insert(ENTITY item) {
         String sql = sqlBuilder.insert();
         long id = DaoHelper.getNextSequenceValue(connection, primaryKey.getSequenceName());

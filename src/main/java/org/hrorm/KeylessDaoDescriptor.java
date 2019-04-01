@@ -51,14 +51,6 @@ public interface KeylessDaoDescriptor<ENTITY, ENTITYBUILDER> {
      */
     List<JoinColumn<ENTITY, ?, ENTITYBUILDER, ?>> joinColumns();
 
-    // FIXME: This should be on the DaoDescriptor interface
-
-    /**
-     * The definitions of any entities that are owned by type <code>ENTITY</code>
-     *
-     * @return all the owned entities
-     */
-    List<ChildrenDescriptor<ENTITY, ?, ENTITYBUILDER, ?>> childrenDescriptors();
 
     Function<ENTITYBUILDER, ENTITY> buildFunction();
 
