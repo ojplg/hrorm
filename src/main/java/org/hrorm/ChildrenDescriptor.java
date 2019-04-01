@@ -52,6 +52,9 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
         PARENT parent = parentBuildFunction.apply(parentBuilder);
         long parentId = parentPrimaryKey.getKey(parent);
 
+        System.out.println("POPULATING CHILDREN FOR " + parentId);
+
+
         Where where = new Where(parentChildColumnName(), Operator.EQUALS, parentId);
 
         String sql = sqlBuilder.select(where);
@@ -80,6 +83,9 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
     }
 
     public void saveChildren(Connection connection, Envelope<PARENT> envelope) {
+
+        System.out.println("SAVING CHILDREN FOR " + envelope);
+
         PrimaryKey<CHILD, CHILDBUILDER> childPrimaryKey = childDaoDescriptor.primaryKey();
 
         PARENT item = envelope.getItem();
@@ -118,6 +124,7 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
     }
 
     public Set<Long> findExistingChildrenIds(Connection connection, Long parentId){
+        System.out.println("//// Searching for children of " + parentId);
         String sql = sqlBuilder.selectChildIds(parentChildColumnName());
         List<Long> ids = DaoHelper.readLongs(connection, sql, parentId);
         return new HashSet<>(ids);
@@ -147,5 +154,10 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
 
     private Function<CHILDBUILDER, CHILD> childBuilder(){
         return childDaoDescriptor.buildFunction();
+    }
+
+    @Override
+    public String toString() {
+        return "ChildrenDescriptor for " + childDaoDescriptor.tableName();
     }
 }

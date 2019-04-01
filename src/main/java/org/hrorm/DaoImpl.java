@@ -1,7 +1,13 @@
 package org.hrorm;
 
+import java.math.BigDecimal;
 import java.sql.Connection;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.function.BiFunction;
+import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**
@@ -21,15 +27,30 @@ public class DaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> extends KeylessDaoI
 
     private final PrimaryKey<ENTITY, BUILDER> primaryKey;
     private final SqlBuilder<ENTITY> sqlBuilder;
+    private final ParentColumn<ENTITY, PARENT, BUILDER, PARENTBUILDER> parentColumn;
+    private final List<ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors;
+
+    private final Connection connection;
 
     public DaoImpl(Connection connection,
                    DaoDescriptor<ENTITY, BUILDER> daoDescriptor){
         super(connection, daoDescriptor);
+        this.childrenDescriptors = daoDescriptor.childrenDescriptors();
         if (daoDescriptor.primaryKey() == null) {
             throw new IllegalArgumentException("Must have a Primary Key");
         }
+        this.connection = connection;
         this.primaryKey = daoDescriptor.primaryKey();
         this.sqlBuilder = new SqlBuilder<>(daoDescriptor);
+        this.parentColumn = daoDescriptor.parentColumn();
+    }
+
+    @Override
+    public boolean hasParent() { return parentColumn != null; }
+
+    @Override
+    public ParentColumn<ENTITY, PARENT, BUILDER, PARENTBUILDER> parentColumn() {
+        return parentColumn;
     }
 
     @Override
@@ -69,10 +90,10 @@ public class DaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> extends KeylessDaoI
         BUILDER builder = supplier().get();
         primaryKey.setKey(builder, id);
         ENTITY item = buildFunction.apply(builder);
-        List<BUILDER> items = sqlRunner.selectByColumns(sql, supplier,
+        List<BUILDER> items = sqlRunner.selectByColumns(sql, supplier(),
                 select(primaryKeyName),
                 childrenDescriptors, item);
-        return fromSingletonList(mapBuilders(items));
+        return KeylessDaoImpl.fromSingletonList(mapBuilders(items));
     }
 
     @Override
@@ -109,4 +130,13 @@ public class DaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> extends KeylessDaoI
         return this.sqlBuilder;
     }
 
+    protected Envelope<ENTITY> newEnvelope(ENTITY item, long id){
+        if( parentColumn != null ){
+            Long parentId = parentColumn.getParentId(item);
+            if ( parentId != null ){
+                return new Envelope<>(item, id, parentId);
+            }
+        }
+        return new Envelope<>(item, id);
+    }
 }

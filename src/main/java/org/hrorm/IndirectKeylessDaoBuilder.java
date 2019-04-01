@@ -37,8 +37,6 @@ public class IndirectKeylessDaoBuilder<ENTITY, BUILDER> implements KeylessDaoDes
     private final List<Column<ENTITY, BUILDER>> columns = new ArrayList<>();
     private final List<JoinColumn<ENTITY,?, BUILDER,?>> joinColumns = new ArrayList<>();
 
-    private ParentColumn<ENTITY,?, BUILDER,?> parentColumn;
-
     private Column<ENTITY, BUILDER> lastColumnAdded;
 
     public IndirectKeylessDaoBuilder(String table, Supplier<BUILDER> supplier, Function<BUILDER, ENTITY> buildFunction) {
@@ -69,11 +67,6 @@ public class IndirectKeylessDaoBuilder<ENTITY, BUILDER> implements KeylessDaoDes
         return Collections.emptyList();
     }
 
-    @Override
-    public ParentColumn<ENTITY, ?, BUILDER, ?> parentColumn() {
-        return parentColumn;
-    }
-
     public String getPrefix(){
         return myPrefix;
     }
@@ -93,7 +86,7 @@ public class IndirectKeylessDaoBuilder<ENTITY, BUILDER> implements KeylessDaoDes
      * @return The newly created <code>Dao</code>.
      */
     public KeylessDao<ENTITY> buildDao(Connection connection){
-        return new KeylessDaoImpl(connection, this);
+        return KeylessDaoImpl.forKeylessDescriptors(connection, this);
     }
 
     /**
@@ -258,42 +251,6 @@ public class IndirectKeylessDaoBuilder<ENTITY, BUILDER> implements KeylessDaoDes
     }
 
     /**
-     * Indicator that the column is a reference to an owning parent object.
-     *
-     * @param columnName The name of the column that holds the foreign key reference.
-     * @param getter The function to call for setting the parent onto the child.
-     * @param setter The function to call for getting the parent from the child.
-     * @param <P> The type of the parent object.
-     * @return This instance.
-     */
-    public <P> IndirectKeylessDaoBuilder<ENTITY, BUILDER> withParentColumn(String columnName, Function<ENTITY,P> getter, BiConsumer<BUILDER,P> setter){
-        if ( parentColumn != null ){
-            throw new HrormException("Attempt to set a second parent");
-        }
-        ParentColumnImpl<ENTITY,P, BUILDER,?> column = new ParentColumnImpl<>(columnName, myPrefix, getter, setter);
-        lastColumnAdded = column;
-        parentColumn = column;
-        return this;
-    }
-
-    /**
-     * Indicator that the column is a reference to an owning parent object.
-     *
-     * @param columnName The name of the column that holds the foreign key reference.
-     * @return This instance.
-     */
-    public <P> IndirectKeylessDaoBuilder<ENTITY, BUILDER> withParentColumn(String columnName) {
-        if (parentColumn != null) {
-            throw new HrormException("Attempt to set a second parent");
-        }
-        NoBackReferenceParentColumn<ENTITY, P, BUILDER, ?> column = new NoBackReferenceParentColumn<>(columnName, myPrefix);
-        lastColumnAdded = column;
-        parentColumn = column;
-        return this;
-    }
-
-
-    /**
      * Sets the most recent column added to this DaoBuilder to prevent it allowing
      * nulls on inserts or updates.
      *
@@ -330,4 +287,8 @@ public class IndirectKeylessDaoBuilder<ENTITY, BUILDER> implements KeylessDaoDes
         return this;
     }
 
+    @Override
+    public List<Column<ENTITY, BUILDER>> dataColumnsWithParent() {
+        return dataColumns();
+    }
 }

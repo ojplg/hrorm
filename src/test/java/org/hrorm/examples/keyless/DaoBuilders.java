@@ -18,9 +18,4 @@ public class DaoBuilders {
 
     public static final Schema SCHEMA = new Schema(SIBLING_DAO_BUILDER, UNKEYED_THING_DAO_BUILDER);
 
-//    public static final DaoBuilder<Parent> PARENT_DAO_BUILDER =
-//            new DaoBuilder<>("parent", Parent::new)
-//                    .withPrimaryKey("id", "parent_seq", Parent::getId, Parent::setId)
-//                    .withStringColumn("name", Parent::getName, Parent::setName)
-//                    .withChildren(Parent::getChildren, Parent::setChildren, UNKEYED_THING_DAO_BUILDER);
 }

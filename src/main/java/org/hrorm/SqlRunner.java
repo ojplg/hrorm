@@ -39,14 +39,25 @@ public class SqlRunner<ENTITY, BUILDER> {
     }
 
     public SqlRunner(Connection connection, KeylessDaoDescriptor<ENTITY, BUILDER> daoDescriptor) {
-        this(
-                connection,
-                Collections.unmodifiableList(
-                        Stream.concat(
-                                daoDescriptor.dataColumnsWithParent().stream(),
-                                daoDescriptor.joinColumns().stream()
-                        ).collect(Collectors.toList())
-                ));
+        this.connection = connection;
+        ArrayList<Column<ENTITY, BUILDER>> columnList = new ArrayList<>();
+        columnList.addAll(daoDescriptor.dataColumns());
+        // FIXME: remove instanceof nonsense
+        // FIXME: Column ordering is too sensitive, must be done in one place ONLY
+        if( daoDescriptor instanceof DaoDescriptor ){
+            System.out.println("STARTING ------------");
+            System.out.println("Starting on  " + daoDescriptor.tableName() + " FROM " + daoDescriptor);
+            DaoDescriptor<ENTITY, BUILDER> fullDaoDescriptor = (DaoDescriptor<ENTITY, BUILDER>) daoDescriptor;
+            if ( fullDaoDescriptor.hasParent() ) {
+                columnList.add(fullDaoDescriptor.parentColumn());
+                System.out.println("Adding parent!");
+            } else {
+                System.out.println("No parent!");
+            }
+            System.out.println("SETTING UP FOR A PARENTED DAO DESCRIPTOR " + daoDescriptor.tableName() + ": " + columnList.size() + " -> " + columnList);
+        }
+        columnList.addAll(daoDescriptor.joinColumns());
+        allColumns = Collections.unmodifiableList(columnList);
     }
 
     public List<BUILDER> select(String sql, Supplier<BUILDER> supplier, List<ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors){
@@ -58,6 +69,8 @@ public class SqlRunner<ENTITY, BUILDER> {
                                          ColumnSelection<ENTITY,BUILDER> columnSelection,
                                          List<? extends ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors,
                                          ENTITY item){
+        System.out.println("Working with " + childrenDescriptors);
+
         BiFunction<List<BUILDER>, BUILDER, List<BUILDER>> accumulator =
                 (list, b) -> { list.add(b); return list; };
         StatementPopulator populator = columnSelection.buildPopulator(item);
@@ -209,12 +222,16 @@ public class SqlRunner<ENTITY, BUILDER> {
 
             int idx = 1;
             for(Column<ENTITY, BUILDER> column : allColumns){
+                if( isUpdate ){
+                    System.out.println(idx + " : " + column);
+                }
                 if( column.isPrimaryKey() ) {
                     if ( ! isUpdate ) {
                         preparedStatement.setLong(idx, envelope.getId());
                         idx++;
                     }
                 } else if ( column.isParentColumn() ){
+                    System.out.println("TRYING TO SET PARENT " + column.getName() + " " + envelope.getParentId() + " on index " + idx);
                     preparedStatement.setLong(idx, envelope.getParentId());
                     idx++;
                 } else if ( ! column.isPrimaryKey()  ){

@@ -29,8 +29,11 @@ public class IndirectDaoBuilder<ENTITY, BUILDER>  implements DaoDescriptor<ENTIT
     private final IndirectKeylessDaoBuilder<ENTITY, BUILDER> keylessDaoBuilder;
 
     private final List<ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors = new ArrayList<>();
-
+    private ParentColumn<ENTITY,?, BUILDER,?> parentColumn;
     private PrimaryKey<ENTITY, BUILDER> primaryKey;
+
+    // FIXME: Need to reset and act on this properly
+    private boolean parentColumnLast = false;
 
     static class BuilderHolder<T,TB> {
         IndirectDaoBuilder<T,TB> daoBuilder;
@@ -95,7 +98,7 @@ public class IndirectDaoBuilder<ENTITY, BUILDER>  implements DaoDescriptor<ENTIT
 
     @Override
     public ParentColumn<ENTITY, ?, BUILDER, ?> parentColumn() {
-        return keylessDaoBuilder.parentColumn();
+        return parentColumn;
     }
 
     public List<JoinColumn<ENTITY, ?, BUILDER, ?>> joinColumns() {
@@ -343,7 +346,12 @@ public class IndirectDaoBuilder<ENTITY, BUILDER>  implements DaoDescriptor<ENTIT
      * @return This instance.
      */
     public <P> IndirectDaoBuilder<ENTITY, BUILDER> withParentColumn(String columnName, Function<ENTITY,P> getter, BiConsumer<BUILDER,P> setter){
-        keylessDaoBuilder.withParentColumn(columnName, getter, setter);
+        if ( parentColumn != null ){
+            throw new HrormException("Attempt to set a second parent");
+        }
+        ParentColumnImpl<ENTITY,P, BUILDER,?> column = new ParentColumnImpl<>(columnName, getPrefix(), getter, setter);
+        parentColumn = column;
+        parentColumnLast = true;
         return this;
     }
 
@@ -351,11 +359,15 @@ public class IndirectDaoBuilder<ENTITY, BUILDER>  implements DaoDescriptor<ENTIT
      * Indicator that the column is a reference to an owning parent object.
      *
      * @param columnName The name of the column that holds the foreign key reference.
-     * @param <P> The type of the parent object.
      * @return This instance.
      */
-    public <P> IndirectDaoBuilder<ENTITY, BUILDER> withParentColumn(String columnName){
-        keylessDaoBuilder.withParentColumn(columnName);
+    public <P> IndirectDaoBuilder<ENTITY, BUILDER> withParentColumn(String columnName) {
+        if (parentColumn != null) {
+            throw new HrormException("Attempt to set a second parent");
+        }
+        NoBackReferenceParentColumn<ENTITY, P, BUILDER, ?> column = new NoBackReferenceParentColumn<>(columnName, getPrefix());
+        parentColumn = column;
+        parentColumnLast = true;
         return this;
     }
 

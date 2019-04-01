@@ -24,7 +24,7 @@ import java.util.List;
 
 public class ImmutableThingTest {
 
-    static { TestLogConfig.load(); }
+//    static { TestLogConfig.load(); }
 
     private static Helper HELPER = HelperFactory.forSchema("immutable_thing");
 
@@ -41,11 +41,6 @@ public class ImmutableThingTest {
     @Test
     public void insertAndSelectImmutableThing() throws SQLException {
         doInsertAndSelectImmutableThing(HELPER);
-    }
-
-    @Test
-    public void insertAndSelectImmutableThingWithAChild() throws SQLException {
-        doInsertAndSelectImmutableThingWithAChild(HELPER);
     }
 
     @Test
@@ -89,6 +84,11 @@ public class ImmutableThingTest {
         }
     }
 
+    @Test
+    public void insertAndSelectImmutableThingWithAChild() throws SQLException {
+        doInsertAndSelectImmutableThingWithAChild(HELPER);
+    }
+
     public static void doInsertAndSelectImmutableThingWithAChild(Helper helper) throws SQLException {
         long id;
         Instant bday = Instant.now();
@@ -113,6 +113,8 @@ public class ImmutableThingTest {
             connection.close();
         }
         {
+
+            System.out.println("READING !!!!!!!!!!!!!!!");
             Connection connection = helper.connect();
             Dao<ImmutableThing> dao = DaoBuilders.IMMUTABLE_OBJECT_DAO_BUILDER.buildDao(connection);
 

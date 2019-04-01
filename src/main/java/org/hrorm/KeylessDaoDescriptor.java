@@ -49,9 +49,10 @@ public interface KeylessDaoDescriptor<ENTITY, ENTITYBUILDER> {
      *
      * @return all the reference columns supported
      */
-    List<JoinColumn<ENTITY,?, ENTITYBUILDER,?>> joinColumns();
+    List<JoinColumn<ENTITY, ?, ENTITYBUILDER, ?>> joinColumns();
 
     // FIXME: This should be on the DaoDescriptor interface
+
     /**
      * The definitions of any entities that are owned by type <code>ENTITY</code>
      *
@@ -59,42 +60,24 @@ public interface KeylessDaoDescriptor<ENTITY, ENTITYBUILDER> {
      */
     List<ChildrenDescriptor<ENTITY, ?, ENTITYBUILDER, ?>> childrenDescriptors();
 
-    <P,PB> ParentColumn<ENTITY, P, ENTITYBUILDER, PB> parentColumn();
-
     Function<ENTITYBUILDER, ENTITY> buildFunction();
-
-    default boolean hasParent(){
-        return parentColumn() != null;
-    }
 
     /**
      * All the columns of the underlying table, both data type and join type.
      *
      * @return all the columns
      */
-    default List<Column<ENTITY, ENTITYBUILDER>> allColumns(){
+    default List<Column<ENTITY, ENTITYBUILDER>> allColumns() {
         List<Column<ENTITY, ENTITYBUILDER>> allColumns = new ArrayList<>();
-        allColumns.addAll(dataColumnsWithParent());
+        allColumns.addAll(dataColumns());
         allColumns.addAll(joinColumns());
         return Collections.unmodifiableList(allColumns);
     }
 
-    static <ENTITY, ENTITYBUILDER, P, PB> List<Column<ENTITY, ENTITYBUILDER>> dataColumnsWithParent(
-            List<Column<ENTITY, ENTITYBUILDER>> dataColumns, ParentColumn<ENTITY, P, ENTITYBUILDER, PB> parentColumn,
-            boolean hasParent){
-        List<Column<ENTITY, ENTITYBUILDER>> allColumns = new ArrayList<>(dataColumns);
-        if ( hasParent ) {
-            allColumns.add(parentColumn);
-        }
-        return Collections.unmodifiableList(allColumns);
-    }
-
-    default List<Column<ENTITY, ENTITYBUILDER>> dataColumnsWithParent(){
-        return KeylessDaoDescriptor.dataColumnsWithParent(dataColumns(), parentColumn(), hasParent());
-    }
-
-    default ColumnSelection<ENTITY, ENTITYBUILDER> select(String ... columnNames){
+    default ColumnSelection<ENTITY, ENTITYBUILDER> select(String... columnNames) {
         return new ColumnSelection(allColumns(), columnNames);
     }
 
+    // FIXME: this method is named wrong and should perhaps not be here?
+    List<Column<ENTITY, ENTITYBUILDER>> dataColumnsWithParent();
 }
