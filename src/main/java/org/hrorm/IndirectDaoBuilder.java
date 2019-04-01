@@ -52,13 +52,8 @@ public class IndirectDaoBuilder<ENTITY, BUILDER>  implements DaoDescriptor<ENTIT
     }
 
     @Override
-    public List<Column<ENTITY, BUILDER>> dataColumns() {
-        return columnCollection.getDataColumns();
-    }
-
-    @Override
-    public PrimaryKey<ENTITY, BUILDER> primaryKey() {
-        return columnCollection.getPrimaryKey();
+    public ColumnCollection<ENTITY, BUILDER> getColumnCollection() {
+        return columnCollection;
     }
 
     @Override
@@ -69,20 +64,6 @@ public class IndirectDaoBuilder<ENTITY, BUILDER>  implements DaoDescriptor<ENTIT
     @Override
     public ParentColumn<ENTITY, ?, BUILDER, ?> parentColumn() {
         return columnCollection.getParentColumn();
-    }
-
-    @Override
-    public List<Column<ENTITY, BUILDER>> allColumns() {
-        return columnCollection.allColumns();
-    }
-
-    @Override
-    public List<Column<ENTITY, BUILDER>> nonJoinColumns() {
-        return columnCollection.nonJoinColumns();
-    }
-
-    public List<JoinColumn<ENTITY, ?, BUILDER, ?>> joinColumns() {
-        return columnCollection.getJoinColumns();
     }
 
     public String getPrefix() {

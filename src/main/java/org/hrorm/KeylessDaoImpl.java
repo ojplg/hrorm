@@ -2,7 +2,6 @@ package org.hrorm;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.BiFunction;
@@ -29,18 +28,18 @@ public class KeylessDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> implements K
     protected final KeylessSqlBuilder<ENTITY> keylessSqlBuilder;
     protected final SqlRunner<ENTITY, BUILDER> sqlRunner;
 
+    private final ColumnCollection<ENTITY, BUILDER> columnCollection;
+
     private final String tableName;
-    private final List<Column<ENTITY, BUILDER>> nonJoinColumns;
     private final Supplier<BUILDER> supplier;
-    private final List<JoinColumn<ENTITY,?, BUILDER,?>> joinColumns;
     private final Function<BUILDER, ENTITY> buildFunction;
+
     private final List<ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors;
 
     public KeylessDaoImpl(Connection connection,
                           DaoDescriptor<ENTITY, BUILDER> daoDescriptor){
         this(connection, daoDescriptor, daoDescriptor.childrenDescriptors());
     }
-
 
     public static KeylessDaoImpl forKeylessDescriptors(
             Connection connection,
@@ -53,12 +52,11 @@ public class KeylessDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> implements K
                           List<ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors){
         this.connection = connection;
         this.tableName = daoDescriptor.tableName();
-        this.nonJoinColumns = Collections.unmodifiableList(new ArrayList<>(daoDescriptor.nonJoinColumns()));
+        this.columnCollection = daoDescriptor.getColumnCollection();
         this.supplier = daoDescriptor.supplier();
-        this.joinColumns = Collections.unmodifiableList(new ArrayList<>(daoDescriptor.joinColumns()));
         this.buildFunction = daoDescriptor.buildFunction();
 
-        this.keylessSqlBuilder = new KeylessSqlBuilder<>(tableName, this.nonJoinColumns(), this.joinColumns);
+        this.keylessSqlBuilder = new KeylessSqlBuilder<>(tableName, this.nonJoinColumns(), this.joinColumns());
         this.sqlRunner = new SqlRunner<>(connection, daoDescriptor);
         this.childrenDescriptors = childrenDescriptors;
     }
@@ -69,13 +67,8 @@ public class KeylessDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> implements K
     }
 
     @Override
-    public List<Column<ENTITY, BUILDER>> dataColumns(){
-        throw new UnsupportedOperationException("FIXME");
-    }
-
-    @Override
-    public List<JoinColumn<ENTITY, ?, BUILDER, ?>> joinColumns(){
-        return joinColumns;
+    public ColumnCollection<ENTITY, BUILDER> getColumnCollection() {
+        return columnCollection;
     }
 
     @Override
@@ -195,15 +188,5 @@ public class KeylessDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> implements K
             return items.get(0);
         }
         throw new HrormException("Found " + items.size() + " items.");
-    }
-
-    @Override
-    public List<Column<ENTITY, BUILDER>> allColumns() {
-        return ColumnCollection.allColumns(nonJoinColumns(), joinColumns);
-    }
-
-    @Override
-    public List<Column<ENTITY, BUILDER>> nonJoinColumns() {
-        return nonJoinColumns;
     }
 }

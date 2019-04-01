@@ -3,7 +3,6 @@ package org.hrorm;
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.time.Instant;
-import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -44,25 +43,13 @@ public class IndirectKeylessDaoBuilder<ENTITY, BUILDER> implements KeylessDaoDes
     }
 
     @Override
-    public List<Column<ENTITY, BUILDER>> dataColumns() {
-        return columnCollection.getDataColumns();
-    }
-
-    @Override
-    public List<Column<ENTITY, BUILDER>> allColumns() {
-        return columnCollection.allColumns();
-    }
-
-    @Override
-    public List<Column<ENTITY, BUILDER>> nonJoinColumns() {
-        return columnCollection.nonJoinColumns();
+    public ColumnCollection<ENTITY, BUILDER> getColumnCollection() {
+        return columnCollection;
     }
 
     public String getPrefix(){
         return daoBuilderHelper.getPrefix();
     }
-
-    public List<JoinColumn<ENTITY, ?, BUILDER, ?>> joinColumns() { return columnCollection.getJoinColumns(); }
 
     @Override
     public Function<BUILDER, ENTITY> buildFunction() {

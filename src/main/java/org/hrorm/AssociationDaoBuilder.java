@@ -189,23 +189,16 @@ public class AssociationDaoBuilder<LEFT, RIGHT>
         prepareDaoBuilder();
         return internalDaoBuilder.supplier();
     }
-
-    @Override
-    public List<Column<Association<LEFT, RIGHT>, Association<LEFT, RIGHT>>> dataColumns() {
-        prepareDaoBuilder();
-        return internalDaoBuilder.dataColumns();
-    }
-
-    @Override
-    public List<JoinColumn<Association<LEFT, RIGHT>, ?, Association<LEFT, RIGHT>, ?>> joinColumns() {
-        prepareDaoBuilder();
-        return internalDaoBuilder.joinColumns();
-    }
-
+    
     @Override
     public List<ChildrenDescriptor<Association<LEFT, RIGHT>, ?, Association<LEFT, RIGHT>, ?>> childrenDescriptors() {
         prepareDaoBuilder();
         return internalDaoBuilder.childrenDescriptors();
+    }
+
+    @Override
+    public ColumnCollection<Association<LEFT, RIGHT>, Association<LEFT, RIGHT>> getColumnCollection() {
+        return internalDaoBuilder.getColumnCollection();
     }
 
     @Override
@@ -217,15 +210,5 @@ public class AssociationDaoBuilder<LEFT, RIGHT>
     @Override
     public Function<Association<LEFT, RIGHT>, Association<LEFT, RIGHT>> buildFunction() {
         return internalDaoBuilder.buildFunction();
-    }
-
-    @Override
-    public List<Column<Association<LEFT, RIGHT>, Association<LEFT, RIGHT>>> allColumns() {
-        return internalDaoBuilder.allColumns();
-    }
-
-    @Override
-    public List<Column<Association<LEFT, RIGHT>, Association<LEFT, RIGHT>>> nonJoinColumns() {
-        return internalDaoBuilder.nonJoinColumns();
     }
 }

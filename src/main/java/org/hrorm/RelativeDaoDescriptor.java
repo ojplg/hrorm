@@ -22,26 +22,25 @@ public class RelativeDaoDescriptor<ENTITY, PARENT, ENTITYBUILDER> implements Dao
 
     private final String tableName;
     private final Supplier<ENTITYBUILDER> supplier;
-    private final List<Column<ENTITY, ENTITYBUILDER>> dataColumns;
-    private final List<JoinColumn<ENTITY, ?, ENTITYBUILDER, ?>> joinColumns;
-    private final PrimaryKey<ENTITY, ENTITYBUILDER> primaryKey;
+
+    private final ColumnCollection<ENTITY, ENTITYBUILDER> columnCollection;
     private final List<ChildrenDescriptor<ENTITY,?, ENTITYBUILDER,?>> childrenDescriptors;
-    private final ParentColumn<ENTITY, PARENT, ENTITYBUILDER,?> parentColumn;
     private final Function<ENTITYBUILDER, ENTITY> buildFunction;
 
     public RelativeDaoDescriptor(DaoDescriptor<ENTITY, ENTITYBUILDER> originalDaoDescriptor, String newPrefix, Prefixer prefixer){
         this.tableName = originalDaoDescriptor.tableName();
         this.supplier = originalDaoDescriptor.supplier();
-        this.dataColumns = originalDaoDescriptor.dataColumns().stream().map(c -> c.withPrefix(newPrefix, prefixer)).collect(Collectors.toList());
-        this.joinColumns = resetColumnPrefixes(prefixer, newPrefix, originalDaoDescriptor.joinColumns());
-        this.primaryKey = (PrimaryKey<ENTITY, ENTITYBUILDER>) originalDaoDescriptor.primaryKey().withPrefix(newPrefix, prefixer);
         this.childrenDescriptors = originalDaoDescriptor.childrenDescriptors();
-        if( originalDaoDescriptor.hasParent()) {
-            this.parentColumn = (ParentColumn<ENTITY, PARENT, ENTITYBUILDER, ?>) originalDaoDescriptor.parentColumn().withPrefix(newPrefix, prefixer);
-        } else {
-            this.parentColumn = null;
-        }
         this.buildFunction = originalDaoDescriptor.buildFunction();
+
+        List<Column<ENTITY, ENTITYBUILDER>> dataColumns = originalDaoDescriptor.dataColumns().stream().map(c -> c.withPrefix(newPrefix, prefixer)).collect(Collectors.toList());
+        List<JoinColumn<ENTITY,?,ENTITYBUILDER,?>> joinColumns = resetColumnPrefixes(prefixer, newPrefix, originalDaoDescriptor.joinColumns());
+        PrimaryKey<ENTITY, ENTITYBUILDER> primaryKey = (PrimaryKey<ENTITY, ENTITYBUILDER>) originalDaoDescriptor.primaryKey().withPrefix(newPrefix, prefixer);
+        ParentColumn<ENTITY, PARENT, ENTITYBUILDER, ?> parentColumn = null;
+        if( originalDaoDescriptor.hasParent()) {
+            parentColumn = (ParentColumn<ENTITY, PARENT, ENTITYBUILDER, ?>) originalDaoDescriptor.parentColumn().withPrefix(newPrefix, prefixer);
+        }
+        this.columnCollection = new ColumnCollection<ENTITY, ENTITYBUILDER>(primaryKey, parentColumn, dataColumns, joinColumns);
     }
 
     private List<JoinColumn<ENTITY,?, ENTITYBUILDER,?>> resetColumnPrefixes(Prefixer prefixer,
@@ -66,18 +65,8 @@ public class RelativeDaoDescriptor<ENTITY, PARENT, ENTITYBUILDER> implements Dao
     }
 
     @Override
-    public List<Column<ENTITY, ENTITYBUILDER>> dataColumns() {
-        return dataColumns;
-    }
-
-    @Override
-    public List<JoinColumn<ENTITY, ?, ENTITYBUILDER, ?>> joinColumns() {
-        return joinColumns;
-    }
-
-    @Override
-    public PrimaryKey<ENTITY, ENTITYBUILDER> primaryKey() {
-        return primaryKey;
+    public ColumnCollection<ENTITY, ENTITYBUILDER> getColumnCollection() {
+        return columnCollection;
     }
 
     @Override
@@ -86,22 +75,12 @@ public class RelativeDaoDescriptor<ENTITY, PARENT, ENTITYBUILDER> implements Dao
     }
 
     @Override
-    public ParentColumn<ENTITY, PARENT, ENTITYBUILDER, ?> parentColumn() {
-        return parentColumn;
+    public ParentColumn<ENTITY, ?, ENTITYBUILDER, ?> parentColumn() {
+        return columnCollection.getParentColumn();
     }
 
     @Override
     public Function<ENTITYBUILDER, ENTITY> buildFunction() {
         return buildFunction;
-    }
-
-    @Override
-    public List<Column<ENTITY, ENTITYBUILDER>> allColumns() {
-        return ColumnCollection.allColumns(nonJoinColumns(), joinColumns);
-    }
-
-    @Override
-    public List<Column<ENTITY, ENTITYBUILDER>> nonJoinColumns() {
-        return ColumnCollection.nonJoinColumns(primaryKey, parentColumn, dataColumns);
     }
 }

@@ -20,7 +20,9 @@ public interface DaoDescriptor<ENTITY, ENTITYBUILDER> extends KeylessDaoDescript
      *
      * @return the primary key
      */
-    PrimaryKey<ENTITY, ENTITYBUILDER> primaryKey();
+    default PrimaryKey<ENTITY, ENTITYBUILDER> primaryKey(){
+        return getColumnCollection().getPrimaryKey();
+    }
 
     /**
      * The parent column, if there is one, of the <code>ENTITY</code>.

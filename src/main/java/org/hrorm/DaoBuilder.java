@@ -46,13 +46,8 @@ public class DaoBuilder<ENTITY> implements DaoDescriptor<ENTITY, ENTITY> {
     }
 
     @Override
-    public List<Column<ENTITY, ENTITY>> dataColumns() {
-        return columnCollection.getDataColumns();
-    }
-
-    @Override
-    public PrimaryKey<ENTITY, ENTITY> primaryKey() {
-        return columnCollection.getPrimaryKey();
+    public ColumnCollection<ENTITY, ENTITY> getColumnCollection(){
+        return columnCollection;
     }
 
     public String getPrefix(){
@@ -67,19 +62,6 @@ public class DaoBuilder<ENTITY> implements DaoDescriptor<ENTITY, ENTITY> {
     @Override
     public ParentColumn<ENTITY, ?, ENTITY, ?> parentColumn() {
         return columnCollection.getParentColumn();
-    }
-
-    public List<JoinColumn<ENTITY, ?, ENTITY, ?>> joinColumns() { return columnCollection.getJoinColumns(); }
-
-
-    @Override
-    public List<Column<ENTITY, ENTITY>> allColumns() {
-        return columnCollection.allColumns();
-    }
-
-    @Override
-    public List<Column<ENTITY, ENTITY>> nonJoinColumns() {
-        return columnCollection.nonJoinColumns();
     }
 
     @Override

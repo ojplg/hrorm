@@ -8,10 +8,25 @@ public class ColumnCollection<ENTITY,BUILDER> {
 
     private PrimaryKey<ENTITY, BUILDER> primaryKey;
     private ParentColumn<ENTITY, ?, BUILDER, ?> parentColumn;
-    private List<Column<ENTITY, BUILDER>> dataColumns = new ArrayList<>();
-    private List<JoinColumn<ENTITY, ?, BUILDER, ?>> joinColumns = new ArrayList<>();
+    private List<Column<ENTITY, BUILDER>> dataColumns;
+    private List<JoinColumn<ENTITY, ?, BUILDER, ?>> joinColumns;
 
     private Column<ENTITY, BUILDER> lastColumnAdded;
+
+    public ColumnCollection(){
+        dataColumns = new ArrayList<>();
+        joinColumns = new ArrayList<>();
+    }
+
+    public ColumnCollection(PrimaryKey<ENTITY, BUILDER> primaryKey,
+                            ParentColumn<ENTITY, ?, BUILDER, ?> parentColumn,
+                            List<Column<ENTITY, BUILDER>> dataColumns,
+                            List<JoinColumn<ENTITY, ?, BUILDER, ?>> joinColumns) {
+        this.primaryKey = primaryKey;
+        this.parentColumn = parentColumn;
+        this.dataColumns = dataColumns;
+        this.joinColumns = joinColumns;
+    }
 
     public void addJoinColumn(JoinColumn<ENTITY, ?, BUILDER, ?> joinColumn) {
         lastColumnAdded = joinColumn;

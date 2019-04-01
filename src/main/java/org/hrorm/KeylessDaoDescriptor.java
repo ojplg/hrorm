@@ -36,37 +36,17 @@ public interface KeylessDaoDescriptor<ENTITY, ENTITYBUILDER> {
     Supplier<ENTITYBUILDER> supplier();
 
     /**
-     * The columns that contain the data that make up the object
-     *
-     * @return all the data columns supported
-     */
-    List<Column<ENTITY, ENTITYBUILDER>> dataColumns();
-
-    /**
-     * The columns that contain references to foreign keys to other objects
-     *
-     * @return all the reference columns supported
-     */
-    List<JoinColumn<ENTITY, ?, ENTITYBUILDER, ?>> joinColumns();
-
-    /**
      * The mechanism for building a new entity instance.
      *
      * @return the build function
      */
     Function<ENTITYBUILDER, ENTITY> buildFunction();
 
-    /**
-     * All the columns of the underlying table, both data type and join type.
-     *
-     * @return all the columns
-     */
-    List<Column<ENTITY, ENTITYBUILDER>> allColumns();
-
-
     default ColumnSelection<ENTITY, ENTITYBUILDER> select(String... columnNames) {
         return new ColumnSelection(allColumns(), columnNames);
     }
+
+    ColumnCollection<ENTITY, ENTITYBUILDER> getColumnCollection();
 
     /**
      * All the columns in the DAO, except those that represent joins
@@ -74,5 +54,35 @@ public interface KeylessDaoDescriptor<ENTITY, ENTITYBUILDER> {
      *
      * @return all the data and other non-join columns
      */
-    List<Column<ENTITY, ENTITYBUILDER>> nonJoinColumns();
+    default List<Column<ENTITY, ENTITYBUILDER>> nonJoinColumns(){
+        return getColumnCollection().nonJoinColumns();
+    }
+
+    /**
+     * The columns that contain the data that make up the object
+     *
+     * @return all the data columns supported
+     */
+    default List<Column<ENTITY, ENTITYBUILDER>> dataColumns(){
+        return getColumnCollection().getDataColumns();
+    }
+
+    /**
+     * All the columns of the underlying table, both data type and join type.
+     *
+     * @return all the columns
+     */
+    default List<Column<ENTITY, ENTITYBUILDER>> allColumns(){
+        return getColumnCollection().allColumns();
+    }
+
+    /**
+     * The columns that contain references to foreign keys to other objects
+     *
+     * @return all the reference columns supported
+     */
+    default List<JoinColumn<ENTITY, ?, ENTITYBUILDER, ?>> joinColumns(){
+        return getColumnCollection().getJoinColumns();
+    }
+
 }
