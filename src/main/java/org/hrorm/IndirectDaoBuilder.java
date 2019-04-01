@@ -4,8 +4,6 @@ import java.math.BigDecimal;
 import java.sql.Connection;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -30,8 +28,6 @@ public class IndirectDaoBuilder<ENTITY, BUILDER>  implements SchemaDescriptor<EN
     private final ColumnCollection<ENTITY,BUILDER> columnCollection = new ColumnCollection<>();
     private final DaoBuilderHelper<ENTITY, BUILDER> daoBuilderHelper;
     private final List<ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors = new ArrayList<>();
-
-    private final List<List<String>> uniquenessConstraints = new ArrayList<>();
 
     /**
      * Create a new <code>IndirectDaoBuilder</code> instance.
@@ -401,12 +397,12 @@ public class IndirectDaoBuilder<ENTITY, BUILDER>  implements SchemaDescriptor<EN
     }
 
     public IndirectDaoBuilder<ENTITY, BUILDER> withUniqueConstraint(String ... columnNames){
-        this.uniquenessConstraints.add(Arrays.asList(columnNames));
+        columnCollection.addUniquenConstraint(columnNames);
         return this;
     }
 
     @Override
     public List<List<String>> uniquenessConstraints() {
-        return uniquenessConstraints;
+        return columnCollection.getUniquenessConstraints();
     }
 }

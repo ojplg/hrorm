@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 import java.sql.Connection;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -25,8 +24,6 @@ public class DaoBuilder<ENTITY> implements SchemaDescriptor<ENTITY, ENTITY> {
     private final ColumnCollection<ENTITY,ENTITY> columnCollection = new ColumnCollection<>();
     private final DaoBuilderHelper<ENTITY, ENTITY> daoBuilderHelper;
     private final List<ChildrenDescriptor<ENTITY,?, ENTITY,?>> childrenDescriptors = new ArrayList<>();
-
-    private final List<List<String>> uniquenessConstraints = new ArrayList<>();
 
     /**
      * Create a new DaoBuilder instance.
@@ -364,12 +361,12 @@ public class DaoBuilder<ENTITY> implements SchemaDescriptor<ENTITY, ENTITY> {
     }
 
     public DaoBuilder<ENTITY> withUniqueConstraint(String ... columnNames){
-        uniquenessConstraints.add(Arrays.asList(columnNames));
+        columnCollection.addUniquenConstraint(columnNames);
         return this;
     }
 
     @Override
     public List<List<String>> uniquenessConstraints() {
-        return uniquenessConstraints;
+        return columnCollection.getUniquenessConstraints();
     }
 }

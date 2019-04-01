@@ -3,6 +3,8 @@ package org.hrorm;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class ColumnCollection<ENTITY,BUILDER> {
 
@@ -12,6 +14,8 @@ public class ColumnCollection<ENTITY,BUILDER> {
     private List<JoinColumn<ENTITY, ?, BUILDER, ?>> joinColumns;
 
     private Column<ENTITY, BUILDER> lastColumnAdded;
+
+    private final List<List<String>> uniquenessConstraints = new ArrayList<>();
 
     public ColumnCollection(){
         dataColumns = new ArrayList<>();
@@ -107,5 +111,25 @@ public class ColumnCollection<ENTITY,BUILDER> {
         return Collections.unmodifiableList(columns);
     }
 
+    private Set<String> capitalizedColumnNames(){
+        return allColumns().stream().map(c -> c.getName().toUpperCase()).collect(Collectors.toSet());
+    }
+
+    public void addUniquenConstraint(String ... constraintColumnNames){
+        Set<String> existingColumnNames = capitalizedColumnNames();
+        List<String> constrainedColumns = new ArrayList<>();
+        for(String constrainedColumn : constraintColumnNames){
+            String capitalizedConstrainedColumn = constrainedColumn.toUpperCase();
+            if( ! existingColumnNames.contains(capitalizedConstrainedColumn) ){
+                throw new HrormException("No column recognized with name " + constrainedColumn);
+            }
+            constrainedColumns.add(capitalizedConstrainedColumn);
+        }
+        uniquenessConstraints.add(Collections.unmodifiableList(constrainedColumns));
+    }
+
+    public List<List<String>> getUniquenessConstraints(){
+        return Collections.unmodifiableList(uniquenessConstraints);
+    }
 
 }

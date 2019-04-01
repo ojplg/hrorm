@@ -39,4 +39,5 @@ public class DaoBuilderHelper<ENTITY,BUILDER> {
     public Prefixer getPrefixer(){
         return prefixer;
     }
+
 }
