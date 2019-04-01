@@ -212,9 +212,9 @@ DaoBuilder&lt;Ingredient&gt; ingredientDaoBuilder = new DaoBuilder<>("INGREDIENT
 
 <pre>
 DaoBuilder&lt;Recipe&gt; recipeDaoBuilder = new DaoBuilder<>("RECIPE", Recipe::new)
-            .withPrimaryKey("ID", "RECIPE_SEQUENCE", Recipe::getId, Recipe::setId)
-            .withStringColumn("NAME", Recipe::getName, Recipe::setName)
-            .withChildren(Recipe::getIngredients, Recipe::setIngredients, ingredientDaoBuilder);</pre>
+        .withPrimaryKey("ID", "RECIPE_SEQUENCE", Recipe::getId, Recipe::setId)
+        .withStringColumn("NAME", Recipe::getName, Recipe::setName)
+        .withChildren(Recipe::getIngredients, Recipe::setIngredients, ingredientDaoBuilder);</pre>
 
 <p>
     In addition to the column definitions, there is an extra <code>withChildren()</code> call

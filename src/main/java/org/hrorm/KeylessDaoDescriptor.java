@@ -1,7 +1,5 @@
 package org.hrorm;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -38,32 +36,35 @@ public interface KeylessDaoDescriptor<ENTITY, ENTITYBUILDER> {
     Supplier<ENTITYBUILDER> supplier();
 
     /**
+     * The mechanism for building a new entity instance.
+     *
+     * @return the build function
+     */
+    Function<ENTITYBUILDER, ENTITY> buildFunction();
+
+    default ColumnSelection<ENTITY, ENTITYBUILDER> select(String... columnNames) {
+        return new ColumnSelection(allColumns(), columnNames);
+    }
+
+    ColumnCollection<ENTITY, ENTITYBUILDER> getColumnCollection();
+
+    /**
+     * All the columns in the DAO, except those that represent joins
+     * to other entities, including primary key and parent column.
+     *
+     * @return all the data and other non-join columns
+     */
+    default List<Column<ENTITY, ENTITYBUILDER>> nonJoinColumns(){
+        return getColumnCollection().nonJoinColumns();
+    }
+
+    /**
      * The columns that contain the data that make up the object
      *
      * @return all the data columns supported
      */
-    List<Column<ENTITY, ENTITYBUILDER>> dataColumns();
-
-    /**
-     * The columns that contain references to foreign keys to other objects
-     *
-     * @return all the reference columns supported
-     */
-    List<JoinColumn<ENTITY,?, ENTITYBUILDER,?>> joinColumns();
-
-    /**
-     * The definitions of any entities that are owned by type <code>ENTITY</code>
-     *
-     * @return all the owned entities
-     */
-    List<ChildrenDescriptor<ENTITY, ?, ENTITYBUILDER, ?>> childrenDescriptors();
-
-    <P,PB> ParentColumn<ENTITY, P, ENTITYBUILDER, PB> parentColumn();
-
-    Function<ENTITYBUILDER, ENTITY> buildFunction();
-
-    default boolean hasParent(){
-        return parentColumn() != null;
+    default List<Column<ENTITY, ENTITYBUILDER>> dataColumns(){
+        return getColumnCollection().getDataColumns();
     }
 
     /**
@@ -72,28 +73,16 @@ public interface KeylessDaoDescriptor<ENTITY, ENTITYBUILDER> {
      * @return all the columns
      */
     default List<Column<ENTITY, ENTITYBUILDER>> allColumns(){
-        List<Column<ENTITY, ENTITYBUILDER>> allColumns = new ArrayList<>();
-        allColumns.addAll(dataColumnsWithParent());
-        allColumns.addAll(joinColumns());
-        return Collections.unmodifiableList(allColumns);
+        return getColumnCollection().allColumns();
     }
 
-    static <ENTITY, ENTITYBUILDER, P, PB> List<Column<ENTITY, ENTITYBUILDER>> dataColumnsWithParent(
-            List<Column<ENTITY, ENTITYBUILDER>> dataColumns, ParentColumn<ENTITY, P, ENTITYBUILDER, PB> parentColumn,
-            boolean hasParent){
-        List<Column<ENTITY, ENTITYBUILDER>> allColumns = new ArrayList<>(dataColumns);
-        if ( hasParent ) {
-            allColumns.add(parentColumn);
-        }
-        return Collections.unmodifiableList(allColumns);
-    }
-
-    default List<Column<ENTITY, ENTITYBUILDER>> dataColumnsWithParent(){
-        return KeylessDaoDescriptor.dataColumnsWithParent(dataColumns(), parentColumn(), hasParent());
-    }
-
-    default ColumnSelection<ENTITY, ENTITYBUILDER> select(String ... columnNames){
-        return new ColumnSelection(allColumns(), columnNames);
+    /**
+     * The columns that contain references to foreign keys to other objects
+     *
+     * @return all the reference columns supported
+     */
+    default List<JoinColumn<ENTITY, ?, ENTITYBUILDER, ?>> joinColumns(){
+        return getColumnCollection().getJoinColumns();
     }
 
 }

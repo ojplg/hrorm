@@ -24,7 +24,7 @@ import java.util.List;
 
 public class ImmutableThingTest {
 
-    static { TestLogConfig.load(); }
+//    static { TestLogConfig.load(); }
 
     private static Helper HELPER = HelperFactory.forSchema("immutable_thing");
 
@@ -41,11 +41,6 @@ public class ImmutableThingTest {
     @Test
     public void insertAndSelectImmutableThing() throws SQLException {
         doInsertAndSelectImmutableThing(HELPER);
-    }
-
-    @Test
-    public void insertAndSelectImmutableThingWithAChild() throws SQLException {
-        doInsertAndSelectImmutableThingWithAChild(HELPER);
     }
 
     @Test
@@ -87,6 +82,11 @@ public class ImmutableThingTest {
 
             connection.close();
         }
+    }
+
+    @Test
+    public void insertAndSelectImmutableThingWithAChild() throws SQLException {
+        doInsertAndSelectImmutableThingWithAChild(HELPER);
     }
 
     public static void doInsertAndSelectImmutableThingWithAChild(Helper helper) throws SQLException {

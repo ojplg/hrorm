@@ -21,14 +21,27 @@ import java.util.stream.Stream;
 public class Schema {
 
     private final List<SchemaDescriptor> descriptors;
+    private final List<KeylessDaoDescriptor> keylessDescriptors;
 
     /**
      * Construct an instance.
      *
      * @param descriptors The <code>DaoDescriptor</code> objects to generate SQL for.
      */
-    public Schema(SchemaDescriptor ... descriptors){
-        this.descriptors = Collections.unmodifiableList(Arrays.asList(descriptors));
+    public Schema(KeylessDaoDescriptor ... descriptors){
+        List<SchemaDescriptor> daoDescriptors = new ArrayList<>();
+        List<KeylessDaoDescriptor> keylessDaoDescriptors = new ArrayList<>();
+
+        for(KeylessDaoDescriptor descriptor : descriptors){
+            if( descriptor instanceof SchemaDescriptor){
+                daoDescriptors.add((SchemaDescriptor) descriptor);
+            } else {
+                keylessDaoDescriptors.add(descriptor);
+            }
+        }
+
+        this.descriptors = Collections.unmodifiableList(daoDescriptors);
+        this.keylessDescriptors = Collections.unmodifiableList(keylessDaoDescriptors);
     }
 
     private String renderColumn(Column<?,?> column){
@@ -36,7 +49,7 @@ public class Schema {
         return column.getName() + " " + column.getSqlType() + extension;
     }
 
-    private List<String> joinConstraints(DaoDescriptor<?,?> descriptor){
+    private Stream<String> joinConstraints(KeylessDaoDescriptor<?,?> descriptor){
         List<String> constraints = new ArrayList<>();
         for( JoinColumn<?,?,?,?> joinColumn : descriptor.joinColumns() ) {
             String constraint = foreignKeyConstraint(
@@ -47,10 +60,10 @@ public class Schema {
             );
             constraints.add(constraint);
         }
-        return constraints;
+        return constraints.stream();
     }
 
-    private List<String> childConstraints(DaoDescriptor<?,?> descriptor){
+    private Stream<String> childConstraints(DaoDescriptor<?,?> descriptor){
         List<String> constraints = new ArrayList<>();
         for( ChildrenDescriptor<?,?,?,?> childDescriptor : descriptor.childrenDescriptors()){
             String constraint = foreignKeyConstraint(
@@ -61,7 +74,7 @@ public class Schema {
             );
             constraints.add(constraint);
         }
-        return constraints;
+        return constraints.stream();
     }
 
     private String uniquenessConstraint(String tableName, List<String> columnNames){
@@ -89,8 +102,8 @@ public class Schema {
 
     private Stream<String> allConstraints(SchemaDescriptor<?,?> descriptor){
         return Stream.of(
-                joinConstraints(descriptor).stream(),
-                childConstraints(descriptor).stream(),
+                joinConstraints(descriptor),
+                childConstraints(descriptor),
                 uniquenessConstraints(descriptor).stream()).flatMap(s -> s);
     }
 
@@ -116,6 +129,25 @@ public class Schema {
         return buf.toString();
     }
 
+    private String tablesSql(KeylessDaoDescriptor<?,?> descriptor){
+        StringBuilder buf = new StringBuilder();
+
+        buf.append("create table ");
+        buf.append(descriptor.tableName());
+        buf.append(" (\n");
+        List<String> columnSqls = descriptor.allColumns().stream()
+                .filter(c -> ! c.isPrimaryKey())
+                .map(this::renderColumn)
+                .collect(Collectors.toList());
+
+        buf.append(String.join(",\n", columnSqls));
+
+        buf.append(");\n");
+
+        return buf.toString();
+    }
+
+
     private String foreignKeyConstraint(String tableName, String columnName, String foreignTableName, String foreignPrimaryKey){
         StringBuilder buf = new StringBuilder();
 
@@ -140,7 +172,10 @@ public class Schema {
      * @return The SQL to create the constraints.
      */
     public List<String> constraints(){
-        return descriptors.stream().flatMap(this::allConstraints).collect(Collectors.toList());
+        return Stream.concat(
+                descriptors.stream().flatMap(this::allConstraints),
+                keylessDescriptors.stream().flatMap(this::joinConstraints))
+                .collect(Collectors.toList());
     }
 
     /**
@@ -164,7 +199,10 @@ public class Schema {
      * @return The SQL to create the tables.
      */
     public List<String> tables(){
-        return descriptors.stream().map(this::tablesSql).collect(Collectors.toList());
+        return Stream.concat(
+                descriptors.stream().map(this::tablesSql),
+                keylessDescriptors.stream().map(this::tablesSql))
+                .collect(Collectors.toList());
     }
 
     /**

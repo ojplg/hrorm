@@ -70,4 +70,5 @@ public class ColumnTypes {
                             Types.TIME,
                             Types.TIMESTAMP
                     )));
+
 }

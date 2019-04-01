@@ -18,29 +18,21 @@ import java.util.stream.Collectors;
 public class KeylessSqlBuilder<ENTITY> {
 
     private final String table;
-    private final List<? extends Column<ENTITY,?>> dataColumns;
+    private final List<? extends Column<ENTITY,?>> nonJoinColumns;
     private final List<? extends JoinColumn<ENTITY, ?, ?, ?>> joinColumns;
 
-    public KeylessSqlBuilder(DaoDescriptor<ENTITY,?> daoDescriptor){
+    public KeylessSqlBuilder(KeylessDaoDescriptor<ENTITY,?> daoDescriptor){
         this.table = daoDescriptor.tableName();
-        this.dataColumns = daoDescriptor.dataColumnsWithParent();
+        this.nonJoinColumns = daoDescriptor.nonJoinColumns();
         this.joinColumns = daoDescriptor.joinColumns();
-    }
-
-    public KeylessSqlBuilder(String table,
-                      List<? extends Column<ENTITY,?>> dataColumns,
-                      List<? extends JoinColumn<ENTITY, ?, ?, ?>> joinColumns) {
-        this.table = table;
-        this.dataColumns = dataColumns;
-        this.joinColumns = joinColumns;
     }
 
     public String getTable(){
         return table;
     }
 
-    public List<? extends Column<ENTITY, ?>> getDataColumns() {
-        return dataColumns;
+    public List<? extends Column<ENTITY, ?>> getNonJoinColumns() {
+        return nonJoinColumns;
     }
 
     public List<? extends JoinColumn<ENTITY, ?, ?, ?>> getJoinColumns() {
@@ -63,13 +55,13 @@ public class KeylessSqlBuilder<ENTITY> {
     public String select(){
         StringBuilder buf = new StringBuilder();
         buf.append("select ");
-        buf.append(columnsAsString("a", true, dataColumns));
+        buf.append(columnsAsString("a", true, nonJoinColumns));
         for(JoinColumn<?, ?, ?, ?> joinColumn : flattenedJoinColumns()) {
             buf.append(", ");
             buf.append(columnsAsString(
                     joinColumn.getPrefix(),
                     true,
-                    joinColumn.getDataColumns()
+                    joinColumn.getNonJoinColumns()
             ));
         }
         buf.append(" from ");
@@ -163,13 +155,13 @@ public class KeylessSqlBuilder<ENTITY> {
         bldr.append("insert into ");
         bldr.append(table);
         bldr.append(" ( ");
-        bldr.append(columnsAsString("", false, dataColumns));
+        bldr.append(columnsAsString("", false, nonJoinColumns));
         if( ! joinColumns.isEmpty() ) {
             bldr.append(", ");
             bldr.append(columnsAsString("", false, joinColumns));
         }
         bldr.append(" ) values ( ");
-        int end = dataColumns.size() - 1;
+        int end = nonJoinColumns.size() - 1;
         if (!joinColumns.isEmpty()){
             end += joinColumns.size();
         }

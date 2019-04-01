@@ -80,6 +80,7 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
     }
 
     public void saveChildren(Connection connection, Envelope<PARENT> envelope) {
+
         PrimaryKey<CHILD, CHILDBUILDER> childPrimaryKey = childDaoDescriptor.primaryKey();
 
         PARENT item = envelope.getItem();
@@ -147,5 +148,10 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
 
     private Function<CHILDBUILDER, CHILD> childBuilder(){
         return childDaoDescriptor.buildFunction();
+    }
+
+    @Override
+    public String toString() {
+        return "ChildrenDescriptor for " + childDaoDescriptor.tableName();
     }
 }

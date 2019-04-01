@@ -1,5 +1,7 @@
 package org.hrorm;
 
+import java.util.List;
+
 /**
  * Implementers of this interface completely describe all the information
  * necessary to persisting objects of type <code>ENTITY</code>.
@@ -18,6 +20,33 @@ public interface DaoDescriptor<ENTITY, ENTITYBUILDER> extends KeylessDaoDescript
      *
      * @return the primary key
      */
-    PrimaryKey<ENTITY, ENTITYBUILDER> primaryKey();
+    default PrimaryKey<ENTITY, ENTITYBUILDER> primaryKey(){
+        return getColumnCollection().getPrimaryKey();
+    }
+
+    /**
+     * The parent column, if there is one, of the <code>ENTITY</code>.
+     *
+     * @param <P> The type of the parent entity.
+     * @param <PB> The type of the parent entity's builder class.
+     * @return The parent column.
+     */
+    <P,PB> ParentColumn<ENTITY, P, ENTITYBUILDER, PB> parentColumn();
+
+    /**
+     * Indicator of whether or not this entity has a parent.
+     *
+     * @return true if there is a parent, or false otherwise.
+     */
+    default boolean hasParent(){
+        return parentColumn() != null;
+    }
+
+    /**
+     * The definitions of any entities that are owned by type <code>ENTITY</code>
+     *
+     * @return all the owned entities
+     */
+    List<ChildrenDescriptor<ENTITY, ?, ENTITYBUILDER, ?>> childrenDescriptors();
 
 }

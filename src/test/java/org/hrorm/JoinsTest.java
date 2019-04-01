@@ -20,7 +20,7 @@ import java.time.Instant;
 
 public class JoinsTest {
 
-    static { TestLogConfig.load(); }
+//    static { TestLogConfig.load(); }
 
     private static Helper helper = HelperFactory.forSchema("joins");
 
@@ -99,6 +99,10 @@ public class JoinsTest {
         Assert.assertEquals(44L, (long) readFromDb.getSibling().getNumber());
         Assert.assertEquals(EnumeratedColor.Green, readFromDb.getSibling().getCousin().getColor());
         Assert.assertEquals(now, readFromDb.getSibling().getCousin().getSecondCousin().getDateTime());
+
+        Assert.assertNotNull(readFromDb.getId());
+        Assert.assertNotNull(readFromDb.getSibling().getId());
+
 
         connection.commit();
         connection.close();

@@ -2,7 +2,7 @@ package org.hrorm;
 
 import org.hrorm.database.Helper;
 import org.hrorm.database.HelperFactory;
-import org.hrorm.examples.Keyless;
+import org.hrorm.examples.keyless.Keyless;
 import org.hrorm.util.RandomUtils;
 import org.hrorm.util.TestLogConfig;
 import org.junit.AfterClass;

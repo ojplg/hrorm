@@ -77,4 +77,8 @@ public abstract class AbstractColumn<TYPE,ENTITY,BUILDER> implements Column<ENTI
     public boolean isNullable(){
         return nullable;
     }
+
+    public String toString(){
+        return "Column: " + getPrefix() + "."  + getName();
+    }
 }

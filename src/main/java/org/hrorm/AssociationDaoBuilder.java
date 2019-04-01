@@ -192,21 +192,14 @@ public class AssociationDaoBuilder<LEFT, RIGHT>
     }
 
     @Override
-    public List<Column<Association<LEFT, RIGHT>, Association<LEFT, RIGHT>>> dataColumns() {
-        prepareDaoBuilder();
-        return internalDaoBuilder.dataColumns();
-    }
-
-    @Override
-    public List<JoinColumn<Association<LEFT, RIGHT>, ?, Association<LEFT, RIGHT>, ?>> joinColumns() {
-        prepareDaoBuilder();
-        return internalDaoBuilder.joinColumns();
-    }
-
-    @Override
     public List<ChildrenDescriptor<Association<LEFT, RIGHT>, ?, Association<LEFT, RIGHT>, ?>> childrenDescriptors() {
         prepareDaoBuilder();
         return internalDaoBuilder.childrenDescriptors();
+    }
+
+    @Override
+    public ColumnCollection<Association<LEFT, RIGHT>, Association<LEFT, RIGHT>> getColumnCollection() {
+        return internalDaoBuilder.getColumnCollection();
     }
 
     @Override

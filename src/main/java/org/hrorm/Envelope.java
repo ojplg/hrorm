@@ -44,4 +44,13 @@ public class Envelope<T> {
     public Long getParentId() {
         return parentId;
     }
+
+    @Override
+    public String toString() {
+        return "Envelope{" +
+                "item=" + item +
+                ", id=" + id +
+                ", parentId=" + parentId +
+                '}';
+    }
 }
