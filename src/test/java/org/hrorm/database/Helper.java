@@ -1,6 +1,7 @@
 package org.hrorm.database;
 
 import java.sql.Connection;
+import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -24,4 +25,10 @@ public interface Helper {
     void useConnection(Consumer<Connection> consumer);
 
     <T> T useConnection(Function<Connection, T> function);
+
+    List<String> tableNames();
+
+    List<String> sequenceNames();
+
+    List<Constraint> constraints();
 }

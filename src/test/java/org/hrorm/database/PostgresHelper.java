@@ -40,20 +40,25 @@ public class PostgresHelper extends AbstractHelper {
 
     @Override
     public void dropSchema() {
-
         try {
             Connection connection = connect();
+            Statement statement = connection.createStatement();
+
+            for(Constraint constraint : constraintNames){
+                statement.execute("alter table " + constraint.getTableName() + " drop " + constraint.getConstraintName());
+            }
+
             for (String tableName : tableNames) {
-                Statement statement = connection.createStatement();
                 statement.execute("drop table " + tableName);
             }
 
             for (String sequenceName : sequenceNames) {
-                Statement statement = connection.createStatement();
                 statement.execute("drop sequence " + sequenceName);
             }
 
+            statement.close();
             connection.commit();
+            connection.close();
         } catch (SQLException ex){
             throw new RuntimeException(ex);
         }

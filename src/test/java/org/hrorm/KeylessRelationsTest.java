@@ -1,5 +1,6 @@
 package org.hrorm;
 
+import org.hrorm.database.AbstractHelper;
 import org.hrorm.database.Helper;
 import org.hrorm.database.HelperFactory;
 import org.hrorm.examples.keyless.DaoBuilders;
@@ -23,13 +24,15 @@ public class KeylessRelationsTest {
     @BeforeClass
     public static void setUpDb(){
         helper.initializeSchemaFromSql(DaoBuilders.SCHEMA.sql());
+//        System.out.println("SET UP SEQUENCES " + helper.sequenceNames());
+//        System.out.println("SET UP TABLES " + helper.tableNames());
+//        System.out.println("SET UP CONSTRAINTS " + helper.constraints());
     }
 
     @AfterClass
     public static void cleanUpDb(){
         helper.dropSchema();
     }
-
 
     @Test
     public void testInsertAndSelect(){

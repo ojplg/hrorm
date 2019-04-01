@@ -27,8 +27,12 @@ public abstract class AbstractHelper implements Helper {
     private static final Pattern createTablePattern = Pattern.compile(
             "create table ([a-zA-Z_]+)\\s*\\(", Pattern.CASE_INSENSITIVE);
 
+    public static final Pattern constraintPattern = Pattern.compile(
+            "alter table ([a-zA-Z_]+)\\s*add foreign key\\s*\\(([a-zA-Z_]+)\\).*", Pattern.CASE_INSENSITIVE);
+
     protected final List<String> sequenceNames = new ArrayList<>();
     protected final List<String> tableNames = new ArrayList<>();
+    protected final List<Constraint> constraintNames = new ArrayList<>();
 
     protected AbstractHelper(String schemaName){
         this.schemaName = schemaName;
@@ -45,8 +49,6 @@ public abstract class AbstractHelper implements Helper {
 
             StringBuilder wholeFileBuffer = new StringBuilder();
             bufferedReader.lines().forEach( line -> {
-                //extractNameFromLine(line);
-
                 wholeFileBuffer.append(line);
                 wholeFileBuffer.append("\n");
             });
@@ -57,6 +59,7 @@ public abstract class AbstractHelper implements Helper {
     }
 
     private void extractNameFromLine(String line){
+
         Matcher matcher = createSequencePattern.matcher(line);
         if ( matcher.matches() ){
             String seqName = matcher.group(1);
@@ -69,11 +72,28 @@ public abstract class AbstractHelper implements Helper {
             tableNames.add(tableName);
         }
 
+        matcher = constraintPattern.matcher(line);
+        if ( matcher.matches() ){
+            String tableName = matcher.group(1);
+            String constraintName = matcher.group(2);
+            constraintNames.add(new Constraint(tableName, constraintName));
+        }
+
     }
 
     @Override
     public void clearTables() {
-        tableNames.forEach(this::clearTable);
+        try {
+            Connection connection = connect();
+            Statement statement = connection.createStatement();
+            for( String tableName : tableNames ) {
+                statement.execute("delete from " + tableName);
+            }
+            connection.commit();
+            connection.close();
+        } catch (Exception ex){
+            throw new RuntimeException(ex);
+        }
     }
 
     @Override
@@ -139,5 +159,20 @@ public abstract class AbstractHelper implements Helper {
 
     public <T> T useConnection(Function<Connection, T> function){
         return transactor.runAndCommit(function);
+    }
+
+    @Override
+    public List<String> tableNames() {
+        return tableNames;
+    }
+
+    @Override
+    public List<String> sequenceNames() {
+        return sequenceNames;
+    }
+
+    @Override
+    public List<Constraint> constraints() {
+        return constraintNames;
     }
 }
