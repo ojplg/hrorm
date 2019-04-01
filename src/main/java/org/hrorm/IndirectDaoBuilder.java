@@ -6,7 +6,6 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -30,27 +29,9 @@ public class IndirectDaoBuilder<ENTITY, BUILDER>  implements DaoDescriptor<ENTIT
     private final DaoBuilderHelper<ENTITY, BUILDER> daoBuilderHelper;
     private final List<ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors = new ArrayList<>();
 
-    static class BuilderHolder<T,TB> {
-        IndirectDaoBuilder<T,TB> daoBuilder;
-        Consumer<PrimaryKey<T,TB>> primaryKeyConsumer;
-        String myPrefix;
-    }
-
-    static <T> BuilderHolder<T,T> forDirectDaoBuilder(String tableName, Supplier<T> supplier){
-        IndirectDaoBuilder<T,T> daoBuilder = new IndirectDaoBuilder<>(tableName, supplier, t-> t);
-        BuilderHolder<T,T> holder = new BuilderHolder<>();
-        holder.daoBuilder = daoBuilder;
-        holder.primaryKeyConsumer = daoBuilder::acceptPrimaryKey;
-        holder.myPrefix = daoBuilder.getPrefix();
-        return holder;
-    }
-
-    private void acceptPrimaryKey(PrimaryKey<ENTITY,BUILDER> primaryKey){
-        columnCollection.setPrimaryKey(primaryKey);
-    }
 
     /**
-     * Create a new DaoBuilder instance.
+     * Create a new <code>IndirectDaoBuilder</code> instance.
      *
      * @param tableName The name of the table in the database.
      * @param supplier A mechanism (generally a constructor) for creating a new instance.
@@ -340,7 +321,7 @@ public class IndirectDaoBuilder<ENTITY, BUILDER>  implements DaoDescriptor<ENTIT
      */
     public IndirectDaoBuilder<ENTITY, BUILDER> withPrimaryKey(String columnName, String sequenceName, Function<ENTITY, Long> getter, BiConsumer<BUILDER, Long> setter){
         PrimaryKey<ENTITY, BUILDER> key = new IndirectPrimaryKey<>(getPrefix(), columnName, sequenceName, getter, setter);
-        acceptPrimaryKey(key);
+        columnCollection.setPrimaryKey(key);
         return this;
     }
 
