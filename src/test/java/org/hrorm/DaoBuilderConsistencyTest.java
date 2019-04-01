@@ -18,7 +18,7 @@ public class DaoBuilderConsistencyTest {
         Class keylessDaoBuilderClass = Class.forName("org.hrorm.IndirectKeylessDaoBuilder");
 
         testEquivalencyOfFluentMethods(indirectDaoBuilderClass, daoBuilderClass, Collections.emptyList());
-        testEquivalencyOfFluentMethods(indirectDaoBuilderClass, keylessDaoBuilderClass, Arrays.asList("withPrimaryKey", "withChildren"));
+        testEquivalencyOfFluentMethods(indirectDaoBuilderClass, keylessDaoBuilderClass, Arrays.asList("withPrimaryKey", "withChildren", "withParentColumn"));
     }
 
     @Test
@@ -28,9 +28,8 @@ public class DaoBuilderConsistencyTest {
         Class keylessDaoBuilderClass = Class.forName("org.hrorm.IndirectKeylessDaoBuilder");
 
         testEquivalencyOfNonFluentMethods(indirectDaoBuilderClass, daoBuilderClass, Collections.emptyList());
-        // FIXME: See above. Then extra method in KeylessDaoBuilder can be moved
         testEquivalencyOfNonFluentMethods(indirectDaoBuilderClass, keylessDaoBuilderClass,
-                Arrays.asList( "buildQueries", "primaryKey", "buildDao"));
+                Arrays.asList( "buildQueries", "primaryKey", "buildDao", "hasParent", "parentColumn"));
     }
 
     public void testEquivalencyOfNonFluentMethods(Class classA, Class classB, List<String> skippableMethods) {
