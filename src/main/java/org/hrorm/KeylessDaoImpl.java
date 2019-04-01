@@ -26,15 +26,15 @@ import java.util.stream.Collectors;
 public class KeylessDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> implements KeylessDao<ENTITY>, KeylessDaoDescriptor<ENTITY, BUILDER> {
 
     protected final Connection connection;
-    protected final String tableName;
-    private final List<Column<ENTITY, BUILDER>> nonJoinColumns;
-    protected final Supplier<BUILDER> supplier;
-    private final List<JoinColumn<ENTITY,?, BUILDER,?>> joinColumns;
     protected final KeylessSqlBuilder<ENTITY> keylessSqlBuilder;
     protected final SqlRunner<ENTITY, BUILDER> sqlRunner;
-    protected final Function<BUILDER, ENTITY> buildFunction;
-    private final List<ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors;
 
+    private final String tableName;
+    private final List<Column<ENTITY, BUILDER>> nonJoinColumns;
+    private final Supplier<BUILDER> supplier;
+    private final List<JoinColumn<ENTITY,?, BUILDER,?>> joinColumns;
+    private final Function<BUILDER, ENTITY> buildFunction;
+    private final List<ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors;
 
     public KeylessDaoImpl(Connection connection,
                           DaoDescriptor<ENTITY, BUILDER> daoDescriptor){
@@ -70,7 +70,7 @@ public class KeylessDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> implements K
 
     @Override
     public List<Column<ENTITY, BUILDER>> dataColumns(){
-        throw new UnsupportedOperationException("FOO");
+        throw new UnsupportedOperationException("FIXME");
     }
 
     @Override
