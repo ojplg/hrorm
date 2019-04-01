@@ -26,7 +26,7 @@ You can also run the tests against postgres, but it takes a bit of work.
    1. User named "hrorm_user"
    1. Password "hrorm_password"
    1. "hrorm_user" must own a database named "hrorm"
-1. cd to the scripts directory and run the test_postgres.sh script or edit the `HelperFactory` to use the `PostgresHelper` instead of the `H2Helper`
+1. cd to the scripts directory and run the `test_postgres.sh` script or edit the `HelperFactory` to use the `PostgresHelper` instead of the `H2Helper`
 
 ### Improvement Ideas and Questions
 
