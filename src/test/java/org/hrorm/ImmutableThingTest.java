@@ -113,8 +113,6 @@ public class ImmutableThingTest {
             connection.close();
         }
         {
-
-            System.out.println("READING !!!!!!!!!!!!!!!");
             Connection connection = helper.connect();
             Dao<ImmutableThing> dao = DaoBuilders.IMMUTABLE_OBJECT_DAO_BUILDER.buildDao(connection);
 
