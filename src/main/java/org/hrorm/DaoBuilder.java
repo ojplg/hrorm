@@ -22,10 +22,7 @@ import java.util.function.Supplier;
 public class DaoBuilder<ENTITY> implements DaoDescriptor<ENTITY, ENTITY> {
 
     private final IndirectDaoBuilder<ENTITY, ENTITY> internalDaoBuilder;
-
     private final Consumer<PrimaryKey<ENTITY,ENTITY>> primaryKeyConsumer;
-    // FIXME: Should be no need for this
-    private final String myPrefix;
 
     /**
      * Create a new DaoBuilder instance.
@@ -38,7 +35,6 @@ public class DaoBuilder<ENTITY> implements DaoDescriptor<ENTITY, ENTITY> {
                 IndirectDaoBuilder.forDirectDaoBuilder(tableName, supplier);
         internalDaoBuilder = builderHolder.daoBuilder;
         primaryKeyConsumer = builderHolder.primaryKeyConsumer;
-        myPrefix = builderHolder.myPrefix;
     }
 
     @Override
@@ -62,7 +58,7 @@ public class DaoBuilder<ENTITY> implements DaoDescriptor<ENTITY, ENTITY> {
     }
 
     public String getPrefix(){
-        return myPrefix;
+        return internalDaoBuilder.getPrefix();
     }
 
     @Override
@@ -299,7 +295,7 @@ public class DaoBuilder<ENTITY> implements DaoDescriptor<ENTITY, ENTITY> {
      * @return This instance.
      */
     public DaoBuilder<ENTITY> withPrimaryKey(String columnName, String sequenceName, Function<ENTITY, Long> getter, BiConsumer<ENTITY, Long> setter){
-        PrimaryKey<ENTITY,ENTITY> primaryKey = new DirectPrimaryKey<>(myPrefix, columnName, sequenceName, getter, setter);
+        PrimaryKey<ENTITY,ENTITY> primaryKey = new DirectPrimaryKey<>(getPrefix(), columnName, sequenceName, getter, setter);
         primaryKeyConsumer.accept(primaryKey);
         return this;
     }
