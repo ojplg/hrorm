@@ -50,10 +50,6 @@ public class DaoBuilder<ENTITY> implements SchemaDescriptor<ENTITY, ENTITY> {
         return columnCollection;
     }
 
-    public String getPrefix(){
-        return daoBuilderHelper.getPrefix();
-    }
-
     @Override
     public List<ChildrenDescriptor<ENTITY, ?, ENTITY, ?>> childrenDescriptors() {
         return childrenDescriptors;
@@ -100,7 +96,7 @@ public class DaoBuilder<ENTITY> implements SchemaDescriptor<ENTITY, ENTITY> {
      * @return This instance.
      */
     public DaoBuilder<ENTITY> withStringColumn(String columnName, Function<ENTITY, String> getter, BiConsumer<ENTITY, String> setter){
-        Column<ENTITY, ENTITY> column = DataColumnFactory.stringColumn(columnName, getPrefix(), getter, setter, true);
+        Column<ENTITY, ENTITY> column = DataColumnFactory.stringColumn(columnName, daoBuilderHelper.getPrefix(), getter, setter, true);
         columnCollection.addDataColumn(column);
         return this;
     }
@@ -114,7 +110,7 @@ public class DaoBuilder<ENTITY> implements SchemaDescriptor<ENTITY, ENTITY> {
      * @return This instance.
      */
     public DaoBuilder<ENTITY> withIntegerColumn(String columnName, Function<ENTITY, Long> getter, BiConsumer<ENTITY, Long> setter){
-        Column<ENTITY, ENTITY> column = DataColumnFactory.longColumn(columnName, getPrefix(), getter, setter, true);
+        Column<ENTITY, ENTITY> column = DataColumnFactory.longColumn(columnName, daoBuilderHelper.getPrefix(), getter, setter, true);
         columnCollection.addDataColumn(column);
         return this;
     }
@@ -128,7 +124,7 @@ public class DaoBuilder<ENTITY> implements SchemaDescriptor<ENTITY, ENTITY> {
      * @return This instance.
      */
     public DaoBuilder<ENTITY> withBigDecimalColumn(String columnName, Function<ENTITY, BigDecimal> getter, BiConsumer<ENTITY, BigDecimal> setter){
-        Column<ENTITY, ENTITY> column = DataColumnFactory.bigDecimalColumn(columnName, getPrefix(), getter, setter, true);
+        Column<ENTITY, ENTITY> column = DataColumnFactory.bigDecimalColumn(columnName, daoBuilderHelper.getPrefix(), getter, setter, true);
         columnCollection.addDataColumn(column);
         return this;
     }
@@ -146,7 +142,7 @@ public class DaoBuilder<ENTITY> implements SchemaDescriptor<ENTITY, ENTITY> {
      * @return This instance.
      */
     public <E> DaoBuilder<ENTITY> withConvertingStringColumn(String columnName, Function<ENTITY, E> getter, BiConsumer<ENTITY, E> setter, Converter<E, String> converter){
-        Column<ENTITY, ENTITY> column = DataColumnFactory.stringConverterColumn(columnName, getPrefix(), getter, setter, converter, true);
+        Column<ENTITY, ENTITY> column = DataColumnFactory.stringConverterColumn(columnName, daoBuilderHelper.getPrefix(), getter, setter, converter, true);
         columnCollection.addDataColumn(column);
         return this;
     }
@@ -160,7 +156,7 @@ public class DaoBuilder<ENTITY> implements SchemaDescriptor<ENTITY, ENTITY> {
      * @return This instance.
      */
     public DaoBuilder<ENTITY> withInstantColumn(String columnName, Function<ENTITY, Instant> getter, BiConsumer<ENTITY, Instant> setter){
-        Column<ENTITY, ENTITY> column = DataColumnFactory.instantColumn(columnName, getPrefix(), getter, setter, true);
+        Column<ENTITY, ENTITY> column = DataColumnFactory.instantColumn(columnName, daoBuilderHelper.getPrefix(), getter, setter, true);
         columnCollection.addDataColumn(column);
         return this;
     }
@@ -176,7 +172,7 @@ public class DaoBuilder<ENTITY> implements SchemaDescriptor<ENTITY, ENTITY> {
      * @return This instance.
      */
     public DaoBuilder<ENTITY> withBooleanColumn(String columnName, Function<ENTITY, Boolean> getter, BiConsumer<ENTITY, Boolean> setter){
-        Column<ENTITY, ENTITY> column = DataColumnFactory.booleanColumn(columnName, getPrefix(), getter, setter, true);
+        Column<ENTITY, ENTITY> column = DataColumnFactory.booleanColumn(columnName, daoBuilderHelper.getPrefix(), getter, setter, true);
         columnCollection.addDataColumn(column);
         return this;
     }
@@ -193,7 +189,7 @@ public class DaoBuilder<ENTITY> implements SchemaDescriptor<ENTITY, ENTITY> {
      * @return This instance.
      */
     public DaoBuilder<ENTITY> withStringBooleanColumn(String columnName, Function<ENTITY, Boolean> getter, BiConsumer<ENTITY, Boolean> setter){
-        Column<ENTITY, ENTITY> column = DataColumnFactory.textBackedBooleanColumn(columnName, getPrefix(), getter, setter, true);
+        Column<ENTITY, ENTITY> column = DataColumnFactory.textBackedBooleanColumn(columnName, daoBuilderHelper.getPrefix(), getter, setter, true);
         columnCollection.addDataColumn(column);
         return this;
     }
@@ -209,7 +205,7 @@ public class DaoBuilder<ENTITY> implements SchemaDescriptor<ENTITY, ENTITY> {
      * @return This instance.
      */
     public DaoBuilder<ENTITY> withIntegerBooleanColumn(String columnName, Function<ENTITY, Boolean> getter, BiConsumer<ENTITY, Boolean> setter){
-        Column<ENTITY, ENTITY> column = DataColumnFactory.integerConverterColumn(columnName, getPrefix(), getter, setter, BooleanLongConverter.INSTANCE, true);
+        Column<ENTITY, ENTITY> column = DataColumnFactory.integerConverterColumn(columnName, daoBuilderHelper.getPrefix(), getter, setter, BooleanLongConverter.INSTANCE, true);
         columnCollection.addDataColumn(column);
         return this;
     }
@@ -239,7 +235,7 @@ public class DaoBuilder<ENTITY> implements SchemaDescriptor<ENTITY, ENTITY> {
      * @return This instance.
      */
     public <U> DaoBuilder<ENTITY> withJoinColumn(String columnName, Function<ENTITY, U> getter, BiConsumer<ENTITY,U> setter, DaoDescriptor<U,?> daoDescriptor){
-        JoinColumn<ENTITY,U, ENTITY,?> joinColumn = new JoinColumn<>(columnName, getPrefix(), daoBuilderHelper.getPrefixer(), getter, setter, daoDescriptor, true);
+        JoinColumn<ENTITY,U, ENTITY,?> joinColumn = new JoinColumn<>(columnName, daoBuilderHelper.getPrefix(), daoBuilderHelper.getPrefixer(), getter, setter, daoDescriptor, true);
         columnCollection.addJoinColumn(joinColumn);
         return this;
     }
@@ -295,7 +291,7 @@ public class DaoBuilder<ENTITY> implements SchemaDescriptor<ENTITY, ENTITY> {
      * @return This instance.
      */
     public DaoBuilder<ENTITY> withPrimaryKey(String columnName, String sequenceName, Function<ENTITY, Long> getter, BiConsumer<ENTITY, Long> setter){
-        PrimaryKey<ENTITY,ENTITY> primaryKey = new DirectPrimaryKey<>(getPrefix(), columnName, sequenceName, getter, setter);
+        PrimaryKey<ENTITY,ENTITY> primaryKey = new DirectPrimaryKey<>(daoBuilderHelper.getPrefix(), columnName, sequenceName, getter, setter);
         columnCollection.setPrimaryKey(primaryKey);
         return this;
     }
@@ -310,7 +306,7 @@ public class DaoBuilder<ENTITY> implements SchemaDescriptor<ENTITY, ENTITY> {
      * @return This instance.
      */
     public <P> DaoBuilder<ENTITY> withParentColumn(String columnName, Function<ENTITY,P> getter, BiConsumer<ENTITY,P> setter){
-        ParentColumnImpl<ENTITY,P, ENTITY,?> column = new ParentColumnImpl<>(columnName, getPrefix(), getter, setter);
+        ParentColumnImpl<ENTITY,P, ENTITY,?> column = new ParentColumnImpl<>(columnName, daoBuilderHelper.getPrefix(), getter, setter);
         columnCollection.setParentColumn(column);
         return this;
     }
@@ -322,7 +318,7 @@ public class DaoBuilder<ENTITY> implements SchemaDescriptor<ENTITY, ENTITY> {
      * @return This instance.
      */
     public DaoBuilder<ENTITY> withParentColumn(String columnName){
-        NoBackReferenceParentColumn<ENTITY, ?, ENTITY, ?> column = new NoBackReferenceParentColumn<>(columnName, getPrefix());
+        NoBackReferenceParentColumn<ENTITY, ?, ENTITY, ?> column = new NoBackReferenceParentColumn<>(columnName, daoBuilderHelper.getPrefix());
         columnCollection.setParentColumn(column);
         return this;
     }
@@ -339,27 +335,67 @@ public class DaoBuilder<ENTITY> implements SchemaDescriptor<ENTITY, ENTITY> {
         return this;
     }
 
-
+    /**
+     * Describes a data element of type <code>T</code> that can be stored in
+     * a <code>GenericColumn</code>.
+     *
+     * <p>
+     * This interface exists to allow clients to inject whatever column types
+     * they need into Hrorm.
+     * </p>
+     *
+     * @param columnName The name of the column in the table that holds the primary key.
+     * @param getter The function to call to get the value from an object instance.
+     * @param setter The function to call to set the value onto an object instance.
+     * @param genericColumn The column that supports type <code>T</code>.
+     * @param <T> The type of the data element on the entity.
+     * @return This instance.
+     */
     public <T> DaoBuilder<ENTITY> withGenericColumn(String columnName,
-                                                                            Function<ENTITY, T> getter,
-                                                                            BiConsumer<ENTITY, T> setter,
-                                                                            GenericColumn<T> genericColumn){
-        Column<ENTITY, ENTITY> column = DataColumnFactory.genericColumn(columnName, getPrefix(), getter, setter, genericColumn, true);
+                                                    Function<ENTITY, T> getter,
+                                                    BiConsumer<ENTITY, T> setter,
+                                                    GenericColumn<T> genericColumn){
+        Column<ENTITY, ENTITY> column = DataColumnFactory.genericColumn(columnName, daoBuilderHelper.getPrefix(), getter, setter, genericColumn, true);
         columnCollection.addDataColumn(column);
         return this;
     }
 
-
+    /**
+     * Describes a data element of type <code>U</code> that can be stored in
+     * a <code>GenericColumn</code> that stores objects of type <code>T</code>.
+     *
+     * <p>
+     * This interface exists to allow clients to inject whatever column types
+     * they need into Hrorm.
+     * </p>
+     *
+     * @param columnName The name of the column in the table that holds the primary key.
+     * @param getter The function to call to get the value from an object instance.
+     * @param setter The function to call to set the value onto an object instance.
+     * @param genericColumn The column that supports type <code>T</code>.
+     * @param converter A converter that can translate between types <code>T</code> and <code>U</code>.
+     * @param <T> The type of the data element that can be persisted.
+     * @param <U> The type of the data element as it exists on the entity object.
+     * @return This instance.
+     */
     public <T,U> DaoBuilder<ENTITY> withConvertedGenericColumn(String columnName,
-                                                                                       Function<ENTITY, U> getter,
-                                                                                       BiConsumer<ENTITY, U> setter,
-                                                                                       GenericColumn<T> genericColumn,
-                                                                                       Converter<U,T> converter){
-        Column<ENTITY, ENTITY> column = DataColumnFactory.convertedGenericColumn(columnName, getPrefix(), getter, setter, genericColumn, converter,true);
+                                                               Function<ENTITY, U> getter,
+                                                               BiConsumer<ENTITY, U> setter,
+                                                               GenericColumn<T> genericColumn,
+                                                               Converter<U,T> converter){
+        Column<ENTITY, ENTITY> column = DataColumnFactory.convertedGenericColumn(columnName, daoBuilderHelper.getPrefix(), getter, setter, genericColumn, converter,true);
         columnCollection.addDataColumn(column);
         return this;
     }
 
+    /**
+     * Describe a unique constraint on this entity. At run-time, hrorm makes
+     * no use of this information, but it will be used during schema generation.
+     * {@link Schema}.
+     *
+     * @param columnNames the names of the columns that are to be unique
+     * @return This instance.
+     */
     public DaoBuilder<ENTITY> withUniqueConstraint(String ... columnNames){
         columnCollection.addUniquenConstraint(columnNames);
         return this;
