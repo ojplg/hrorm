@@ -56,7 +56,7 @@ public class KeylessDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> implements K
         this.supplier = daoDescriptor.supplier();
         this.buildFunction = daoDescriptor.buildFunction();
 
-        this.keylessSqlBuilder = new KeylessSqlBuilder<>(tableName, this.nonJoinColumns(), this.joinColumns());
+        this.keylessSqlBuilder = new KeylessSqlBuilder<>(this);
         this.sqlRunner = new SqlRunner<>(connection, daoDescriptor);
         this.childrenDescriptors = childrenDescriptors;
     }

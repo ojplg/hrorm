@@ -27,14 +27,6 @@ public class KeylessSqlBuilder<ENTITY> {
         this.joinColumns = daoDescriptor.joinColumns();
     }
 
-    public KeylessSqlBuilder(String table,
-                      List<? extends Column<ENTITY,?>> nonJoinColumns,
-                      List<? extends JoinColumn<ENTITY, ?, ?, ?>> joinColumns) {
-        this.table = table;
-        this.nonJoinColumns = nonJoinColumns;
-        this.joinColumns = joinColumns;
-    }
-
     public String getTable(){
         return table;
     }
