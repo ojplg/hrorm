@@ -54,7 +54,7 @@ public class SqlBuilder<ENTITY> implements Queries {
         StringBuilder sql = new StringBuilder("update ");
         sql.append(keylessSqlBuilder.getTable());
         sql.append(" set ");
-        List<String> dataColumnEntries = keylessSqlBuilder.getDataColumns().stream()
+        List<String> dataColumnEntries = keylessSqlBuilder.getNonJoinColumns().stream()
                 .filter(c -> ! c.isPrimaryKey())
                 .map(c -> c.getName() + "= ?")
                 .collect(Collectors.toList());

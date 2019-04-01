@@ -72,9 +72,11 @@ public class JoinColumn<ENTITY, JOINED, ENTITYBUILDER, JOINEDBUILDER> implements
     @Override
     public PopulateResult populate(ENTITYBUILDER builder, ResultSet resultSet) throws SQLException {
         JOINEDBUILDER joinedBuilder = daoDescriptor.supplier().get();
-        for (Column<JOINED, JOINEDBUILDER> column: daoDescriptor.dataColumns()) {
+        for (Column<JOINED, JOINEDBUILDER> column: daoDescriptor.nonJoinColumns()) {
             PopulateResult result = column.populate(joinedBuilder, resultSet);
+            System.out.println("GOT RESULT FOR " + column.getPrefix() + "." + column.getName() + " -> " + result);
             if ( result == PopulateResult.NoPrimaryKey ){
+                System.out.println("TRYING TO IGNORE!");
                 return PopulateResult.Ignore;
             }
         }
@@ -113,8 +115,8 @@ public class JoinColumn<ENTITY, JOINED, ENTITYBUILDER, JOINEDBUILDER> implements
         return new JoinColumn(name, newPrefix, prefixer, getter, setter, daoDescriptor, nullable);
     }
 
-    public List<Column<JOINED, JOINEDBUILDER>> getDataColumns(){
-        return this.daoDescriptor.dataColumns();
+    public List<Column<JOINED, JOINEDBUILDER>> getNonJoinColumns(){
+        return this.daoDescriptor.nonJoinColumns();
     }
 
     @Override

@@ -30,18 +30,4 @@ public interface DaoDescriptor<ENTITY, ENTITYBUILDER> extends KeylessDaoDescript
         return parentColumn() != null;
     }
 
-    default List<Column<ENTITY, ENTITYBUILDER>> dataColumnsWithParent(){
-        return dataColumnsWithParent(dataColumns(), parentColumn(), hasParent());
-    }
-
-    static <ENTITY, ENTITYBUILDER, P, PB> List<Column<ENTITY, ENTITYBUILDER>> dataColumnsWithParent(
-            List<Column<ENTITY, ENTITYBUILDER>> dataColumns, ParentColumn<ENTITY, P, ENTITYBUILDER, PB> parentColumn,
-            boolean hasParent){
-        List<Column<ENTITY, ENTITYBUILDER>> allColumns = new ArrayList<>(dataColumns);
-        if ( hasParent ) {
-            allColumns.add(parentColumn);
-        }
-        return Collections.unmodifiableList(allColumns);
-    }
-
 }

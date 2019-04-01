@@ -3,7 +3,6 @@ package org.hrorm;
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.BiConsumer;
@@ -27,39 +26,37 @@ import java.util.function.Supplier;
  */
 public class IndirectKeylessDaoBuilder<ENTITY, BUILDER> implements KeylessDaoDescriptor<ENTITY, BUILDER> {
 
-    private final String tableName;
-    private final String myPrefix;
-    private final Function<BUILDER, ENTITY> buildFunction;
-    private final Supplier<BUILDER> supplier;
 
-    private final Prefixer prefixer;
-
-    private final List<Column<ENTITY, BUILDER>> columns = new ArrayList<>();
-    private final List<JoinColumn<ENTITY,?, BUILDER,?>> joinColumns = new ArrayList<>();
-
-    private Column<ENTITY, BUILDER> lastColumnAdded;
+    private final ColumnCollection<ENTITY, BUILDER> columnCollection = new ColumnCollection<>();
+    private final DaoBuilderHelper<ENTITY, BUILDER> daoBuilderHelper;
 
     public IndirectKeylessDaoBuilder(String table, Supplier<BUILDER> supplier, Function<BUILDER, ENTITY> buildFunction) {
-        this.tableName = table;
-        this.supplier = supplier;
-        this.buildFunction = buildFunction;
-        this.prefixer = new Prefixer();
-        this.myPrefix = prefixer.nextPrefix();
+        this.daoBuilderHelper = new DaoBuilderHelper(table, supplier, buildFunction);
     }
 
     @Override
     public String tableName() {
-        return tableName;
+        return daoBuilderHelper.getTableName();
     }
 
     @Override
     public Supplier<BUILDER> supplier() {
-        return supplier;
+        return daoBuilderHelper.getSupplier();
     }
 
     @Override
     public List<Column<ENTITY, BUILDER>> dataColumns() {
-        return columns;
+        return columnCollection.getDataColumns();
+    }
+
+    @Override
+    public List<Column<ENTITY, BUILDER>> allColumns() {
+        return columnCollection.allColumns();
+    }
+
+    @Override
+    public List<Column<ENTITY, BUILDER>> nonJoinColumns() {
+        return columnCollection.nonJoinColumns();
     }
 
     @Override
@@ -68,14 +65,14 @@ public class IndirectKeylessDaoBuilder<ENTITY, BUILDER> implements KeylessDaoDes
     }
 
     public String getPrefix(){
-        return myPrefix;
+        return daoBuilderHelper.getPrefix();
     }
 
-    public List<JoinColumn<ENTITY, ?, BUILDER, ?>> joinColumns() { return joinColumns; }
+    public List<JoinColumn<ENTITY, ?, BUILDER, ?>> joinColumns() { return columnCollection.getJoinColumns(); }
 
     @Override
     public Function<BUILDER, ENTITY> buildFunction() {
-        return buildFunction;
+        return daoBuilderHelper.getBuildFunction();
     }
 
     /**
@@ -98,9 +95,8 @@ public class IndirectKeylessDaoBuilder<ENTITY, BUILDER> implements KeylessDaoDes
      * @return This instance.
      */
     public IndirectKeylessDaoBuilder<ENTITY, BUILDER> withStringColumn(String columnName, Function<ENTITY, String> getter, BiConsumer<BUILDER, String> setter){
-        Column<ENTITY, BUILDER> column = DataColumnFactory.stringColumn(columnName, myPrefix, getter, setter, true);
-        columns.add(column);
-        lastColumnAdded = column;
+        Column<ENTITY, BUILDER> column = DataColumnFactory.stringColumn(columnName, getPrefix(), getter, setter, true);
+        columnCollection.addDataColumn(column);
         return this;
     }
 
@@ -113,9 +109,8 @@ public class IndirectKeylessDaoBuilder<ENTITY, BUILDER> implements KeylessDaoDes
      * @return This instance.
      */
     public IndirectKeylessDaoBuilder<ENTITY, BUILDER> withIntegerColumn(String columnName, Function<ENTITY, Long> getter, BiConsumer<BUILDER, Long> setter){
-        Column<ENTITY, BUILDER> column = DataColumnFactory.longColumn(columnName, myPrefix, getter, setter, true);
-        columns.add(column);
-        lastColumnAdded = column;
+        Column<ENTITY, BUILDER> column = DataColumnFactory.longColumn(columnName, getPrefix(), getter, setter, true);
+        columnCollection.addDataColumn(column);
         return this;
     }
 
@@ -128,9 +123,8 @@ public class IndirectKeylessDaoBuilder<ENTITY, BUILDER> implements KeylessDaoDes
      * @return This instance.
      */
     public IndirectKeylessDaoBuilder<ENTITY, BUILDER> withBigDecimalColumn(String columnName, Function<ENTITY, BigDecimal> getter, BiConsumer<BUILDER, BigDecimal> setter){
-        Column<ENTITY, BUILDER> column = DataColumnFactory.bigDecimalColumn(columnName, myPrefix, getter, setter, true);
-        columns.add(column);
-        lastColumnAdded = column;
+        Column<ENTITY, BUILDER> column = DataColumnFactory.bigDecimalColumn(columnName, getPrefix(), getter, setter, true);
+        columnCollection.addDataColumn(column);
         return this;
     }
 
@@ -147,9 +141,8 @@ public class IndirectKeylessDaoBuilder<ENTITY, BUILDER> implements KeylessDaoDes
      * @return This instance.
      */
     public <E> IndirectKeylessDaoBuilder<ENTITY, BUILDER> withConvertingStringColumn(String columnName, Function<ENTITY, E> getter, BiConsumer<BUILDER, E> setter, Converter<E, String> converter){
-        Column<ENTITY, BUILDER> column = DataColumnFactory.stringConverterColumn(columnName, myPrefix, getter, setter, converter, true);
-        columns.add(column);
-        lastColumnAdded = column;
+        Column<ENTITY, BUILDER> column = DataColumnFactory.stringConverterColumn(columnName, getPrefix(), getter, setter, converter, true);
+        columnCollection.addDataColumn(column);
         return this;
     }
 
@@ -162,9 +155,8 @@ public class IndirectKeylessDaoBuilder<ENTITY, BUILDER> implements KeylessDaoDes
      * @return This instance.
      */
     public IndirectKeylessDaoBuilder<ENTITY, BUILDER> withInstantColumn(String columnName, Function<ENTITY, Instant> getter, BiConsumer<BUILDER, Instant> setter){
-        Column<ENTITY, BUILDER> column = DataColumnFactory.instantColumn(columnName, myPrefix, getter, setter, true);
-        columns.add(column);
-        lastColumnAdded = column;
+        Column<ENTITY, BUILDER> column = DataColumnFactory.instantColumn(columnName, getPrefix(), getter, setter, true);
+        columnCollection.addDataColumn(column);
         return this;
     }
 
@@ -178,9 +170,8 @@ public class IndirectKeylessDaoBuilder<ENTITY, BUILDER> implements KeylessDaoDes
      * @return This instance.
      */
     public IndirectKeylessDaoBuilder<ENTITY, BUILDER> withBooleanColumn(String columnName, Function<ENTITY, Boolean> getter, BiConsumer<BUILDER, Boolean> setter){
-        Column<ENTITY, BUILDER> column = DataColumnFactory.booleanColumn(columnName, myPrefix, getter, setter, true);
-        columns.add(column);
-        lastColumnAdded = column;
+        Column<ENTITY, BUILDER> column = DataColumnFactory.booleanColumn(columnName, getPrefix(), getter, setter, true);
+        columnCollection.addDataColumn(column);
         return this;
     }
 
@@ -196,9 +187,8 @@ public class IndirectKeylessDaoBuilder<ENTITY, BUILDER> implements KeylessDaoDes
      * @return This instance.
      */
     public IndirectKeylessDaoBuilder<ENTITY, BUILDER> withStringBooleanColumn(String columnName, Function<ENTITY, Boolean> getter, BiConsumer<BUILDER, Boolean> setter){
-        Column<ENTITY, BUILDER> column = DataColumnFactory.textBackedBooleanColumn(columnName, myPrefix, getter, setter, true);
-        columns.add(column);
-        lastColumnAdded = column;
+        Column<ENTITY, BUILDER> column = DataColumnFactory.textBackedBooleanColumn(columnName, getPrefix(), getter, setter, true);
+        columnCollection.addDataColumn(column);
         return this;
     }
 
@@ -213,9 +203,8 @@ public class IndirectKeylessDaoBuilder<ENTITY, BUILDER> implements KeylessDaoDes
      * @return This instance.
      */
     public IndirectKeylessDaoBuilder<ENTITY, BUILDER> withIntegerBooleanColumn(String columnName, Function<ENTITY, Boolean> getter, BiConsumer<BUILDER, Boolean> setter){
-        Column<ENTITY, BUILDER> column = DataColumnFactory.integerConverterColumn(columnName, myPrefix, getter, setter, BooleanLongConverter.INSTANCE, true);
-        columns.add(column);
-        lastColumnAdded = column;
+        Column<ENTITY, BUILDER> column = DataColumnFactory.integerConverterColumn(columnName, getPrefix(), getter, setter, BooleanLongConverter.INSTANCE, true);
+        columnCollection.addDataColumn(column);
         return this;
     }
 
@@ -244,9 +233,8 @@ public class IndirectKeylessDaoBuilder<ENTITY, BUILDER> implements KeylessDaoDes
      * @return This instance.
      */
     public <U> IndirectKeylessDaoBuilder<ENTITY, BUILDER> withJoinColumn(String columnName, Function<ENTITY, U> getter, BiConsumer<BUILDER,U> setter, DaoDescriptor<U,?> daoDescriptor){
-        JoinColumn<ENTITY,U, BUILDER,?> joinColumn = new JoinColumn<>(columnName, myPrefix, prefixer, getter, setter, daoDescriptor, true);
-        joinColumns.add(joinColumn);
-        lastColumnAdded = joinColumn;
+        JoinColumn<ENTITY,U, BUILDER,?> joinColumn = new JoinColumn<>(columnName, getPrefix(), daoBuilderHelper.getPrefixer(), getter, setter, daoDescriptor, true);
+        columnCollection.addJoinColumn(joinColumn);
         return this;
     }
 
@@ -257,10 +245,7 @@ public class IndirectKeylessDaoBuilder<ENTITY, BUILDER> implements KeylessDaoDes
      * @return This instance.
      */
     public IndirectKeylessDaoBuilder<ENTITY, BUILDER> notNull(){
-        if ( lastColumnAdded == null ){
-            throw new HrormException("No column to set as not null has been added.");
-        }
-        lastColumnAdded.notNull();
+        columnCollection.setLastColumnAddedNotNull();
         return this;
     }
 
@@ -269,9 +254,8 @@ public class IndirectKeylessDaoBuilder<ENTITY, BUILDER> implements KeylessDaoDes
                                                                      Function<ENTITY, T> getter,
                                                                      BiConsumer<BUILDER, T> setter,
                                                                      GenericColumn<T> genericColumn){
-        Column<ENTITY, BUILDER> column = DataColumnFactory.genericColumn(columnName, myPrefix, getter, setter, genericColumn, true);
-        columns.add(column);
-        lastColumnAdded = column;
+        Column<ENTITY, BUILDER> column = DataColumnFactory.genericColumn(columnName, getPrefix(), getter, setter, genericColumn, true);
+        columnCollection.addDataColumn(column);
         return this;
     }
 
@@ -281,14 +265,9 @@ public class IndirectKeylessDaoBuilder<ENTITY, BUILDER> implements KeylessDaoDes
                                                                                 BiConsumer<BUILDER, U> setter,
                                                                                 GenericColumn<T> genericColumn,
                                                                                 Converter<U,T> converter){
-        Column<ENTITY, BUILDER> column = DataColumnFactory.convertedGenericColumn(columnName, myPrefix, getter, setter, genericColumn, converter, true);
-        columns.add(column);
-        lastColumnAdded = column;
+        Column<ENTITY, BUILDER> column = DataColumnFactory.convertedGenericColumn(columnName, getPrefix(), getter, setter, genericColumn, converter, true);
+        columnCollection.addDataColumn(column);
         return this;
     }
 
-    @Override
-    public List<Column<ENTITY, BUILDER>> dataColumnsWithParent() {
-        return dataColumns();
-    }
 }

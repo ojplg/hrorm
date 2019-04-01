@@ -6,14 +6,11 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * This class does the heavy lifting of creating <code>Statement</code>s,
@@ -33,31 +30,9 @@ public class SqlRunner<ENTITY, BUILDER> {
     private final Connection connection;
     private final List<Column<ENTITY, BUILDER>> allColumns;
 
-    protected SqlRunner(Connection connection, List<Column<ENTITY, BUILDER>> allColumns) {
-        this.connection = connection;
-        this.allColumns = allColumns;
-    }
-
     public SqlRunner(Connection connection, KeylessDaoDescriptor<ENTITY, BUILDER> daoDescriptor) {
         this.connection = connection;
-        ArrayList<Column<ENTITY, BUILDER>> columnList = new ArrayList<>();
-        columnList.addAll(daoDescriptor.dataColumns());
-        // FIXME: remove instanceof nonsense
-        // FIXME: Column ordering is too sensitive, must be done in one place ONLY
-        if( daoDescriptor instanceof DaoDescriptor ){
-            System.out.println("STARTING ------------");
-            System.out.println("Starting on  " + daoDescriptor.tableName() + " FROM " + daoDescriptor);
-            DaoDescriptor<ENTITY, BUILDER> fullDaoDescriptor = (DaoDescriptor<ENTITY, BUILDER>) daoDescriptor;
-            if ( fullDaoDescriptor.hasParent() ) {
-                columnList.add(fullDaoDescriptor.parentColumn());
-                System.out.println("Adding parent!");
-            } else {
-                System.out.println("No parent!");
-            }
-            System.out.println("SETTING UP FOR A PARENTED DAO DESCRIPTOR " + daoDescriptor.tableName() + ": " + columnList.size() + " -> " + columnList);
-        }
-        columnList.addAll(daoDescriptor.joinColumns());
-        allColumns = Collections.unmodifiableList(columnList);
+        this.allColumns = daoDescriptor.allColumns();
     }
 
     public List<BUILDER> select(String sql, Supplier<BUILDER> supplier, List<ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors){

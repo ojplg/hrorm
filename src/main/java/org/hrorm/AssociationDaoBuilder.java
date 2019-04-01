@@ -218,4 +218,14 @@ public class AssociationDaoBuilder<LEFT, RIGHT>
     public Function<Association<LEFT, RIGHT>, Association<LEFT, RIGHT>> buildFunction() {
         return internalDaoBuilder.buildFunction();
     }
+
+    @Override
+    public List<Column<Association<LEFT, RIGHT>, Association<LEFT, RIGHT>>> allColumns() {
+        return internalDaoBuilder.allColumns();
+    }
+
+    @Override
+    public List<Column<Association<LEFT, RIGHT>, Association<LEFT, RIGHT>>> nonJoinColumns() {
+        return internalDaoBuilder.nonJoinColumns();
+    }
 }

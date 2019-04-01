@@ -34,9 +34,13 @@ public class RelativeDaoDescriptor<ENTITY, PARENT, ENTITYBUILDER> implements Dao
         this.supplier = originalDaoDescriptor.supplier();
         this.dataColumns = originalDaoDescriptor.dataColumns().stream().map(c -> c.withPrefix(newPrefix, prefixer)).collect(Collectors.toList());
         this.joinColumns = resetColumnPrefixes(prefixer, newPrefix, originalDaoDescriptor.joinColumns());
-        this.primaryKey = originalDaoDescriptor.primaryKey();
+        this.primaryKey = (PrimaryKey<ENTITY, ENTITYBUILDER>) originalDaoDescriptor.primaryKey().withPrefix(newPrefix, prefixer);
         this.childrenDescriptors = originalDaoDescriptor.childrenDescriptors();
-        this.parentColumn = originalDaoDescriptor.parentColumn();
+        if( originalDaoDescriptor.hasParent()) {
+            this.parentColumn = (ParentColumn<ENTITY, PARENT, ENTITYBUILDER, ?>) originalDaoDescriptor.parentColumn().withPrefix(newPrefix, prefixer);
+        } else {
+            this.parentColumn = null;
+        }
         this.buildFunction = originalDaoDescriptor.buildFunction();
     }
 
@@ -89,5 +93,18 @@ public class RelativeDaoDescriptor<ENTITY, PARENT, ENTITYBUILDER> implements Dao
     @Override
     public Function<ENTITYBUILDER, ENTITY> buildFunction() {
         return buildFunction;
+    }
+
+    @Override
+    public List<Column<ENTITY, ENTITYBUILDER>> allColumns() {
+        return ColumnCollection.allColumns(nonJoinColumns(), joinColumns);
+    }
+
+    @Override
+    public List<Column<ENTITY, ENTITYBUILDER>> nonJoinColumns() {
+        System.out.println("Getting relative columns for " + tableName);
+        System.out.println("   primary key " + primaryKey);
+        System.out.println("   data columns " + dataColumns);
+        return ColumnCollection.nonJoinColumns(primaryKey, parentColumn, dataColumns);
     }
 }

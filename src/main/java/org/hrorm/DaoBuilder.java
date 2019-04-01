@@ -78,6 +78,15 @@ public class DaoBuilder<ENTITY> implements DaoDescriptor<ENTITY, ENTITY> {
     public List<JoinColumn<ENTITY, ?, ENTITY, ?>> joinColumns() { return internalDaoBuilder.joinColumns(); }
 
 
+    @Override
+    public List<Column<ENTITY, ENTITY>> allColumns() {
+        return internalDaoBuilder.allColumns();
+    }
+
+    @Override
+    public List<Column<ENTITY, ENTITY>> nonJoinColumns() {
+        return internalDaoBuilder.nonJoinColumns();
+    }
 
     @Override
     public Function<ENTITY, ENTITY> buildFunction() {

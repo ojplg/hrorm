@@ -67,17 +67,11 @@ public interface KeylessDaoDescriptor<ENTITY, ENTITYBUILDER> {
      *
      * @return all the columns
      */
-    default List<Column<ENTITY, ENTITYBUILDER>> allColumns() {
-        List<Column<ENTITY, ENTITYBUILDER>> allColumns = new ArrayList<>();
-        allColumns.addAll(dataColumns());
-        allColumns.addAll(joinColumns());
-        return Collections.unmodifiableList(allColumns);
-    }
+    List<Column<ENTITY, ENTITYBUILDER>> allColumns();
 
     default ColumnSelection<ENTITY, ENTITYBUILDER> select(String... columnNames) {
         return new ColumnSelection(allColumns(), columnNames);
     }
 
-    // FIXME: this method is named wrong and should perhaps not be here?
-    List<Column<ENTITY, ENTITYBUILDER>> dataColumnsWithParent();
+    List<Column<ENTITY, ENTITYBUILDER>> nonJoinColumns();
 }

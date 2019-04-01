@@ -27,7 +27,7 @@ public class KeylessDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> implements K
 
     protected final Connection connection;
     protected final String tableName;
-    private final List<Column<ENTITY, BUILDER>> dataColumns;
+    private final List<Column<ENTITY, BUILDER>> nonJoinColumns;
     protected final Supplier<BUILDER> supplier;
     private final List<JoinColumn<ENTITY,?, BUILDER,?>> joinColumns;
     protected final KeylessSqlBuilder<ENTITY> keylessSqlBuilder;
@@ -53,12 +53,12 @@ public class KeylessDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> implements K
                           List<ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors){
         this.connection = connection;
         this.tableName = daoDescriptor.tableName();
-        this.dataColumns = Collections.unmodifiableList(new ArrayList<>(daoDescriptor.dataColumns()));
+        this.nonJoinColumns = Collections.unmodifiableList(new ArrayList<>(daoDescriptor.nonJoinColumns()));
         this.supplier = daoDescriptor.supplier();
         this.joinColumns = Collections.unmodifiableList(new ArrayList<>(daoDescriptor.joinColumns()));
         this.buildFunction = daoDescriptor.buildFunction();
 
-        this.keylessSqlBuilder = new KeylessSqlBuilder<>(tableName, this.dataColumns(), this.joinColumns);
+        this.keylessSqlBuilder = new KeylessSqlBuilder<>(tableName, this.nonJoinColumns(), this.joinColumns);
         this.sqlRunner = new SqlRunner<>(connection, daoDescriptor);
         this.childrenDescriptors = childrenDescriptors;
     }
@@ -70,12 +70,7 @@ public class KeylessDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> implements K
 
     @Override
     public List<Column<ENTITY, BUILDER>> dataColumns(){
-        return dataColumns;
-    }
-
-    @Override
-    public List<Column<ENTITY, BUILDER>> dataColumnsWithParent() {
-        return dataColumns();
+        throw new UnsupportedOperationException("FOO");
     }
 
     @Override
@@ -88,7 +83,7 @@ public class KeylessDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> implements K
 
     @Override
     public List<ChildrenDescriptor<ENTITY, ?, BUILDER, ?>> childrenDescriptors() {
-        return null;
+        return Collections.emptyList();
     }
 
     @Override
@@ -207,4 +202,13 @@ public class KeylessDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> implements K
         throw new HrormException("Found " + items.size() + " items.");
     }
 
+    @Override
+    public List<Column<ENTITY, BUILDER>> allColumns() {
+        return ColumnCollection.allColumns(nonJoinColumns(), joinColumns);
+    }
+
+    @Override
+    public List<Column<ENTITY, BUILDER>> nonJoinColumns() {
+        return nonJoinColumns;
+    }
 }
