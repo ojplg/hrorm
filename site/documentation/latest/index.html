@@ -253,7 +253,7 @@
 
                 <p>Hrorm does give a minimal amount of support to attempt to alleviate these issues. Hrorm provides
                     a <a href="/javadocs/latest/org/hrorm/Transactor.html"><code>Transactor</code></a> class
-                    with a couple of methods to elminate the boilerplate <code>try ... catch ... finally</code>
+                    with a couple of methods to eliminate the boilerplate <code>try ... catch ... finally</code>
                     blocks necessary for doing transactions. In keeping with the hrorm ethos, these methods
                     do not declare any checked exceptions. Keep in mind that a <code>Transactor</code> will
                     <b>automatically close its connection</b> whether or not it completes with a commit or a rollback.
@@ -342,7 +342,7 @@
 
                 <p>Note the somewhat different types than in the Java code.</p>
 
-                <p>To translate between the database reprentation and the Java representation, we plan to use
+                <p>To translate between the database representation and the Java representation, we plan to use
                     a <code>Dao</code> object. We could build that directly, but hrorm provides a DaoBuilder
                     class that makes things much easier. In hrorm, both <code>Dao</code> objects and their builders
                     are parameterized on the type of thing they persist. We start off by simply calling the
@@ -791,7 +791,7 @@
 
     Connection connection = // comes from somewhere
 
-    // this retured object implements the identical interface as any other hrorm Dao
+    // this returned object implements the identical interface as any other hrorm Dao
     Dao&lt;ImmutableThing&gt; immutableThingDao = immutableThingDaoBuilder.buildDao(connection);</pre>
 
                 <p>It works very similarly to the regular <code>DaoBuilder</code>, but some extra details
@@ -985,7 +985,7 @@
 
                 <h5>By Columns</h5>
 
-                <p>Most of the time, you do not know up front what ID or IDs you are intersted in, so
+                <p>Most of the time, you do not know up front what ID or IDs you are interested in, so
                     hrorm provides ways to specify which records you are interested in.
                     One way is by using hrorm's ability to select by columns.
                     The idea of this interface is to use an instance of the entity class as a template
@@ -1012,7 +1012,7 @@
 
                 <pre>
     Person personTemplate = new Person();
-    personTemplate.setName("Rumplestiltskin");
+    personTemplate.setName("Rumpelstiltskin");
 
     Person person = personDao.selectByColumns(personTemplate, "NAME");</pre>
 
@@ -1026,13 +1026,13 @@
 
                 <p>
                     A <code>Where</code> object is a collection of predicates, possibly nested, joined by
-                    the conjuctions AND and OR. A predicate is the name of a column, an operator, and a value.
+                    the conjunctions AND and OR. A predicate is the name of a column, an operator, and a value.
                     To find all the people who are high school graduates who weigh 100, as above, set up
                     a where object like this:
                 </p>
 
                 <pre>
-    Where where = new Where("IS_HIGH_SCHOOL_GRADUTE", Operator.EQUALS, true);
+    Where where = new Where("IS_HIGH_SCHOOL_GRADUATE", Operator.EQUALS, true);
     where.and("WEIGHT", Operator.EQUALS, 100L);</pre>
 
                 <p>Then we can pass that to the select method to get the results.</p>
@@ -1316,7 +1316,7 @@
                     For a tool like hrorm, the most important thing is to expose functionality to the user
                     in a very general way. As always, the hrorm philosophy is
                     to not try to be all things to all people, since the peculiarities of your needs and
-                    the underlying database capabilties are so diverse, it's better to just get out of the way.
+                    the underlying database capabilities are so diverse, it's better to just get out of the way.
                     That said, for most of what you need dates and times for, timestamps work just fine, given
                     some care. Yes, if you're just storing a date in your model, there's some precision you do
                     not need, but so what? And if you want to make sure you remember what time zone or offset
