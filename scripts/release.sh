@@ -15,7 +15,7 @@ function printstep {
 }
 
 printstep "Run the dumb_check.sh script"
-printstep "Run the tests against postgres"
+printstep "Run the test_postgres.sh script"
 printstep "Run the update_files.sh script"
 printstep "Run mvn deploy (requires gpg passphrase) to publish to oss.sonatype.org"
 printstep "Push artifact from oss.sonatype.org to maven central (requires login)"
