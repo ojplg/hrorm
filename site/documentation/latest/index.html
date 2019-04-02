@@ -115,7 +115,6 @@
                 <ul>
                     <li>Every entity class should have a <code>Long</code> identifier field that will be used as a
                         primary key.
-                        Hrorm expects that this is a nullable field and that null means unpersisted.
                         Hrorm will populate this field from a sequence (see restrictions on
                         schema below), unless you use an <a href="#immutable_models">immutable model</a>.
                         The primary key will be used it when hrorm performs updates. (There is limited support for
@@ -1315,7 +1314,7 @@
 
                 <p>
                     For a tool like hrorm, the most important thing is to expose functionality to the user
-                    in a very general way, which means using the JDBC. As always, the hrorm philosophy is
+                    in a very general way. As always, the hrorm philosophy is
                     to not try to be all things to all people, since the peculiarities of your needs and
                     the underlying database capabilties are so diverse, it's better to just get out of the way.
                     That said, for most of what you need dates and times for, timestamps work just fine, given
@@ -1436,7 +1435,7 @@
                 <ul>
                     <li>Sequence definitions</li>
                     <li>Table definitions</li>
-                    <li>Constraints, foreign keys for join and parent columns as well as uniqueness constrains
+                    <li>Constraints: both foreign keys for join and parent columns as well as uniqueness constraints
                     you have defined</li>
                 </ul>
 
@@ -1465,7 +1464,7 @@
                 <ul>
                     <li><b>Nulls</b> - Using the <code>notNull()</code> method you can make sure
                     generated schema marks columns as not null.</li>
-                    <li><b>Unique Constraints</b> - Hrorm will generated foreign key constraints
+                    <li><b>Unique Constraints</b> - Hrorm will generate foreign key constraints
                     for parent and join columns, but you must tell it about any uniqueness constraints
                     by calling the <code>withUniqueConstraint()</code> method on your DAO builder
                     objects.</li>
@@ -1541,9 +1540,9 @@
 
                 <p>Hrorm is designed to have a small surface area for clients. Most of the time, clients should only
                     need to interact with a few hrorm types: <code>DaoBuilder</code>, <code>Dao</code>,
-                    <code>Where</code>, <code>HrormException</code>, and a couple of others.
+                    <code>Where</code>, <code>HrormException</code>, and perhaps a few others.
                     There are a few other types that a client may want to use,
-                    but most of the classes in hrorm are internal to it.
+                    but many of the classes in hrorm are internal to it.
 
                 <p>In spite of this, almost all the classes in hrorm are public and contain public constructors
                     and methods. If you feel like instantiating a <code>JoinColumn</code> object, hrorm feels
