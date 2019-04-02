@@ -363,7 +363,7 @@ public class IndirectDaoBuilder<ENTITY, BUILDER>  implements SchemaDescriptor<EN
      * they need into Hrorm.
      * </p>
      *
-     * @param columnName The name of the column in the table that holds the primary key.
+     * @param columnName The name of the column in the table that holds the data element.
      * @param getter The function to call to get the value from an object instance.
      * @param setter The function to call to set the value onto an object instance.
      * @param genericColumn The column that supports type <code>T</code>.
@@ -388,7 +388,7 @@ public class IndirectDaoBuilder<ENTITY, BUILDER>  implements SchemaDescriptor<EN
      * they need into Hrorm.
      * </p>
      *
-     * @param columnName The name of the column in the table that holds the primary key.
+     * @param columnName The name of the column in the table that holds the data element.
      * @param getter The function to call to get the value from an object instance.
      * @param setter The function to call to set the value onto an object instance.
      * @param genericColumn The column that supports type <code>T</code>.
