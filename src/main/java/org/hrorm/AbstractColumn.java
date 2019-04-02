@@ -27,14 +27,6 @@ public abstract class AbstractColumn<TYPE,ENTITY,BUILDER> implements Column<ENTI
     protected boolean nullable;
     private String sqlTypeName;
 
-//    public AbstractColumn(String name, String prefix, Function<ENTITY, TYPE> getter, BiConsumer<BUILDER, TYPE> setter, boolean nullable) {
-//        this.name = name;
-//        this.prefix = prefix;
-//        this.getter = getter;
-//        this.setter = setter;
-//        this.nullable = nullable;
-//    }
-
     public AbstractColumn(String name, String prefix, Function<ENTITY, TYPE> getter, BiConsumer<BUILDER, TYPE> setter, boolean nullable, String sqlTypeName) {
         this.name = name;
         this.prefix = prefix;

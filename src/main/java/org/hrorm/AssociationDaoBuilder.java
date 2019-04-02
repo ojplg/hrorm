@@ -2,6 +2,7 @@ package org.hrorm;
 
 import java.sql.Connection;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
@@ -36,7 +37,7 @@ public class AssociationDaoBuilder<LEFT, RIGHT>
      *                          of one of other of the entities being associated
      */
     public AssociationDaoBuilder(DaoDescriptor<LEFT, ?> leftDaoDescriptor,
-                                         DaoDescriptor<RIGHT, ?> rightDaoDescriptor){
+                                 DaoDescriptor<RIGHT, ?> rightDaoDescriptor){
         this.leftDaoDescriptor = leftDaoDescriptor;
         this.rightDaoDescriptor = rightDaoDescriptor;
     }
@@ -215,6 +216,6 @@ public class AssociationDaoBuilder<LEFT, RIGHT>
 
     @Override
     public List<List<String>> uniquenessConstraints() {
-        return Collections.emptyList();
+        return Collections.singletonList(Arrays.asList(leftColumnName, rightColumnName));
     }
 }

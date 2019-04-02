@@ -6,6 +6,13 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * Collator for the columns in a DAO builder.
+ *
+ * <p>
+ *
+ * Most users of hrorm will have no need to directly use this.
+ */
 public class ColumnCollection<ENTITY,BUILDER> {
 
     private PrimaryKey<ENTITY, BUILDER> primaryKey;
