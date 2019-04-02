@@ -144,13 +144,12 @@
                 </ul>
 
                 <p>
-                    At the moment Hrorm supports a limited number of (Java) datatypes:
+                    Hrorm has built in support for a limited number of (Java) datatypes:
                     <code>Long</code>, <code>BigDecimal</code>, <code>String</code>, <code>Boolean</code>,
-                    and <code>Instant</code>. Additionally, hrorm supports a mechanism
-                    for persisting values that can be converted to and from <code>String</code>,
-                    which is intended primarily for enumerated types. Adding supports for new datatypes
-                    that are supported by the <code>ResultSet</code> interface should not be particularly
-                    difficult if you're a hacker.
+                    and <code>Instant</code>. However, by using a <a href="#generic_columns"><code>GenericColumn</code></a>
+                    you can easily support any type you want. Additionally, hrorm supports a mechanism
+                    for persisting values that can be converted from one type to another and back, intended
+                    for enumerated or other non-primitive types.
                 </p>
 
             </div>
@@ -494,7 +493,8 @@
                 using the <code>withGenericColumn()</code> method, very similarly to the built-in
                 column types.</p>
 
-                <p>Additionally, you can combine a <code>GenericColumn</code> with a <code>Converter</code>.
+                <p>Additionally, you can combine a <code>GenericColumn</code> with a
+                    <a href="/javadocs/latest/org/hrorm/Converter.html"><code>Converter</code></a>.
                     This allows you to persist as one type (one that makes sense to the database) but
                     populate your models with another. This allows maximum flexibility, and the possibility
                     of using the same <code>GenericColumn</code> in the database to represent a number
