@@ -16,7 +16,7 @@ import java.util.function.Supplier;
  * table, the entity class, and the entity's builder class to be defined.
  *
  * <p>
- *     Also see {@link DaoBuilder}.
+ *     Also see {@link DaoBuilder} and {@link IndirectKeylessDaoBuilder}.
  * </p>
  *
  * @param <ENTITY> The type of the class that the <code>Dao</code> will support.

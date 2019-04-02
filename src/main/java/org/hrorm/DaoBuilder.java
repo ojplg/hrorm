@@ -14,7 +14,7 @@ import java.util.function.Supplier;
  * a Java type and the table(s) that will persist the data held in the class.
  *
  * <p>
- *     Also see {@link IndirectDaoBuilder}.
+ *     Also see {@link IndirectDaoBuilder} and {@link IndirectKeylessDaoBuilder}.
  * </p>
  *
  * @param <ENTITY> The class that the Dao will support.
