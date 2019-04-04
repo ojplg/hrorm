@@ -170,15 +170,14 @@ DaoBuilder&lt;Item&gt; = new DaoBuilder&&lt;&gt;("item_table",Item::new)
     problem that allows us to write code like this:
 </p>
 
-<code>
-interface DaoBuilder&lt;&gt; a {
-    build : a -> T;
+<pre>
+interface DaoBuilder&lt;T&gt; a {
+    buildDao : a -> Connection -> T;
     withColumn : a -> String -> (T -> String) -> (T -> String -> ()) -> a;
-}
-</code>
+}</pre>
 
 <p>
-    I won't bother to explain what that means, since it's both theoretical, and a monstrosity.
+    I won't bother to explain what that might mean, since it's both theoretical, and a monstrosity.
     And beside the point anyway, since this whole issue is self-imposed. If I could let go
     of the unimportant requirement that a user's first exposure to hrorm look exactly one
     particular way, the code could be simplified. But somehow, I have in my mind the declarative,
@@ -219,6 +218,8 @@ interface DaoBuilder&lt;&gt; a {
     use of it, but I do not see how, except by some form of code generation which
     adds a huge overhead to using hrorm.
 </p>
+
+<hr>
 
 <p>
     TOPICS:
