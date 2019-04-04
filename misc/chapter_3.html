@@ -51,7 +51,7 @@
 <h4>Meta-Programming</h4>
 
 <p>
-    Some languages (Lisps, Ocaml, Ruby) embrace meta-programming. Others have more
+    Some languages (Lisps, Ocaml, Ruby) embrace meta-progmramming. Others have more
     grudging support (C with it's macros). Others are a bit schizophrenic (Haskell
     versus Template Haskell). I would put Java in the grudging support category.
     Reflection exists, and has for a long time. But it's clumsy and leads to code
@@ -71,6 +71,96 @@
     pointers, just using the language without any meta-programming got a lot easier.
 </p>
 
+<p>
+    Generalizing wildly, there are two kinds of programmers: those that work on applications
+    and those that work on libraries. Application developers' work will be judged overwhelmingly
+    by application users on one criteria: does the application do what I want it to reliably
+    and without undue fuss. Library writers are judged by muddier criteria. Clearly, some
+    libraries become more popular than others (just as some applications do, and I would not
+    say that an application's popularity is strictly proportional to its quality), but when
+    programmers pick a library, they weigh more criteria more heavily than application consumers do.
+    What are they looking for?
+</p>
+
+<h3>Ease of use versus ease of implementation</h3>
+
+<p>
+    When I wrote hrorm, it was very important to me that users (like me) be able to write code
+    like this:
+</p>
+
+<pre>
+DaoBuilder&lt;Item&gt; = new DaoBuilder&&lt;&gt;("item_table",Item::new)
+        .withPrimaryKey( ... )
+        .withStringColumn( ... );</pre>
+
+<p>
+    What are the implications of that requirement, from a Java language perspective?
+    First of all, it means <code>DaoBuilder</code> cannot be an interface or an abstract
+    class. The code instantiates an instance of one, so it has to be an object. This is in
+    no way a functional requirement on hrorm, and it's easy to imagine a way that it could
+    be different: <code>DaoBuilder</code> could be an interface, and you could instantiate
+    a <code>SimpleDaoBuilder</code>, or numerous other alternatives. But it was very important
+    to me that it work exactly as shown. Partly because I think it makes looking at hrorm
+    for the very first time easier. Partly just because I think it reads better. But there's
+    a bigger issue lurking: if <code>DaoBuilder</code> is an interface, and there are
+    multiple implementations (and eventually, hrorm came to support more than one way to
+    build a <code>Dao</code>), the different implementations cannot support different methods
+    and still provide a fluent interface: each <code>withSomething()</code> method will
+    return the lowest common denominator interface type, and then users can only call methods
+    on that interface, not any specialty methods the different implementations provide.
+</p>
+
+<p>
+    Because of this, the multiple mechanisms for building a <code>Dao</code> in hrorm are
+    largely independent, with a lot of cut-and-pasted code and documentation that is
+    irritating and error prone to maintain.
+</p>
+
+<p>
+    We can perhaps imagine some new language (let's call it Jaskell) that gets around this
+    problem that allows us to write code like this:
+</p>
+
+<code>
+interface DaoBuilder&lt;&gt; a {
+    build : a -> T;
+    withColumn : a -> String -> (T -> String) -> (T -> String -> ()) -> a;
+}
+</code>
+
+<p>
+    I won't bother to explain what that means, since it's both theoretical, and a monstrosity.
+    And beside the point anyway, since this whole issue is self-imposed. If I could let go
+    of the unimportant requirement that a user's first exposure to hrorm look exactly one
+    particular way, the code could be simplified. But somehow, I have in my mind the declarative,
+    fluent interface that hrorm provides. As long as I want to provide that, I am stuck with
+    maintaining the code as it is. My hope is that the ease-of-use for clients outweighs the
+    annoyance of implementation to me and other hrorm contributors.
+</p>
+
+<h3>More on the type checker</h3>
+
+<p>
+    To use hrorm, the application developer must provide it with two things: information
+    about the Java object model and data about the SQL schema. The object model is clearly
+    the easier one for hrorm to deal with: it's in hrorm's language. The SQL schema is not,
+    it's just a bunch of strings.
+</p>
+
+<p>
+    That's annoying for users since you would like to define the name of the column once,
+    just as you define a constant once, and then always have the benefit of the compiler
+    to make sure you are refering to it correctly. (You can just make constants for all
+    your column names, of course, but now you're doing extra work, not having work
+    done for you.) The reason you want to refer to columns more than once is in building
+    where clauses, like this.
+</p>
+
+<pre>
+    Dao&lt;Item&gt; dao = // comes from something
+    List&lt;Item&gt; = dao.select(where("COLUMN_A", EQUALS, "Foo")
+                                   .and("COLUMN_B" GREATER_THAN, 7L));</pre>
 
 
 <p>
