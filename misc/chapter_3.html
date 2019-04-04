@@ -48,7 +48,7 @@
     questions.
 </p>
 
-<h4>Meta-Programming</h4>
+<h3>Meta-Programming</h3>
 
 <p>
     Some languages (Lisps, Ocaml, Ruby) embrace meta-progmramming. Others have more
@@ -70,6 +70,54 @@
     Fortunately, since Java 8, and the introduction of things that look like function
     pointers, just using the language without any meta-programming got a lot easier.
 </p>
+
+<h3>Libraries and Frameworks</h3>
+
+<p>
+    As an application I prefer libraries to frameworks. I won't try to formally
+    distinguish between the two, but I think most programmers have some idea about
+    the distinction I am making. Libraries are imported by putting a jar file
+    in your classpath; they give you objects and methods; they define interfaces
+    and then provide implementations of them. Frameworks require set-up and
+    configuration and containers. They have interfaces they expect you to
+    to implement. They start up threads and start doing work before you even call
+    them.
+</p>
+
+<p>
+    That's perhaps unfair, and some frameworks are terrific, but I like using libraries
+    better. If something is going to venture into framework territory, it better give
+    me something valuable for the added compexity they bring.
+</p>
+
+<h3>Cleverness</h3>
+
+<p>
+    One of my favorite programming aphorisms is Brian Kernighan's thoughts on debugging:
+    "Debugging is twice as hard as writing the code in the first place.
+    Therefore, if you write the code as cleverly as possible, you are,
+    by definition, not smart enough to debug it." My corollary to his theorem is
+    that you are twice as stupid at two in the morning when called by the operations
+    team than you are during the work day. And therefore, if you have to debug
+    clever code at two in the morning, you are 4 times stupider than you need to be.
+</p>
+
+<p>
+    Hrorm is not a library that is built to impress when you are fully caffeinated and
+    relaxing in the post-doughnut mid-morning surfing session on your dual 30 inch
+    monitors. It's built for the dead of night when you're trying to sleep one off
+    and you don't want to figure out why a lazy sequence cannot be realized, or
+    why a cache has over a billion entries when there are only a million records in
+    the database.
+</p>
+
+<p>
+    When you call one of hrorm's methods, it does something pretty simple. It generates
+    some SQL, it passes it along a <code>Connection</code>, and it parses the results
+    into your object model, calling methods that you defined.
+</p>
+
+<h3>Libraries and Applications</h3>
 
 <p>
     Generalizing wildly, there are two kinds of programmers: those that work on applications
@@ -162,6 +210,15 @@ interface DaoBuilder&lt;&gt; a {
     List&lt;Item&gt; = dao.select(where("COLUMN_A", EQUALS, "Foo")
                                    .and("COLUMN_B" GREATER_THAN, 7L));</pre>
 
+<p>
+    There are really two problems here. The first is that the name of the column might
+    be wrong: "COLUMNA" instead of "COLUMN_A". The second is that the type of the
+    column might be wrong: using an illegal comparison, like comparing a string to an
+    integer. When creating a hrorm <code>Dao</code>, the user has already defined
+    the name and something about the type of the column, it would be nice to make
+    use of it, but I do not see how, except by some form of code generation which
+    adds a huge overhead to using hrorm.
+</p>
 
 <p>
     TOPICS:
