@@ -48,11 +48,43 @@
     questions.
 </p>
 
+<h3>The Work of Persistence</h3>
+
+<p>
+    To manage the persistence of objects in an RDBMS requires doing a few things.
+</p>
+
+<ul>
+    <li>Decomposing an object into its atoms (strings, numbers, timestamps, etc)</li>
+    <li>Generating SQL statements</li>
+    <li>Taking the decomposed parts and inserting them into the SQL</li>
+    <li>Parsing results from the database</li>
+    <li>Recomposing objects from their constituents</li>
+</ul>
+
+<p>
+    Composing and decomposing objects can be done using getters and setters,
+    or builder objects in the case of immutable models. SQL can be easily
+    created through simple string manipulation, since there is a limited
+    universe of statements to create, and generation is so much simpler
+    than parsing. The biggest challenge in parsing result sets is making
+    sure to correctly alias and prefix column names when doing joins.
+    Mostly, the tasks of doing persistence are a matter of careful accounting
+    rather than clever programming.
+</p>
+
+<p>
+    There's a bit of a hidden problem that is only referenced above: classes
+    are not just made of atomic parts that directly decompose into atomic parts.
+    They are made up of other objects. But really, this mostly adds another
+    layer of accounting. It's not like things suddenly went NP on us.
+</p>
+
 <h3>Meta-Programming</h3>
 
 <p>
     Some languages (Lisps, Ocaml, Ruby) embrace meta-progmramming. Others have more
-    grudging support (C with it's macros). Others are a bit schizophrenic (Haskell
+    grudging support (C with it's macros). Others are a bit schizoophrenic (Haskell
     versus Template Haskell). I would put Java in the grudging support category.
     Reflection exists, and has for a long time. But it's clumsy and leads to code
     that is unexpressive and unintuitive.
@@ -177,7 +209,7 @@ interface DaoBuilder&lt;T&gt; a {
 }</pre>
 
 <p>
-    I won't bother to explain what that might mean, since it's both theoretical, and a monstrosity.
+    I won't bother to explain what that might mean, since it's both theoretical and a monstrosity.
     And beside the point anyway, since this whole issue is self-imposed. If I could let go
     of the unimportant requirement that a user's first exposure to hrorm look exactly one
     particular way, the code could be simplified. But somehow, I have in my mind the declarative,
@@ -217,6 +249,16 @@ interface DaoBuilder&lt;T&gt; a {
     the name and something about the type of the column, it would be nice to make
     use of it, but I do not see how, except by some form of code generation which
     adds a huge overhead to using hrorm.
+</p>
+
+<p>
+    Hrorm does use one trick to somewhat mitigate the type problem, though not
+    the mis-spelled column name problem. It has methods to select that are based
+    on passing an instance of the object itself to the method on the DAO. An object
+    is initialized with some of its values set, and a list of objects is returned
+    that match the specified values on the specified columns. That way, the types
+    of the values have to be correct, and of the types that hrorm knows about,
+    but of course, the column names can still be wrong.
 </p>
 
 <hr>
