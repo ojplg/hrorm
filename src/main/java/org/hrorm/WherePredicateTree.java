@@ -110,11 +110,17 @@ public class WherePredicateTree {
     }
 
     public void addAtom(Conjunction conjunction, WherePredicate atom){
+        if( isEmpty() ){
+            throw new HrormException("Cannot extend an empty where clause");
+        }
         WherePredicateLeaf newLeaf = new WherePredicateLeaf(atom);
         rootNode = new WherePredicateBranch(rootNode, conjunction, newLeaf);
     }
 
     public void addSubtree(Conjunction conjunction, WherePredicateTree subTree){
+        if(isEmpty() ){
+            throw new HrormException("Cannot extend an empty where clause");
+        }
         rootNode = new WherePredicateBranch(rootNode, conjunction, new WherePredicateGroup(subTree.rootNode));
     }
 
@@ -124,5 +130,12 @@ public class WherePredicateTree {
 
     public List<WherePredicate> asList(){
         return rootNode.asList();
+    }
+
+    private boolean isEmpty(){
+        if ( rootNode == null ){
+            return true;
+        }
+        return EMPTY == this;
     }
 }

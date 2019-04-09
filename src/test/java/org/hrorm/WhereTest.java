@@ -1,6 +1,7 @@
 package org.hrorm;
 
 import org.hrorm.util.SimpleSqlFormatter;
+import org.junit.Assert;
 import org.junit.Test;
 
 import static org.hrorm.Where.where;
@@ -45,4 +46,27 @@ public class WhereTest {
 
         SimpleSqlFormatter.assertEqualSql(expectedSql, generatedSql);
     }
+
+    @Test
+    public void testCannotExtendEmptyWhereClause_WithOr(){
+        Where where = new Where();
+
+        try {
+            where.or("FOO", Operator.EQUALS, 7L);
+            Assert.fail("Should not extend an empty where clause");
+        } catch (HrormException expected){
+        }
+    }
+
+    @Test
+    public void testCannotExtendEmptyWhereClause_WithAnd(){
+        Where where = new Where();
+
+        try {
+            where.and("FOO", Operator.LIKE, "FOO");
+            Assert.fail("Should not extend an empty where clause");
+        } catch (HrormException expected){
+        }
+    }
+
 }
