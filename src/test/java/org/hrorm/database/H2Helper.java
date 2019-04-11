@@ -72,4 +72,10 @@ public class H2Helper extends AbstractHelper {
         }
         return buf.toString();
     }
+
+    @Override
+    public DatabasePlatform getPlatform() {
+        return DatabasePlatform.H2;
+    }
+
 }

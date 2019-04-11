@@ -31,4 +31,6 @@ public interface Helper {
     List<String> sequenceNames();
 
     List<Constraint> constraints();
+
+    DatabasePlatform getPlatform();
 }

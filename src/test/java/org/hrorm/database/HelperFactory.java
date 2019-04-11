@@ -1,11 +1,9 @@
 package org.hrorm.database;
 
-import static org.hrorm.database.HelperFactory.DatabasePlatform.H2;
-import static org.hrorm.database.HelperFactory.DatabasePlatform.Postgres;
+import static org.hrorm.database.DatabasePlatform.H2;
+import static org.hrorm.database.DatabasePlatform.Postgres;
 
 public class HelperFactory {
-
-    enum DatabasePlatform { H2, Postgres }
 
     public static DatabasePlatform CURRENT_PLATFORM = H2;
 

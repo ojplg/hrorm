@@ -64,4 +64,9 @@ public class PostgresHelper extends AbstractHelper {
         }
 
     }
+
+    @Override
+    public DatabasePlatform getPlatform() {
+        return DatabasePlatform.Postgres;
+    }
 }

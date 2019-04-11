@@ -17,7 +17,7 @@ public class GenericColumnTest {
 
     static { TestLogConfig.load(); }
 
-    private static Helper helper = HelperFactory.forSchema("foo");
+    private static Helper helper = HelperFactory.forSchema("generic_columns_test");
 
     @BeforeClass
     public static void setUpDb(){
