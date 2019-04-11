@@ -1,5 +1,6 @@
 package org.hrorm;
 
+import org.hrorm.database.DatabasePlatform;
 import org.hrorm.database.Helper;
 import org.hrorm.database.HelperFactory;
 import org.hrorm.examples.builtins.Builders;
@@ -21,7 +22,7 @@ public class GenericColumnBuiltInsTest {
 
     @BeforeClass
     public static void setUpDb(){
-        Schema schema = new Schema(Builders.BUILT_INS_DAO_BUILDER);
+        Schema schema = new Schema(Builders.forPlatform(helper.getPlatform()));
         String sql = schema.sql();
         helper.initializeSchemaFromSql(sql);
     }
@@ -43,11 +44,11 @@ public class GenericColumnBuiltInsTest {
 
             builtIns.setTimestampValue(new Timestamp(987654321));
 
-            Dao<BuiltIns> dao = Builders.BUILT_INS_DAO_BUILDER.buildDao(connection);
+            Dao<BuiltIns> dao = Builders.forPlatform(helper.getPlatform()).buildDao(connection);
             return dao.insert(builtIns);
         });
         helper.useConnection(connection -> {
-            Dao<BuiltIns> dao = Builders.BUILT_INS_DAO_BUILDER.buildDao(connection);
+            Dao<BuiltIns> dao = Builders.forPlatform(helper.getPlatform()).buildDao(connection);
 
             BuiltIns builtIns = dao.select(id);
 
@@ -63,7 +64,13 @@ public class GenericColumnBuiltInsTest {
     @Test
     public void testValidation(){
         helper.useConnection(connection -> {
-            Validator.validate(connection, Builders.BUILT_INS_DAO_BUILDER);
+            try {
+                Validator.validate(connection, Builders.forPlatform(helper.getPlatform()));
+            } catch (HrormException ex){
+                if( helper.getPlatform() == DatabasePlatform.H2 ) {
+                    Assert.assertEquals("Column float_value does not support type 8 (Supported are: [6])", ex.getMessage());
+                }
+            }
         });
     }
 

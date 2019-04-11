@@ -79,7 +79,7 @@ public class KeylessValidator {
                 ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
                 int columnType = resultSetMetaData.getColumnType(1);
                 if ( ! column.supportedTypes().contains(columnType) ){
-                    errors.add("Column " + columnName + " does not support type " + columnType);
+                    errors.add("Column " + columnName + " does not support type " + columnType + " (Supported are: " + column.supportedTypes() + ")");
                 }
             } catch (SQLException ex){
                 errors.add(ex.getMessage());

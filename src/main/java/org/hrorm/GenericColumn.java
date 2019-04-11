@@ -37,13 +37,11 @@ public class GenericColumn<TYPE> {
     public static GenericColumn<Byte> BYTE =
             new GenericColumn<>(PreparedStatement::setByte, ResultSet::getByte, Types.TINYINT, "tinyint");
     public static GenericColumn<Float> FLOAT =
-            new GenericColumn<>(PreparedStatement::setFloat, ResultSet::getFloat, Types.DOUBLE, "float");
+            new GenericColumn<>(PreparedStatement::setFloat, ResultSet::getFloat, Types.FLOAT, "float");
     public static GenericColumn<Double> DOUBLE =
             new GenericColumn<>(PreparedStatement::setDouble, ResultSet::getDouble, Types.DOUBLE, "double");
     public static GenericColumn<Timestamp> TIMESTAMP =
             new GenericColumn<>(PreparedStatement::setTimestamp, ResultSet::getTimestamp, Types.TIMESTAMP, "timestamp");
-//    public static GenericColumn<Time> TIME =
-//            new GenericColumn<>(PreparedStatement::setTime, ResultSet::getTime, Types.TIME, "time");
 
     private final Integer sqlType;
     private final String sqlTypeName;
