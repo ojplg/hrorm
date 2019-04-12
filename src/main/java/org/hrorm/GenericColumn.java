@@ -1,5 +1,6 @@
 package org.hrorm;
 
+import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -36,7 +37,10 @@ public class GenericColumn<TYPE> {
     // built in column types
     public static GenericColumn<Long> LONG =
             new GenericColumn<>(PreparedStatement::setLong, ResultSet::getLong, Types.INTEGER, "integer", ColumnTypes.IntegerTypes);
-
+    public static GenericColumn<BigDecimal> BIG_DECIMAL =
+            new GenericColumn<>(PreparedStatement::setBigDecimal, ResultSet::getBigDecimal, Types.DECIMAL, "decimal", ColumnTypes.DecimalTypes);
+    public static GenericColumn<Boolean> BOOLEAN =
+            new GenericColumn<>(PreparedStatement::setBoolean, ResultSet::getBoolean, Types.BOOLEAN, "boolean", ColumnTypes.BooleanTypes);
 
     // extension types
     public static GenericColumn<Integer> INTEGER =

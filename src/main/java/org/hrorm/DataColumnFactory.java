@@ -20,73 +20,19 @@ import java.util.function.Function;
  */
 public class DataColumnFactory {
 
-    public static <ENTITY, BUILDER> AbstractColumn<BigDecimal, ENTITY, BUILDER> bigDecimalColumn(
+    public static <ENTITY, BUILDER> Column<ENTITY, BUILDER> bigDecimalColumn(
             String name, String prefix, Function<ENTITY, BigDecimal> getter, BiConsumer<BUILDER, BigDecimal> setter, boolean nullable) {
-        return new AbstractColumn<BigDecimal, ENTITY, BUILDER>(name, prefix, getter, setter, nullable,"decimal") {
-            @Override
-            public BigDecimal fromResultSet(ResultSet resultSet, String columnName) throws SQLException {
-                return resultSet.getBigDecimal(columnName);
-            }
-
-            @Override
-            public void setPreparedStatement(PreparedStatement preparedStatement, int index, BigDecimal value) throws SQLException {
-                preparedStatement.setBigDecimal(index, value);
-            }
-
-            @Override
-            public Column<ENTITY, BUILDER> withPrefix(String newPrefix, Prefixer prefixer) {
-                return bigDecimalColumn(getName(), newPrefix, getter, setter, nullable);
-            }
-
-            @Override
-            int sqlType() {
-                return Types.DECIMAL;
-            }
-
-            @Override
-            public Set<Integer> supportedTypes() {
-                return ColumnTypes.DecimalTypes;
-            }
-        };
+        return new SimpleColumnImpl<>(GenericColumn.BIG_DECIMAL, prefix, name, getter, setter, GenericColumn.BIG_DECIMAL.getSqlTypeName(), nullable);
     }
 
     public static <ENTITY, BUILDER> Column<ENTITY, BUILDER> longColumn(
             String name, String prefix, Function<ENTITY, Long> getter, BiConsumer<BUILDER, Long> setter, boolean nullable) {
-        return new SimpleColumnImpl<Long, ENTITY, BUILDER>(GenericColumn.LONG, prefix, name, getter, setter, GenericColumn.LONG.getSqlTypeName(), nullable);
+        return new SimpleColumnImpl<>(GenericColumn.LONG, prefix, name, getter, setter, GenericColumn.LONG.getSqlTypeName(), nullable);
     }
 
-    public static <ENTITY, BUILDER> AbstractColumn<Boolean, ENTITY, BUILDER> booleanColumn(
+    public static <ENTITY, BUILDER> Column<ENTITY, BUILDER> booleanColumn(
             String name, String prefix, Function<ENTITY, Boolean> getter, BiConsumer<BUILDER, Boolean> setter, boolean nullable) {
-        return new AbstractColumn<Boolean, ENTITY, BUILDER>(name, prefix, getter, setter, nullable, "boolean") {
-            @Override
-            public Boolean fromResultSet(ResultSet resultSet, String columnName) throws SQLException {
-                Boolean result = resultSet.getBoolean(columnName);
-                if ( resultSet.wasNull() ){
-                    return null;
-                }
-                return result;
-            }
-
-            @Override
-            public void setPreparedStatement(PreparedStatement preparedStatement, int index, Boolean value) throws SQLException {
-                preparedStatement.setBoolean(index, value);
-            }
-
-            @Override
-            public Column<ENTITY, BUILDER> withPrefix(String newPrefix, Prefixer prefixer) {
-                return booleanColumn(getName(), newPrefix, getter, setter, nullable);
-            }
-
-            @Override
-            int sqlType() {
-                return Types.BOOLEAN;
-            }
-
-            @Override
-            public Set<Integer> supportedTypes() {
-                return ColumnTypes.BooleanTypes;
-            }
-        };
+        return new SimpleColumnImpl<>(GenericColumn.BOOLEAN, prefix, name, getter, setter, GenericColumn.BOOLEAN.getSqlTypeName(), nullable);
     }
 
     public static <ENTITY, BUILDER> AbstractColumn<Boolean, ENTITY, BUILDER> textBackedBooleanColumn(
