@@ -3,7 +3,6 @@ package org.hrorm;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Time;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.Collections;
@@ -34,6 +33,12 @@ import java.util.Set;
  */
 public class GenericColumn<TYPE> {
 
+    // built in column types
+    public static GenericColumn<Long> LONG =
+            new GenericColumn<>(PreparedStatement::setLong, ResultSet::getLong, Types.INTEGER, "integer", ColumnTypes.IntegerTypes);
+
+
+    // extension types
     public static GenericColumn<Integer> INTEGER =
             new GenericColumn<>(PreparedStatement::setInt, ResultSet::getInt, Types.INTEGER, "integer");
     public static GenericColumn<Byte> BYTE =
@@ -82,6 +87,26 @@ public class GenericColumn<TYPE> {
         this.sqlTypeName = sqlTypeName;
         this.supportedTypes = Collections.singleton(sqlType);
     }
+
+    /**
+     * Create a generic column instance to support the <code>TYPE</code>.
+     *
+     * @param preparedStatementSetter The method used to set the type onto a prepared statement.
+     * @param resultReader The method used to read the value out of a result set.
+     * @param sqlType The kind of this column type, as defined in <code>java.sql.Types</code>
+     * @param sqlTypeName The name of the type in the SQL schema. This optional value can be set
+     *                    if you wish to generate your schema using a {@link Schema} object.
+     * @param supportedTypes All the database types, as defined in <code>java.sql.Types</code>
+     *                       that this column can support.
+     */
+    public GenericColumn(PreparedStatementSetter<TYPE> preparedStatementSetter, ResultSetReader<TYPE> resultReader, int sqlType, String sqlTypeName, Set<Integer> supportedTypes){
+        this.sqlType = sqlType;
+        this.preparedStatementSetter = preparedStatementSetter;
+        this.resultReader = resultReader;
+        this.sqlTypeName = sqlTypeName;
+        this.supportedTypes = Collections.unmodifiableSet(supportedTypes);
+    }
+
 
     public TYPE fromResultSet(ResultSet resultSet, String columnName) throws SQLException {
         TYPE value = resultReader.read(resultSet, columnName);

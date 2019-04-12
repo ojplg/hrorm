@@ -7,7 +7,6 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.time.Instant;
-import java.util.Collections;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -51,38 +50,9 @@ public class DataColumnFactory {
         };
     }
 
-    public static <ENTITY, BUILDER> AbstractColumn<Long, ENTITY, BUILDER> longColumn(
+    public static <ENTITY, BUILDER> Column<ENTITY, BUILDER> longColumn(
             String name, String prefix, Function<ENTITY, Long> getter, BiConsumer<BUILDER, Long> setter, boolean nullable) {
-        return new AbstractColumn<Long, ENTITY, BUILDER>(name, prefix, getter, setter, nullable, "integer") {
-            @Override
-            public Long fromResultSet(ResultSet resultSet, String columnName) throws SQLException {
-                Long result = resultSet.getLong(columnName);
-                if( resultSet.wasNull() ){
-                    return null;
-                }
-                return result;
-            }
-
-            @Override
-            public void setPreparedStatement(PreparedStatement preparedStatement, int index, Long value) throws SQLException {
-                preparedStatement.setLong(index, value);
-            }
-
-            @Override
-            public Column<ENTITY, BUILDER> withPrefix(String newPrefix, Prefixer prefixer) {
-                return longColumn(getName(), newPrefix, getter, setter, nullable);
-            }
-
-            @Override
-            int sqlType() {
-                return Types.INTEGER;
-            }
-
-            @Override
-            public Set<Integer> supportedTypes() {
-                return ColumnTypes.IntegerTypes;
-            }
-        };
+        return new SimpleColumnImpl<Long, ENTITY, BUILDER>(GenericColumn.LONG, prefix, name, getter, setter, GenericColumn.LONG.getSqlTypeName(), nullable);
     }
 
     public static <ENTITY, BUILDER> AbstractColumn<Boolean, ENTITY, BUILDER> booleanColumn(

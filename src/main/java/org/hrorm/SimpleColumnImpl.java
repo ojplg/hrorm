@@ -18,7 +18,7 @@ public class SimpleColumnImpl<TYPE, ENTITY, BUILDER> extends AbstractColumnImpl<
     @Override
     public Column<ENTITY, BUILDER> withPrefix(String newPrefix, Prefixer prefixer) {
         return new SimpleColumnImpl(this.genericColumn,
-                this.prefix,
+                newPrefix,
                 this.name,
                 this.getter,
                 this.setter,
