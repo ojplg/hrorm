@@ -271,72 +271,16 @@ public class DataColumnFactory {
         };
     }
 
-    public static <E, ENTITY, BUILDER> AbstractColumn<E, ENTITY, BUILDER> genericColumn(
-            String name, String prefix, Function<ENTITY, E> getter, BiConsumer<BUILDER, E> setter,
-            GenericColumn<E> genericColumn, boolean nullable) {
-
-        return new AbstractColumn<E, ENTITY, BUILDER>(name, prefix, getter, setter, nullable, genericColumn.getSqlTypeName()) {
-            @Override
-            E fromResultSet(ResultSet resultSet, String columnName) throws SQLException {
-                return genericColumn.fromResultSet(resultSet, columnName);
-            }
-
-            @Override
-            void setPreparedStatement(PreparedStatement preparedStatement, int index, E value) throws SQLException {
-                genericColumn.setPreparedStatement(preparedStatement, index, value);
-            }
-
-            @Override
-            int sqlType() {
-                return genericColumn.sqlType();
-            }
-
-            @Override
-            public Column<ENTITY, BUILDER> withPrefix(String newPrefix, Prefixer prefixer) {
-                return genericColumn(getName(), newPrefix, getter, setter, genericColumn, nullable);
-            }
-
-            @Override
-            public Set<Integer> supportedTypes() {
-                return Collections.singleton(genericColumn.sqlType());
-            }
-
-        };
+    public static <TYPE, ENTITY, BUILDER> Column<ENTITY, BUILDER> genericColumn(
+            String name, String prefix, Function<ENTITY, TYPE> getter, BiConsumer<BUILDER, TYPE> setter,
+            GenericColumn<TYPE> genericColumn, boolean nullable) {
+        return new SimpleColumnImpl<>(genericColumn, prefix, name, getter, setter, genericColumn.getSqlTypeName(), nullable);
     }
 
-    public static <T, U, ENTITY, BUILDER> AbstractColumn<U, ENTITY, BUILDER> convertedGenericColumn(
-            String name, String prefix, Function<ENTITY, U> getter, BiConsumer<BUILDER, U> setter,
-            GenericColumn<T> genericColumn, Converter<U,T> converter, boolean nullable) {
-
-        return new AbstractColumn<U, ENTITY, BUILDER>(name, prefix, getter, setter, nullable, genericColumn.getSqlTypeName()) {
-            @Override
-            U fromResultSet(ResultSet resultSet, String columnName) throws SQLException {
-                T columnValue = genericColumn.fromResultSet(resultSet, columnName);
-                return converter.to(columnValue);
-            }
-
-            @Override
-            void setPreparedStatement(PreparedStatement preparedStatement, int index, U value) throws SQLException {
-                T columnValue = converter.from(value);
-                genericColumn.setPreparedStatement(preparedStatement, index, columnValue);
-            }
-
-            @Override
-            int sqlType() {
-                return genericColumn.sqlType();
-            }
-
-            @Override
-            public Column<ENTITY, BUILDER> withPrefix(String newPrefix, Prefixer prefixer) {
-                return convertedGenericColumn(getName(), newPrefix, getter, setter, genericColumn, converter, nullable);
-            }
-
-            @Override
-            public Set<Integer> supportedTypes() {
-                return Collections.singleton(genericColumn.sqlType());
-            }
-
-        };
+    public static <TYPE, DBTYPE, ENTITY, BUILDER> Column<ENTITY, BUILDER> convertedGenericColumn(
+            String name, String prefix, Function<ENTITY, TYPE> getter, BiConsumer<BUILDER, TYPE> setter,
+            GenericColumn<DBTYPE> genericColumn, Converter<TYPE, DBTYPE> converter, boolean nullable) {
+        return new ConvertingColumnImpl<TYPE, DBTYPE, ENTITY, BUILDER>(genericColumn, prefix, name, getter, setter, genericColumn.getSqlTypeName(), nullable, converter);
     }
 
 }

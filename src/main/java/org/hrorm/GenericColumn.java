@@ -6,6 +6,8 @@ import java.sql.SQLException;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.sql.Types;
+import java.util.Collections;
+import java.util.Set;
 
 /**
  * A column that represents a particular Java type.
@@ -44,6 +46,7 @@ public class GenericColumn<TYPE> {
             new GenericColumn<>(PreparedStatement::setTimestamp, ResultSet::getTimestamp, Types.TIMESTAMP, "timestamp");
 
     private final Integer sqlType;
+    private final Set<Integer> supportedTypes;
     private final String sqlTypeName;
     private final PreparedStatementSetter<TYPE> preparedStatementSetter;
     private final ResultSetReader<TYPE> resultReader;
@@ -60,6 +63,7 @@ public class GenericColumn<TYPE> {
         this.preparedStatementSetter = preparedStatementSetter;
         this.resultReader = resultReader;
         this.sqlTypeName = "UNSET";
+        this.supportedTypes = Collections.singleton(sqlType);
     }
 
     /**
@@ -76,6 +80,7 @@ public class GenericColumn<TYPE> {
         this.preparedStatementSetter = preparedStatementSetter;
         this.resultReader = resultReader;
         this.sqlTypeName = sqlTypeName;
+        this.supportedTypes = Collections.singleton(sqlType);
     }
 
     public TYPE fromResultSet(ResultSet resultSet, String columnName) throws SQLException {
@@ -97,5 +102,7 @@ public class GenericColumn<TYPE> {
     public String getSqlTypeName(){
         return sqlTypeName;
     }
+
+    public Set<Integer> getSupportedTypes() { return supportedTypes; }
 
 }
