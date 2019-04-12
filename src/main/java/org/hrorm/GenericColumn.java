@@ -43,6 +43,8 @@ public class GenericColumn<TYPE> {
             new GenericColumn<>(PreparedStatement::setBoolean, ResultSet::getBoolean, Types.BOOLEAN, "boolean", ColumnTypes.BooleanTypes);
     public static GenericColumn<String> STRING =
             new GenericColumn<>(PreparedStatement::setString, ResultSet::getString, Types.VARCHAR, "text", ColumnTypes.StringTypes);
+    public static GenericColumn<Timestamp> TIMESTAMP =
+            new GenericColumn<>(PreparedStatement::setTimestamp, ResultSet::getTimestamp, Types.TIMESTAMP, "timestamp", ColumnTypes.InstantTypes);
 
     // extension types
     public static GenericColumn<Integer> INTEGER =
@@ -53,8 +55,6 @@ public class GenericColumn<TYPE> {
             new GenericColumn<>(PreparedStatement::setFloat, ResultSet::getFloat, Types.FLOAT, "float");
     public static GenericColumn<Double> DOUBLE =
             new GenericColumn<>(PreparedStatement::setDouble, ResultSet::getDouble, Types.DOUBLE, "double");
-    public static GenericColumn<Timestamp> TIMESTAMP =
-            new GenericColumn<>(PreparedStatement::setTimestamp, ResultSet::getTimestamp, Types.TIMESTAMP, "timestamp", ColumnTypes.InstantTypes);
 
     private final Integer sqlType;
     private final Set<Integer> supportedTypes;
