@@ -7,6 +7,17 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
+/**
+ * A basic implementation of the <code>Column</code> interface for data elements.
+ *
+ * <p>
+ *
+ * Most users of hrorm will have no need to directly use this.
+ *
+ * @param <TYPE> The type of the data element.
+ * @param <ENTITY> The type of the entity.
+ * @param <BUILDER> The class that is used to build new entity instances.
+ */
 public class ColumnImpl<TYPE, ENTITY, BUILDER> implements Column<ENTITY,BUILDER> {
 
     private final GenericColumn<TYPE> genericColumn;

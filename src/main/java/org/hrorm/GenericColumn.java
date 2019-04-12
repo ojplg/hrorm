@@ -13,10 +13,13 @@ import java.util.Set;
  * A column that represents a particular Java type.
  *
  * <p>
- *     This can be used if none of the types Hrorm has built in meet
- *     the needs. The user must provide mechanisms for setting the
- *     type's value onto a <code>java.sql.PreparedStatement</code> and
- *     for reading a value from a <code>java.sql.ResultSet</code>.
+ *     Hrorm has a number of built in types that users can access directly from
+ *     their static instance variables of this class.
+ *     But users can also easily extend hrorm to support whatever column types they wish.
+ *     To create an instance of this class, the caller must provide a mechanism for setting the
+ *     type's value onto a <code>java.sql.PreparedStatement</code>,
+ *     a mechanism for reading a value from a <code>java.sql.ResultSet</code>,
+ *     and the type of the column, as given in <code>java.sql.Types</code>.
  * </p>
  *
  * <p>
@@ -30,29 +33,73 @@ import java.util.Set;
  *     java.sql.Types.Integer);
  * }</pre>
  *
+ * <p>
+ * Using a custom <code>GenericColumn</code> is easy, as shown in the example above,
+ * but greater care must be taken when using hrorm's facilities for validation ({@link Validator})
+ * or schema generation ({@link Schema}). For example, users may wish to create multiple instances of
+ * this class that all support <code>float</code> member variables, if there are a variety
+ * of sizes of columns in their database, all represented by different SQL variable types.
+ * </p>
+ *
  * @param <TYPE> The Java type represented by the column.
  */
 public class GenericColumn<TYPE> {
 
     // built in column types
+
+    /**
+     * An instance that supports <code>Long</code> or <code>long</code> data elements.
+     */
     public static GenericColumn<Long> LONG =
             new GenericColumn<>(PreparedStatement::setLong, ResultSet::getLong, Types.INTEGER, "integer", ColumnTypes.IntegerTypes);
+
+    /**
+     * An instance that supports <code>BigDecimal</code> data elements.
+     */
     public static GenericColumn<BigDecimal> BIG_DECIMAL =
             new GenericColumn<>(PreparedStatement::setBigDecimal, ResultSet::getBigDecimal, Types.DECIMAL, "decimal", ColumnTypes.DecimalTypes);
+
+    /**
+     * An instance that supports <code>Boolean</code> or <code>boolean</code> data elements.
+     */
     public static GenericColumn<Boolean> BOOLEAN =
             new GenericColumn<>(PreparedStatement::setBoolean, ResultSet::getBoolean, Types.BOOLEAN, "boolean", ColumnTypes.BooleanTypes);
+
+    /**
+     * An instance that supports <code>String</code> data elements.
+     */
     public static GenericColumn<String> STRING =
             new GenericColumn<>(PreparedStatement::setString, ResultSet::getString, Types.VARCHAR, "text", ColumnTypes.StringTypes);
+
+    /**
+     * An instance that supports <code>Timestamp</code> data elements.
+     */
     public static GenericColumn<Timestamp> TIMESTAMP =
             new GenericColumn<>(PreparedStatement::setTimestamp, ResultSet::getTimestamp, Types.TIMESTAMP, "timestamp", ColumnTypes.InstantTypes);
 
     // extension types
+
+    /**
+     * An instance that supports <code>Integer</code> or <code>int</code> data elements.
+     */
     public static GenericColumn<Integer> INTEGER =
             new GenericColumn<>(PreparedStatement::setInt, ResultSet::getInt, Types.INTEGER, "integer");
+
+    /**
+     * An instance that supports <code>Byte</code> or <code>byte</code> data elements.
+     */
     public static GenericColumn<Byte> BYTE =
             new GenericColumn<>(PreparedStatement::setByte, ResultSet::getByte, Types.TINYINT, "tinyint");
+
+    /**
+     * An instance that supports <code>Float</code> or <code>float</code> data elements.
+     */
     public static GenericColumn<Float> FLOAT =
             new GenericColumn<>(PreparedStatement::setFloat, ResultSet::getFloat, Types.FLOAT, "float");
+
+    /**
+     * An instance that supports <code>Double</code> or <code>double</code> data elements.
+     */
     public static GenericColumn<Double> DOUBLE =
             new GenericColumn<>(PreparedStatement::setDouble, ResultSet::getDouble, Types.DOUBLE, "double");
 
