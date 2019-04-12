@@ -1,6 +1,5 @@
 package org.hrorm;
 
-import org.hrorm.database.DatabasePlatform;
 import org.hrorm.database.Helper;
 import org.hrorm.database.HelperFactory;
 import org.hrorm.examples.builtins.Builders;
@@ -64,13 +63,7 @@ public class GenericColumnBuiltInsTest {
     @Test
     public void testValidation(){
         helper.useConnection(connection -> {
-            try {
-                Validator.validate(connection, Builders.forPlatform(helper.getPlatform()));
-            } catch (HrormException ex){
-                if( helper.getPlatform() == DatabasePlatform.H2 ) {
-                    Assert.assertEquals("Column float_value does not support type 8 (Supported are: [6])", ex.getMessage());
-                }
-            }
+            Validator.validate(connection, Builders.forPlatform(helper.getPlatform()));
         });
     }
 

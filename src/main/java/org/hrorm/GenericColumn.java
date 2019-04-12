@@ -83,25 +83,25 @@ public class GenericColumn<TYPE> {
      * An instance that supports <code>Integer</code> or <code>int</code> data elements.
      */
     public static GenericColumn<Integer> INTEGER =
-            new GenericColumn<>(PreparedStatement::setInt, ResultSet::getInt, Types.INTEGER, "integer");
+            new GenericColumn<>(PreparedStatement::setInt, ResultSet::getInt, Types.INTEGER, "integer", ColumnTypes.IntegerTypes);
 
     /**
      * An instance that supports <code>Byte</code> or <code>byte</code> data elements.
      */
     public static GenericColumn<Byte> BYTE =
-            new GenericColumn<>(PreparedStatement::setByte, ResultSet::getByte, Types.TINYINT, "tinyint");
+            new GenericColumn<>(PreparedStatement::setByte, ResultSet::getByte, Types.TINYINT, "tinyint", ColumnTypes.IntegerTypes);
 
     /**
      * An instance that supports <code>Float</code> or <code>float</code> data elements.
      */
     public static GenericColumn<Float> FLOAT =
-            new GenericColumn<>(PreparedStatement::setFloat, ResultSet::getFloat, Types.FLOAT, "float");
+            new GenericColumn<>(PreparedStatement::setFloat, ResultSet::getFloat, Types.FLOAT, "float", ColumnTypes.DecimalTypes);
 
     /**
      * An instance that supports <code>Double</code> or <code>double</code> data elements.
      */
     public static GenericColumn<Double> DOUBLE =
-            new GenericColumn<>(PreparedStatement::setDouble, ResultSet::getDouble, Types.DOUBLE, "double");
+            new GenericColumn<>(PreparedStatement::setDouble, ResultSet::getDouble, Types.DOUBLE, "double", ColumnTypes.DecimalTypes);
 
     private final Integer sqlType;
     private final Set<Integer> supportedTypes;
