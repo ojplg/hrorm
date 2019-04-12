@@ -3,7 +3,7 @@ package org.hrorm;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
-public class SimpleColumnImpl<TYPE, ENTITY, BUILDER> extends AbstractColumnImpl<TYPE, ENTITY, BUILDER> {
+public class SimpleColumnImpl<TYPE, ENTITY, BUILDER> extends AbstractColumn<TYPE, ENTITY, BUILDER> {
 
     public SimpleColumnImpl(GenericColumn<TYPE> genericColumn,
                             String prefix,

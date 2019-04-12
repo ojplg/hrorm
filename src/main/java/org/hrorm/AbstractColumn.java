@@ -7,7 +7,7 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
-public abstract class AbstractColumnImpl<TYPE, ENTITY, BUILDER> implements Column<ENTITY, BUILDER> {
+public abstract class AbstractColumn<TYPE, ENTITY, BUILDER> implements Column<ENTITY, BUILDER> {
 
     protected final GenericColumn<TYPE> genericColumn;
 
@@ -19,13 +19,13 @@ public abstract class AbstractColumnImpl<TYPE, ENTITY, BUILDER> implements Colum
     protected String sqlTypeName;
     protected boolean nullable;
 
-    public AbstractColumnImpl(GenericColumn<TYPE> genericColumn,
-                              String prefix,
-                              String name,
-                              Function<ENTITY, TYPE> getter,
-                              BiConsumer<BUILDER, TYPE> setter,
-                              String sqlTypeName,
-                              boolean nullable){
+    public AbstractColumn(GenericColumn<TYPE> genericColumn,
+                          String prefix,
+                          String name,
+                          Function<ENTITY, TYPE> getter,
+                          BiConsumer<BUILDER, TYPE> setter,
+                          String sqlTypeName,
+                          boolean nullable){
         this.genericColumn = genericColumn;
 
         this.prefix = prefix;

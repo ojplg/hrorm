@@ -3,9 +3,7 @@ package org.hrorm;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
-public class ConvertingColumnImpl<TYPE, DBTYPE, ENTITY, BUILDER> extends AbstractColumnImpl<DBTYPE, ENTITY, BUILDER> {
-
-    private final Converter<TYPE, DBTYPE> converter;
+public class ConvertingColumnImpl<TYPE, DBTYPE, ENTITY, BUILDER> extends AbstractColumn<DBTYPE, ENTITY, BUILDER> {
 
     public ConvertingColumnImpl(GenericColumn<DBTYPE> genericColumn,
                                 String prefix,
@@ -16,7 +14,6 @@ public class ConvertingColumnImpl<TYPE, DBTYPE, ENTITY, BUILDER> extends Abstrac
                                 boolean nullable,
                                 Converter<TYPE, DBTYPE> converter) {
         super(genericColumn, prefix, name, convertedGetter(converter, getter), convertedSetter(converter,setter), sqlTypeName, nullable);
-        this.converter = converter;
     }
 
     private static <T, E, DB> Function<E, DB> convertedGetter(Converter<T, DB> converter, Function<E, T> rawGetter){
