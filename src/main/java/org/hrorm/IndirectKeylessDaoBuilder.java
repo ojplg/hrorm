@@ -180,7 +180,7 @@ public class IndirectKeylessDaoBuilder<ENTITY, BUILDER> implements KeylessDaoDes
      * @return This instance.
      */
     public IndirectKeylessDaoBuilder<ENTITY, BUILDER> withIntegerBooleanColumn(String columnName, Function<ENTITY, Boolean> getter, BiConsumer<BUILDER, Boolean> setter){
-        Column<ENTITY, BUILDER> column = DataColumnFactory.integerConverterColumn(columnName, daoBuilderHelper.getPrefix(), getter, setter, BooleanLongConverter.INSTANCE, true);
+        Column<ENTITY, BUILDER> column = DataColumnFactory.longBackedBooleanColumn(columnName, daoBuilderHelper.getPrefix(), getter, setter, true);
         columnCollection.addDataColumn(column);
         return this;
     }

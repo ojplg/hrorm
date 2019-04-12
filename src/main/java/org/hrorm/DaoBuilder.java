@@ -205,7 +205,7 @@ public class DaoBuilder<ENTITY> implements SchemaDescriptor<ENTITY, ENTITY> {
      * @return This instance.
      */
     public DaoBuilder<ENTITY> withIntegerBooleanColumn(String columnName, Function<ENTITY, Boolean> getter, BiConsumer<ENTITY, Boolean> setter){
-        Column<ENTITY, ENTITY> column = DataColumnFactory.integerConverterColumn(columnName, daoBuilderHelper.getPrefix(), getter, setter, BooleanLongConverter.INSTANCE, true);
+        Column<ENTITY, ENTITY> column = DataColumnFactory.longBackedBooleanColumn(columnName, daoBuilderHelper.getPrefix(), getter, setter, true);
         columnCollection.addDataColumn(column);
         return this;
     }

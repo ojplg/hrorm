@@ -41,6 +41,8 @@ public class GenericColumn<TYPE> {
             new GenericColumn<>(PreparedStatement::setBigDecimal, ResultSet::getBigDecimal, Types.DECIMAL, "decimal", ColumnTypes.DecimalTypes);
     public static GenericColumn<Boolean> BOOLEAN =
             new GenericColumn<>(PreparedStatement::setBoolean, ResultSet::getBoolean, Types.BOOLEAN, "boolean", ColumnTypes.BooleanTypes);
+    public static GenericColumn<String> STRING =
+            new GenericColumn<>(PreparedStatement::setString, ResultSet::getString, Types.VARCHAR, "text", ColumnTypes.StringTypes);
 
     // extension types
     public static GenericColumn<Integer> INTEGER =

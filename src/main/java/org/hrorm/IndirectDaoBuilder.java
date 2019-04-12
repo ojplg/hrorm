@@ -210,7 +210,7 @@ public class IndirectDaoBuilder<ENTITY, BUILDER>  implements SchemaDescriptor<EN
      * @return This instance.
      */
     public IndirectDaoBuilder<ENTITY, BUILDER> withIntegerBooleanColumn(String columnName, Function<ENTITY, Boolean> getter, BiConsumer<BUILDER, Boolean> setter){
-        Column<ENTITY, BUILDER> column = DataColumnFactory.integerConverterColumn(columnName, daoBuilderHelper.getPrefix(), getter, setter, BooleanLongConverter.INSTANCE, true);
+        Column<ENTITY, BUILDER> column = DataColumnFactory.longBackedBooleanColumn(columnName, daoBuilderHelper.getPrefix(), getter, setter,true);
         columnCollection.addDataColumn(column);
         return this;
     }
