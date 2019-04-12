@@ -1,5 +1,7 @@
 package org.hrorm;
 
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.Objects;
 
 public class Converters {
@@ -7,6 +9,8 @@ public class Converters {
     public static Converter<Boolean, String> T_F_BOOLEAN_STRING_CONVERTER = new BooleanStringConverter("T","F");
 
     public static Converter<Boolean, Long> ONE_ZERO_BOOLEAN_LONG_CONVERTER = new BooleanLongConverter(1, 0);
+
+    public static Converter<Instant, Timestamp> INSTANT_TIMESTAMP_CONVERTER = new InstantTimestampConverter();
 
     /**
      * This {@link Converter} translates true values to "T" and false
@@ -85,6 +89,26 @@ public class Converters {
                 return Boolean.FALSE;
             }
             throw new HrormException("Unsupported value: " + s);
+        }
+    }
+
+    public static class InstantTimestampConverter implements Converter<Instant, Timestamp> {
+        @Override
+        public Timestamp from(Instant item) {
+            if( item == null ){
+                return null;
+            }
+            Timestamp timestamp = Timestamp.from(item);
+            return timestamp;
+        }
+
+        @Override
+        public Instant to(Timestamp timestamp) {
+            if ( timestamp == null ) {
+                return null;
+            }
+            Instant instant = timestamp.toInstant();
+            return instant;
         }
     }
 }

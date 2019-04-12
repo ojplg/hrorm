@@ -54,7 +54,7 @@ public class GenericColumn<TYPE> {
     public static GenericColumn<Double> DOUBLE =
             new GenericColumn<>(PreparedStatement::setDouble, ResultSet::getDouble, Types.DOUBLE, "double");
     public static GenericColumn<Timestamp> TIMESTAMP =
-            new GenericColumn<>(PreparedStatement::setTimestamp, ResultSet::getTimestamp, Types.TIMESTAMP, "timestamp");
+            new GenericColumn<>(PreparedStatement::setTimestamp, ResultSet::getTimestamp, Types.TIMESTAMP, "timestamp", ColumnTypes.InstantTypes);
 
     private final Integer sqlType;
     private final Set<Integer> supportedTypes;

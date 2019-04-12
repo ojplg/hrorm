@@ -22,7 +22,7 @@ public class InstantColumnTest {
     @Test
     public void testSetValueHandlesNulls() throws SQLException  {
 
-        AbstractColumn<Instant,Columns,Columns> column = DataColumnFactory.instantColumn(
+        Column<Columns,Columns> column = DataColumnFactory.instantColumn(
                 "TIME COLUMN", "A", Columns::getTimeStampThing, Columns::setTimeStampThing, true);
 
         Columns columns = new Columns();
@@ -38,7 +38,7 @@ public class InstantColumnTest {
     @Test
     public void testPopulateHandlesNulls() throws SQLException {
 
-        AbstractColumn<Instant,Columns,Columns> column = DataColumnFactory.instantColumn(
+        Column<Columns,Columns> column = DataColumnFactory.instantColumn(
                 "TIME COLUMN", "A", Columns::getTimeStampThing, Columns::setTimeStampThing, true);
 
         Columns columns = new Columns();
@@ -48,12 +48,13 @@ public class InstantColumnTest {
         column.populate(columns, resultSet);
 
         Mockito.verify(resultSet).getTimestamp("ATIME COLUMN");
+        Mockito.verify(resultSet).wasNull();
         Mockito.verifyNoMoreInteractions(resultSet);
     }
 
     @Test
     public void testPreventsNullsWhenSet() throws SQLException {
-        AbstractColumn<Instant,Columns,Columns> column = DataColumnFactory.instantColumn(
+        Column<Columns,Columns> column = DataColumnFactory.instantColumn(
                 "TIME COLUMN", "A", Columns::getTimeStampThing, Columns::setTimeStampThing, true);
         column.notNull();
 

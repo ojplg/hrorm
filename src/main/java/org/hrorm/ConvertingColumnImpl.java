@@ -40,13 +40,15 @@ public class ConvertingColumnImpl<TYPE, DBTYPE, ENTITY, BUILDER> extends Abstrac
 
     @Override
     public Column<ENTITY, BUILDER> withPrefix(String newPrefix, Prefixer prefixer) {
-        return new ConvertingColumnImpl(this.genericColumn,
+        // NOTE: This needs to be a simple implementation.
+        // Returning another ConvertingColumnImpl would mean calling the converter twice,
+        // not what we want.
+        return new SimpleColumnImpl(this.genericColumn,
                 newPrefix,
                 this.name,
                 this.getter,
                 this.setter,
                 this.sqlTypeName,
-                this.nullable,
-                this.converter);
+                this.nullable);
     }
 }
