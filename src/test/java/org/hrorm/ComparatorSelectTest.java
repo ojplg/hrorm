@@ -943,4 +943,30 @@ public class ComparatorSelectTest {
             AssertHelp.containsAllItems(new Long[]{ 2L, 4L, 6L, 8L, 10L }, columns, c -> c.getIntegerThing());
         });
     }
+
+    @Test
+    public void testStaticAndConstruction() {
+        helper.useConnection(connection -> {
+            Dao<Columns> dao = daoBuilder().buildDao(connection);
+
+            for(long idx=1; idx<=100; idx++){
+                Columns columns = new Columns();
+                columns.setIntegerThing(idx);
+                columns.setStringThing(Long.toString(idx));
+                columns.setBooleanThing(idx % 3 == 0);
+                dao.insert(columns);
+            }
+        });
+        helper.useConnection(connection -> {
+            Dao<Columns> dao = daoBuilder().buildDao(connection);
+
+            List<Where> wheres = new ArrayList<>();
+            wheres.add(where("integer_column", GREATER_THAN, 33L));
+            wheres.add(where("boolean_column", EQUALS, true));
+            wheres.add(where("string_column", LIKE, "%7%"));
+            List<Columns> columns = dao.select(Where.and(wheres));
+            Long[] expectedInts = new Long[]{57L, 72L, 75L, 78L, 87L};
+            AssertHelp.containsAllItems(expectedInts, columns, Columns::getIntegerThing);
+        });
+    }
 }

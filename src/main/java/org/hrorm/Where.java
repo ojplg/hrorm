@@ -121,6 +121,18 @@ public class Where implements StatementPopulator {
         return where;
     }
 
+    public static Where and(List<Where> subWheres){
+        if( subWheres.size() == 0){
+            return where();
+        }
+        Where where = subWheres.get(0);
+        for(int idx=1; idx<subWheres.size(); idx++){
+            where.and(subWheres.get(idx));
+        }
+        return where;
+    }
+
+
     /**
      * Creates a new object with a single predicate testing whether
      * a column is null.
