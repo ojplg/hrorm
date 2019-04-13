@@ -130,7 +130,7 @@ public class GenericColumnBuiltInsTest {
             Assert.assertEquals(9, found.size());
         });
     }
-    
+
     @Test
     public void testValidation(){
         helper.useConnection(connection -> {

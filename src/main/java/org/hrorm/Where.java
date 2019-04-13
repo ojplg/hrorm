@@ -94,6 +94,17 @@ public class Where implements StatementPopulator {
         return new Where(columnName, operator, value);
     }
 
+    /**
+     * Factory method equivalent to <code>new Where(columnName, operator, value, column)</code>.
+     * Creates a new <code>Where</code> object containing one predicate.
+     *
+     * @param columnName The column name the predicate applies to
+     * @param operator The operation used to evaluate the predicate
+     * @param value The value to compare the column values against
+     * @param column The descriptor of the column type
+     * @param <T> The type supported by the column
+     * @return the new object
+     */
     public static <T> Where where(String columnName, Operator operator, T value, GenericColumn<T> column){
         return new Where(columnName, operator, value, column);
     }
@@ -203,6 +214,16 @@ public class Where implements StatementPopulator {
         this(WherePredicate.forInstant(columnName, operator, value));
     }
 
+    /**
+     * Create a new instance of a <code>Where</code> object
+     * containing one predicate.
+     *
+     * @param columnName The column name the predicate applies to
+     * @param operator The operation used to evaluate the predicate
+     * @param value The value to compare the column values against
+     * @param <T> The type supported by the column
+     * @param column The descriptor of the column type
+     */
     public <T> Where(String columnName, Operator operator, T value, GenericColumn<T> column){
         this(WherePredicate.forGeneric(columnName, operator, value, column));
     }
@@ -299,6 +320,17 @@ public class Where implements StatementPopulator {
         return this;
     }
 
+    /**
+     * Add a new predicate to the existing object by connecting the
+     * existing predicates to the new one with a logical and.
+     *
+     * @param columnName The column name the predicate applies to
+     * @param operator The operation used to evaluate the predicate
+     * @param value The value to compare the column values against
+     * @param column The descriptor of this column type
+     * @param <T> The type supported by the column
+     * @return this object
+     */
     public <T> Where and(String columnName, Operator operator, T value, GenericColumn<T> column){
         WherePredicate<T> atom = WherePredicate.forGeneric(columnName, operator, value, column);
         tree.addAtom(WherePredicateTree.Conjunction.AND, atom);
@@ -393,6 +425,17 @@ public class Where implements StatementPopulator {
         return this;
     }
 
+    /**
+     * Add a new predicate to the existing object by connecting the
+     * existing predicates to the new one with a logical or.
+     *
+     * @param columnName The column name the predicate applies to
+     * @param operator The operation used to evaluate the predicate
+     * @param value The value to compare the column values against
+     * @param column The descriptor of this column type
+     * @param <T> The type supported by the column
+     * @return this object
+     */
     public <T> Where or(String columnName, Operator operator, T value, GenericColumn<T> column){
         WherePredicate<T> atom = WherePredicate.forGeneric(columnName, operator, value, column);
         tree.addAtom(WherePredicateTree.Conjunction.OR, atom);
