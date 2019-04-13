@@ -37,7 +37,5 @@ You can also run the tests against postgres, but it takes a bit of work.
     * What about in and not-in predicates? Can they be supported? How?
 * Hrorm does a lot of string building at query time. Should SQL strings be cached? 
   Similarly, DaoBuilder objects are always mutable. Perhaps they should lock at Dao creation time?
-* Add support for more Java types (maybe)
-* DaoBuilder classes do not share code very well. Could it be improved?
 * Support different types, e.g. String GUIDs, for primary keys
 * Add methods that allow for updates and deletes based on Where objects
