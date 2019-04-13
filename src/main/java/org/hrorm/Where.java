@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.time.Instant;
+import java.util.List;
 
 /**
  * Representation of a SQL where clause: a possibly nested list of
@@ -107,6 +108,17 @@ public class Where implements StatementPopulator {
      */
     public static <T> Where where(String columnName, Operator operator, T value, GenericColumn<T> column){
         return new Where(columnName, operator, value, column);
+    }
+
+    public static Where or(List<Where> subWheres){
+        if( subWheres.size() == 0){
+            return where();
+        }
+        Where where = subWheres.get(0);
+        for(int idx=1; idx<subWheres.size(); idx++){
+            where.or(subWheres.get(idx));
+        }
+        return where;
     }
 
     /**

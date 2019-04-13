@@ -5,6 +5,7 @@ import org.hrorm.database.HelperFactory;
 import org.hrorm.examples.Columns;
 import org.hrorm.examples.ColumnsDaoBuilder;
 import org.hrorm.examples.EnumeratedColor;
+import org.hrorm.util.AssertHelp;
 import org.hrorm.util.TestLogConfig;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -19,11 +20,13 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static org.hrorm.Operator.EQUALS;
 import static org.hrorm.Where.where;
 
 import static org.hrorm.Operator.LESS_THAN;
@@ -919,4 +922,25 @@ public class ComparatorSelectTest {
 
     }
 
+    @Test
+    public void testStaticOrConstruction() {
+        helper.useConnection(connection -> {
+            Dao<Columns> dao = daoBuilder().buildDao(connection);
+
+            for(long idx=1; idx<=10; idx++){
+                Columns columns = new Columns();
+                columns.setIntegerThing(idx);
+                dao.insert(columns);
+            }
+        });
+        helper.useConnection(connection -> {
+            Dao<Columns> dao = daoBuilder().buildDao(connection);
+            List<Where> wheres = new ArrayList<>();
+            for(long idx=2; idx<=10; idx+=2){
+                wheres.add(new Where("integer_column", EQUALS, idx));
+            }
+            List<Columns> columns = dao.select(Where.or(wheres));
+            AssertHelp.containsAllItems(new Long[]{ 2L, 4L, 6L, 8L, 10L }, columns, c -> c.getIntegerThing());
+        });
+    }
 }
