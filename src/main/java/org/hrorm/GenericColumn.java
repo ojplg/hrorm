@@ -34,6 +34,11 @@ import java.util.Set;
  * }</pre>
  *
  * <p>
+ *     Note that <code>GenericColumn.Integer</code> is essentially that and can
+ *     simply be used directly.
+ * </p>
+ *
+ * <p>
  * Using a custom <code>GenericColumn</code> is easy, as shown in the example above,
  * but greater care must be taken when using hrorm's facilities for validation ({@link Validator})
  * or schema generation ({@link Schema}). For example, users may wish to create multiple instances of
