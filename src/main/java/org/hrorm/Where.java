@@ -94,6 +94,10 @@ public class Where implements StatementPopulator {
         return new Where(columnName, operator, value);
     }
 
+    public static <T> Where where(String columnName, Operator operator, T value, GenericColumn<T> column){
+        return new Where(columnName, operator, value, column);
+    }
+
     /**
      * Creates a new object with a single predicate testing whether
      * a column is null.
@@ -199,6 +203,10 @@ public class Where implements StatementPopulator {
         this(WherePredicate.forInstant(columnName, operator, value));
     }
 
+    public <T> Where(String columnName, Operator operator, T value, GenericColumn<T> column){
+        this(WherePredicate.forGeneric(columnName, operator, value, column));
+    }
+
     private Where(WherePredicate atom){
         tree = new WherePredicateTree(atom);
     }
@@ -291,6 +299,12 @@ public class Where implements StatementPopulator {
         return this;
     }
 
+    public <T> Where and(String columnName, Operator operator, T value, GenericColumn<T> column){
+        WherePredicate<T> atom = WherePredicate.forGeneric(columnName, operator, value, column);
+        tree.addAtom(WherePredicateTree.Conjunction.AND, atom);
+        return this;
+    }
+
     /**
      * Add a new predicate to the existing object by connecting the
      * existing predicates to the passed argument with a logical or
@@ -375,6 +389,12 @@ public class Where implements StatementPopulator {
      */
     public Where or(String columnName, Operator operator, Instant value){
         WherePredicate<Instant> atom = WherePredicate.forInstant(columnName, operator, value);
+        tree.addAtom(WherePredicateTree.Conjunction.OR, atom);
+        return this;
+    }
+
+    public <T> Where or(String columnName, Operator operator, T value, GenericColumn<T> column){
+        WherePredicate<T> atom = WherePredicate.forGeneric(columnName, operator, value, column);
         tree.addAtom(WherePredicateTree.Conjunction.OR, atom);
         return this;
     }

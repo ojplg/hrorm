@@ -35,7 +35,8 @@ public class ColumnTypes {
                     new HashSet<>(Arrays.asList(
                           Types.INTEGER,
                           Types.BIGINT,
-                          Types.SMALLINT
+                          Types.SMALLINT,
+                          Types.TINYINT
                     )));
 
 

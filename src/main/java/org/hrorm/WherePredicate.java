@@ -44,9 +44,9 @@ public class WherePredicate<T> {
                     });
     }
 
-//    public static <V> WherePredicate<V> forGenericColumn(String name, GenericColumn<V> column, Operator operator, V value){
-//        return new WherePredicate<>(name, operator, value, column::setPreparedStatement);
-//    }
+    public static <V> WherePredicate<V> forGeneric(String name, Operator operator, V value, GenericColumn<V> column){
+        return new WherePredicate<>(name, operator, value, column::setPreparedStatement);
+    }
 
     private final String columnName;
     private final Operator operator;

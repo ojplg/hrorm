@@ -160,7 +160,6 @@ public class GenericColumn<TYPE> {
         this.supportedTypes = Collections.unmodifiableSet(supportedTypes);
     }
 
-
     public TYPE fromResultSet(ResultSet resultSet, String columnName) throws SQLException {
         TYPE value = resultReader.read(resultSet, columnName);
         if( resultSet.wasNull() ){
