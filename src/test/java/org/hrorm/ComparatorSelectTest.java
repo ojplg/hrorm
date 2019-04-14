@@ -26,7 +26,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.hrorm.Where.inBigDecimal;
-import static org.hrorm.Where.inInstant;
+import static org.hrorm.Where.isNull;
 import static org.hrorm.Where.notInBigDecimal;
 import static org.hrorm.Where.notInLong;
 import static org.hrorm.Where.notInString;
@@ -760,7 +760,7 @@ public class ComparatorSelectTest {
             Connection connection = helper.connect();
             Dao<Columns> dao = daoBuilder().buildDao(connection);
             List<Columns> found =
-                    dao.select(Where.isNull("string_column"));
+                    dao.select(isNull("string_column"));
 
             Assert.assertEquals(67, found.size());
 
@@ -795,7 +795,7 @@ public class ComparatorSelectTest {
             Dao<Columns> dao = daoBuilder().buildDao(connection);
             List<Columns> found =
                     dao.select(where("integer_column", GREATER_THAN, 90L)
-                                    .and(Where.isNull("string_column")));
+                                    .and(isNull("string_column")));
 
             List<Long> expectedIntegers = Arrays.asList(91L, 92L, 94L, 95L, 97L, 98L, 100L);
 
@@ -1146,5 +1146,46 @@ public class ComparatorSelectTest {
 
     }
 
+    @Test
+    public void testMixedUpPredicateTypesWork() {
+        final LocalDateTime baseDate = LocalDateTime.of(2018, 12, 4, 10, 4, 5);
+
+        helper.useConnection(connection -> {
+            Dao<Columns> dao = daoBuilder().buildDao(connection);
+
+
+            for(long idx=1; idx<=10; idx++){
+                Columns columns = new Columns();
+                columns.setIntegerThing(idx);
+                columns.setStringThing(Long.toString(idx));
+                if( idx % 2 == 0 ) {
+                    BigDecimal decimal = BigDecimal.valueOf(idx);
+                    columns.setDecimalThing(decimal.add(new BigDecimal("0.123")));
+                }
+                LocalDateTime insertDate = baseDate.plusDays(idx);
+                Instant instant = insertDate.toInstant(ZoneOffset.UTC);
+                columns.setTimeStampThing(instant);
+
+                dao.insert(columns);
+            }
+        });
+
+        helper.useConnection(connection -> {
+            Dao<Columns> dao = daoBuilder().buildDao(connection);
+
+            List<Long> longs = Arrays.asList(1L, 3L, 4L, 8L, 9L);
+
+            Instant lowestDate = baseDate.plusDays(5).toInstant(ZoneOffset.UTC);
+            List<Columns> columns = dao.select(
+                    where("timestamp_column",GREATER_THAN, lowestDate)
+                            .and(notInLong("integer_column", longs))
+                            .and(isNull("decimal_column")));
+
+            Assert.assertEquals(1, columns.size());
+            Columns item = columns.get(0);
+            Assert.assertEquals(7L, (long) item.getIntegerThing());
+            Assert.assertNull(item.getDecimalThing());
+        });
+    }
 
 }
