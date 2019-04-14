@@ -5,9 +5,13 @@ package org.hrorm;
  * that specify the various comparisons allows in SQL where clauses.
  *
  * <p>
- *     The SQL operators "is" and "is not" have no instances in this class.
- *     However, the <code>Where</code> type supports <code>isNull()</code>
- *     and <code>isNotNull()</code> methods.
+ *     There are no instances for the SQL operators "IS NULL", "IS NOT NULL",
+ *     "IN", or "NOT IN". However, all those SQL operations are supported
+ *     by the <code>Where</code> class.
+ *     Rather than specifying an <code>Operator</code>, directly call
+ *     the <code>isNull()</code>, <code>isNotNull()</code>, or the correct
+ *     variant of the <code>in()</code> or <code>notIn()</code> method
+ *     as appropriate.
  * </p>
  */
 public class Operator {
