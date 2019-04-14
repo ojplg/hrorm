@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.time.Instant;
+import java.util.List;
 
 /**
  * Representation of a SQL where clause: a possibly nested list of
@@ -226,6 +227,11 @@ public class Where implements StatementPopulator {
      */
     public <T> Where(String columnName, Operator operator, T value, GenericColumn<T> column){
         this(WherePredicate.forGeneric(columnName, operator, value, column));
+    }
+
+
+    public <T> Where(String columnName, GenericColumn<T> column, List<T> elements){
+        this(new WherePredicate(columnName, column, elements));
     }
 
     private Where(WherePredicate atom){
@@ -455,8 +461,8 @@ public class Where implements StatementPopulator {
     public void populate(PreparedStatement preparedStatement) throws SQLException {
         int idx = 1;
         for(WherePredicate atom : this.tree.asList()){
-            atom.setValue(idx, preparedStatement);
-            idx++;
+            int cnt = atom.setValue(idx, preparedStatement);
+            idx += cnt;
         }
     }
 }

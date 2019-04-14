@@ -5,6 +5,7 @@ import org.hrorm.database.HelperFactory;
 import org.hrorm.examples.Columns;
 import org.hrorm.examples.ColumnsDaoBuilder;
 import org.hrorm.examples.EnumeratedColor;
+import org.hrorm.util.AssertHelp;
 import org.hrorm.util.TestLogConfig;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -916,6 +917,29 @@ public class ComparatorSelectTest {
             connection.close();
 
         }
+
+    }
+
+    @Test
+    public void testInClauseWithInts() {
+        helper.useConnection(connection -> {
+            Dao<Columns> dao = daoBuilder().buildDao(connection);
+
+            for(long idx=1; idx<=10; idx++){
+                Columns columns = new Columns();
+                columns.setIntegerThing(idx);
+                dao.insert(columns);
+            }
+        });
+
+        helper.useConnection(connection -> {
+            Dao<Columns> dao = daoBuilder().buildDao(connection);
+
+            List<Long> toFind = Arrays.asList(3L,7L,8L);
+            List<Columns> columns = dao.select(new Where("integer_column", GenericColumn.LONG, toFind));
+            List<Long> found = columns.stream().map(Columns::getIntegerThing).collect(Collectors.toList());
+            AssertHelp.sameContents(toFind, found);
+        });
 
     }
 

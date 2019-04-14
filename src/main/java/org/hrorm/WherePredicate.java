@@ -5,6 +5,8 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Represents a particular predicate for filtering results. For example
@@ -50,25 +52,37 @@ public class WherePredicate<T> {
 
     private final String columnName;
     private final Operator operator;
-    private final T value;
+    private final List<T> values;
     private final PreparedStatementSetter<T> setter;
 
     private final Boolean nullityCheck;
+    private final Boolean inClause;
 
     public WherePredicate(String columnName, boolean nullityCheck){
         this.columnName = columnName;
         this.operator = null;
-        this.value = null;
+        this.values = Collections.emptyList();
         this.setter = (preparedStatement, index, t) -> {};
         this.nullityCheck = nullityCheck;
+        this.inClause = null;
     }
 
     public WherePredicate(String columnName, Operator operator, T value, PreparedStatementSetter<T> setter) {
         this.columnName = columnName;
         this.operator = operator;
-        this.value = value;
+        this.values = Collections.singletonList(value);
         this.setter = setter;
         this.nullityCheck = null;
+        this.inClause = null;
+    }
+
+    public WherePredicate(String columnName, GenericColumn<T> column, List<T> elements){
+        this.columnName = columnName;
+        this.operator = null;
+        this.values = elements;
+        this.nullityCheck = null;
+        this.setter = column::setPreparedStatement;
+        this.inClause = Boolean.TRUE;
     }
 
     /**
@@ -86,6 +100,18 @@ public class WherePredicate<T> {
             return prefix + columnName + " IS NOT NULL ";
         }
 
+        if ( inClause == Boolean.TRUE ){
+            StringBuilder buf = new StringBuilder();
+            buf.append(prefix);
+            buf.append(columnName);
+            buf.append(" ");
+            buf.append("IN");
+            buf.append(" ( ");
+            buf.append(String.join(", ", Collections.nCopies(values.size(), "?")));
+            buf.append(" ) ");
+            return buf.toString();
+        }
+
         return prefix + columnName + " " + operator.getSqlString() + " ? ";
     }
 
@@ -96,8 +122,12 @@ public class WherePredicate<T> {
      * @param statement the statement being populated
      * @throws SQLException on an error
      */
-    public void setValue(int index, PreparedStatement statement) throws SQLException {
-        setter.apply(statement, index, value);
+    public int setValue(int index, PreparedStatement statement) throws SQLException {
+        for(T value : values){
+            setter.apply(statement, index, value);
+            index++;
+        }
+        return values.size();
     }
 
 }

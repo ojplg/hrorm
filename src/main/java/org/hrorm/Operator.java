@@ -56,6 +56,11 @@ public class Operator {
      */
     public static final Operator GREATER_THAN_OR_EQUALS = new Operator(">=");
 
+//    /**
+//     *
+//     */
+//    public static final Operator IN = new Operator("IN");
+
     private final String sqlString;
 
     private Operator(String sqlString){
