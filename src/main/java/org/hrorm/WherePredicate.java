@@ -123,6 +123,8 @@ public class WherePredicate<T> {
      *
      * @param index the index of the variable to be set
      * @param statement the statement being populated
+     * @return the number of values set onto the <code>PreparedStatement</code>, which is
+     * how far the index must be advanced
      * @throws SQLException on an error
      */
     public int setValue(int index, PreparedStatement statement) throws SQLException {

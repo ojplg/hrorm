@@ -237,46 +237,129 @@ public class Where implements StatementPopulator {
         this(WherePredicate.forGeneric(columnName, operator, value, column));
     }
 
+    /**
+     * Generates an <code>IN</code> clause applying to the specified column and
+     * including the passed list of numbers.
+     *
+     * @param columnName The column name the <code>IN</code> clause applies to
+     * @param elements The numbers that should be matched
+     * @return the new object
+     */
     public static Where inLong(String columnName, List<Long> elements){
         return new Where(columnName, GenericColumn.LONG::setPreparedStatement, elements, true);
     }
 
+    /**
+     * Generates an <code>IN</code> clause applying to the specified column and
+     * including the passed list of strings.
+     *
+     * @param columnName The column name the <code>IN</code> clause applies to
+     * @param elements The strings that should be matched
+     * @return the new object
+     */
     public static Where inString(String columnName, List<String> elements){
         return new Where(columnName, GenericColumn.STRING::setPreparedStatement, elements, true);
     }
 
+    /**
+     * Generates an <code>IN</code> clause applying to the specified column and
+     * including the passed list of numbers.
+     *
+     * @param columnName The column name the <code>IN</code> clause applies to
+     * @param elements The numbers that should be matched
+     * @return the new object
+     */
     public static Where inBigDecimal(String columnName, List<BigDecimal> elements){
         return new Where(columnName, GenericColumn.BIG_DECIMAL::setPreparedStatement, elements, true);
     }
 
+    /**
+     * Generates an <code>IN</code> clause applying to the specified column and
+     * including the passed list of dates.
+     *
+     * @param columnName The column name the <code>IN</code> clause applies to
+     * @param elements The dates that should be matched
+     * @return the new object
+     */
     public static Where inInstant(String columnName, List<Instant> elements){
         return new Where(columnName, INSTANT_SETTER, elements, true);
     }
 
-    public static <T> Where inColumn(String columnName, GenericColumn<T> column, List<T> items){
-        return new Where(columnName, column::setPreparedStatement, items, true);
+    /**
+     * Generates an <code>IN</code> clause applying to the specified column and
+     * including the passed list of elements.
+     *
+     * @param columnName The column name the <code>IN</code> clause applies to
+     * @param column A column supporting the <code>T</code> type
+     * @param elements The elements that should be matched
+     * @param <T> The type of element
+     * @return the new object
+     */
+    public static <T> Where inColumn(String columnName, GenericColumn<T> column, List<T> elements){
+        return new Where(columnName, column::setPreparedStatement, elements, true);
     }
 
+    /**
+     * Generates a <code>NOT IN</code> clause applying to the specified column and
+     * excluding the passed list of numbers.
+     *
+     * @param columnName The column name the <code>NOT IN</code> clause applies to
+     * @param elements The numbers that should be excluded
+     * @return the new object
+     */
     public static Where notInLong(String columnName, List<Long> elements){
         return new Where(columnName, GenericColumn.LONG::setPreparedStatement, elements, false);
     }
 
+    /**
+     * Generates a <code>NOT IN</code> clause applying to the specified column and
+     * excluding the passed list of strings.
+     *
+     * @param columnName The column name the <code>NOT IN</code> clause applies to
+     * @param elements The strings that should be excluded
+     * @return the new object
+     */
     public static Where notInString(String columnName, List<String> elements){
         return new Where(columnName, GenericColumn.STRING::setPreparedStatement, elements, false);
     }
 
+    /**
+     * Generates a <code>NOT IN</code> clause applying to the specified column and
+     * excluding the passed list of numbers.
+     *
+     * @param columnName The column name the <code>NOT IN</code> clause applies to
+     * @param elements The numbers that should be excluded
+     * @return the new object
+     */
     public static Where notInBigDecimal(String columnName, List<BigDecimal> elements){
         return new Where(columnName, GenericColumn.BIG_DECIMAL::setPreparedStatement, elements, false);
     }
 
-    public static <T> Where notInColumn(String columnName, GenericColumn<T> column, List<T> items){
-        return new Where(columnName, column::setPreparedStatement, items, false);
-    }
-
+    /**
+     * Generates a <code>NOT IN</code> clause applying to the specified column and
+     * excluding the passed list of dates.
+     *
+     * @param columnName The column name the <code>NOT IN</code> clause applies to
+     * @param elements The dates that should be excluded
+     * @return the new object
+     */
     public static Where notInInstant(String columnName, List<Instant> elements){
         return new Where(columnName, INSTANT_SETTER, elements, false);
     }
 
+    /**
+     * Generates a <code>NOT IN</code> clause applying to the specified column and
+     * excluding the passed list of elements.
+     *
+     * @param columnName The column name the <code>NOT IN</code> clause applies to
+     * @param column A column supporting the <code>T</code> type
+     * @param elements The elements that should be excluded
+     * @param <T> The type of element
+     * @return the new object
+     */
+    public static <T> Where notInColumn(String columnName, GenericColumn<T> column, List<T> elements){
+        return new Where(columnName, column::setPreparedStatement, elements, false);
+    }
 
     private <T> Where(String columnName, PreparedStatementSetter<T> setter, List<T> elements, boolean in){
         this(new WherePredicate(columnName, setter, elements, in));
