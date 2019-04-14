@@ -143,11 +143,12 @@
                 </ul>
 
                 <p>
-                    Hrorm has built in support for a limited number of (Java) datatypes:
+                    Hrorm encourages the use of five basic types for building entities:
                     <code>Long</code>, <code>BigDecimal</code>, <code>String</code>, <code>Boolean</code>,
                     and <code>Instant</code>. However, by using a <a href="#generic_columns"><code>GenericColumn</code></a>
-                    you can easily support any type you want. Additionally, hrorm supports a mechanism
-                    for persisting values that can be converted from one type to another and back, intended
+                    you can easily support any type with JDBC support that you want. Additionally, hrorm
+                    supports a simple mechanism
+                    for persisting values that can be converted to and from any JDBC supported type, intended
                     for enumerated or other non-primitive types.
                 </p>
 
@@ -566,7 +567,7 @@
                     but with the special <code>withParentColumn</code> method.
                     An entity can have only one parent. In the <code>Inventory</code>
                     <code>DaoBuilder</code> we use the <code>withChildren</code> method
-                    to complete the relationship definition..</p>
+                    to complete the relationship definition.</p>
 
                 <pre>
     DaoBuilder&lt;Inventory&gt; inventoryDaoBuilder = new DaoBuilder&lt;&gt;("INVENTORY", Inventory::new)
@@ -666,7 +667,7 @@
 
                 <p>All of the elements shown above must be set to make a valid <code>AssociationDaoBuilder</code>.
                     To create a <code>AssociationDao</code> from the builder just pass it a <code>Connection</code>.
-                There is also support for immutable models, via the <code>IndirectAssociationDao</code>.</p>
+                </p>
             </div>
 
             <a id="sibling_relations"></a>
@@ -958,7 +959,7 @@
                 <h3>Select</h3>
                 <hr>
 
-                <p>Hrorm provides a few methods for reading data out of the database and instantiating entity
+                <p>Hrorm provides several methods for reading data out of the database and instantiating entity
                     objects.</p>
 
                 <p>All of the selection mechanisms below will fully read and populate the entire relevant object graph
