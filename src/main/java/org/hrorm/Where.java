@@ -251,6 +251,9 @@ public class Where implements StatementPopulator {
         return new Where(columnName, instantSetter, elements, true);
     }
 
+    public static <T> Where inColumn(String columnName, GenericColumn<T> column, List<T> items){
+        return new Where(columnName, column::setPreparedStatement, items, true);
+    }
 
     public static Where notInLong(String columnName, List<Long> elements){
         return new Where(columnName, GenericColumn.LONG::setPreparedStatement, elements, false);
@@ -262,6 +265,10 @@ public class Where implements StatementPopulator {
 
     public static Where notInBigDecimal(String columnName, List<BigDecimal> elements){
         return new Where(columnName, GenericColumn.BIG_DECIMAL::setPreparedStatement, elements, false);
+    }
+
+    public static <T> Where notInColumn(String columnName, GenericColumn<T> column, List<T> items){
+        return new Where(columnName, column::setPreparedStatement, items, false);
     }
 
     public static Where notInInstant(String columnName, List<Instant> elements){
