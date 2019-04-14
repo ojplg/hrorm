@@ -13,6 +13,13 @@ import java.util.List;
  */
 public class Where implements StatementPopulator {
 
+    private static final PreparedStatementSetter<Instant> INSTANT_SETTER =
+            (preparedStatement, index, value) ->
+            {
+                Timestamp timestamp = Converters.INSTANT_TIMESTAMP_CONVERTER.from(value);
+                preparedStatement.setTimestamp(index, timestamp);
+            };
+
     /**
      * Factory method equivalent to <code>new Where()</code>
      *
@@ -243,12 +250,7 @@ public class Where implements StatementPopulator {
     }
 
     public static Where inInstant(String columnName, List<Instant> elements){
-        PreparedStatementSetter<Instant> instantSetter = (preparedStatement, index, value) ->
-        {
-            Timestamp timestamp = Converters.INSTANT_TIMESTAMP_CONVERTER.from(value);
-            preparedStatement.setTimestamp(index, timestamp);
-        };
-        return new Where(columnName, instantSetter, elements, true);
+        return new Where(columnName, INSTANT_SETTER, elements, true);
     }
 
     public static <T> Where inColumn(String columnName, GenericColumn<T> column, List<T> items){
@@ -272,12 +274,7 @@ public class Where implements StatementPopulator {
     }
 
     public static Where notInInstant(String columnName, List<Instant> elements){
-        PreparedStatementSetter<Instant> instantSetter = (preparedStatement, index, value) ->
-        {
-            Timestamp timestamp = Converters.INSTANT_TIMESTAMP_CONVERTER.from(value);
-            preparedStatement.setTimestamp(index, timestamp);
-        };
-        return new Where(columnName, instantSetter, elements, false);
+        return new Where(columnName, INSTANT_SETTER, elements, false);
     }
 
 

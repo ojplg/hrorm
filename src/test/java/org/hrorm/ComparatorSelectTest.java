@@ -1153,7 +1153,6 @@ public class ComparatorSelectTest {
         helper.useConnection(connection -> {
             Dao<Columns> dao = daoBuilder().buildDao(connection);
 
-
             for(long idx=1; idx<=10; idx++){
                 Columns columns = new Columns();
                 columns.setIntegerThing(idx);
