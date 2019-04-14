@@ -25,6 +25,11 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static org.hrorm.Where.inBigDecimal;
+import static org.hrorm.Where.inInstant;
+import static org.hrorm.Where.notInBigDecimal;
+import static org.hrorm.Where.notInLong;
+import static org.hrorm.Where.notInString;
 import static org.hrorm.Where.where;
 
 import static org.hrorm.Operator.LESS_THAN;
@@ -921,7 +926,7 @@ public class ComparatorSelectTest {
     }
 
     @Test
-    public void testInClauseWithInts() {
+    public void testInLong() {
         helper.useConnection(connection -> {
             Dao<Columns> dao = daoBuilder().buildDao(connection);
 
@@ -936,11 +941,210 @@ public class ComparatorSelectTest {
             Dao<Columns> dao = daoBuilder().buildDao(connection);
 
             List<Long> toFind = Arrays.asList(3L,7L,8L);
-            List<Columns> columns = dao.select(new Where("integer_column", GenericColumn.LONG, toFind));
+            List<Columns> columns = dao.select(Where.inLong("integer_column", toFind));
             List<Long> found = columns.stream().map(Columns::getIntegerThing).collect(Collectors.toList());
             AssertHelp.sameContents(toFind, found);
         });
+    }
+
+    @Test
+    public void testInString() {
+        helper.useConnection(connection -> {
+            Dao<Columns> dao = daoBuilder().buildDao(connection);
+
+            for(long idx=1; idx<=10; idx++){
+                Columns columns = new Columns();
+                columns.setIntegerThing(idx);
+                columns.setStringThing(Long.toString(idx));
+                dao.insert(columns);
+            }
+        });
+
+        helper.useConnection(connection -> {
+            Dao<Columns> dao = daoBuilder().buildDao(connection);
+
+            List<String> toFind = Arrays.asList("5", "2", "9", "10");
+            List<Columns> columns = dao.select(Where.inString("string_column", toFind));
+            List<String> found = columns.stream().map(Columns::getStringThing).collect(Collectors.toList());
+            AssertHelp.sameContents(toFind, found);
+        });
+    }
+
+    @Test
+    public void testInBigDecimal() {
+        helper.useConnection(connection -> {
+            Dao<Columns> dao = daoBuilder().buildDao(connection);
+
+            for(long idx=1; idx<=10; idx++){
+                Columns columns = new Columns();
+                columns.setIntegerThing(idx);
+                columns.setStringThing(Long.toString(idx));
+                BigDecimal decimal = BigDecimal.valueOf(idx);
+                columns.setDecimalThing(decimal.add(new BigDecimal("0.123")));
+
+                dao.insert(columns);
+            }
+        });
+
+        helper.useConnection(connection -> {
+            Dao<Columns> dao = daoBuilder().buildDao(connection);
+
+            List<BigDecimal> toFind = Arrays.asList(new BigDecimal("5.123"), new BigDecimal("6.123"), new BigDecimal("2.123"));
+            List<Columns> columns = dao.select(Where.inBigDecimal("decimal_column", toFind));
+            List<BigDecimal> found = columns.stream().map(Columns::getDecimalThing).collect(Collectors.toList());
+            AssertHelp.sameContents(toFind, found);
+        });
+    }
+
+
+    @Test
+    public void testInInstant() {
+        final LocalDateTime baseDate = LocalDateTime.of(2018, 12, 4, 10, 4, 5);
+
+        helper.useConnection(connection -> {
+            Dao<Columns> dao = daoBuilder().buildDao(connection);
+
+
+            for(long idx=1; idx<=10; idx++){
+                Columns columns = new Columns();
+                columns.setIntegerThing(idx);
+                columns.setStringThing(Long.toString(idx));
+                BigDecimal decimal = BigDecimal.valueOf(idx);
+                columns.setDecimalThing(decimal.add(new BigDecimal("0.123")));
+                LocalDateTime insertDate = baseDate.plusDays(idx);
+                Instant instant = insertDate.toInstant(ZoneOffset.UTC);
+                columns.setTimeStampThing(instant);
+
+                dao.insert(columns);
+            }
+        });
+
+        helper.useConnection(connection -> {
+            Dao<Columns> dao = daoBuilder().buildDao(connection);
+
+            List<Instant> toFind = Arrays.asList(
+                    baseDate.plusDays(2).toInstant(ZoneOffset.UTC),
+                    baseDate.plusDays(6).toInstant(ZoneOffset.UTC),
+                    baseDate.plusDays(4).toInstant(ZoneOffset.UTC),
+                    baseDate.plusDays(3).toInstant(ZoneOffset.UTC)
+            );
+            List<Columns> columns = dao.select(Where.inInstant("timestamp_column", toFind));
+            List<Instant> found = columns.stream().map(Columns::getTimeStampThing).collect(Collectors.toList());
+            AssertHelp.sameContents(toFind, found);
+        });
+    }
+
+    @Test
+    public void testNotInLong() {
+        helper.useConnection(connection -> {
+            Dao<Columns> dao = daoBuilder().buildDao(connection);
+
+            for(long idx=1; idx<=10; idx++){
+                Columns columns = new Columns();
+                columns.setIntegerThing(idx);
+                dao.insert(columns);
+            }
+        });
+
+        helper.useConnection(connection -> {
+            Dao<Columns> dao = daoBuilder().buildDao(connection);
+
+            List<Long> exclusions = Arrays.asList(3L,7L,8L);
+            List<Columns> columns = dao.select(Where.notInLong("integer_column", exclusions));
+            List<Long> found = columns.stream().map(Columns::getIntegerThing).collect(Collectors.toList());
+            AssertHelp.sameContents(Arrays.asList(1L,2L,4L,5L,6L,9L,10L), found);
+        });
+    }
+
+    @Test
+    public void testComplicatedMixOfInsAndNotIns() {
+        final LocalDateTime baseDate = LocalDateTime.of(2018, 12, 4, 10, 4, 5);
+
+        helper.useConnection(connection -> {
+            Dao<Columns> dao = daoBuilder().buildDao(connection);
+
+
+            for(long idx=1; idx<=10; idx++){
+                Columns columns = new Columns();
+                columns.setIntegerThing(idx);
+                columns.setStringThing(Long.toString(idx));
+                BigDecimal decimal = BigDecimal.valueOf(idx);
+                columns.setDecimalThing(decimal.add(new BigDecimal("0.123")));
+                LocalDateTime insertDate = baseDate.plusDays(idx);
+                Instant instant = insertDate.toInstant(ZoneOffset.UTC);
+                columns.setTimeStampThing(instant);
+
+                dao.insert(columns);
+            }
+        });
+
+        helper.useConnection(connection -> {
+            Dao<Columns> dao = daoBuilder().buildDao(connection);
+
+            List<Long> longs = Arrays.asList(2L,5L,7L,10L);
+            List<BigDecimal> decimals = Arrays.asList(
+                    new BigDecimal("3.123"), new BigDecimal("4.123"), new BigDecimal("8.123"));
+            List<String> strings = Arrays.asList("1","9");
+            List<Instant> dates = Arrays.asList(
+                    baseDate.plusDays(2).toInstant(ZoneOffset.UTC),
+                    baseDate.plusDays(6).toInstant(ZoneOffset.UTC),
+                    baseDate.plusDays(4).toInstant(ZoneOffset.UTC),
+                    baseDate.plusDays(3).toInstant(ZoneOffset.UTC)
+            );
+            List<Columns> columns = dao.select(
+                    Where.inInstant("timestamp_column", dates)
+                    .and(notInLong("integer_column", longs))
+                    .and(inBigDecimal("decimal_column", decimals))
+                    .and(notInString("string_column", strings)));
+            List<Long> found = columns.stream().map(Columns::getIntegerThing).collect(Collectors.toList());
+            AssertHelp.sameContents(Arrays.asList(3L,4L), found);
+        });
 
     }
+
+    @Test
+    public void testAndedNotInExcludesAll() {
+        final LocalDateTime baseDate = LocalDateTime.of(2018, 12, 4, 10, 4, 5);
+
+        helper.useConnection(connection -> {
+            Dao<Columns> dao = daoBuilder().buildDao(connection);
+
+
+            for(long idx=1; idx<=10; idx++){
+                Columns columns = new Columns();
+                columns.setIntegerThing(idx);
+                columns.setStringThing(Long.toString(idx));
+                BigDecimal decimal = BigDecimal.valueOf(idx);
+                columns.setDecimalThing(decimal.add(new BigDecimal("0.123")));
+                LocalDateTime insertDate = baseDate.plusDays(idx);
+                Instant instant = insertDate.toInstant(ZoneOffset.UTC);
+                columns.setTimeStampThing(instant);
+
+                dao.insert(columns);
+            }
+        });
+
+        helper.useConnection(connection -> {
+            Dao<Columns> dao = daoBuilder().buildDao(connection);
+
+            List<Long> longs = Arrays.asList(1L, 3L, 4L);
+            List<BigDecimal> decimals = Arrays.asList(
+                    new BigDecimal("2.123"), new BigDecimal("5.123"), new BigDecimal("8.123"));
+            List<String> strings = Arrays.asList("10","9");
+            List<Instant> dates = Arrays.asList(
+                    baseDate.plusDays(6).toInstant(ZoneOffset.UTC),
+                    baseDate.plusDays(7).toInstant(ZoneOffset.UTC)
+            );
+            List<Columns> columns = dao.select(
+                    Where.notInInstant("timestamp_column", dates)
+                            .and(notInLong("integer_column", longs))
+                            .and(notInBigDecimal("decimal_column", decimals))
+                            .and(notInString("string_column", strings)));
+            List<Long> found = columns.stream().map(Columns::getIntegerThing).collect(Collectors.toList());
+            Assert.assertEquals(0, found.size());
+        });
+
+    }
+
 
 }

@@ -3,6 +3,7 @@ package org.hrorm;
 import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.List;
 
@@ -229,9 +230,52 @@ public class Where implements StatementPopulator {
         this(WherePredicate.forGeneric(columnName, operator, value, column));
     }
 
+    public static Where inLong(String columnName, List<Long> elements){
+        return new Where(columnName, GenericColumn.LONG::setPreparedStatement, elements, true);
+    }
 
-    public <T> Where(String columnName, GenericColumn<T> column, List<T> elements){
-        this(new WherePredicate(columnName, column, elements));
+    public static Where inString(String columnName, List<String> elements){
+        return new Where(columnName, GenericColumn.STRING::setPreparedStatement, elements, true);
+    }
+
+    public static Where inBigDecimal(String columnName, List<BigDecimal> elements){
+        return new Where(columnName, GenericColumn.BIG_DECIMAL::setPreparedStatement, elements, true);
+    }
+
+    public static Where inInstant(String columnName, List<Instant> elements){
+        PreparedStatementSetter<Instant> instantSetter = (preparedStatement, index, value) ->
+        {
+            Timestamp timestamp = Converters.INSTANT_TIMESTAMP_CONVERTER.from(value);
+            preparedStatement.setTimestamp(index, timestamp);
+        };
+        return new Where(columnName, instantSetter, elements, true);
+    }
+
+
+    public static Where notInLong(String columnName, List<Long> elements){
+        return new Where(columnName, GenericColumn.LONG::setPreparedStatement, elements, false);
+    }
+
+    public static Where notInString(String columnName, List<String> elements){
+        return new Where(columnName, GenericColumn.STRING::setPreparedStatement, elements, false);
+    }
+
+    public static Where notInBigDecimal(String columnName, List<BigDecimal> elements){
+        return new Where(columnName, GenericColumn.BIG_DECIMAL::setPreparedStatement, elements, false);
+    }
+
+    public static Where notInInstant(String columnName, List<Instant> elements){
+        PreparedStatementSetter<Instant> instantSetter = (preparedStatement, index, value) ->
+        {
+            Timestamp timestamp = Converters.INSTANT_TIMESTAMP_CONVERTER.from(value);
+            preparedStatement.setTimestamp(index, timestamp);
+        };
+        return new Where(columnName, instantSetter, elements, false);
+    }
+
+
+    private <T> Where(String columnName, PreparedStatementSetter<T> setter, List<T> elements, boolean in){
+        this(new WherePredicate(columnName, setter, elements, in));
     }
 
     private Where(WherePredicate atom){

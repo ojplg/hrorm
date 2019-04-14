@@ -76,13 +76,13 @@ public class WherePredicate<T> {
         this.inClause = null;
     }
 
-    public WherePredicate(String columnName, GenericColumn<T> column, List<T> elements){
+    public WherePredicate(String columnName, PreparedStatementSetter<T> setter, List<T> elements, boolean in){
         this.columnName = columnName;
         this.operator = null;
         this.values = elements;
         this.nullityCheck = null;
-        this.setter = column::setPreparedStatement;
-        this.inClause = Boolean.TRUE;
+        this.setter = setter;
+        this.inClause = in;
     }
 
     /**
@@ -100,11 +100,14 @@ public class WherePredicate<T> {
             return prefix + columnName + " IS NOT NULL ";
         }
 
-        if ( inClause == Boolean.TRUE ){
+        if ( inClause != null ){
             StringBuilder buf = new StringBuilder();
             buf.append(prefix);
             buf.append(columnName);
             buf.append(" ");
+            if ( ! inClause ){
+                buf.append(" NOT ");
+            }
             buf.append("IN");
             buf.append(" ( ");
             buf.append(String.join(", ", Collections.nCopies(values.size(), "?")));
