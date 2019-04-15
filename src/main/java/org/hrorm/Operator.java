@@ -7,7 +7,7 @@ package org.hrorm;
  * <p>
  *     There are no instances for the SQL operators "IS NULL", "IS NOT NULL",
  *     "IN", or "NOT IN". However, all those SQL operations are supported
- *     by the <code>Where</code> class.
+ *     by the {@link Where} class.
  *     Rather than specifying an <code>Operator</code>, directly call
  *     the <code>isNull()</code>, <code>isNotNull()</code>, or the correct
  *     variant of the <code>in()</code> or <code>notIn()</code> method
@@ -59,11 +59,6 @@ public class Operator {
      * An instance that represents the greater than or equals ('&gt;=') operator.
      */
     public static final Operator GREATER_THAN_OR_EQUALS = new Operator(">=");
-
-//    /**
-//     *
-//     */
-//    public static final Operator IN = new Operator("IN");
 
     private final String sqlString;
 
