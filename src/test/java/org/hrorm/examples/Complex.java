@@ -240,7 +240,7 @@ public class Complex {
 
     public static DaoBuilder<Jules> julesDaoBuilder = new DaoBuilder<>("jules", Jules::new)
             .withPrimaryKey("id", "jules_sequence", Jules::getId, Jules::setId)
-            .withIntegerColumn("magnitude", Jules::getMagnitude, Jules::setMagnitude);
+            .withLongColumn("magnitude", Jules::getMagnitude, Jules::setMagnitude);
 
     public static DaoBuilder<Ida> idaDaoBuilder = new DaoBuilder<>("ida", Ida::new)
             .withPrimaryKey("id", "ida_sequence", Ida::getId, Ida::setId)
@@ -250,7 +250,7 @@ public class Complex {
     public static DaoBuilder<Henry> henryDaoBuilder = new DaoBuilder<>("henry", Henry::new)
             .withPrimaryKey("id", "henry_sequence", Henry::getId, Henry::setId)
             .withBigDecimalColumn("fraction", Henry::getFraction, Henry::setFraction)
-            .withIntegerColumn("amount", Henry::getAmount, Henry::setAmount)
+            .withLongColumn("amount", Henry::getAmount, Henry::setAmount)
             .withParentColumn("don_id", Henry::getDon, Henry::setDon)
             .withJoinColumn("ida_id", Henry::getIda, Henry::setIda, idaDaoBuilder);
 
@@ -265,7 +265,7 @@ public class Complex {
     public static DaoBuilder<Edith> edithDaoBuilder = new DaoBuilder<>("edith", Edith::new)
             .withPrimaryKey("id", "edith_sequence", Edith::getId, Edith::setId)
             .withStringColumn("word", Edith::getWord, Edith::setWord)
-            .withIntegerColumn("length", Edith::getLength, Edith::setLength)
+            .withLongColumn("length", Edith::getLength, Edith::setLength)
             .withJoinColumn("fred_id", Edith::getFred, Edith::setFred, fredDaoBuilder)
             .withJoinColumn("gap_id", Edith::getGap, Edith::setGap, gapDaoBuilder)
             .withParentColumn("beth_id", Edith::getBeth, Edith::setBeth);
@@ -273,7 +273,7 @@ public class Complex {
     public static DaoBuilder<Don> donDaoBuilder = new DaoBuilder<>("don", Don::new)
             .withPrimaryKey("id", "don_sequence", Don::getId, Don::setId)
             .withInstantColumn("datetime", Don::getDateTime, Don::setDateTime)
-            .withIntegerColumn("quantity", Don::getQuantity, Don::setQuantity)
+            .withLongColumn("quantity", Don::getQuantity, Don::setQuantity)
             .withChildren(Don::getHenries, Don::setHenries, henryDaoBuilder)
             .withParentColumn("beth_id", Don::getBeth, Don::setBeth);
 
@@ -284,7 +284,7 @@ public class Complex {
 
     public static DaoBuilder<Beth> bethDaoBuilder = new DaoBuilder<>("beth", Beth::new)
             .withPrimaryKey("id", "beth_sequence", Beth::getId, Beth::setId)
-            .withIntegerColumn("number", Beth::getNumber, Beth::setNumber)
+            .withLongColumn("number", Beth::getNumber, Beth::setNumber)
             .withChildren(Beth::getDons, Beth::setDons, donDaoBuilder)
             .withChildren(Beth::getEdiths, Beth::setEdiths, edithDaoBuilder);
 

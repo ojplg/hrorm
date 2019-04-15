@@ -8,7 +8,6 @@ import org.hrorm.examples.EnumeratedColorConverter;
 import org.hrorm.examples.siblings.SecondCousin;
 import org.hrorm.examples.siblings.Sibling;
 import org.hrorm.examples.siblings.Thing;
-import org.hrorm.util.TestLogConfig;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -48,7 +47,7 @@ public class JoinsTest {
     private static DaoBuilder<Sibling> SiblingDaoBuilder =
             new DaoBuilder<>("siblings", Sibling::new)
                     .withPrimaryKey("sibling_id", "sibling_seq", Sibling::getId, Sibling::setId)
-                    .withIntegerColumn("number", Sibling::getNumber, Sibling::setNumber)
+                    .withLongColumn("number", Sibling::getNumber, Sibling::setNumber)
                     .withJoinColumn("cousin_id", Sibling::getCousin, Sibling::setCousin, CousinDaoBuilder);
 
     private static DaoBuilder<Thing> ThingDaoBuilder =

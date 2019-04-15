@@ -85,7 +85,7 @@ public class IndirectKeylessDaoBuilder<ENTITY, BUILDER> implements KeylessDaoDes
      * @param setter The function on <code>ENTITY</code> that consumes the data element.
      * @return This instance.
      */
-    public IndirectKeylessDaoBuilder<ENTITY, BUILDER> withIntegerColumn(String columnName, Function<ENTITY, Long> getter, BiConsumer<BUILDER, Long> setter){
+    public IndirectKeylessDaoBuilder<ENTITY, BUILDER> withLongColumn(String columnName, Function<ENTITY, Long> getter, BiConsumer<BUILDER, Long> setter){
         Column<ENTITY, BUILDER> column = DataColumnFactory.longColumn(columnName, daoBuilderHelper.getPrefix(), getter, setter, true);
         columnCollection.addDataColumn(column);
         return this;

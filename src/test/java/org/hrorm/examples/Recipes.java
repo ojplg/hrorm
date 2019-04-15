@@ -43,7 +43,7 @@ public class Recipes {
             .withPrimaryKey("ID", "INGREDIENT_SEQUENCE", Ingredient::getId, Ingredient::setId)
             .withParentColumn("RECIPE_ID", Ingredient::getRecipe, Ingredient::setRecipe)
             .withStringColumn("NAME", Ingredient::getName, Ingredient::setName)
-            .withIntegerColumn("AMOUNT", Ingredient::getAmount, Ingredient::setAmount);
+            .withLongColumn("AMOUNT", Ingredient::getAmount, Ingredient::setAmount);
 
     public static DaoBuilder<Recipe> recipeDaoBuilder = new DaoBuilder<>("RECIPE", Recipe::new)
             .withPrimaryKey("ID", "RECIPE_SEQUENCE", Recipe::getId, Recipe::setId)

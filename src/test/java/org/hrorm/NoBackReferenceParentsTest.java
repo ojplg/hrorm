@@ -1,7 +1,6 @@
 package org.hrorm;
 
 import lombok.Data;
-import org.hrorm.database.H2Helper;
 import org.hrorm.database.Helper;
 import org.hrorm.database.HelperFactory;
 import org.junit.AfterClass;
@@ -45,7 +44,7 @@ public class NoBackReferenceParentsTest {
     static final DaoBuilder<SimpleChild> simpleChildDaoBuilder =
             new DaoBuilder<>("simple_child", SimpleChild::new)
                     .withPrimaryKey("id","no_back_sequence", SimpleChild::getId, SimpleChild::setId)
-                    .withIntegerColumn("number", SimpleChild::getNumber, SimpleChild::setNumber)
+                    .withLongColumn("number", SimpleChild::getNumber, SimpleChild::setNumber)
                     .withParentColumn("simple_parent_id");
 
     static final DaoBuilder<SimpleParent> simpleParentDaoBuilder =

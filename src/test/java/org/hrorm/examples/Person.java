@@ -28,7 +28,7 @@ class Person {
 
         daoBuilder.withStringColumn("NAME", Person::getName, Person::setName);
 
-        daoBuilder.withIntegerColumn("WEIGHT", Person::getWeight, Person::setWeight);
+        daoBuilder.withLongColumn("WEIGHT", Person::getWeight, Person::setWeight);
 
         daoBuilder.withBigDecimalColumn("HEIGHT", Person::getHeight, Person::setHeight);
 
@@ -43,7 +43,7 @@ class Person {
         DaoBuilder<Person> daoBuilder = new DaoBuilder<>("PERSON_TABLE", Person::new)
                 .withPrimaryKey("ID","PERSON_SEQUENCE", Person::getId, Person::setId)
                 .withStringColumn("NAME", Person::getName, Person::setName)
-                .withIntegerColumn("WEIGHT", Person::getWeight, Person::setWeight)
+                .withLongColumn("WEIGHT", Person::getWeight, Person::setWeight)
                 .withBigDecimalColumn("HEIGHT", Person::getHeight, Person::setHeight)
                 .withInstantColumn("BIRTHDAY", Person::getBirthday, Person::setBirthday)
                 .withBooleanColumn("IS_HIGH_SCHOOL_GRADUATE", Person::isHighSchoolGraduate, Person::setHighSchoolGraduate)

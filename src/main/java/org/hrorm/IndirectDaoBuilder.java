@@ -115,7 +115,7 @@ public class IndirectDaoBuilder<ENTITY, BUILDER>  implements SchemaDescriptor<EN
      * @param setter The function on <code>ENTITY</code> that consumes the data element.
      * @return This instance.
      */
-    public IndirectDaoBuilder<ENTITY, BUILDER> withIntegerColumn(String columnName, Function<ENTITY, Long> getter, BiConsumer<BUILDER, Long> setter){
+    public IndirectDaoBuilder<ENTITY, BUILDER> withLongColumn(String columnName, Function<ENTITY, Long> getter, BiConsumer<BUILDER, Long> setter){
         Column<ENTITY, BUILDER> column = DataColumnFactory.longColumn(columnName, daoBuilderHelper.getPrefix(), getter, setter, true);
         columnCollection.addDataColumn(column);
         return this;

@@ -14,7 +14,7 @@ public class ParentChildBuilders {
     public static DaoBuilder<Child> ChildDaoBuilder =
             new DaoBuilder<>("child_table", Child::new)
                     .withPrimaryKey("id", "child_seq", Child::getId, Child::setId)
-                    .withIntegerColumn("number", Child::getNumber, Child::setNumber)
+                    .withLongColumn("number", Child::getNumber, Child::setNumber)
                     .withParentColumn("parent_table_id", Child::getParent, Child::setParent)
                     .withChildren(Child::getGrandchildList, Child::setGrandchildList, GrandchildDaoBuilder);
 

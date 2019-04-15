@@ -50,7 +50,7 @@ public class ProductTest {
                 .withStringColumn("name", Product::getName, Product::setName)
                 .withConvertingStringColumn("category", Product::getCategory, Product::setCategory, new CategoryConverter())
                 .withBigDecimalColumn("price", Product::getPrice, Product::setPrice)
-                .withIntegerColumn("sku", Product::getSku, Product::setSku)
+                .withLongColumn("sku", Product::getSku, Product::setSku)
                 .withBooleanColumn("discontinued", Product::isDiscontinued, Product::setDiscontinued)
                 .withInstantColumn("first_available", Product::getFirstAvailable, Product::setFirstAvailable);
     }

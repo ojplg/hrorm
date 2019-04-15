@@ -109,7 +109,7 @@ public class DaoBuilder<ENTITY> implements SchemaDescriptor<ENTITY, ENTITY> {
      * @param setter The function on <code>ENTITY</code> that consumes the data element.
      * @return This instance.
      */
-    public DaoBuilder<ENTITY> withIntegerColumn(String columnName, Function<ENTITY, Long> getter, BiConsumer<ENTITY, Long> setter){
+    public DaoBuilder<ENTITY> withLongColumn(String columnName, Function<ENTITY, Long> getter, BiConsumer<ENTITY, Long> setter){
         Column<ENTITY, ENTITY> column = DataColumnFactory.longColumn(columnName, daoBuilderHelper.getPrefix(), getter, setter, true);
         columnCollection.addDataColumn(column);
         return this;
