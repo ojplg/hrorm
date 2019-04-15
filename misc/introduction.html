@@ -156,7 +156,7 @@
         .withPrimaryKey("ID", "INGREDIENT_SEQUENCE", Ingredient::getId, Ingredient::setId)
         .withParentColumn("RECIPE_ID")
         .withStringColumn("NAME", Ingredient::getName, Ingredient::setName)
-        .withIntegerColumn("AMOUNT", Ingredient::getAmount, Ingredient::setAmount);
+        .withLongColumn("AMOUNT", Ingredient::getAmount, Ingredient::setAmount);
 </pre>
 
 <p>Using a DaoBuilder and a <code>java.sql.Connection</code> object, you can create a <code>Dao</code>,

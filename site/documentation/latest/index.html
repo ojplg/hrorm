@@ -386,7 +386,7 @@
                     not an <code>int</code> or <code>short</code>).</p>
 
                 <pre>
-    daoBuilder.withIntegerColumn("WEIGHT", Person::getWeight, Person::setWeight);</pre>
+    daoBuilder.withLongColumn("WEIGHT", Person::getWeight, Person::setWeight);</pre>
 
                 <p>For fractional, decimal, or floating point values, hrorm supports the
                     <code>java.math.BigDecimal</code> type.</p>
@@ -442,7 +442,7 @@
     DaoBuilder&lt;Person&gt; daoBuilder = new DaoBuilder&lt;&gt;("PERSON_TABLE", Person::new)
                 .withPrimaryKey("ID","PERSON_SEQUENCE", Person::getId, Person::setId)
                 .withStringColumn("NAME", Person::getName, Person::setName)
-                .withIntegerColumn("WEIGHT", Person::getWeight, Person::setWeight)
+                .withLongColumn("WEIGHT", Person::getWeight, Person::setWeight)
                 .withBigDecimalColumn("HEIGHT", Person::getHeight, Person::setHeight)
                 .withInstantColumn("BIRTHDAY", Person::getBirthday, Person::setBirthday)
                 .withBooleanColumn("IS_HIGH_SCHOOL_GRADUATE", Person::isHighSchoolGraduate, Person::setHighSchoolGraduate)
@@ -887,7 +887,7 @@
     DaoBuilder&lt;Entity&gt; daoBuilder = new DaoBuilder&lt;&gt;("TABLE", Entity::new)
             .withPrimaryKey("id", "SEQUENCE", Entity::getId, Entity::setId)
             .withStringColumn("STRING_COL", Entity::getStringThing, Entity::setStringThing)
-            .withIntegerColumn("INT_COL", Entity::getIntegerThing, Entity::setIntegerThing);
+            .withLongColumn("INT_COL", Entity::getIntegerThing, Entity::setIntegerThing);
 
     Connection connection = // create connection just as for your application
 

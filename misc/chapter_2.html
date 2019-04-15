@@ -202,7 +202,7 @@ DaoBuilder&lt;Ingredient&gt; ingredientDaoBuilder = new DaoBuilder<>("INGREDIENT
         .withPrimaryKey("ID", "INGREDIENT_SEQUENCE", Ingredient::getId, Ingredient::setId)
         .withParentColumn("RECIPE_ID", Ingredient::getRecipe, Ingredient::setRecipe)
         .withStringColumn("NAME", Ingredient::getName, Ingredient::setName)
-        .withIntegerColumn("AMOUNT", Ingredient::getAmount, Ingredient::setAmount);</pre>
+        .withLongColumn("AMOUNT", Ingredient::getAmount, Ingredient::setAmount);</pre>
 
 <p>
     Like the join example, we see that there is a special column defined: a parent column.
