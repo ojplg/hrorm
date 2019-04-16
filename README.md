@@ -31,10 +31,11 @@ You can also run the tests against postgres, but it takes a bit of work.
 ### Improvement Ideas and Questions
 
 * Where object improvements:
-    * Think about how isNull and isNotNull works, maybe something better can be found
     * Is creating strange statements like "a OR b AND c" desirable? Should it be prohibited somehow?
     * Can we use the column types (or field types) to improve type checking when building where clauses?
+    * Support for columns on joined tables?
+    * Support for columns on child tables?
 * Hrorm does a lot of string building at query time. Should SQL strings be cached? 
-  Similarly, DaoBuilder objects are always mutable. Perhaps they should lock at Dao creation time?
+* Similarly, DaoBuilder objects are always mutable. Perhaps they should lock at Dao creation time?
 * Support different types, e.g. String GUIDs, for primary keys
 * Add methods that allow for updates and deletes based on Where objects
