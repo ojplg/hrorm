@@ -5,6 +5,9 @@ import org.junit.Assert;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class AssertHelp {
 
@@ -18,4 +21,14 @@ public class AssertHelp {
         List<T> expected = Arrays.asList(expectedArray);
         sameContents(expected, found);
     }
+
+    public static final <T,U> void containsAllItems(List<T> expected, Collection<U> found, Function<U,T> mapFunction){
+        containsAllItems(expected, found.stream(), mapFunction);
+    }
+
+    public static final <T,U> void containsAllItems(List<T> expected, Stream<U> found, Function<U,T> mapFunction){
+        List<T> mapped = found.map(mapFunction).collect(Collectors.toList());
+        sameContents(expected, mapped);
+    }
+
 }
