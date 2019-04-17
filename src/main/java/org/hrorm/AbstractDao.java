@@ -22,7 +22,7 @@ public abstract class AbstractDao<ENTITY, BUILDER> implements KeylessDaoDescript
 
     protected final Connection connection;
 
-    protected final KeylessSqlBuilder<ENTITY> keylessSqlBuilder;
+    protected final SqlBuilder<ENTITY> sqlBuilder;
     protected final SqlRunner<ENTITY, BUILDER> sqlRunner;
 
     private final String tableName;
@@ -31,17 +31,29 @@ public abstract class AbstractDao<ENTITY, BUILDER> implements KeylessDaoDescript
     private final ColumnCollection<ENTITY, BUILDER> columnCollection;
 
     public AbstractDao(Connection connection,
-                       KeylessDaoDescriptor<ENTITY, BUILDER> daoDescriptor){
+                       KeylessDaoDescriptor<ENTITY, BUILDER> keylessDaoDescriptor){
+        this.connection = connection;
+        this.tableName = keylessDaoDescriptor.tableName();
+        this.columnCollection = keylessDaoDescriptor.getColumnCollection();
+        this.supplier = keylessDaoDescriptor.supplier();
+        this.buildFunction = keylessDaoDescriptor.buildFunction();
+
+        this.sqlBuilder = new SqlBuilder<>(keylessDaoDescriptor);
+        this.sqlRunner = new SqlRunner<>(connection, keylessDaoDescriptor);
+    }
+
+    public AbstractDao(Connection connection,
+                       DaoDescriptor<ENTITY, BUILDER> daoDescriptor){
         this.connection = connection;
         this.tableName = daoDescriptor.tableName();
         this.columnCollection = daoDescriptor.getColumnCollection();
         this.supplier = daoDescriptor.supplier();
         this.buildFunction = daoDescriptor.buildFunction();
 
-        this.keylessSqlBuilder = new KeylessSqlBuilder<>(daoDescriptor);
+        this.sqlBuilder = new SqlBuilder<>(daoDescriptor);
         this.sqlRunner = new SqlRunner<>(connection, daoDescriptor);
     }
-
+    
     protected abstract List<ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors();
 
     @Override
@@ -74,7 +86,7 @@ public abstract class AbstractDao<ENTITY, BUILDER> implements KeylessDaoDescript
 
     @Override
     public Long insert(ENTITY item) {
-        String sql = keylessSqlBuilder.insert();
+        String sql = sqlBuilder.insert();
         Envelope<ENTITY> envelope = new Envelope(item);
         sqlRunner.insert(sql, envelope);
         for(ChildrenDescriptor<ENTITY,?, BUILDER,?> childrenDescriptor : childrenDescriptors()){
@@ -89,14 +101,14 @@ public abstract class AbstractDao<ENTITY, BUILDER> implements KeylessDaoDescript
 
     @Override
     public List<ENTITY> selectAll() {
-        String sql = keylessSqlBuilder.select();
+        String sql = sqlBuilder.select();
         List<BUILDER> bs = sqlRunner.select(sql, supplier, childrenDescriptors());
         return mapBuilders(bs);
     }
 
     @Override
     public List<ENTITY> selectAll(Order order) {
-        String sql = keylessSqlBuilder.select(order);
+        String sql = sqlBuilder.select(order);
         List<BUILDER> bs = sqlRunner.select(sql, supplier, childrenDescriptors());
         return mapBuilders(bs);
     }
@@ -111,7 +123,7 @@ public abstract class AbstractDao<ENTITY, BUILDER> implements KeylessDaoDescript
     @Override
     public List<ENTITY> selectManyByColumns(ENTITY item, String ... columnNames) {
         ColumnSelection columnSelection = select(columnNames);
-        String sql = keylessSqlBuilder.selectByColumns(columnSelection);
+        String sql = sqlBuilder.selectByColumns(columnSelection);
         List<BUILDER> bs = sqlRunner.selectByColumns(sql, supplier, select(columnNames), childrenDescriptors(), item);
         return mapBuilders(bs);
     }
@@ -119,7 +131,7 @@ public abstract class AbstractDao<ENTITY, BUILDER> implements KeylessDaoDescript
     @Override
     public List<ENTITY> selectManyByColumns(ENTITY template, Order order, String... columnNames) {
         ColumnSelection columnSelection = select(columnNames);
-        String sql = keylessSqlBuilder.selectByColumns(columnSelection, order);
+        String sql = sqlBuilder.selectByColumns(columnSelection, order);
         List<BUILDER> bs = sqlRunner.selectByColumns(sql, supplier, select(columnNames), childrenDescriptors(), template);
         return mapBuilders(bs);
     }
@@ -128,7 +140,7 @@ public abstract class AbstractDao<ENTITY, BUILDER> implements KeylessDaoDescript
     public Long runLongFunction(SqlFunction function,
                                 String columnName,
                                 Where where) {
-        String sql = keylessSqlBuilder.selectFunction(function, columnName, where);
+        String sql = sqlBuilder.selectFunction(function, columnName, where);
         return sqlRunner.runLongFunction(sql, where);
     }
 
@@ -136,27 +148,27 @@ public abstract class AbstractDao<ENTITY, BUILDER> implements KeylessDaoDescript
     public BigDecimal runBigDecimalFunction(SqlFunction function,
                                             String columnName,
                                             Where where) {
-        String sql = keylessSqlBuilder.selectFunction(function, columnName, where);
+        String sql = sqlBuilder.selectFunction(function, columnName, where);
         return sqlRunner.runBigDecimalFunction(sql, where);
     }
 
 
     @Override
     public <T> T foldingSelect(T identity, BiFunction<T,ENTITY,T> accumulator, Where where){
-        String sql = keylessSqlBuilder.select(where) ;
+        String sql = sqlBuilder.select(where) ;
         return sqlRunner.foldingSelect(sql, where, supplier, childrenDescriptors(), buildFunction, identity, accumulator);
     }
 
     @Override
     public List<ENTITY> select(Where where) {
-        String sql = keylessSqlBuilder.select(where);
+        String sql = sqlBuilder.select(where);
         List<BUILDER> bs = sqlRunner.selectWhere(sql, supplier, childrenDescriptors(), where);
         return mapBuilders(bs);
     }
 
     @Override
     public List<ENTITY> select(Where where, Order order) {
-        String sql = keylessSqlBuilder.select(where, order);
+        String sql = sqlBuilder.select(where, order);
         List<BUILDER> bs = sqlRunner.selectWhere(sql, supplier, childrenDescriptors(), where);
         return mapBuilders(bs);
     }

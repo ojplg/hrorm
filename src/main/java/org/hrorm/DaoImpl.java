@@ -2,7 +2,6 @@ package org.hrorm;
 
 import java.sql.Connection;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * The {@link Dao} implementation.
@@ -19,8 +18,6 @@ import java.util.stream.Collectors;
  */
 public class DaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> extends AbstractDao<ENTITY, BUILDER> implements Dao<ENTITY>, DaoDescriptor<ENTITY, BUILDER> {
 
-    private final SqlBuilder<ENTITY> sqlBuilder;
-
     private final PrimaryKey<ENTITY, BUILDER> primaryKey;
     private final ParentColumn<ENTITY, PARENT, BUILDER, PARENTBUILDER> parentColumn;
     private final List<ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors;
@@ -33,7 +30,6 @@ public class DaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> extends AbstractDao
             throw new IllegalArgumentException("Must have a Primary Key");
         }
         this.primaryKey = daoDescriptor.primaryKey();
-        this.sqlBuilder = new SqlBuilder<>(daoDescriptor);
         this.parentColumn = daoDescriptor.parentColumn();
     }
 
@@ -82,7 +78,7 @@ public class DaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> extends AbstractDao
     @Override
     public ENTITY select(long id) {
         Where where = new Where(primaryKey.getName(), Operator.EQUALS, id);
-        String sql = keylessSqlBuilder.select(where);
+        String sql = sqlBuilder.select(where);
         List<BUILDER> items = sqlRunner.selectWhere(sql, supplier(), childrenDescriptors(), where);
         return KeylessDaoImpl.fromSingletonList(mapBuilders(items));
     }
@@ -90,9 +86,7 @@ public class DaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> extends AbstractDao
     @Override
     public List<ENTITY> selectMany(List<Long> ids) {
         Where where = Where.inLong(primaryKey.getName(), ids);
-        String sql = keylessSqlBuilder.select(where);
-        List<BUILDER> bs = sqlRunner.selectWhere(sql, supplier(), childrenDescriptors, where);
-        return mapBuilders(bs);
+        return select(where);
     }
 
     @Override
