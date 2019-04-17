@@ -58,7 +58,7 @@ public class DaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> extends KeylessDaoI
         Envelope<ENTITY> envelope = newEnvelope(item, id);
         sqlRunner.insert(sql, envelope);
         for(ChildrenDescriptor<ENTITY,?, BUILDER,?> childrenDescriptor : childrenDescriptors){
-            childrenDescriptor.saveChildren(connection, new Envelope<>(item, id));
+            childrenDescriptor.saveChildren(connection, envelope);
         }
         return id;
     }
@@ -69,7 +69,7 @@ public class DaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> extends KeylessDaoI
         Envelope<ENTITY> envelope = newEnvelope(item, primaryKey.getKey(item));
         sqlRunner.update(sql, envelope);
         for(ChildrenDescriptor<ENTITY,?, BUILDER,?> childrenDescriptor : childrenDescriptors){
-            childrenDescriptor.saveChildren(connection, new Envelope<>(item, primaryKey.getKey(item)));
+            childrenDescriptor.saveChildren(connection, envelope);
         }
     }
 
