@@ -60,7 +60,7 @@ public class IndirectKeylessDaoBuilder<ENTITY, BUILDER> implements KeylessDaoDes
      * @return The newly created <code>Dao</code>.
      */
     public KeylessDao<ENTITY> buildDao(Connection connection){
-        return KeylessDaoImpl.forKeylessDescriptors(connection, this);
+        return new KeylessDaoImpl(connection, this);
     }
 
     /**
