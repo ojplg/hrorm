@@ -81,25 +81,17 @@ public class DaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> extends AbstractDao
 
     @Override
     public ENTITY select(long id) {
-        String primaryKeyName = primaryKey.getName();
-        ColumnSelection<ENTITY, BUILDER> columnSelection = select(primaryKeyName);
-        String sql = sqlBuilder.selectByColumns(columnSelection);
-        BUILDER builder = supplier().get();
-        primaryKey.setKey(builder, id);
-        ENTITY item = buildFunction().apply(builder);
-        List<BUILDER> items = sqlRunner.selectByColumns(sql, supplier(),
-                select(primaryKeyName),
-                childrenDescriptors, item);
+        Where where = new Where(primaryKey.getName(), Operator.EQUALS, id);
+        String sql = keylessSqlBuilder.select(where);
+        List<BUILDER> items = sqlRunner.selectWhere(sql, supplier(), childrenDescriptors(), where);
         return KeylessDaoImpl.fromSingletonList(mapBuilders(items));
     }
 
     @Override
     public List<ENTITY> selectMany(List<Long> ids) {
-        String sql = sqlBuilder.select();
-        List<String> idStrings = ids.stream().map(Object::toString).collect(Collectors.toList());
-        String idsString = String.join(",", idStrings);
-        sql = sql + " and a." + primaryKey.getName() + " in (" + idsString + ")";
-        List<BUILDER> bs = sqlRunner.select(sql, supplier(), childrenDescriptors);
+        Where where = Where.inLong(primaryKey.getName(), ids);
+        String sql = keylessSqlBuilder.select(where);
+        List<BUILDER> bs = sqlRunner.selectWhere(sql, supplier(), childrenDescriptors, where);
         return mapBuilders(bs);
     }
 

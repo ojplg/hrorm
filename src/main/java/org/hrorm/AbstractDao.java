@@ -8,6 +8,16 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+/**
+ * An abstract class that is almost a <code>KeylessDao</code>.
+ *
+ * <p>
+ *     Most users of hrorm will have no need to directly use this.
+ * </p>
+ *
+ * @param <ENTITY> The type whose persistence is managed by this <code>Dao</code>.
+ * @param <BUILDER> The type of object that can build an <code>ENTITY</code> instance.
+ */
 public abstract class AbstractDao<ENTITY, BUILDER> implements KeylessDaoDescriptor<ENTITY, BUILDER>, KeylessDao<ENTITY> {
 
     protected final Connection connection;
