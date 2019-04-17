@@ -15,8 +15,8 @@ import java.util.function.Supplier;
  *    Using this builder (as opposed to the {@link DaoBuilder} or {@link IndirectDaoBuilder})
  *    will allow support for entities that do not have primary keys, but that support comes at
  *    a price. A <code>KeylessDao</code> supports fewer methods than a standard <code>Dao</code>
- *    and these entities cannot be joined to other objects or be children to other objects.
- *    In general, the regular variants should be preferred
+ *    and these entities cannot be joined to other objects or have children or be children to other objects.
+ *    In general, the regular variants should be preferred.
  * </p>
  *
  * @param <ENTITY> The class that the <code>KeylessDao</code> will support.
