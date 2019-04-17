@@ -162,9 +162,8 @@ public class DaoBuilder<ENTITY> implements SchemaDescriptor<ENTITY, ENTITY> {
     }
 
     /**
-     * Describes a data element that represents a true/false value. Boolean
-     * elements are persisted to a text column with the single character
-     * "ENTITY" or "F".
+     * Describes a data element that represents a true/false value that is
+     * backed by a SQL boolean column.
      *
      * @param columnName The name of the column that holds the data element.
      * @param getter The function on <code>ENTITY</code> that returns the data element.
