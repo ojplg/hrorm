@@ -22,11 +22,11 @@ public class AssertHelp {
         sameContents(expected, found);
     }
 
-    public static final <T,U> void containsAllItems(List<T> expected, Collection<U> found, Function<U,T> mapFunction){
-        containsAllItems(expected, found.stream(), mapFunction);
+    public static final <T,U> void sameContents(List<T> expected, Collection<U> found, Function<U,T> mapFunction){
+        sameContents(expected, found.stream(), mapFunction);
     }
 
-    public static final <T,U> void containsAllItems(List<T> expected, Stream<U> found, Function<U,T> mapFunction){
+    public static final <T,U> void sameContents(List<T> expected, Stream<U> found, Function<U,T> mapFunction){
         List<T> mapped = found.map(mapFunction).collect(Collectors.toList());
         sameContents(expected, mapped);
     }

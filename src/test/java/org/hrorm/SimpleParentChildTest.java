@@ -5,6 +5,7 @@ import org.hrorm.database.HelperFactory;
 import org.hrorm.examples.SimpleChild;
 import org.hrorm.examples.SimpleParent;
 import org.hrorm.examples.SimpleParentChildDaos;
+import org.hrorm.util.AssertHelp;
 import org.hrorm.util.RandomUtils;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -18,6 +19,8 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+
+import static org.hrorm.Where.where;
 
 public class SimpleParentChildTest {
 
@@ -115,7 +118,7 @@ public class SimpleParentChildTest {
             List<SimpleChild> children = parent.getChildren();
             List<String> names = extractNames(children);
 
-            assertSameContent(names, childNames);
+            AssertHelp.sameContents(names, childNames);
 
             List<SimpleChild> filteredChildren = RandomUtils.randomFiltering(children);
             for(SimpleChild child : filteredChildren){
@@ -145,15 +148,67 @@ public class SimpleParentChildTest {
             List<SimpleChild> children = parent.getChildren();
             List<String> names = extractNames(children);
 
-            assertSameContent(names, childNames);
+            AssertHelp.sameContents(names, childNames);
             connection.close();
         }
     }
 
-    private static  <T> void assertSameContent(List<T> as, List<T> bs){
-        Assert.assertEquals(as.size(), bs.size());
-        Assert.assertTrue(as.containsAll(bs));
-        Assert.assertTrue(bs.containsAll(as));
+    @Test
+    public void testSelectWhereLoadsChildren(){
+        String parentName = "testSelectWhereLoadsChildren";
+        List<String> childNames = helper.useConnection(connection -> {
+            Dao<SimpleParent> parentDao = SimpleParentChildDaos.PARENT.buildDao(connection);
+
+            SimpleParent simpleParent = new SimpleParent();
+            simpleParent.setName(parentName);
+
+            List<String> names = RandomUtils.randomNumberOf(5, 15, SimpleParentChildTest::randomName);
+            List<SimpleChild> children = newChildren(names);
+
+            simpleParent.setChildren(children);
+            parentDao.insert(simpleParent);
+
+            return names;
+        });
+        helper.useConnection(connection -> {
+            Dao<SimpleParent> parentDao = SimpleParentChildDaos.PARENT.buildDao(connection);
+            List<SimpleParent> parentList = parentDao.select(where("name", Operator.EQUALS, parentName));
+            Assert.assertEquals(1, parentList.size());
+            SimpleParent parent = parentList.get(0);
+            List<SimpleChild> children = parent.getChildren();
+
+            AssertHelp.sameContents(childNames, children, SimpleChild::getName);
+        });
+    }
+
+    @Test
+    public void testSelectByColumnLoadsChildren(){
+        String parentName = "testSelectByColumnLoadsChildren";
+        List<String> childNames = helper.useConnection(connection -> {
+            Dao<SimpleParent> parentDao = SimpleParentChildDaos.PARENT.buildDao(connection);
+
+            SimpleParent simpleParent = new SimpleParent();
+            simpleParent.setName(parentName);
+
+            List<String> names = RandomUtils.randomNumberOf(5, 15, SimpleParentChildTest::randomName);
+            List<SimpleChild> children = newChildren(names);
+
+            simpleParent.setChildren(children);
+            parentDao.insert(simpleParent);
+
+            return names;
+        });
+        helper.useConnection(connection -> {
+            Dao<SimpleParent> parentDao = SimpleParentChildDaos.PARENT.buildDao(connection);
+            SimpleParent template = new SimpleParent();
+            template.setName(parentName);
+            List<SimpleParent> parentList = parentDao.selectManyByColumns(template, "name");
+            Assert.assertEquals(1, parentList.size());
+            SimpleParent parent = parentList.get(0);
+            List<SimpleChild> children = parent.getChildren();
+
+            AssertHelp.sameContents(childNames, children, SimpleChild::getName);
+        });
     }
 
     private static String randomName(){
