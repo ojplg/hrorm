@@ -56,6 +56,8 @@ public abstract class AbstractDao<ENTITY, BUILDER> implements KeylessDaoDescript
 
     protected abstract List<ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors();
 
+    public abstract Long insert(ENTITY item);
+
     @Override
     public String tableName() {
         return tableName;
@@ -82,17 +84,6 @@ public abstract class AbstractDao<ENTITY, BUILDER> implements KeylessDaoDescript
         return transactor.runAndCommit(
                 con -> { return insert(item); }
         );
-    }
-
-    @Override
-    public Long insert(ENTITY item) {
-        String sql = sqlBuilder.insert();
-        Envelope<ENTITY> envelope = new Envelope(item);
-        sqlRunner.insert(sql, envelope);
-        for(ChildrenDescriptor<ENTITY,?, BUILDER,?> childrenDescriptor : childrenDescriptors()){
-            childrenDescriptor.saveChildren(connection, envelope);
-        }
-        return null;
     }
 
     protected List<ENTITY> mapBuilders(List<BUILDER> bs){

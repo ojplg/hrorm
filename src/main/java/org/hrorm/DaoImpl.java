@@ -78,9 +78,8 @@ public class DaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> extends AbstractDao
     @Override
     public ENTITY select(long id) {
         Where where = new Where(primaryKey.getName(), Operator.EQUALS, id);
-        String sql = sqlBuilder.select(where);
-        List<BUILDER> items = sqlRunner.selectWhere(sql, supplier(), childrenDescriptors(), where);
-        return KeylessDaoImpl.fromSingletonList(mapBuilders(items));
+        List<ENTITY> items = select(where);
+        return KeylessDaoImpl.fromSingletonList(items);
     }
 
     @Override
