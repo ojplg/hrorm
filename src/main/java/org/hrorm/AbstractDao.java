@@ -86,10 +86,6 @@ public abstract class AbstractDao<ENTITY, BUILDER> implements KeylessDaoDescript
         );
     }
 
-    protected List<ENTITY> mapBuilders(List<BUILDER> bs){
-        return bs.stream().map(buildFunction).collect(Collectors.toList());
-    }
-
     @Override
     public List<ENTITY> selectAll() {
         String sql = sqlBuilder.select();
@@ -162,6 +158,10 @@ public abstract class AbstractDao<ENTITY, BUILDER> implements KeylessDaoDescript
         String sql = sqlBuilder.select(where, order);
         List<BUILDER> bs = sqlRunner.selectWhere(sql, supplier, childrenDescriptors(), where);
         return mapBuilders(bs);
+    }
+
+    private List<ENTITY> mapBuilders(List<BUILDER> bs){
+        return bs.stream().map(buildFunction).collect(Collectors.toList());
     }
 
     public static <A> A fromSingletonList(List<A> items) {
