@@ -3,7 +3,6 @@ package org.hrorm;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.BiConsumer;
@@ -99,7 +98,7 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
         for(CHILD child : children){
             Long childId = childPrimaryKey.getKey(child);
             if( childId == null ) {
-                childId = DaoHelper.getNextSequenceValue(connection, childPrimaryKey.getSequenceName());
+                childId = sqlRunner.runSequenceNextValue(sqlBuilder.nextSequence());
                 childPrimaryKey.optimisticSetKey(child, childId);
                 String sql = sqlBuilder.insert();
                 Envelope<CHILD> childEnvelope = new Envelope<>(child, childId, parentId);
@@ -118,21 +117,22 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
 
     }
 
-    public Set<Long> findExistingChildrenIds(Connection connection, Long parentId){
+    private Set<Long> findExistingChildrenIds(Connection connection, Long parentId){
         String sql = sqlBuilder.selectChildIds(parentChildColumnName());
-        List<Long> ids = DaoHelper.readLongs(connection, sql, parentId);
-        return new HashSet<>(ids);
+        SqlRunner<PARENT,PARENTBUILDER> sqlRunner = new SqlRunner(connection);
+        return sqlRunner.runChildSelectChildIds(sql, parentId);
     }
 
     private void deleteOrphans(Connection connection, Set<Long> badChildrenIds) {
         String preparedSql = sqlBuilder.delete();
+        SqlRunner<CHILD, CHILDBUILDER> sqlRunner = new SqlRunner<>(connection);
 
         for(Long badId : badChildrenIds) {
             for( ChildrenDescriptor<CHILD,?,?,?> grandChildDescriptor : grandChildrenDescriptors()){
                 Set<Long> badGranchildIds = grandChildDescriptor.findExistingChildrenIds(connection, badId);
                 grandChildDescriptor.deleteOrphans(connection, badGranchildIds);
             }
-            DaoHelper.runPreparedDelete(connection, preparedSql, badId);
+            sqlRunner.runPreparedDelete(preparedSql, badId);
         }
     }
 

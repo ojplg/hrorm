@@ -5,8 +5,12 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -29,6 +33,11 @@ public class SqlRunner<ENTITY, BUILDER> {
 
     private final Connection connection;
     private final List<Column<ENTITY, BUILDER>> allColumns;
+
+    public SqlRunner(Connection connection){
+        this.connection = connection;
+        this.allColumns = Collections.emptyList();
+    }
 
     public SqlRunner(Connection connection, KeylessDaoDescriptor<ENTITY, BUILDER> daoDescriptor) {
         this.connection = connection;
@@ -228,6 +237,73 @@ public class SqlRunner<ENTITY, BUILDER> {
         }
 
     }
+
+    public void runPreparedDelete(String sql, Long id){
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)){
+            preparedStatement.setLong(1, id);
+            logger.info(sql);
+            preparedStatement.execute();
+        } catch (SQLException ex){
+            throw new HrormException(ex, sql);
+        }
+    }
+
+
+    public long runSequenceNextValue(String sql) {
+        Statement statement = null;
+        ResultSet resultSet = null;
+        try {
+            statement = connection.createStatement();
+            logger.info(sql);
+            resultSet = statement.executeQuery(sql);
+            resultSet.next();
+            return resultSet.getLong(1);
+        } catch (SQLException ex){
+            throw new HrormException(ex, sql);
+        } finally {
+            try {
+                if ( resultSet != null ){
+                    resultSet.close();
+                }
+                if ( statement != null){
+                    statement.close();
+                }
+            } catch (SQLException ex){
+                throw new HrormException(ex);
+            }
+        }
+    }
+
+    public Set<Long> runChildSelectChildIds(String sql, Long id){
+        PreparedStatement statement = null;
+        ResultSet resultSet = null;
+
+        try {
+            Set<Long> longs = new HashSet<>();
+            logger.info(sql);
+            statement = connection.prepareStatement(sql);
+            statement.setLong(1, id);
+            resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                longs.add(resultSet.getLong(1));
+            }
+            return longs;
+        } catch (SQLException ex){
+            throw new HrormException(ex, sql);
+        } finally {
+            try {
+                if ( resultSet != null ){
+                    resultSet.close();
+                }
+                if ( statement != null){
+                    statement.close();
+                }
+            } catch (SQLException ex){
+                throw new HrormException(ex);
+            }
+        }
+    }
+
 
     private BUILDER populate(ResultSet resultSet, Supplier<BUILDER> supplier)
             throws SQLException {

@@ -49,7 +49,7 @@ public class DaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> extends AbstractDao
     @Override
     public Long insert(ENTITY item) {
         String sql = sqlBuilder.insert();
-        long id = DaoHelper.getNextSequenceValue(connection, primaryKey.getSequenceName());
+        long id = sqlRunner.runSequenceNextValue(sqlBuilder.nextSequence());
         primaryKey.optimisticSetKey(item, id);
         Envelope<ENTITY> envelope = newEnvelope(item, id);
         sqlRunner.insert(sql, envelope);
@@ -72,7 +72,7 @@ public class DaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> extends AbstractDao
     @Override
     public void delete(ENTITY item) {
         String sql = sqlBuilder.delete();
-        DaoHelper.runPreparedDelete(connection, sql, primaryKey.getKey(item));
+        sqlRunner.runPreparedDelete(sql, primaryKey.getKey(item));
     }
 
     @Override
