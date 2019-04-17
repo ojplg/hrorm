@@ -14,7 +14,7 @@ public class WhereTest {
         Where where = where("COLUMN", Operator.EQUALS, 52L);
 
         String generatedSql = where.render();
-        String expectedSql = "A.COLUMN = ?";
+        String expectedSql = "WHERE A.COLUMN = ?";
 
         SimpleSqlFormatter.assertEqualSql(expectedSql, generatedSql);
     }
@@ -27,7 +27,7 @@ public class WhereTest {
                                 .or("THIRD", Operator.GREATER_THAN, 23L));
 
         String generatedSql = where.render();
-        String expectedSql = "A.NUMBER > ? AND A.NUMBER < ? "
+        String expectedSql = "WHERE A.NUMBER > ? AND A.NUMBER < ? "
                                 + "AND ( A.OTHER = ? OR A.THIRD > ? )";
 
         SimpleSqlFormatter.assertEqualSql(expectedSql, generatedSql);
@@ -41,7 +41,7 @@ public class WhereTest {
 
 
         String generatedSql = where.render();
-        String expectedSql = "( A.FOO = ? AND A.BAR <= ? )"
+        String expectedSql = "WHERE ( A.FOO = ? AND A.BAR <= ? )"
                 + "OR A.BAZ LIKE ? ";
 
         SimpleSqlFormatter.assertEqualSql(expectedSql, generatedSql);

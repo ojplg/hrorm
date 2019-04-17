@@ -45,8 +45,7 @@ public class WhereJoinedTest {
                 "select a.id as aid, a.name as aname, "
                 + "b.id as bid, b.name as bname from "
                 + "city a left join state b on a.state_id = b.id"
-                + " where 1 = 1",
-                select);
+                , select);
         connection.close();
     }
 

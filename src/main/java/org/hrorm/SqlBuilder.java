@@ -83,7 +83,6 @@ public class SqlBuilder<ENTITY> implements Queries {
             buf.append(".");
             buf.append(joinColumn.getJoinedTablePrimaryKeyName());
         }
-        buf.append(" where 1=1 ");
 
         return buf.toString();
     }
@@ -93,12 +92,7 @@ public class SqlBuilder<ENTITY> implements Queries {
     }
 
     public String select(Where where){
-        String whereClause = where.render();
-        if ( whereClause.length() > 0 ) {
-            return select() + " AND " + whereClause;
-        } else {
-            return select();
-        }
+        return select() + where.render();
     }
 
     public String select(Where where, Order order){
@@ -116,12 +110,7 @@ public class SqlBuilder<ENTITY> implements Queries {
         buf.append(" from ");
         buf.append(table);
         buf.append(" a");
-
-        String whereClause = where.render();
-        if ( whereClause.length() > 1) {
-            buf.append(" where ");
-            buf.append(whereClause);
-        }
+        buf.append(where.render());
 
         return buf.toString();
     }
@@ -141,10 +130,7 @@ public class SqlBuilder<ENTITY> implements Queries {
     }
 
     public String selectByColumns(ColumnSelection selectColumnList){
-        StringBuilder buf = new StringBuilder();
-        buf.append(select());
-        buf.append(selectColumnList.whereClause());
-        return buf.toString();
+        return select() + selectColumnList.whereClause();
     }
 
     public String selectByColumns(ColumnSelection columnSelection, Order order){

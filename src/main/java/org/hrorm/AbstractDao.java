@@ -53,7 +53,7 @@ public abstract class AbstractDao<ENTITY, BUILDER> implements KeylessDaoDescript
         this.sqlBuilder = new SqlBuilder<>(daoDescriptor);
         this.sqlRunner = new SqlRunner<>(connection, daoDescriptor);
     }
-    
+
     protected abstract List<ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors();
 
     @Override

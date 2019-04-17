@@ -585,7 +585,10 @@ public class Where implements StatementPopulator {
      * @return the SQL
      */
     public String render(){
-        return tree.render("a.");
+        if ( tree.isEmpty() ){
+            return "";
+        }
+        return " where " + tree.render("a.");
     }
 
     @Override

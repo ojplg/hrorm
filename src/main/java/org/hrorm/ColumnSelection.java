@@ -61,8 +61,13 @@ public class ColumnSelection<ENTITY, BUILDER> {
     public String whereClause(){
         StringBuilder buf = new StringBuilder();
 
-        for(String columnName : columnNames){
-            buf.append(" and ");
+        buf.append(" where ");
+
+        for(int idx=0; idx<columnNames.size(); idx++ ){
+            String columnName = columnNames.get(idx);
+            if( idx > 0 ) {
+                buf.append(" and ");
+            }
             buf.append("a.");
             buf.append(columnName);
             buf.append(" = ? ");

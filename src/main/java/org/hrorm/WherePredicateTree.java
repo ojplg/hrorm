@@ -132,7 +132,7 @@ public class WherePredicateTree {
         return rootNode.asList();
     }
 
-    private boolean isEmpty(){
+    public boolean isEmpty(){
         if ( rootNode == null ){
             return true;
         }
