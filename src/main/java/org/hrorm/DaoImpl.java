@@ -127,7 +127,7 @@ public class DaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> extends KeylessDaoI
         return this.sqlBuilder;
     }
 
-    protected Envelope<ENTITY> newEnvelope(ENTITY item, long id){
+    private Envelope<ENTITY> newEnvelope(ENTITY item, long id){
         if( parentColumn != null ){
             Long parentId = parentColumn.getParentId(item);
             if ( parentId != null ){

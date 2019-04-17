@@ -91,20 +91,14 @@ public class KeylessDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> implements K
         Envelope<ENTITY> envelope = new Envelope(item);
         sqlRunner.insert(sql, envelope);
         for(ChildrenDescriptor<ENTITY,?, BUILDER,?> childrenDescriptor : childrenDescriptors){
-            childrenDescriptor.saveChildren(connection, new Envelope<>(item));
+            childrenDescriptor.saveChildren(connection, envelope);
         }
         return null;
     }
 
-    protected Envelope<ENTITY> newEnvelope(ENTITY item, long id){
-        return new Envelope<>(item, id);
-    }
-
-
     protected List<ENTITY> mapBuilders(List<BUILDER> bs){
         return bs.stream().map(buildFunction).collect(Collectors.toList());
     }
-
 
     @Override
     public List<ENTITY> selectAll() {
