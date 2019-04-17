@@ -36,10 +36,6 @@ public class SqlBuilder<ENTITY> implements Queries {
         this.primaryKey = null;
     }
 
-    public String getTable(){
-        return table;
-    }
-
     private String columnsAsString(String prefix, boolean withAliases, List<? extends Column> columns){
         Function<Column,String> stringer;
         if( withAliases && prefix != null ) {
@@ -96,8 +92,7 @@ public class SqlBuilder<ENTITY> implements Queries {
     }
 
     public String select(Where where, Order order){
-        String sql = select(where);
-        return sql + order.render();
+        return select(where) + order.render();
     }
 
     public String selectFunction(SqlFunction function, String columnName, Where where){
