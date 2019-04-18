@@ -86,6 +86,12 @@ public class IndirectPrimaryKey<ENTITY, BUILDER> implements PrimaryKey<ENTITY, B
     }
 
     @Override
+    public ResultSetReader<Long> getReader(){
+        return ResultSet::getLong;
+    }
+
+
+    @Override
     public void setValue(ENTITY item, int index, PreparedStatement preparedStatement) throws SQLException {
         Long value = getter.apply(item);
         if ( value == null ){
@@ -96,7 +102,7 @@ public class IndirectPrimaryKey<ENTITY, BUILDER> implements PrimaryKey<ENTITY, B
     }
 
     @Override
-    public Column<ENTITY, BUILDER> withPrefix(String newPrefix, Prefixer prefixer) {
+    public Column<Long, ENTITY, BUILDER> withPrefix(String newPrefix, Prefixer prefixer) {
         return new IndirectPrimaryKey<>(newPrefix, name, sequenceName, getter, setter);
     }
 

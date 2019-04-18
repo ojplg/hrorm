@@ -2,6 +2,7 @@ package org.hrorm;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -68,7 +69,12 @@ public class ParentColumnImpl<CHILD, PARENT, CHILDBUILDER, PARENTBUILDER> implem
     }
 
     @Override
-    public Column<CHILD, CHILDBUILDER> withPrefix(String prefix, Prefixer prefixer) {
+    public ResultSetReader<Long> getReader(){
+        return ResultSet::getLong;
+    }
+
+    @Override
+    public Column<Long, CHILD, CHILDBUILDER> withPrefix(String prefix, Prefixer prefixer) {
         return new ParentColumnImpl<>(name, prefix, getter, setter, parentPrimaryKey, nullable);
     }
 

@@ -22,7 +22,7 @@ public class InstantColumnTest {
     @Test
     public void testSetValueHandlesNulls() throws SQLException  {
 
-        Column<Columns,Columns> column = DataColumnFactory.instantColumn(
+        Column<Timestamp, Columns,Columns> column = DataColumnFactory.instantColumn(
                 "TIME COLUMN", "A", Columns::getTimeStampThing, Columns::setTimeStampThing, true);
 
         Columns columns = new Columns();
@@ -38,7 +38,7 @@ public class InstantColumnTest {
     @Test
     public void testPopulateHandlesNulls() throws SQLException {
 
-        Column<Columns,Columns> column = DataColumnFactory.instantColumn(
+        Column<Timestamp, Columns,Columns> column = DataColumnFactory.instantColumn(
                 "TIME COLUMN", "A", Columns::getTimeStampThing, Columns::setTimeStampThing, true);
 
         Columns columns = new Columns();
@@ -54,7 +54,7 @@ public class InstantColumnTest {
 
     @Test
     public void testPreventsNullsWhenSet() throws SQLException {
-        Column<Columns,Columns> column = DataColumnFactory.instantColumn(
+        Column<Timestamp, Columns,Columns> column = DataColumnFactory.instantColumn(
                 "TIME COLUMN", "A", Columns::getTimeStampThing, Columns::setTimeStampThing, true);
         column.notNull();
 

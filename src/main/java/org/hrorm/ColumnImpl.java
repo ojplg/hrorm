@@ -18,7 +18,7 @@ import java.util.function.Function;
  * @param <ENTITY> The type of the entity.
  * @param <BUILDER> The class that is used to build new entity instances.
  */
-public class ColumnImpl<TYPE, ENTITY, BUILDER> implements Column<ENTITY,BUILDER> {
+public class ColumnImpl<TYPE, ENTITY, BUILDER> implements Column<TYPE,ENTITY,BUILDER> {
 
     private final GenericColumn<TYPE> genericColumn;
 
@@ -48,13 +48,13 @@ public class ColumnImpl<TYPE, ENTITY, BUILDER> implements Column<ENTITY,BUILDER>
     }
 
     public <MODELTYPE> ColumnImpl(GenericColumn<TYPE> genericColumn,
-                               String prefix,
-                               String name,
-                               Function<ENTITY, MODELTYPE> getter,
-                               BiConsumer<BUILDER, MODELTYPE> setter,
-                               String sqlTypeName,
-                               boolean nullable,
-                               Converter<MODELTYPE, TYPE> converter){
+                                  String prefix,
+                                  String name,
+                                  Function<ENTITY, MODELTYPE> getter,
+                                  BiConsumer<BUILDER, MODELTYPE> setter,
+                                  String sqlTypeName,
+                                  boolean nullable,
+                                  Converter<MODELTYPE, TYPE> converter){
         this.genericColumn = genericColumn;
 
         this.prefix = prefix;
@@ -105,6 +105,11 @@ public class ColumnImpl<TYPE, ENTITY, BUILDER> implements Column<ENTITY,BUILDER>
     }
 
     @Override
+    public ResultSetReader<TYPE> getReader(){
+        return genericColumn::fromResultSet;
+    }
+
+    @Override
     public String getName() {
         return name;
     }
@@ -140,7 +145,7 @@ public class ColumnImpl<TYPE, ENTITY, BUILDER> implements Column<ENTITY,BUILDER>
     }
 
     @Override
-    public Column<ENTITY, BUILDER> withPrefix(String newPrefix, Prefixer prefixer) {
+    public Column<TYPE, ENTITY, BUILDER> withPrefix(String newPrefix, Prefixer prefixer) {
         return new ColumnImpl(this.genericColumn,
                 newPrefix,
                 this.name,

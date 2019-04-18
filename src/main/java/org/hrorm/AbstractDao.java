@@ -2,6 +2,9 @@ package org.hrorm;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -158,6 +161,17 @@ public abstract class AbstractDao<ENTITY, BUILDER> implements KeylessDaoDescript
         String sql = sqlBuilder.select(where, order);
         List<BUILDER> bs = sqlRunner.selectWhere(sql, supplier, childrenDescriptors(), where);
         return mapBuilders(bs);
+    }
+
+    @Override
+    public <T> List<T> selectDistinct(String columnName, Where where) {
+        String sql = sqlBuilder.selectDistinct(columnName, where);
+        Column<?,ENTITY, BUILDER> column = columnCollection.columnByName(columnName);
+        // This cast is unfortunate. But I do not see how to avoid it, except
+        // by requiring the user to specify the column type in the Dao interface.
+        ResultSetReader<T> reader = (resultSet, name) -> (T) column.getReader().read(resultSet, name);
+        List<T> values = sqlRunner.selectDistinct(sql, where, columnName, reader);
+        return values;
     }
 
     private List<ENTITY> mapBuilders(List<BUILDER> bs){

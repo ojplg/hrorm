@@ -32,7 +32,7 @@ public class SqlRunner<ENTITY, BUILDER> {
     private static final Logger logger = Logger.getLogger("org.hrorm");
 
     private final Connection connection;
-    private final List<Column<ENTITY, BUILDER>> allColumns;
+    private final List<Column<?,ENTITY, BUILDER>> allColumns;
 
     public SqlRunner(Connection connection){
         this.connection = connection;
@@ -187,6 +187,39 @@ public class SqlRunner<ENTITY, BUILDER> {
         return runFunction(sql, where, reader);
     }
 
+    public <T> List<T> selectDistinct(String sql, Where where, String columnName, ResultSetReader<T> reader){
+        ResultSet resultSet = null;
+        PreparedStatement statement = null;
+        List<T> values = new ArrayList<>();
+        try {
+            statement = connection.prepareStatement(sql);
+            where.populate(statement);
+
+            logger.info(sql);
+            resultSet = statement.executeQuery();
+
+            while(resultSet.next()){
+                T value = reader.read(resultSet, columnName);
+                System.out.println("READ DISTINCT " + value + " with type " + value.getClass());
+                values.add(value);
+            }
+            return values;
+        } catch (SQLException ex){
+            throw new HrormException(ex, sql);
+        } finally {
+            try {
+                if (resultSet != null) {
+                    resultSet.close();
+                }
+                if (statement != null) {
+                    statement.close();
+                }
+            } catch (SQLException se){
+                throw new HrormException(se);
+            }
+        }
+    }
+
     public void insert(String sql, Envelope<ENTITY> envelope) {
         runInsertOrUpdate(sql, envelope, false);
     }
@@ -203,7 +236,7 @@ public class SqlRunner<ENTITY, BUILDER> {
             preparedStatement = connection.prepareStatement(sql);
 
             int idx = 1;
-            for(Column<ENTITY, BUILDER> column : allColumns){
+            for(Column<?, ENTITY, BUILDER> column : allColumns){
                 if( column.isPrimaryKey() ) {
                     if ( ! isUpdate ) {
                         preparedStatement.setLong(idx, envelope.getId());
@@ -309,7 +342,7 @@ public class SqlRunner<ENTITY, BUILDER> {
             throws SQLException {
         BUILDER item = supplier.get();
 
-        for (Column<ENTITY, BUILDER> column: allColumns) {
+        for (Column<?, ENTITY, BUILDER> column: allColumns) {
             PopulateResult populateResult = column.populate(item, resultSet);
             populateResult.populateChildren(connection);
         }

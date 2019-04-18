@@ -22,14 +22,14 @@ public class ColumnSelection<ENTITY, BUILDER> {
 
     private static final ColumnSelection EMPTY = new ColumnSelection(Collections.emptyList());
 
-    private final Map<String, Column<ENTITY, BUILDER>> columns;
+    private final Map<String, Column<?, ENTITY, BUILDER>> columns;
     private final List<String> columnNames;
 
-    public ColumnSelection(List<Column<ENTITY, BUILDER>> allColumns, String ... columnNames){
-        Map<String, Column<ENTITY,BUILDER>> map = new HashMap<>();
+    public ColumnSelection(List<Column<?, ENTITY, BUILDER>> allColumns, String ... columnNames){
+        Map<String, Column<?,ENTITY,BUILDER>> map = new HashMap<>();
         Set<String> nameSet = Arrays.stream(columnNames)
                 .map(String::toUpperCase).collect(Collectors.toSet());
-        for(Column<ENTITY,BUILDER> column : allColumns){
+        for(Column<?,ENTITY,BUILDER> column : allColumns){
             if (nameSet.contains(column.getName().toUpperCase())) {
                 String columnNameKey = column.getName().toUpperCase();
                 map.put(columnNameKey, column);
@@ -43,7 +43,7 @@ public class ColumnSelection<ENTITY, BUILDER> {
         return (ColumnSelection<E,B>) EMPTY;
     }
 
-    public Column<ENTITY, BUILDER> get(String columnName){
+    public Column<?,ENTITY, BUILDER> get(String columnName){
         return columns.get(columnName);
     }
 
@@ -51,7 +51,7 @@ public class ColumnSelection<ENTITY, BUILDER> {
         return preparedStatement -> {
             int index = 1;
             for (String columnName : columnNames) {
-                Column<ENTITY, BUILDER> column = columns.get(columnName.toUpperCase());
+                Column<?,ENTITY, BUILDER> column = columns.get(columnName.toUpperCase());
                 column.setValue(entity, index, preparedStatement);
                 index++;
             }

@@ -15,7 +15,7 @@ import java.util.Set;
  * @param <ENTITY> The type of the entity.
  * @param <BUILDER> The class that is used to build new entity instances.
  */
-public interface Column<ENTITY, BUILDER> {
+public interface Column<TYPE,ENTITY, BUILDER> {
 
     /**
      * The name of the database column this instance represents.
@@ -93,8 +93,14 @@ public interface Column<ENTITY, BUILDER> {
      * @param prefixer The source for new prefixes
      * @return A new instance of the column with the reset prefix
      */
-    Column<ENTITY, BUILDER> withPrefix(String newPrefix, Prefixer prefixer);
+    Column<TYPE, ENTITY, BUILDER> withPrefix(String newPrefix, Prefixer prefixer);
 
+    /**
+     * Returns the function used by this column to read a result set.
+     *
+     * @return The result set reader
+     */
+    ResultSetReader<TYPE> getReader();
 
     /**
      * The members of <code>java.sql.Types</code> that this column should support.

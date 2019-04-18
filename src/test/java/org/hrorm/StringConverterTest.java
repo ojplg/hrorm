@@ -16,7 +16,7 @@ public class StringConverterTest {
     @Test
     public void testSetValueHandlesNulls() throws SQLException {
 
-        Column<Columns, Columns> column = DataColumnFactory.stringConverterColumn(
+        Column<String, Columns, Columns> column = DataColumnFactory.stringConverterColumn(
                 "COLOR", "A", Columns::getColorThing, Columns::setColorThing, new EnumeratedColorConverter(), true);
 
         Columns columns = new Columns();
@@ -32,7 +32,7 @@ public class StringConverterTest {
     @Test
     public void testPopulateHandlesNulls() throws SQLException {
 
-        Column<Columns, Columns> column = DataColumnFactory.stringConverterColumn(
+        Column<String, Columns, Columns> column = DataColumnFactory.stringConverterColumn(
                 "COLOR", "A", Columns::getColorThing, Columns::setColorThing, new EnumeratedColorConverter(), true);
 
         Columns columns = new Columns();
@@ -48,7 +48,7 @@ public class StringConverterTest {
 
     @Test
     public void testPreventsNullsWhenSet() throws SQLException {
-        Column<Columns, Columns> column = DataColumnFactory.stringConverterColumn(
+        Column<String, Columns, Columns> column = DataColumnFactory.stringConverterColumn(
                 "COLOR", "A", Columns::getColorThing, Columns::setColorThing, new EnumeratedColorConverter(), true);
         column.notNull();
 

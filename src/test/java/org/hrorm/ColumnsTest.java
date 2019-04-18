@@ -5,6 +5,7 @@ import org.hrorm.database.HelperFactory;
 import org.hrorm.examples.Columns;
 import org.hrorm.examples.ColumnsDaoBuilder;
 import org.hrorm.examples.EnumeratedColor;
+import org.hrorm.util.RandomUtils;
 import org.hrorm.util.TestLogConfig;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -62,6 +63,8 @@ public class ColumnsTest {
         Assert.assertEquals(columns, dbInstance);
         Assert.assertNotNull(columns.getId());
         Assert.assertEquals(id, columns.getId());
+
+        Assert.assertEquals(time, dbInstance.getTimeStampThing());
 
         connection.close();
     }
@@ -420,5 +423,33 @@ public class ColumnsTest {
         Assert.assertTrue(queries.delete().toUpperCase().contains("DELETE"));
 
         connection.close();
+    }
+
+    @Test
+    public void testValues() {
+        for(int idx=0; idx<20; idx++) {
+            Columns columns = new Columns();
+
+            columns.setIntegerThing((long) RandomUtils.range(-10000, 100000));
+            columns.setStringThing(RandomUtils.randomAlphabeticString(0, 40));
+            columns.setTimeStampThing(RandomUtils.instant());
+            columns.setBooleanThing(RandomUtils.bool());
+            columns.setDecimalThing(RandomUtils.bigDecimal());
+
+            long id = helper.useConnection(connection -> {
+                Dao<Columns> dao = daoBuilder().buildDao(connection);
+                return dao.insert(columns);
+            });
+            helper.useConnection(connection -> {
+                Dao<Columns> dao = daoBuilder().buildDao(connection);
+                Columns dbInstance = dao.select(id);
+
+                Assert.assertEquals(columns.getStringThing(), dbInstance.getStringThing());
+                Assert.assertEquals(columns.getTimeStampThing(), dbInstance.getTimeStampThing());
+                Assert.assertEquals(columns.getIntegerThing(), dbInstance.getIntegerThing());
+                Assert.assertEquals(columns.getBooleanThing(), dbInstance.getBooleanThing());
+                Assert.assertEquals(columns.getDecimalThing(), dbInstance.getDecimalThing());
+            });
+        }
     }
 }

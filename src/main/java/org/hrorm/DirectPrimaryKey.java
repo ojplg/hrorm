@@ -84,6 +84,11 @@ public class DirectPrimaryKey<ENTITY> implements PrimaryKey<ENTITY, ENTITY> {
     }
 
     @Override
+    public ResultSetReader<Long> getReader(){
+        return ResultSet::getLong;
+    }
+
+    @Override
     public void setValue(ENTITY item, int index, PreparedStatement preparedStatement) throws SQLException {
         Long value = getter.apply(item);
         if ( value == null ){
@@ -94,7 +99,7 @@ public class DirectPrimaryKey<ENTITY> implements PrimaryKey<ENTITY, ENTITY> {
     }
 
     @Override
-    public Column<ENTITY, ENTITY> withPrefix(String newPrefix, Prefixer prefixer) {
+    public Column<Long, ENTITY, ENTITY> withPrefix(String newPrefix, Prefixer prefixer) {
         return new DirectPrimaryKey<>(newPrefix, name, sequenceName, getter, setter);
     }
 

@@ -12,7 +12,7 @@ public class LongColumnTest {
 
     @Test
     public void testNotNullable() throws SQLException {
-        Column<Columns, Columns> column = DataColumnFactory.longColumn(
+        Column<Long, Columns, Columns> column = DataColumnFactory.longColumn(
                 "NUMBER", "A", Columns::getIntegerThing, Columns::setIntegerThing, false);
         column.notNull();
 

@@ -12,7 +12,7 @@ public class StringColumnTest {
 
     @Test
     public void testNotNullable() throws SQLException {
-        Column<Columns,Columns> column = DataColumnFactory.stringColumn(
+        Column<String, Columns,Columns> column = DataColumnFactory.stringColumn(
                 "TEXT", "A", Columns::getStringThing, Columns::setStringThing, false);
         column.notNull();
 
