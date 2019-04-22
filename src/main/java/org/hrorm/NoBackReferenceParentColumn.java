@@ -66,7 +66,7 @@ public class NoBackReferenceParentColumn<ENTITY, PARENT, BUILDER, PARENTBUILDER>
     }
 
     @Override
-    public Column<Long, ENTITY, BUILDER> withPrefix(String newPrefix, Prefixer prefixer) {
+    public Column<Long, Long, ENTITY, BUILDER> withPrefix(String newPrefix, Prefixer prefixer) {
         return new NoBackReferenceParentColumn(name, newPrefix);
     }
 
@@ -99,5 +99,10 @@ public class NoBackReferenceParentColumn<ENTITY, PARENT, BUILDER, PARENTBUILDER>
     @Override
     public void setSqlTypeName(String sqlTypeName) {
         this.sqlTypeName = sqlTypeName;
+    }
+
+    @Override
+    public Long toClassType(Long dbType) {
+        return dbType;
     }
 }

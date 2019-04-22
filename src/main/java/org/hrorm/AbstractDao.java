@@ -161,12 +161,15 @@ public abstract class AbstractDao<ENTITY, BUILDER> implements KeylessDaoDescript
     }
 
     @Override
-    public <T> List<T> selectDistinct(String columnName, Where where) {
+    public <T,DBTYPE> List<T> selectDistinct(String columnName, Where where) {
         String sql = sqlBuilder.selectDistinct(columnName, where);
-        Column<?,ENTITY, BUILDER> column = columnCollection.columnByName(columnName);
         // This cast is unfortunate. But I do not see how to avoid it, except
         // by requiring the user to specify the column type in the Dao interface.
-        ResultSetReader<T> reader = (resultSet, name) -> (T) column.getReader().read(resultSet, name);
+        Column<DBTYPE,T,ENTITY, BUILDER> column = (Column<DBTYPE,T,ENTITY,BUILDER>) columnCollection.columnByName(columnName);
+        ResultSetReader<T> reader = (res, col) -> {
+            DBTYPE dbType = column.getReader().read(res, col);
+            return column.toClassType(dbType);
+        };
         List<T> values = sqlRunner.selectDistinct(sql, where, columnName, reader);
         return values;
     }

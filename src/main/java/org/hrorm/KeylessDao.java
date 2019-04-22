@@ -185,6 +185,6 @@ public interface KeylessDao<ENTITY> {
      */
     BigDecimal runBigDecimalFunction(SqlFunction function, String columnName, Where where);
 
-    <T> List<T> selectDistinct(String columnName, Where where);
+    <T,DBTYPE> List<T> selectDistinct(String columnName, Where where);
 
 }

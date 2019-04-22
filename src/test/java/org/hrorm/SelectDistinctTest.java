@@ -92,19 +92,13 @@ public class SelectDistinctTest {
     @Test
     public void testDistinctInstants(){
 
-        final long insertCount = 1;
-
-//        Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-//        System.out.println("TIMESTAMP " + timestamp);
-//        Instant instant = (Instant) timestamp;
-
+        final long insertCount = 10;
 
         LocalDateTime baseTestTime = LocalDateTime.of(2019, 4, 17, 18, 0, 0);
         Instant[] distinctDates = {
-//                baseTestTime.toInstant(ZoneOffset.UTC),
-//                baseTestTime.plusDays(1).toInstant(ZoneOffset.UTC),
-//                baseTestTime.plusDays(2).toInstant(ZoneOffset.UTC)
-                Instant.now()        };
+                baseTestTime.toInstant(ZoneOffset.UTC),
+                baseTestTime.plusDays(1).toInstant(ZoneOffset.UTC),
+                baseTestTime.plusDays(2).toInstant(ZoneOffset.UTC)};
 
         helper.useConnection(connection -> {
             Dao<Columns> dao = daoBuilder().buildDao(connection);
@@ -115,8 +109,6 @@ public class SelectDistinctTest {
                 columns.setStringThing(String.valueOf(idx));
                 columns.setIntegerThing(idx);
 
-//                LocalDateTime localDateTime = baseTestTime.plusDays(idx % 3);
-//                Instant instant = localDateTime.toInstant(ZoneOffset.UTC);
                 Instant instant = distinctDates[(int)idx%3];
                 columns.setTimeStampThing(instant);
 
@@ -124,23 +116,9 @@ public class SelectDistinctTest {
             }
         });
         helper.useConnection(connection -> {
-            System.out.println("DOING READ TEST");
             Dao<Columns> dao = daoBuilder().buildDao(connection);
-            List<Columns> found = dao.selectAll();
-            List<Instant> expectedDates = Arrays.asList(distinctDates);
-            found.stream().forEach(
-                    item -> Assert.assertTrue(expectedDates.contains(item.getTimeStampThing()))
-            );
-            Assert.assertEquals(insertCount, found.size());
-        });
-
-        helper.useConnection(connection -> {
-            System.out.println("DOING DISTINCT TEST");
-            Dao<Columns> dao = daoBuilder().buildDao(connection);
-            List<Instant> values = dao.selectDistinct( "timestamp_column",new Where());
-            AssertHelp.sameContents(distinctDates, values);
-            long count = dao.runLongFunction(SqlFunction.COUNT, "integer_column", new Where());
-            Assert.assertEquals(insertCount, count);
+            List<Instant> dbDates = dao.selectDistinct("timestamp_column", new Where());
+            AssertHelp.sameContents(distinctDates, dbDates);
         });
     }
 

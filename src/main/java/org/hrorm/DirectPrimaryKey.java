@@ -99,7 +99,7 @@ public class DirectPrimaryKey<ENTITY> implements PrimaryKey<ENTITY, ENTITY> {
     }
 
     @Override
-    public Column<Long, ENTITY, ENTITY> withPrefix(String newPrefix, Prefixer prefixer) {
+    public Column<Long, Long, ENTITY, ENTITY> withPrefix(String newPrefix, Prefixer prefixer) {
         return new DirectPrimaryKey<>(newPrefix, name, sequenceName, getter, setter);
     }
 
@@ -127,5 +127,10 @@ public class DirectPrimaryKey<ENTITY> implements PrimaryKey<ENTITY, ENTITY> {
     @Override
     public void setSqlTypeName(String sqlTypeName) {
         this.sqlTypeName = sqlTypeName;
+    }
+
+    @Override
+    public Long toClassType(Long value){
+        return value;
     }
 }

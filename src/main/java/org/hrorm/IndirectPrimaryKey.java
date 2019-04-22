@@ -102,7 +102,7 @@ public class IndirectPrimaryKey<ENTITY, BUILDER> implements PrimaryKey<ENTITY, B
     }
 
     @Override
-    public Column<Long, ENTITY, BUILDER> withPrefix(String newPrefix, Prefixer prefixer) {
+    public Column<Long, Long, ENTITY, BUILDER> withPrefix(String newPrefix, Prefixer prefixer) {
         return new IndirectPrimaryKey<>(newPrefix, name, sequenceName, getter, setter);
     }
 
@@ -130,5 +130,10 @@ public class IndirectPrimaryKey<ENTITY, BUILDER> implements PrimaryKey<ENTITY, B
     @Override
     public void setSqlTypeName(String sqlTypeName) {
         this.sqlTypeName = sqlTypeName;
+    }
+
+    @Override
+    public Long toClassType(Long dbType) {
+        return dbType;
     }
 }

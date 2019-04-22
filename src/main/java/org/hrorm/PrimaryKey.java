@@ -10,7 +10,7 @@ package org.hrorm;
  * @param <ENTITY> The type of the entity being represented
  * @param <BUILDER> The type of the class that can construct new <code>ENTITY</code> instances
  */
-public interface PrimaryKey<ENTITY, BUILDER> extends Column<Long, ENTITY, BUILDER> {
+public interface PrimaryKey<ENTITY, BUILDER> extends Column<Long, Long, ENTITY, BUILDER> {
 
     /**
      * Sets the key onto the object

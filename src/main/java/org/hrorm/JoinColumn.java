@@ -22,7 +22,7 @@ import java.util.function.Function;
  * @param <ENTITYBUILDER> the class that can construct new entity instances
  * @param <JOINEDBUILDER> the class that can construct instances of the joined entity
  */
-public class JoinColumn<ENTITY, JOINED, ENTITYBUILDER, JOINEDBUILDER> implements Column<Long, ENTITY, ENTITYBUILDER> {
+public class JoinColumn<ENTITY, JOINED, ENTITYBUILDER, JOINEDBUILDER> implements Column<Long, Long, ENTITY, ENTITYBUILDER> {
 
     private final String name;
     private final String prefix;
@@ -74,7 +74,7 @@ public class JoinColumn<ENTITY, JOINED, ENTITYBUILDER, JOINEDBUILDER> implements
     @Override
     public PopulateResult populate(ENTITYBUILDER builder, ResultSet resultSet) throws SQLException {
         JOINEDBUILDER joinedBuilder = daoDescriptor.supplier().get();
-        for (Column<?, JOINED, JOINEDBUILDER> column: daoDescriptor.nonJoinColumns()) {
+        for (Column<?, ?, JOINED, JOINEDBUILDER> column: daoDescriptor.nonJoinColumns()) {
             PopulateResult result = column.populate(joinedBuilder, resultSet);
             if ( result == PopulateResult.NoPrimaryKey ){
                 return PopulateResult.Ignore;
@@ -120,7 +120,7 @@ public class JoinColumn<ENTITY, JOINED, ENTITYBUILDER, JOINEDBUILDER> implements
         return new JoinColumn(name, newPrefix, prefixer, getter, setter, daoDescriptor, nullable);
     }
 
-    public List<Column<?, JOINED, JOINEDBUILDER>> getNonJoinColumns(){
+    public List<Column<?, ?, JOINED, JOINEDBUILDER>> getNonJoinColumns(){
         return this.daoDescriptor.nonJoinColumns();
     }
 
@@ -147,5 +147,10 @@ public class JoinColumn<ENTITY, JOINED, ENTITYBUILDER, JOINEDBUILDER> implements
     @Override
     public void setSqlTypeName(String sqlTypeName) {
         this.sqlTypeName = sqlTypeName;
+    }
+
+    @Override
+    public Long toClassType(Long dbType) {
+        return dbType;
     }
 }

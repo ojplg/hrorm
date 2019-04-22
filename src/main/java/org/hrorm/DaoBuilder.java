@@ -96,7 +96,7 @@ public class DaoBuilder<ENTITY> implements SchemaDescriptor<ENTITY, ENTITY> {
      * @return This instance.
      */
     public DaoBuilder<ENTITY> withStringColumn(String columnName, Function<ENTITY, String> getter, BiConsumer<ENTITY, String> setter){
-        Column<?,ENTITY, ENTITY> column = DataColumnFactory.stringColumn(columnName, daoBuilderHelper.getPrefix(), getter, setter, true);
+        Column<?,?,ENTITY, ENTITY> column = DataColumnFactory.stringColumn(columnName, daoBuilderHelper.getPrefix(), getter, setter, true);
         columnCollection.addDataColumn(column);
         return this;
     }
@@ -110,7 +110,7 @@ public class DaoBuilder<ENTITY> implements SchemaDescriptor<ENTITY, ENTITY> {
      * @return This instance.
      */
     public DaoBuilder<ENTITY> withLongColumn(String columnName, Function<ENTITY, Long> getter, BiConsumer<ENTITY, Long> setter){
-        Column<?,ENTITY, ENTITY> column = DataColumnFactory.longColumn(columnName, daoBuilderHelper.getPrefix(), getter, setter, true);
+        Column<?,?,ENTITY, ENTITY> column = DataColumnFactory.longColumn(columnName, daoBuilderHelper.getPrefix(), getter, setter, true);
         columnCollection.addDataColumn(column);
         return this;
     }
@@ -124,7 +124,7 @@ public class DaoBuilder<ENTITY> implements SchemaDescriptor<ENTITY, ENTITY> {
      * @return This instance.
      */
     public DaoBuilder<ENTITY> withBigDecimalColumn(String columnName, Function<ENTITY, BigDecimal> getter, BiConsumer<ENTITY, BigDecimal> setter){
-        Column<?,ENTITY, ENTITY> column = DataColumnFactory.bigDecimalColumn(columnName, daoBuilderHelper.getPrefix(), getter, setter, true);
+        Column<?,?,ENTITY, ENTITY> column = DataColumnFactory.bigDecimalColumn(columnName, daoBuilderHelper.getPrefix(), getter, setter, true);
         columnCollection.addDataColumn(column);
         return this;
     }
@@ -142,7 +142,7 @@ public class DaoBuilder<ENTITY> implements SchemaDescriptor<ENTITY, ENTITY> {
      * @return This instance.
      */
     public <E> DaoBuilder<ENTITY> withConvertingStringColumn(String columnName, Function<ENTITY, E> getter, BiConsumer<ENTITY, E> setter, Converter<E, String> converter){
-        Column<?,ENTITY, ENTITY> column = DataColumnFactory.stringConverterColumn(columnName, daoBuilderHelper.getPrefix(), getter, setter, converter, true);
+        Column<?,?,ENTITY, ENTITY> column = DataColumnFactory.stringConverterColumn(columnName, daoBuilderHelper.getPrefix(), getter, setter, converter, true);
         columnCollection.addDataColumn(column);
         return this;
     }
@@ -156,7 +156,7 @@ public class DaoBuilder<ENTITY> implements SchemaDescriptor<ENTITY, ENTITY> {
      * @return This instance.
      */
     public DaoBuilder<ENTITY> withInstantColumn(String columnName, Function<ENTITY, Instant> getter, BiConsumer<ENTITY, Instant> setter){
-        Column<?,ENTITY, ENTITY> column = DataColumnFactory.instantColumn(columnName, daoBuilderHelper.getPrefix(), getter, setter, true);
+        Column<?,?,ENTITY, ENTITY> column = DataColumnFactory.instantColumn(columnName, daoBuilderHelper.getPrefix(), getter, setter, true);
         columnCollection.addDataColumn(column);
         return this;
     }
@@ -171,7 +171,7 @@ public class DaoBuilder<ENTITY> implements SchemaDescriptor<ENTITY, ENTITY> {
      * @return This instance.
      */
     public DaoBuilder<ENTITY> withBooleanColumn(String columnName, Function<ENTITY, Boolean> getter, BiConsumer<ENTITY, Boolean> setter){
-        Column<?,ENTITY, ENTITY> column = DataColumnFactory.booleanColumn(columnName, daoBuilderHelper.getPrefix(), getter, setter, true);
+        Column<?,?,ENTITY, ENTITY> column = DataColumnFactory.booleanColumn(columnName, daoBuilderHelper.getPrefix(), getter, setter, true);
         columnCollection.addDataColumn(column);
         return this;
     }
@@ -188,7 +188,7 @@ public class DaoBuilder<ENTITY> implements SchemaDescriptor<ENTITY, ENTITY> {
      * @return This instance.
      */
     public DaoBuilder<ENTITY> withStringBooleanColumn(String columnName, Function<ENTITY, Boolean> getter, BiConsumer<ENTITY, Boolean> setter){
-        Column<?,ENTITY, ENTITY> column = DataColumnFactory.textBackedBooleanColumn(columnName, daoBuilderHelper.getPrefix(), getter, setter, true);
+        Column<?,?,ENTITY, ENTITY> column = DataColumnFactory.textBackedBooleanColumn(columnName, daoBuilderHelper.getPrefix(), getter, setter, true);
         columnCollection.addDataColumn(column);
         return this;
     }
@@ -204,7 +204,7 @@ public class DaoBuilder<ENTITY> implements SchemaDescriptor<ENTITY, ENTITY> {
      * @return This instance.
      */
     public DaoBuilder<ENTITY> withIntegerBooleanColumn(String columnName, Function<ENTITY, Boolean> getter, BiConsumer<ENTITY, Boolean> setter){
-        Column<?,ENTITY, ENTITY> column = DataColumnFactory.longBackedBooleanColumn(columnName, daoBuilderHelper.getPrefix(), getter, setter, true);
+        Column<?,?,ENTITY, ENTITY> column = DataColumnFactory.longBackedBooleanColumn(columnName, daoBuilderHelper.getPrefix(), getter, setter, true);
         columnCollection.addDataColumn(column);
         return this;
     }
@@ -369,7 +369,7 @@ public class DaoBuilder<ENTITY> implements SchemaDescriptor<ENTITY, ENTITY> {
                                                     Function<ENTITY, T> getter,
                                                     BiConsumer<ENTITY, T> setter,
                                                     GenericColumn<T> genericColumn){
-        Column<?,ENTITY, ENTITY> column = DataColumnFactory.genericColumn(columnName, daoBuilderHelper.getPrefix(), getter, setter, genericColumn, true);
+        Column<?,?,ENTITY, ENTITY> column = DataColumnFactory.genericColumn(columnName, daoBuilderHelper.getPrefix(), getter, setter, genericColumn, true);
         columnCollection.addDataColumn(column);
         return this;
     }
@@ -397,7 +397,7 @@ public class DaoBuilder<ENTITY> implements SchemaDescriptor<ENTITY, ENTITY> {
                                                                BiConsumer<ENTITY, U> setter,
                                                                GenericColumn<T> genericColumn,
                                                                Converter<U,T> converter){
-        Column<?,ENTITY, ENTITY> column = DataColumnFactory.convertedGenericColumn(columnName, daoBuilderHelper.getPrefix(), getter, setter, genericColumn, converter,true);
+        Column<?,?,ENTITY, ENTITY> column = DataColumnFactory.convertedGenericColumn(columnName, daoBuilderHelper.getPrefix(), getter, setter, genericColumn, converter,true);
         columnCollection.addDataColumn(column);
         return this;
     }

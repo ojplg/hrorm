@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 public class SqlBuilder<ENTITY> implements Queries {
 
     private final String table;
-    private final List<? extends Column<?,ENTITY,?>> nonJoinColumns;
+    private final List<? extends Column<?,?,ENTITY,?>> nonJoinColumns;
     private final List<? extends JoinColumn<ENTITY, ?, ?, ?>> joinColumns;
     private final PrimaryKey<ENTITY,?> primaryKey;
 

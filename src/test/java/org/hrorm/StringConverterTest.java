@@ -1,6 +1,7 @@
 package org.hrorm;
 
 import org.hrorm.examples.Columns;
+import org.hrorm.examples.EnumeratedColor;
 import org.hrorm.examples.EnumeratedColorConverter;
 import org.junit.Assert;
 import org.junit.Test;
@@ -16,7 +17,7 @@ public class StringConverterTest {
     @Test
     public void testSetValueHandlesNulls() throws SQLException {
 
-        Column<String, Columns, Columns> column = DataColumnFactory.stringConverterColumn(
+        Column<String, EnumeratedColor, Columns, Columns> column = DataColumnFactory.stringConverterColumn(
                 "COLOR", "A", Columns::getColorThing, Columns::setColorThing, new EnumeratedColorConverter(), true);
 
         Columns columns = new Columns();
@@ -32,7 +33,7 @@ public class StringConverterTest {
     @Test
     public void testPopulateHandlesNulls() throws SQLException {
 
-        Column<String, Columns, Columns> column = DataColumnFactory.stringConverterColumn(
+        Column<String, EnumeratedColor, Columns, Columns> column = DataColumnFactory.stringConverterColumn(
                 "COLOR", "A", Columns::getColorThing, Columns::setColorThing, new EnumeratedColorConverter(), true);
 
         Columns columns = new Columns();
@@ -48,7 +49,7 @@ public class StringConverterTest {
 
     @Test
     public void testPreventsNullsWhenSet() throws SQLException {
-        Column<String, Columns, Columns> column = DataColumnFactory.stringConverterColumn(
+        Column<String, EnumeratedColor, Columns, Columns> column = DataColumnFactory.stringConverterColumn(
                 "COLOR", "A", Columns::getColorThing, Columns::setColorThing, new EnumeratedColorConverter(), true);
         column.notNull();
 

@@ -32,7 +32,7 @@ public class SqlRunner<ENTITY, BUILDER> {
     private static final Logger logger = Logger.getLogger("org.hrorm");
 
     private final Connection connection;
-    private final List<Column<?,ENTITY, BUILDER>> allColumns;
+    private final List<Column<?, ?,ENTITY, BUILDER>> allColumns;
 
     public SqlRunner(Connection connection){
         this.connection = connection;
@@ -200,7 +200,6 @@ public class SqlRunner<ENTITY, BUILDER> {
 
             while(resultSet.next()){
                 T value = reader.read(resultSet, columnName);
-                System.out.println("READ DISTINCT " + value + " with type " + value.getClass());
                 values.add(value);
             }
             return values;
@@ -236,7 +235,7 @@ public class SqlRunner<ENTITY, BUILDER> {
             preparedStatement = connection.prepareStatement(sql);
 
             int idx = 1;
-            for(Column<?, ENTITY, BUILDER> column : allColumns){
+            for(Column<?, ?, ENTITY, BUILDER> column : allColumns){
                 if( column.isPrimaryKey() ) {
                     if ( ! isUpdate ) {
                         preparedStatement.setLong(idx, envelope.getId());
@@ -342,7 +341,7 @@ public class SqlRunner<ENTITY, BUILDER> {
             throws SQLException {
         BUILDER item = supplier.get();
 
-        for (Column<?, ENTITY, BUILDER> column: allColumns) {
+        for (Column<?, ?, ENTITY, BUILDER> column: allColumns) {
             PopulateResult populateResult = column.populate(item, resultSet);
             populateResult.populateChildren(connection);
         }

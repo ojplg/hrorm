@@ -74,7 +74,7 @@ public class ParentColumnImpl<CHILD, PARENT, CHILDBUILDER, PARENTBUILDER> implem
     }
 
     @Override
-    public Column<Long, CHILD, CHILDBUILDER> withPrefix(String prefix, Prefixer prefixer) {
+    public Column<Long, Long, CHILD, CHILDBUILDER> withPrefix(String prefix, Prefixer prefixer) {
         return new ParentColumnImpl<>(name, prefix, getter, setter, parentPrimaryKey, nullable);
     }
 
@@ -110,4 +110,9 @@ public class ParentColumnImpl<CHILD, PARENT, CHILDBUILDER, PARENTBUILDER> implem
 
     @Override
     public void setSqlTypeName(String sqlTypeName) { this.sqlTypeName = sqlTypeName; }
+
+    @Override
+    public Long toClassType(Long value){
+        return value;
+    }
 }

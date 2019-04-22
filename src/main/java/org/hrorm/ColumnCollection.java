@@ -17,10 +17,10 @@ public class ColumnCollection<ENTITY,BUILDER> {
 
     private PrimaryKey<ENTITY, BUILDER> primaryKey;
     private ParentColumn<ENTITY, ?, BUILDER, ?> parentColumn;
-    private List<Column<?, ENTITY, BUILDER>> dataColumns;
+    private List<Column<?, ?, ENTITY, BUILDER>> dataColumns;
     private List<JoinColumn<ENTITY, ?, BUILDER, ?>> joinColumns;
 
-    private Column<?, ENTITY, BUILDER> lastColumnAdded;
+    private Column<?, ?, ENTITY, BUILDER> lastColumnAdded;
 
     private final List<List<String>> uniquenessConstraints = new ArrayList<>();
 
@@ -31,7 +31,7 @@ public class ColumnCollection<ENTITY,BUILDER> {
 
     public ColumnCollection(PrimaryKey<ENTITY, BUILDER> primaryKey,
                             ParentColumn<ENTITY, ?, BUILDER, ?> parentColumn,
-                            List<Column<?, ENTITY, BUILDER>> dataColumns,
+                            List<Column<?, ?, ENTITY, BUILDER>> dataColumns,
                             List<JoinColumn<ENTITY, ?, BUILDER, ?>> joinColumns) {
         this.primaryKey = primaryKey;
         this.parentColumn = parentColumn;
@@ -44,7 +44,7 @@ public class ColumnCollection<ENTITY,BUILDER> {
         joinColumns.add(joinColumn);
     }
 
-    public void addDataColumn(Column<?, ENTITY, BUILDER> dataColumn) {
+    public void addDataColumn(Column<?, ?, ENTITY, BUILDER> dataColumn) {
         lastColumnAdded = dataColumn;
         dataColumns.add(dataColumn);
     }
@@ -73,7 +73,7 @@ public class ColumnCollection<ENTITY,BUILDER> {
         this.parentColumn = parentColumn;
     }
 
-    public List<Column<?, ENTITY, BUILDER>> getDataColumns() {
+    public List<Column<?, ?, ENTITY, BUILDER>> getDataColumns() {
         return Collections.unmodifiableList(dataColumns);
     }
 
@@ -95,26 +95,26 @@ public class ColumnCollection<ENTITY,BUILDER> {
         lastColumnAdded.setSqlTypeName(sqlTypeName);
     }
 
-    public List<Column<?, ENTITY, BUILDER>> nonJoinColumns() {
+    public List<Column<?, ?, ENTITY, BUILDER>> nonJoinColumns() {
         return nonJoinColumns(primaryKey, parentColumn, dataColumns);
     }
 
-    public List<Column<?, ENTITY, BUILDER>> allColumns() {
+    public List<Column<?, ?, ENTITY, BUILDER>> allColumns() {
         return allColumns(nonJoinColumns(), joinColumns);
     }
 
-    public static <E,B> List<Column<?, E, B>> allColumns(List<Column<?, E,B>> nonJoinColumns,
+    public static <E,B> List<Column<?, ?, E, B>> allColumns(List<Column<?, ?, E,B>> nonJoinColumns,
                                                          List<JoinColumn<E,?,B,?>> joinColumns) {
-        List<Column<?, E, B>> columns = new ArrayList<>();
+        List<Column<?, ?, E, B>> columns = new ArrayList<>();
         columns.addAll(nonJoinColumns);
         columns.addAll(joinColumns);
         return Collections.unmodifiableList(columns);
     }
 
-    public static <E, B> List<Column<?, E, B>> nonJoinColumns(PrimaryKey<E, B> primaryKey,
+    public static <E, B> List<Column<?, ?, E, B>> nonJoinColumns(PrimaryKey<E, B> primaryKey,
                                                               ParentColumn<E, ?, B, ?> parentColumn,
-                                                              List<Column<?, E, B>> dataColumns) {
-        List<Column<?, E, B>> columns = new ArrayList<>();
+                                                              List<Column<?, ?, E, B>> dataColumns) {
+        List<Column<?, ?, E, B>> columns = new ArrayList<>();
         if (primaryKey != null) {
             columns.add(primaryKey);
         }
@@ -146,8 +146,8 @@ public class ColumnCollection<ENTITY,BUILDER> {
         return Collections.unmodifiableList(uniquenessConstraints);
     }
 
-    public Column<?, ENTITY, BUILDER> columnByName(String name){
-        for(Column<?, ENTITY, BUILDER> column : allColumns()){
+    public Column<?, ?, ENTITY, BUILDER> columnByName(String name){
+        for(Column<?, ?, ENTITY, BUILDER> column : allColumns()){
             if( column.getName().equalsIgnoreCase(name)){
                 return column;
             }

@@ -33,7 +33,7 @@ public class RelativeDaoDescriptor<ENTITY, PARENT, ENTITYBUILDER> implements Dao
         this.childrenDescriptors = originalDaoDescriptor.childrenDescriptors();
         this.buildFunction = originalDaoDescriptor.buildFunction();
 
-        List<Column<?, ENTITY, ENTITYBUILDER>> dataColumns = originalDaoDescriptor.dataColumns().stream().map(c -> c.withPrefix(newPrefix, prefixer)).collect(Collectors.toList());
+        List<Column<?, ?, ENTITY, ENTITYBUILDER>> dataColumns = originalDaoDescriptor.dataColumns().stream().map(c -> c.withPrefix(newPrefix, prefixer)).collect(Collectors.toList());
         List<JoinColumn<ENTITY,?,ENTITYBUILDER,?>> joinColumns = resetColumnPrefixes(prefixer, newPrefix, originalDaoDescriptor.joinColumns());
         PrimaryKey<ENTITY, ENTITYBUILDER> primaryKey = (PrimaryKey<ENTITY, ENTITYBUILDER>) originalDaoDescriptor.primaryKey().withPrefix(newPrefix, prefixer);
         ParentColumn<ENTITY, PARENT, ENTITYBUILDER, ?> parentColumn = null;
