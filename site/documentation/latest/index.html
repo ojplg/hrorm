@@ -279,10 +279,12 @@
             <h2>Dao Builders</h2>
             <hr>
 
-            <p>Hrorm provides two kinds of builders: one for Javabean style entities (<code>DaoBuilder</code>) and
-                one for immutable object models with separate builder objects (<code>IndirectDaoBuilder</code>).
-                Both support very similar methods, and though most of the examples below show a plain
-                <code>DaoBuilder</code> building for an immutable model is almost identical.</p>
+            <p>Hrorm provides three builder classes: one for Javabean style entities (<code>DaoBuilder</code>),
+                one for immutable object models with separate builder objects (<code>IndirectDaoBuilder</code>),
+                and one for keyless entities (<code>IndirectKeylessDaoBuilder</code>, that works for both
+                mutable or immutable classes).
+                All three support very similar methods, and though most of the examples below show a plain
+                <code>DaoBuilder</code>, using an immutable or keyless model is very similar.</p>
 
             <a id="one_table"></a>
             <div class="card fluid">
