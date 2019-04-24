@@ -487,13 +487,19 @@
         ResultSet::getInt,
         java.sql.Types.Integer);</pre>
 
-                <p>The example above is particularly simple, since the JDBC already knows how to
-                handle <code>int</code> values, but the interfaces allow you to write code
-                of arbitrary complexity and inject it into hrorm.</p>
+                <p>
+                    The example above is particularly simple, since the JDBC already knows how to
+                    handle <code>int</code> values, but the interfaces allow you to write code
+                    of arbitrary complexity and inject it into hrorm. Moreover, hrorm already
+                    provides a column of that type as a static instance variable,
+                    <code>GenericColumn.INTEGER</code>, as well as a number of other types.
+                </p>
 
-                <p>Once you have defined a <code>GenericColumn</code>, you add it to your DAO builder
-                using the <code>withGenericColumn()</code> method, very similarly to the built-in
-                column types.</p>
+                <p>
+                    Once you have defined a <code>GenericColumn</code>, you add it to your DAO builder
+                    using the <code>withGenericColumn()</code> method, very similarly to the built-in provides
+                    column types.
+                </p>
 
                 <p>Additionally, you can combine a <code>GenericColumn</code> with a
                     <a href="/javadocs/latest/org/hrorm/Converter.html"><code>Converter</code></a>.
