@@ -15,10 +15,10 @@ import java.util.function.Supplier;
  * @param <RIGHT> The type of the other of the entities being associated
  */
 public class AssociationDaoBuilder<LEFT, RIGHT>
-        implements SchemaDescriptor<Association<LEFT, RIGHT>, Association<LEFT, RIGHT>> {
+        implements SchemaDescriptor<Long, Association<LEFT, RIGHT>, Association<LEFT, RIGHT>> {
 
-    private final DaoDescriptor<LEFT, ?> leftDaoDescriptor;
-    private final DaoDescriptor<RIGHT, ?> rightDaoDescriptor;
+    private final DaoDescriptor<Long, LEFT, ?> leftDaoDescriptor;
+    private final DaoDescriptor<Long, RIGHT, ?> rightDaoDescriptor;
 
     private String tableName;
     private String primaryKeyName;
@@ -36,8 +36,8 @@ public class AssociationDaoBuilder<LEFT, RIGHT>
      * @param rightDaoDescriptor the <code>DaoBuilder</code> or other descriptor
      *                          of one of other of the entities being associated
      */
-    public AssociationDaoBuilder(DaoDescriptor<LEFT, ?> leftDaoDescriptor,
-                                 DaoDescriptor<RIGHT, ?> rightDaoDescriptor){
+    public AssociationDaoBuilder(DaoDescriptor<Long, LEFT, ?> leftDaoDescriptor,
+                                 DaoDescriptor<Long, RIGHT, ?> rightDaoDescriptor){
         this.leftDaoDescriptor = leftDaoDescriptor;
         this.rightDaoDescriptor = rightDaoDescriptor;
     }

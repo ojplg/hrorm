@@ -34,7 +34,7 @@ public abstract class AbstractDao<ENTITY, BUILDER> implements KeylessDaoDescript
                        KeylessDaoDescriptor<ENTITY, BUILDER> keylessDaoDescriptor){
         this.connection = connection;
         this.tableName = keylessDaoDescriptor.tableName();
-        this.columnCollection = keylessDaoDescriptor.getColumnCollection();
+        this.columnCollection = (ColumnCollection<Long, ENTITY, BUILDER>) keylessDaoDescriptor.getColumnCollection();
         this.supplier = keylessDaoDescriptor.supplier();
         this.buildFunction = keylessDaoDescriptor.buildFunction();
 
@@ -43,10 +43,10 @@ public abstract class AbstractDao<ENTITY, BUILDER> implements KeylessDaoDescript
     }
 
     public AbstractDao(Connection connection,
-                       DaoDescriptor<ENTITY, BUILDER> daoDescriptor){
+                       DaoDescriptor<Long, ENTITY, BUILDER> daoDescriptor){
         this.connection = connection;
         this.tableName = daoDescriptor.tableName();
-        this.columnCollection = daoDescriptor.getColumnCollection();
+        this.columnCollection = (ColumnCollection<Long, ENTITY, BUILDER>) daoDescriptor.getColumnCollection();
         this.supplier = daoDescriptor.supplier();
         this.buildFunction = daoDescriptor.buildFunction();
 

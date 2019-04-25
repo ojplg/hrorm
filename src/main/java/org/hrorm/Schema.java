@@ -67,7 +67,7 @@ public class Schema {
         return constraints.stream();
     }
 
-    private Stream<String> childConstraints(DaoDescriptor<?,?> descriptor){
+    private Stream<String> childConstraints(DaoDescriptor<?,?,?> descriptor){
         List<String> constraints = new ArrayList<>();
         for( ChildrenDescriptor<?,?,?,?> childDescriptor : descriptor.childrenDescriptors()){
             String constraint = foreignKeyConstraint(
@@ -95,7 +95,7 @@ public class Schema {
         return buf.toString();
     }
 
-    private List<String> uniquenessConstraints(SchemaDescriptor<?,?> descriptor){
+    private List<String> uniquenessConstraints(SchemaDescriptor<?,?,?> descriptor){
         List<String> constraints = new ArrayList<>();
         for(List<String> columnNames : descriptor.uniquenessConstraints()){
             String constraint = uniquenessConstraint(descriptor.tableName(), columnNames);
@@ -104,14 +104,14 @@ public class Schema {
         return constraints;
     }
 
-    private Stream<String> allConstraints(SchemaDescriptor<?,?> descriptor){
+    private Stream<String> allConstraints(SchemaDescriptor<?,?,?> descriptor){
         return Stream.of(
                 joinConstraints(descriptor),
                 childConstraints(descriptor),
                 uniquenessConstraints(descriptor).stream()).flatMap(s -> s);
     }
 
-    private String tablesSql(DaoDescriptor<?,?> descriptor){
+    private String tablesSql(DaoDescriptor<?, ?,?> descriptor){
         StringBuilder buf = new StringBuilder();
 
         buf.append("create table ");

@@ -19,7 +19,7 @@ import java.util.function.Supplier;
  *
  * @param <ENTITY> The class that the Dao will support.
  */
-public class DaoBuilder<ENTITY> implements SchemaDescriptor<ENTITY, ENTITY> {
+public class DaoBuilder<ENTITY> implements SchemaDescriptor<Long, ENTITY, ENTITY> {
 
     private final ColumnCollection<Long, ENTITY,ENTITY> columnCollection = new ColumnCollection<>();
     private final DaoBuilderHelper<ENTITY, ENTITY> daoBuilderHelper;
@@ -233,7 +233,7 @@ public class DaoBuilder<ENTITY> implements SchemaDescriptor<ENTITY, ENTITY> {
      * @param <U> The type of the data element.
      * @return This instance.
      */
-    public <U> DaoBuilder<ENTITY> withJoinColumn(String columnName, Function<ENTITY, U> getter, BiConsumer<ENTITY,U> setter, DaoDescriptor<U,?> daoDescriptor){
+    public <U> DaoBuilder<ENTITY> withJoinColumn(String columnName, Function<ENTITY, U> getter, BiConsumer<ENTITY,U> setter, DaoDescriptor<Long, U,?> daoDescriptor){
         JoinColumn<ENTITY,U, ENTITY,?> joinColumn = new JoinColumn<>(columnName, daoBuilderHelper.getPrefix(), daoBuilderHelper.getPrefixer(), getter, setter, daoDescriptor, true);
         columnCollection.addJoinColumn(joinColumn);
         return this;
@@ -266,7 +266,7 @@ public class DaoBuilder<ENTITY> implements SchemaDescriptor<ENTITY, ENTITY> {
      * @param <CHILDBUILDER> The type of the builder of child data elements
      * @return This instance.
      */
-    public <CHILD,CHILDBUILDER> DaoBuilder<ENTITY> withChildren(Function<ENTITY, List<CHILD>> getter, BiConsumer<ENTITY, List<CHILD>> setter, DaoDescriptor<CHILD,CHILDBUILDER> childDaoDescriptor){
+    public <CHILD,CHILDBUILDER> DaoBuilder<ENTITY> withChildren(Function<ENTITY, List<CHILD>> getter, BiConsumer<ENTITY, List<CHILD>> setter, DaoDescriptor<Long, CHILD, CHILDBUILDER> childDaoDescriptor){
         if( ! childDaoDescriptor.hasParent() ){
             throw new HrormException("Children must have a parent column");
         }

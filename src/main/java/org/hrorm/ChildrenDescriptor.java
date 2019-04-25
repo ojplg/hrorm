@@ -20,7 +20,7 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
 
     private final Function<PARENT, List<CHILD>> getter;
     private final BiConsumer<PARENTBUILDER, List<CHILD>> setter;
-    private final DaoDescriptor<CHILD,CHILDBUILDER> childDaoDescriptor;
+    private final DaoDescriptor<Long, CHILD,CHILDBUILDER> childDaoDescriptor;
     private final BiConsumer<CHILDBUILDER, PARENT> parentSetter;
 
     private final Function<PARENTBUILDER, PARENT> parentBuildFunction;
@@ -31,7 +31,7 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
 
     public ChildrenDescriptor(Function<PARENT, List<CHILD>> getter,
                               BiConsumer<PARENTBUILDER, List<CHILD>> setter,
-                              DaoDescriptor<CHILD,CHILDBUILDER> childDaoDescriptor,
+                              DaoDescriptor<Long, CHILD,CHILDBUILDER> childDaoDescriptor,
                               PrimaryKey<Long,PARENT, PARENTBUILDER> parentPrimaryKey,
                               Function<PARENTBUILDER, PARENT> parentBuildFunction) {
         this.getter = getter;

@@ -13,15 +13,15 @@ import java.util.List;
  * @param <ENTITY> The type representing the enitity being persisted.
  * @param <ENTITYBUILDER> The type of object that can build an <code>ENTITY</code> instance.
  */
-public interface DaoDescriptor<ENTITY, ENTITYBUILDER> extends KeylessDaoDescriptor<ENTITY, ENTITYBUILDER> {
+public interface DaoDescriptor<PK, ENTITY, ENTITYBUILDER> extends KeylessDaoDescriptor<ENTITY, ENTITYBUILDER> {
 
     /**
      * The primary key for objects of type <code>ENTITY</code>
      *
      * @return the primary key
      */
-    default PrimaryKey<Long,ENTITY, ENTITYBUILDER> primaryKey(){
-        return getColumnCollection().getPrimaryKey();
+    default PrimaryKey<PK, ENTITY, ENTITYBUILDER> primaryKey(){
+        return (PrimaryKey<PK,ENTITY, ENTITYBUILDER>) getColumnCollection().getPrimaryKey();
     }
 
     /**

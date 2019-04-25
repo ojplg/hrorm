@@ -20,16 +20,16 @@ public class SqlBuilder<ENTITY> implements Queries {
     private final String table;
     private final List<? extends Column<?,?,ENTITY,?>> nonJoinColumns;
     private final List<? extends JoinColumn<ENTITY, ?, ?, ?>> joinColumns;
-    private final PrimaryKey<?,ENTITY,?> primaryKey;
+    private final PrimaryKey<Long,ENTITY,?> primaryKey;
 
-    public SqlBuilder(DaoDescriptor<ENTITY,?> daoDescriptor){
+    public SqlBuilder(DaoDescriptor<Long, ENTITY, ?> daoDescriptor){
         this.primaryKey = daoDescriptor.primaryKey();
         this.table = daoDescriptor.tableName();
         this.nonJoinColumns = daoDescriptor.nonJoinColumns();
         this.joinColumns = daoDescriptor.joinColumns();
     }
 
-    public SqlBuilder(KeylessDaoDescriptor<ENTITY,?> daoDescriptor){
+    public SqlBuilder(KeylessDaoDescriptor<ENTITY, ?> daoDescriptor){
         this.table = daoDescriptor.tableName();
         this.nonJoinColumns = daoDescriptor.nonJoinColumns();
         this.joinColumns = daoDescriptor.joinColumns();

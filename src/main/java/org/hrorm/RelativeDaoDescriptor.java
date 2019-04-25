@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
  * @param <PARENT> The type of the parent of type <code>ENTITY</code>, if there is one
  * @param <ENTITYBUILDER> The type that can build a <code>ENTITY</code>
  */
-public class RelativeDaoDescriptor<ENTITY, PARENT, ENTITYBUILDER> implements DaoDescriptor<ENTITY, ENTITYBUILDER> {
+public class RelativeDaoDescriptor<ENTITY, PARENT, ENTITYBUILDER> implements DaoDescriptor<Long, ENTITY, ENTITYBUILDER> {
 
     private final String tableName;
     private final Supplier<ENTITYBUILDER> supplier;
@@ -27,7 +27,7 @@ public class RelativeDaoDescriptor<ENTITY, PARENT, ENTITYBUILDER> implements Dao
     private final List<ChildrenDescriptor<ENTITY,?, ENTITYBUILDER,?>> childrenDescriptors;
     private final Function<ENTITYBUILDER, ENTITY> buildFunction;
 
-    public RelativeDaoDescriptor(DaoDescriptor<ENTITY, ENTITYBUILDER> originalDaoDescriptor, String newPrefix, Prefixer prefixer){
+    public RelativeDaoDescriptor(DaoDescriptor<Long, ENTITY, ENTITYBUILDER> originalDaoDescriptor, String newPrefix, Prefixer prefixer){
         this.tableName = originalDaoDescriptor.tableName();
         this.supplier = originalDaoDescriptor.supplier();
         this.childrenDescriptors = originalDaoDescriptor.childrenDescriptors();

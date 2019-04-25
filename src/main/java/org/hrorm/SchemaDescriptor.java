@@ -9,7 +9,7 @@ import java.util.List;
  * @param <ENTITY> The entity being modeled.
  * @param <BUILDER> The builder class of the entity being modeled.
  */
-public interface SchemaDescriptor<ENTITY, BUILDER> extends DaoDescriptor<ENTITY, BUILDER> {
+public interface SchemaDescriptor<PK, ENTITY, BUILDER> extends DaoDescriptor<PK, ENTITY, BUILDER> {
 
     /**
      * A list of column name lists, each of which should be unique.

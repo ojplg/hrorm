@@ -209,7 +209,7 @@ public class IndirectKeylessDaoBuilder<ENTITY, BUILDER> implements KeylessDaoDes
      * @param <U> The type of the data element.
      * @return This instance.
      */
-    public <U> IndirectKeylessDaoBuilder<ENTITY, BUILDER> withJoinColumn(String columnName, Function<ENTITY, U> getter, BiConsumer<BUILDER,U> setter, DaoDescriptor<U,?> daoDescriptor){
+    public <U> IndirectKeylessDaoBuilder<ENTITY, BUILDER> withJoinColumn(String columnName, Function<ENTITY, U> getter, BiConsumer<BUILDER,U> setter, DaoDescriptor<Long,U,?> daoDescriptor){
         JoinColumn<ENTITY,U, BUILDER,?> joinColumn = new JoinColumn<>(columnName, daoBuilderHelper.getPrefix(), daoBuilderHelper.getPrefixer(), getter, setter, daoDescriptor, true);
         columnCollection.addJoinColumn(joinColumn);
         return this;

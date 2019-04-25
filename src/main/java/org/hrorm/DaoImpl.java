@@ -16,14 +16,14 @@ import java.util.List;
  * @param <BUILDER> The type of object that can build an <code>ENTITY</code> instance.
  * @param <PARENTBUILDER> The type of the object that can build a <code>PARENT</code> instance.
  */
-public class DaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> extends AbstractDao<ENTITY, BUILDER> implements Dao<ENTITY>, DaoDescriptor<ENTITY, BUILDER> {
+public class DaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> extends AbstractDao<ENTITY, BUILDER> implements Dao<ENTITY>, DaoDescriptor<Long,ENTITY, BUILDER> {
 
     private final PrimaryKey<Long,ENTITY, BUILDER> primaryKey;
     private final ParentColumn<ENTITY, PARENT, BUILDER, PARENTBUILDER> parentColumn;
     private final List<ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors;
 
     public DaoImpl(Connection connection,
-                   DaoDescriptor<ENTITY, BUILDER> daoDescriptor){
+                   DaoDescriptor<Long,ENTITY, BUILDER> daoDescriptor){
         super(connection, daoDescriptor);
         this.childrenDescriptors = daoDescriptor.childrenDescriptors();
         if (daoDescriptor.primaryKey() == null) {

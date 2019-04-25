@@ -60,7 +60,7 @@ public class Validator extends KeylessValidator {
         return Collections.emptyList();
     }
 
-    private static List<String> checkSequenceExists(Connection connection, DaoDescriptor<?, ?> daoDescriptor) {
+    private static List<String> checkSequenceExists(Connection connection, DaoDescriptor<?, ?, ?> daoDescriptor) {
         List<String> errors = new ArrayList<>();
         try {
             String sequenceName = daoDescriptor.primaryKey().getSequenceName();

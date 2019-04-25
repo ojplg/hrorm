@@ -23,7 +23,7 @@ import java.util.function.Supplier;
  * @param <BUILDER> The type of the class that can be used to construct new <code>ENTITY</code>
  *                 instances and accept individual data elements.
  */
-public class IndirectDaoBuilder<ENTITY, BUILDER>  implements SchemaDescriptor<ENTITY, BUILDER> {
+public class IndirectDaoBuilder<ENTITY, BUILDER>  implements SchemaDescriptor<Long, ENTITY, BUILDER> {
 
     private final ColumnCollection<Long,ENTITY,BUILDER> columnCollection = new ColumnCollection<>();
     private final DaoBuilderHelper<ENTITY, BUILDER> daoBuilderHelper;
@@ -238,7 +238,7 @@ public class IndirectDaoBuilder<ENTITY, BUILDER>  implements SchemaDescriptor<EN
      * @param <U> The type of the data element.
      * @return This instance.
      */
-    public <U> IndirectDaoBuilder<ENTITY, BUILDER> withJoinColumn(String columnName, Function<ENTITY, U> getter, BiConsumer<BUILDER,U> setter, DaoDescriptor<U,?> daoDescriptor){
+    public <U> IndirectDaoBuilder<ENTITY, BUILDER> withJoinColumn(String columnName, Function<ENTITY, U> getter, BiConsumer<BUILDER,U> setter, DaoDescriptor<Long, U,?> daoDescriptor){
         JoinColumn<ENTITY,U, BUILDER,?> joinColumn = new JoinColumn<>(columnName, daoBuilderHelper.getPrefix(), daoBuilderHelper.getPrefixer(), getter, setter, daoDescriptor, true);
         columnCollection.addJoinColumn(joinColumn);
         return this;
@@ -272,7 +272,7 @@ public class IndirectDaoBuilder<ENTITY, BUILDER>  implements SchemaDescriptor<EN
      */
     public <CHILD,CHILDBUILDER> IndirectDaoBuilder<ENTITY, BUILDER> withChildren(Function<ENTITY, List<CHILD>> getter,
                                                                    BiConsumer<BUILDER, List<CHILD>> setter,
-                                                                   DaoDescriptor<CHILD,CHILDBUILDER> childDaoDescriptor){
+                                                                   DaoDescriptor<Long, CHILD,CHILDBUILDER> childDaoDescriptor){
         if( ! childDaoDescriptor.hasParent() ){
             throw new HrormException("Children must have a parent column");
         }

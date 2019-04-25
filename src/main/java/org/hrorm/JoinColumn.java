@@ -29,7 +29,7 @@ public class JoinColumn<ENTITY, JOINED, ENTITYBUILDER, JOINEDBUILDER> implements
     private final String joinedTablePrefix;
     private final BiConsumer<ENTITYBUILDER, JOINED> setter;
     private final Function<ENTITY, JOINED> getter;
-    private final DaoDescriptor<JOINED, JOINEDBUILDER> daoDescriptor;
+    private final DaoDescriptor<Long, JOINED, JOINEDBUILDER> daoDescriptor;
     private final String joinedTablePrimaryKeyName;
     private boolean nullable;
 
@@ -37,7 +37,13 @@ public class JoinColumn<ENTITY, JOINED, ENTITYBUILDER, JOINEDBUILDER> implements
 
     private String sqlTypeName = "integer";
 
-    public JoinColumn(String name, String joinedTablePrefix, Prefixer prefixer, Function<ENTITY, JOINED> getter, BiConsumer<ENTITYBUILDER, JOINED> setter, DaoDescriptor<JOINED, JOINEDBUILDER> daoDescriptor, boolean nullable){
+    public JoinColumn(String name,
+                      String joinedTablePrefix,
+                      Prefixer prefixer,
+                      Function<ENTITY, JOINED> getter,
+                      BiConsumer<ENTITYBUILDER, JOINED> setter,
+                      DaoDescriptor<Long, JOINED, JOINEDBUILDER> daoDescriptor,
+                      boolean nullable){
         this.name = name;
         this.prefix = prefixer.nextPrefix();
         this.joinedTablePrefix = joinedTablePrefix;
