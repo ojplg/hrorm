@@ -21,7 +21,7 @@ import java.util.function.Supplier;
  */
 public class DaoBuilder<ENTITY> implements SchemaDescriptor<ENTITY, ENTITY> {
 
-    private final ColumnCollection<ENTITY,ENTITY> columnCollection = new ColumnCollection<>();
+    private final ColumnCollection<Long, ENTITY,ENTITY> columnCollection = new ColumnCollection<>();
     private final DaoBuilderHelper<ENTITY, ENTITY> daoBuilderHelper;
     private final List<ChildrenDescriptor<ENTITY,?, ENTITY,?>> childrenDescriptors = new ArrayList<>();
 
@@ -46,7 +46,7 @@ public class DaoBuilder<ENTITY> implements SchemaDescriptor<ENTITY, ENTITY> {
     }
 
     @Override
-    public ColumnCollection<ENTITY, ENTITY> getColumnCollection(){
+    public ColumnCollection<Long, ENTITY, ENTITY> getColumnCollection(){
         return columnCollection;
     }
 
@@ -290,7 +290,7 @@ public class DaoBuilder<ENTITY> implements SchemaDescriptor<ENTITY, ENTITY> {
      * @return This instance.
      */
     public DaoBuilder<ENTITY> withPrimaryKey(String columnName, String sequenceName, Function<ENTITY, Long> getter, BiConsumer<ENTITY, Long> setter){
-        PrimaryKey<ENTITY,ENTITY> primaryKey = new DirectPrimaryKey<>(daoBuilderHelper.getPrefix(), columnName, sequenceName, getter, setter);
+        PrimaryKey<Long, ENTITY,ENTITY> primaryKey = new DirectPrimaryKey<>(daoBuilderHelper.getPrefix(), columnName, sequenceName, getter, setter);
         columnCollection.setPrimaryKey(primaryKey);
         return this;
     }

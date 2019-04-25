@@ -27,12 +27,12 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
 
     private final SqlBuilder<CHILD> sqlBuilder;
 
-    private final PrimaryKey<PARENT, PARENTBUILDER> parentPrimaryKey;
+    private final PrimaryKey<Long, PARENT, PARENTBUILDER> parentPrimaryKey;
 
     public ChildrenDescriptor(Function<PARENT, List<CHILD>> getter,
                               BiConsumer<PARENTBUILDER, List<CHILD>> setter,
                               DaoDescriptor<CHILD,CHILDBUILDER> childDaoDescriptor,
-                              PrimaryKey<PARENT, PARENTBUILDER> parentPrimaryKey,
+                              PrimaryKey<Long,PARENT, PARENTBUILDER> parentPrimaryKey,
                               Function<PARENTBUILDER, PARENT> parentBuildFunction) {
         this.getter = getter;
         this.setter = setter;
@@ -54,7 +54,7 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
         Where where = new Where(parentChildColumnName(), Operator.EQUALS, parentId);
 
         String sql = sqlBuilder.select(where);
-        SqlRunner<CHILD,CHILDBUILDER> sqlRunner = new SqlRunner<>(connection, childDaoDescriptor);
+        SqlRunner<Long, CHILD,CHILDBUILDER> sqlRunner = new SqlRunner<>(connection, childDaoDescriptor);
         List<ChildrenDescriptor<CHILD,?,CHILDBUILDER, ?>> childrenDescriptorsList = childDaoDescriptor.childrenDescriptors();
 
         Supplier<CHILDBUILDER> supplier = childDaoDescriptor.supplier();
@@ -80,11 +80,11 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
 
     public void saveChildren(Connection connection, Envelope<PARENT> envelope) {
 
-        PrimaryKey<CHILD, CHILDBUILDER> childPrimaryKey = childDaoDescriptor.primaryKey();
+        PrimaryKey<Long, CHILD, CHILDBUILDER> childPrimaryKey = childDaoDescriptor.primaryKey();
 
         PARENT item = envelope.getItem();
 
-        SqlRunner<CHILD,CHILDBUILDER> sqlRunner = new SqlRunner<>(connection, childDaoDescriptor);
+        SqlRunner<Long, CHILD,CHILDBUILDER> sqlRunner = new SqlRunner<>(connection, childDaoDescriptor);
 
         List<CHILD> children = getter.apply(item);
 
@@ -119,13 +119,13 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
 
     private Set<Long> findExistingChildrenIds(Connection connection, Long parentId){
         String sql = sqlBuilder.selectChildIds(parentChildColumnName());
-        SqlRunner<PARENT,PARENTBUILDER> sqlRunner = new SqlRunner(connection);
+        SqlRunner<Long, PARENT,PARENTBUILDER> sqlRunner = new SqlRunner(connection);
         return sqlRunner.runChildSelectChildIds(sql, parentId);
     }
 
     private void deleteOrphans(Connection connection, Set<Long> badChildrenIds) {
         String preparedSql = sqlBuilder.delete();
-        SqlRunner<CHILD, CHILDBUILDER> sqlRunner = new SqlRunner<>(connection);
+        SqlRunner<Long, CHILD, CHILDBUILDER> sqlRunner = new SqlRunner<>(connection);
 
         for(Long badId : badChildrenIds) {
             for( ChildrenDescriptor<CHILD,?,?,?> grandChildDescriptor : grandChildrenDescriptors()){

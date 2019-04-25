@@ -23,12 +23,12 @@ public abstract class AbstractDao<ENTITY, BUILDER> implements KeylessDaoDescript
     protected final Connection connection;
 
     protected final SqlBuilder<ENTITY> sqlBuilder;
-    protected final SqlRunner<ENTITY, BUILDER> sqlRunner;
+    protected final SqlRunner<Long, ENTITY, BUILDER> sqlRunner;
 
     private final String tableName;
     private final Supplier<BUILDER> supplier;
     private final Function<BUILDER, ENTITY> buildFunction;
-    private final ColumnCollection<ENTITY, BUILDER> columnCollection;
+    private final ColumnCollection<Long, ENTITY, BUILDER> columnCollection;
 
     public AbstractDao(Connection connection,
                        KeylessDaoDescriptor<ENTITY, BUILDER> keylessDaoDescriptor){
@@ -74,7 +74,7 @@ public abstract class AbstractDao<ENTITY, BUILDER> implements KeylessDaoDescript
     }
 
     @Override
-    public ColumnCollection<ENTITY, BUILDER> getColumnCollection() {
+    public ColumnCollection<Long, ENTITY, BUILDER> getColumnCollection() {
         return columnCollection;
     }
 

@@ -15,7 +15,7 @@ import java.util.function.BiConsumer;
  * @param <PARENTBUILDER> The class used to construct new <code>PARENT</code> instances
  */
 public interface ParentColumn<CHILD,PARENT,CHILDBUILDER,PARENTBUILDER> extends Column<Long, Long, CHILD,CHILDBUILDER> {
-    void setParentPrimaryKey(PrimaryKey<PARENT, PARENTBUILDER> parentPrimaryKey);
+    void setParentPrimaryKey(PrimaryKey<Long,PARENT, PARENTBUILDER> parentPrimaryKey);
     BiConsumer<CHILDBUILDER, PARENT> setter();
 
     @Override

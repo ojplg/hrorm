@@ -18,7 +18,7 @@ import java.util.function.Function;
  * @param <ENTITY> The type of the class being persisted.
  * @param <BUILDER> The type of the class that can construct new <code>ENTITY</code> instances.
  */
-public class IndirectPrimaryKey<ENTITY, BUILDER> implements PrimaryKey<ENTITY, BUILDER> {
+public class IndirectPrimaryKey<ENTITY, BUILDER> implements PrimaryKey<Long, ENTITY, BUILDER> {
 
     private final String prefix;
     private final String name;

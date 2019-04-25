@@ -13,9 +13,9 @@ import java.util.stream.Collectors;
  *
  * Most users of hrorm will have no need to directly use this.
  */
-public class ColumnCollection<ENTITY,BUILDER> {
+public class ColumnCollection<PK,ENTITY,BUILDER> {
 
-    private PrimaryKey<ENTITY, BUILDER> primaryKey;
+    private PrimaryKey<PK,ENTITY, BUILDER> primaryKey;
     private ParentColumn<ENTITY, ?, BUILDER, ?> parentColumn;
     private List<Column<?, ?, ENTITY, BUILDER>> dataColumns;
     private List<JoinColumn<ENTITY, ?, BUILDER, ?>> joinColumns;
@@ -29,7 +29,7 @@ public class ColumnCollection<ENTITY,BUILDER> {
         joinColumns = new ArrayList<>();
     }
 
-    public ColumnCollection(PrimaryKey<ENTITY, BUILDER> primaryKey,
+    public ColumnCollection(PrimaryKey<PK,ENTITY, BUILDER> primaryKey,
                             ParentColumn<ENTITY, ?, BUILDER, ?> parentColumn,
                             List<Column<?, ?, ENTITY, BUILDER>> dataColumns,
                             List<JoinColumn<ENTITY, ?, BUILDER, ?>> joinColumns) {
@@ -49,11 +49,11 @@ public class ColumnCollection<ENTITY,BUILDER> {
         dataColumns.add(dataColumn);
     }
 
-    public PrimaryKey<ENTITY, BUILDER> getPrimaryKey() {
+    public PrimaryKey<PK,ENTITY, BUILDER> getPrimaryKey() {
         return primaryKey;
     }
 
-    public void setPrimaryKey(PrimaryKey<ENTITY, BUILDER> primaryKey) {
+    public void setPrimaryKey(PrimaryKey<PK, ENTITY, BUILDER> primaryKey) {
         if ( this.primaryKey != null ){
             throw new HrormException("Attempt to set a second primary key");
         }
@@ -111,9 +111,9 @@ public class ColumnCollection<ENTITY,BUILDER> {
         return Collections.unmodifiableList(columns);
     }
 
-    public static <E, B> List<Column<?, ?, E, B>> nonJoinColumns(PrimaryKey<E, B> primaryKey,
-                                                              ParentColumn<E, ?, B, ?> parentColumn,
-                                                              List<Column<?, ?, E, B>> dataColumns) {
+    public static <P, E, B> List<Column<?, ?, E, B>> nonJoinColumns(PrimaryKey<P, E, B> primaryKey,
+                                                                    ParentColumn<E, ?, B, ?> parentColumn,
+                                                                    List<Column<?, ?, E, B>> dataColumns) {
         List<Column<?, ?, E, B>> columns = new ArrayList<>();
         if (primaryKey != null) {
             columns.add(primaryKey);

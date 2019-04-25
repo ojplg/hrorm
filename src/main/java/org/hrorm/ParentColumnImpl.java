@@ -26,7 +26,7 @@ public class ParentColumnImpl<CHILD, PARENT, CHILDBUILDER, PARENTBUILDER> implem
     private final String prefix;
     private final BiConsumer<CHILDBUILDER, PARENT> setter;
     private final Function<CHILD, PARENT> getter;
-    private PrimaryKey<PARENT, PARENTBUILDER> parentPrimaryKey;
+    private PrimaryKey<Long,PARENT, PARENTBUILDER> parentPrimaryKey;
     private boolean nullable;
     private String sqlTypeName;
 
@@ -39,7 +39,7 @@ public class ParentColumnImpl<CHILD, PARENT, CHILDBUILDER, PARENTBUILDER> implem
     }
 
     public ParentColumnImpl(String name, String prefix, Function<CHILD, PARENT> getter, BiConsumer<CHILDBUILDER, PARENT> setter,
-                            PrimaryKey<PARENT, PARENTBUILDER> parentPrimaryKey, boolean nullable) {
+                            PrimaryKey<Long,PARENT, PARENTBUILDER> parentPrimaryKey, boolean nullable) {
         this.name = name;
         this.prefix = prefix;
         this.getter = getter;
@@ -87,7 +87,7 @@ public class ParentColumnImpl<CHILD, PARENT, CHILDBUILDER, PARENTBUILDER> implem
         return setter;
     }
 
-    public void setParentPrimaryKey(PrimaryKey<PARENT, PARENTBUILDER> parentPrimaryKey) {
+    public void setParentPrimaryKey(PrimaryKey<Long, PARENT, PARENTBUILDER> parentPrimaryKey) {
         this.parentPrimaryKey = parentPrimaryKey;
     }
 

@@ -18,7 +18,7 @@ import java.util.List;
  */
 public class DaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> extends AbstractDao<ENTITY, BUILDER> implements Dao<ENTITY>, DaoDescriptor<ENTITY, BUILDER> {
 
-    private final PrimaryKey<ENTITY, BUILDER> primaryKey;
+    private final PrimaryKey<Long,ENTITY, BUILDER> primaryKey;
     private final ParentColumn<ENTITY, PARENT, BUILDER, PARENTBUILDER> parentColumn;
     private final List<ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors;
 
@@ -49,7 +49,7 @@ public class DaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> extends AbstractDao
     @Override
     public Long insert(ENTITY item) {
         String sql = sqlBuilder.insert();
-        long id = sqlRunner.runSequenceNextValue(sqlBuilder.nextSequence());
+        Long id = sqlRunner.runSequenceNextValue(sqlBuilder.nextSequence());
         primaryKey.optimisticSetKey(item, id);
         Envelope<ENTITY> envelope = newEnvelope(item, id);
         sqlRunner.insert(sql, envelope);
@@ -76,7 +76,7 @@ public class DaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> extends AbstractDao
     }
 
     @Override
-    public ENTITY select(long id) {
+    public ENTITY select(Long id) {
         Where where = new Where(primaryKey.getName(), Operator.EQUALS, id);
         List<ENTITY> items = select(where);
         return KeylessDaoImpl.fromSingletonList(items);
@@ -105,7 +105,7 @@ public class DaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> extends AbstractDao
     }
 
     @Override
-    public PrimaryKey<ENTITY, BUILDER> primaryKey() { return primaryKey; }
+    public PrimaryKey<Long,ENTITY, BUILDER> primaryKey() { return primaryKey; }
 
     @Override
     public Queries queries() {

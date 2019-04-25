@@ -25,7 +25,7 @@ import java.util.function.Supplier;
 public class IndirectKeylessDaoBuilder<ENTITY, BUILDER> implements KeylessDaoDescriptor<ENTITY, BUILDER> {
 
 
-    private final ColumnCollection<ENTITY, BUILDER> columnCollection = new ColumnCollection<>();
+    private final ColumnCollection<Long, ENTITY, BUILDER> columnCollection = new ColumnCollection<>();
     private final DaoBuilderHelper<ENTITY, BUILDER> daoBuilderHelper;
 
     public IndirectKeylessDaoBuilder(String table, Supplier<BUILDER> supplier, Function<BUILDER, ENTITY> buildFunction) {
@@ -43,7 +43,7 @@ public class IndirectKeylessDaoBuilder<ENTITY, BUILDER> implements KeylessDaoDes
     }
 
     @Override
-    public ColumnCollection<ENTITY, BUILDER> getColumnCollection() {
+    public ColumnCollection<Long, ENTITY, BUILDER> getColumnCollection() {
         return columnCollection;
     }
 

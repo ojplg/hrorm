@@ -175,7 +175,7 @@ public class AssociationDaoBuilder<LEFT, RIGHT>
     }
 
     @Override
-    public PrimaryKey<Association<LEFT, RIGHT>, Association<LEFT, RIGHT>> primaryKey() {
+    public PrimaryKey<Long, Association<LEFT, RIGHT>, Association<LEFT, RIGHT>> primaryKey() {
         prepareDaoBuilder();
         return internalDaoBuilder.primaryKey();
     }
@@ -199,7 +199,7 @@ public class AssociationDaoBuilder<LEFT, RIGHT>
     }
 
     @Override
-    public ColumnCollection<Association<LEFT, RIGHT>, Association<LEFT, RIGHT>> getColumnCollection() {
+    public ColumnCollection<Long, Association<LEFT, RIGHT>, Association<LEFT, RIGHT>> getColumnCollection() {
         return internalDaoBuilder.getColumnCollection();
     }
 

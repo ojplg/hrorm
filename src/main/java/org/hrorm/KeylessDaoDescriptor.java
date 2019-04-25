@@ -46,7 +46,7 @@ public interface KeylessDaoDescriptor<ENTITY, ENTITYBUILDER> {
         return new ColumnSelection(allColumns(), columnNames);
     }
 
-    ColumnCollection<ENTITY, ENTITYBUILDER> getColumnCollection();
+    ColumnCollection<Long,ENTITY, ENTITYBUILDER> getColumnCollection();
 
     /**
      * All the columns in the DAO, except those that represent joins

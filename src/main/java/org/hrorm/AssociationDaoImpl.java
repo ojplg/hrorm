@@ -21,14 +21,14 @@ public class AssociationDaoImpl<LEFT, LEFTBUILDER, RIGHT, RIGHTBUILDER> implemen
     private final Dao<Association<LEFT, RIGHT>> internalDao;
     private final String leftColumnName;
     private final String rightColumnName;
-    private final PrimaryKey<LEFT, LEFTBUILDER> leftPrimaryKey;
-    private final PrimaryKey<RIGHT, RIGHTBUILDER> rightPrimaryKey;
+    private final PrimaryKey<Long,LEFT, LEFTBUILDER> leftPrimaryKey;
+    private final PrimaryKey<Long,RIGHT, RIGHTBUILDER> rightPrimaryKey;
 
     public AssociationDaoImpl(Dao<Association<LEFT, RIGHT>> internalDao,
                               String leftColumnName,
                               String rightColumnName,
-                              PrimaryKey<LEFT, LEFTBUILDER> leftPrimaryKey,
-                              PrimaryKey<RIGHT, RIGHTBUILDER> rightPrimaryKey){
+                              PrimaryKey<Long,LEFT, LEFTBUILDER> leftPrimaryKey,
+                              PrimaryKey<Long,RIGHT, RIGHTBUILDER> rightPrimaryKey){
         this.internalDao = internalDao;
         this.leftColumnName = leftColumnName;
         this.rightColumnName = rightColumnName;

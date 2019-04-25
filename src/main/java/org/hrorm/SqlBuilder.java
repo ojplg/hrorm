@@ -20,7 +20,7 @@ public class SqlBuilder<ENTITY> implements Queries {
     private final String table;
     private final List<? extends Column<?,?,ENTITY,?>> nonJoinColumns;
     private final List<? extends JoinColumn<ENTITY, ?, ?, ?>> joinColumns;
-    private final PrimaryKey<ENTITY,?> primaryKey;
+    private final PrimaryKey<?,ENTITY,?> primaryKey;
 
     public SqlBuilder(DaoDescriptor<ENTITY,?> daoDescriptor){
         this.primaryKey = daoDescriptor.primaryKey();

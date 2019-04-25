@@ -17,7 +17,7 @@ import java.util.function.Function;
  *
  * @param <ENTITY> The type of the class being persisted.
  */
-public class DirectPrimaryKey<ENTITY> implements PrimaryKey<ENTITY, ENTITY> {
+public class DirectPrimaryKey<ENTITY> implements PrimaryKey<Long, ENTITY, ENTITY> {
 
     private final String prefix;
     private final String name;

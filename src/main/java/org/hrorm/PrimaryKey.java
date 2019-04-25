@@ -10,7 +10,7 @@ package org.hrorm;
  * @param <ENTITY> The type of the entity being represented
  * @param <BUILDER> The type of the class that can construct new <code>ENTITY</code> instances
  */
-public interface PrimaryKey<ENTITY, BUILDER> extends Column<Long, Long, ENTITY, BUILDER> {
+public interface PrimaryKey<T, ENTITY, BUILDER> extends Column<T, T, ENTITY, BUILDER> {
 
     /**
      * Sets the key onto the object
@@ -18,11 +18,11 @@ public interface PrimaryKey<ENTITY, BUILDER> extends Column<Long, Long, ENTITY, 
      * @param item the object whose key is to be set
      * @param id the primary key to assign it
      */
-    void optimisticSetKey(ENTITY item, Long id);
+    void optimisticSetKey(ENTITY item, T id);
 
-    void setKey(BUILDER builder, Long id);
+    void setKey(BUILDER builder, T id);
 
-    Long getKey(ENTITY item);
+    T getKey(ENTITY item);
 
     /**
      * The name of the database sequence that is used to populate this key

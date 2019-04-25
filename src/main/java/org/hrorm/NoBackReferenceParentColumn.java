@@ -32,7 +32,7 @@ public class NoBackReferenceParentColumn<ENTITY, PARENT, BUILDER, PARENTBUILDER>
     }
 
     @Override
-    public void setParentPrimaryKey(PrimaryKey<PARENT, PARENTBUILDER> primaryKey) {
+    public void setParentPrimaryKey(PrimaryKey<Long,PARENT, PARENTBUILDER> primaryKey) {
     }
 
     @Override

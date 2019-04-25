@@ -27,7 +27,7 @@ import java.util.logging.Logger;
  * @param <ENTITY> the type of object this runner supports
  * @param <BUILDER> the type of object that can construct new <code>ENTITY</code> instances
  */
-public class SqlRunner<ENTITY, BUILDER> {
+public class SqlRunner<PK, ENTITY, BUILDER> {
 
     private static final Logger logger = Logger.getLogger("org.hrorm");
 
