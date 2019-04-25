@@ -102,6 +102,8 @@ public interface Column<DBTYPE, CLASSTYPE, ENTITY, BUILDER> {
      */
     ResultSetReader<DBTYPE> getReader();
 
+    PreparedStatementSetter<DBTYPE> getStatementSetter();
+
     CLASSTYPE toClassType(DBTYPE dbType);
 
     /**

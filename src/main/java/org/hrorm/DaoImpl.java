@@ -51,7 +51,7 @@ public class DaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> extends AbstractDao
         String sql = sqlBuilder.insert();
         Long id = sqlRunner.runSequenceNextValue(sqlBuilder.nextSequence());
         primaryKey.optimisticSetKey(item, id);
-        Envelope<ENTITY> envelope = newEnvelope(item, id);
+        Envelope<ENTITY, Long> envelope = newEnvelope(item, id);
         sqlRunner.insert(sql, envelope);
         for(ChildrenDescriptor<ENTITY,?, BUILDER,?> childrenDescriptor : childrenDescriptors){
             childrenDescriptor.saveChildren(connection, envelope);
@@ -62,7 +62,7 @@ public class DaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> extends AbstractDao
     @Override
     public void update(ENTITY item) {
         String sql = sqlBuilder.update();
-        Envelope<ENTITY> envelope = newEnvelope(item, primaryKey.getKey(item));
+        Envelope<ENTITY, Long> envelope = newEnvelope(item, primaryKey.getKey(item));
         sqlRunner.update(sql, envelope);
         for(ChildrenDescriptor<ENTITY,?, BUILDER,?> childrenDescriptor : childrenDescriptors){
             childrenDescriptor.saveChildren(connection, envelope);
@@ -112,7 +112,7 @@ public class DaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> extends AbstractDao
         return this.sqlBuilder;
     }
 
-    private Envelope<ENTITY> newEnvelope(ENTITY item, long id){
+    private Envelope<ENTITY, Long> newEnvelope(ENTITY item, long id){
         if( parentColumn != null ){
             Long parentId = parentColumn.getParentId(item);
             if ( parentId != null ){

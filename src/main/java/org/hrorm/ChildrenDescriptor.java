@@ -78,7 +78,7 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
         setter.accept(parentBuilder, children);
     }
 
-    public void saveChildren(Connection connection, Envelope<PARENT> envelope) {
+    public void saveChildren(Connection connection, Envelope<PARENT,Long> envelope) {
 
         PrimaryKey<Long, CHILD, CHILDBUILDER> childPrimaryKey = childDaoDescriptor.primaryKey();
 
@@ -101,12 +101,12 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
                 childId = sqlRunner.runSequenceNextValue(sqlBuilder.nextSequence());
                 childPrimaryKey.optimisticSetKey(child, childId);
                 String sql = sqlBuilder.insert();
-                Envelope<CHILD> childEnvelope = new Envelope<>(child, childId, parentId);
+                Envelope<CHILD, Long> childEnvelope = new Envelope<>(child, childId, parentId);
                 sqlRunner.insert(sql, childEnvelope);
             } else {
                 existingIds.remove(childId);
                 String sql = sqlBuilder.update();
-                Envelope<CHILD> childEnvelope = new Envelope<>(child, childId, parentId);
+                Envelope<CHILD, Long> childEnvelope = new Envelope<>(child, childId, parentId);
                 sqlRunner.update(sql, childEnvelope);
             }
             for(ChildrenDescriptor<CHILD,?,?,?> grandchildrenDescriptor : grandChildrenDescriptors()){

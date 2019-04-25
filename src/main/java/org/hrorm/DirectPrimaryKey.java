@@ -89,6 +89,11 @@ public class DirectPrimaryKey<ENTITY> implements PrimaryKey<Long, ENTITY, ENTITY
     }
 
     @Override
+    public PreparedStatementSetter<Long> getStatementSetter() {
+        return PreparedStatement::setLong;
+    }
+
+    @Override
     public void setValue(ENTITY item, int index, PreparedStatement preparedStatement) throws SQLException {
         Long value = getter.apply(item);
         if ( value == null ){

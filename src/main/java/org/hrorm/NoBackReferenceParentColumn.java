@@ -66,6 +66,12 @@ public class NoBackReferenceParentColumn<ENTITY, PARENT, BUILDER, PARENTBUILDER>
     }
 
     @Override
+    public PreparedStatementSetter<Long> getStatementSetter() {
+        return PreparedStatement::setLong;
+    }
+
+
+    @Override
     public Column<Long, Long, ENTITY, BUILDER> withPrefix(String newPrefix, Prefixer prefixer) {
         return new NoBackReferenceParentColumn(name, newPrefix);
     }

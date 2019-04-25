@@ -102,6 +102,11 @@ public class ColumnImpl<DBTYPE, CLASSTYPE, ENTITY, BUILDER> implements Column<DB
     }
 
     @Override
+    public PreparedStatementSetter<DBTYPE> getStatementSetter() {
+        return genericColumn::setPreparedStatement;
+    }
+
+    @Override
     public String getName() {
         return name;
     }

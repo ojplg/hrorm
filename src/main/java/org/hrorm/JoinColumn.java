@@ -107,6 +107,11 @@ public class JoinColumn<ENTITY, JOINED, ENTITYBUILDER, JOINEDBUILDER> implements
     }
 
     @Override
+    public PreparedStatementSetter<Long> getStatementSetter() {
+        return PreparedStatement::setLong;
+    }
+
+    @Override
     public void setValue(ENTITY item, int index, PreparedStatement preparedStatement) throws SQLException {
         JOINED value = getter.apply(item);
         if( value == null ){

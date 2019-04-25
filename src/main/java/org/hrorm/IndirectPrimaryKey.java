@@ -90,6 +90,10 @@ public class IndirectPrimaryKey<ENTITY, BUILDER> implements PrimaryKey<Long, ENT
         return ResultSet::getLong;
     }
 
+    @Override
+    public PreparedStatementSetter<Long> getStatementSetter() {
+        return PreparedStatement::setLong;
+    }
 
     @Override
     public void setValue(ENTITY item, int index, PreparedStatement preparedStatement) throws SQLException {

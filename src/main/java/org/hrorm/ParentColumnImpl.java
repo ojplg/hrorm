@@ -74,6 +74,11 @@ public class ParentColumnImpl<CHILD, PARENT, CHILDBUILDER, PARENTBUILDER> implem
     }
 
     @Override
+    public PreparedStatementSetter<Long> getStatementSetter() {
+        return PreparedStatement::setLong;
+    }
+
+    @Override
     public Column<Long, Long, CHILD, CHILDBUILDER> withPrefix(String prefix, Prefixer prefixer) {
         return new ParentColumnImpl<>(name, prefix, getter, setter, parentPrimaryKey, nullable);
     }

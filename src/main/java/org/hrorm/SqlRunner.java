@@ -32,7 +32,7 @@ public class SqlRunner<PK, ENTITY, BUILDER> {
     private static final Logger logger = Logger.getLogger("org.hrorm");
 
     private final Connection connection;
-    private final List<Column<?, ?,ENTITY, BUILDER>> allColumns;
+    private final List<Column<?, ?, ENTITY, BUILDER>> allColumns;
 
     public SqlRunner(Connection connection){
         this.connection = connection;
@@ -219,26 +219,29 @@ public class SqlRunner<PK, ENTITY, BUILDER> {
         }
     }
 
-    public void insert(String sql, Envelope<ENTITY> envelope) {
+    public void insert(String sql, Envelope<ENTITY, PK> envelope) {
         runInsertOrUpdate(sql, envelope, false);
     }
 
-    public void update(String sql, Envelope<ENTITY> envelope) {
+    public void update(String sql, Envelope<ENTITY, PK> envelope) {
         runInsertOrUpdate(sql, envelope, true);
     }
 
-    private void runInsertOrUpdate(String sql, Envelope<ENTITY> envelope, boolean isUpdate){
+    private void runInsertOrUpdate(String sql, Envelope<ENTITY, PK> envelope, boolean isUpdate){
 
         PreparedStatement preparedStatement = null;
 
         try {
             preparedStatement = connection.prepareStatement(sql);
 
+            Column<PK,PK,ENTITY,BUILDER> primaryKey = null;
             int idx = 1;
             for(Column<?, ?, ENTITY, BUILDER> column : allColumns){
                 if( column.isPrimaryKey() ) {
+                    primaryKey = (Column<PK,PK,ENTITY,BUILDER>) column;
                     if ( ! isUpdate ) {
-                        preparedStatement.setLong(idx, envelope.getId());
+                        PreparedStatementSetter<PK> statementSetter = primaryKey.getStatementSetter();
+                        statementSetter.apply(preparedStatement, idx, envelope.getId());
                         idx++;
                     }
                 } else if ( column.isParentColumn() ){
@@ -250,7 +253,8 @@ public class SqlRunner<PK, ENTITY, BUILDER> {
                 }
             }
             if( isUpdate ){
-                preparedStatement.setLong(idx, envelope.getId());
+                PreparedStatementSetter<PK> statementSetter = primaryKey.getStatementSetter();
+                statementSetter.apply(preparedStatement, idx, envelope.getId());
             }
 
             logger.info(sql);
