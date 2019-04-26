@@ -17,7 +17,7 @@ import java.util.List;
  * @param <BUILDER> The type of object that can build an <code>ENTITY</code> instance.
  * @param <PARENTBUILDER> The type of the object that can build a <code>PARENT</code> instance.
  */
-public class KeylessDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> extends AbstractDao<ENTITY, BUILDER> {
+public class KeylessDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> extends AbstractDao<ENTITY, BUILDER, Long> implements KeylessDao<ENTITY> {
 
     public KeylessDaoImpl(Connection connection,
                           KeylessDaoDescriptor<ENTITY, BUILDER> daoDescriptor){

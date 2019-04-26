@@ -18,23 +18,23 @@ import java.util.stream.Collectors;
  * @param <ENTITY> The type whose persistence is managed by this <code>Dao</code>.
  * @param <BUILDER> The type of object that can build an <code>ENTITY</code> instance.
  */
-public abstract class AbstractDao<ENTITY, BUILDER> implements KeylessDaoDescriptor<ENTITY, BUILDER>, KeylessDao<ENTITY> {
+public abstract class AbstractDao<ENTITY, BUILDER, PK> implements KeylessDaoDescriptor<ENTITY, BUILDER>, GenericKeyDao<ENTITY, PK> {
 
     protected final Connection connection;
 
     protected final SqlBuilder<ENTITY> sqlBuilder;
-    protected final SqlRunner<Long, ENTITY, BUILDER> sqlRunner;
+    protected final SqlRunner<PK, ENTITY, BUILDER> sqlRunner;
 
     private final String tableName;
     private final Supplier<BUILDER> supplier;
     private final Function<BUILDER, ENTITY> buildFunction;
-    private final ColumnCollection<Long, ENTITY, BUILDER> columnCollection;
+    private final ColumnCollection<PK, ENTITY, BUILDER> columnCollection;
 
     public AbstractDao(Connection connection,
                        KeylessDaoDescriptor<ENTITY, BUILDER> keylessDaoDescriptor){
         this.connection = connection;
         this.tableName = keylessDaoDescriptor.tableName();
-        this.columnCollection = (ColumnCollection<Long, ENTITY, BUILDER>) keylessDaoDescriptor.getColumnCollection();
+        this.columnCollection = (ColumnCollection<PK, ENTITY, BUILDER>) keylessDaoDescriptor.getColumnCollection();
         this.supplier = keylessDaoDescriptor.supplier();
         this.buildFunction = keylessDaoDescriptor.buildFunction();
 
@@ -46,7 +46,7 @@ public abstract class AbstractDao<ENTITY, BUILDER> implements KeylessDaoDescript
                        DaoDescriptor<Long, ENTITY, BUILDER> daoDescriptor){
         this.connection = connection;
         this.tableName = daoDescriptor.tableName();
-        this.columnCollection = (ColumnCollection<Long, ENTITY, BUILDER>) daoDescriptor.getColumnCollection();
+        this.columnCollection = (ColumnCollection<PK, ENTITY, BUILDER>) daoDescriptor.getColumnCollection();
         this.supplier = daoDescriptor.supplier();
         this.buildFunction = daoDescriptor.buildFunction();
 
@@ -56,7 +56,7 @@ public abstract class AbstractDao<ENTITY, BUILDER> implements KeylessDaoDescript
 
     protected abstract List<ChildrenDescriptor<ENTITY,?, BUILDER,?, ?>> childrenDescriptors();
 
-    public abstract Long insert(ENTITY item);
+    public abstract PK insert(ENTITY item);
 
     @Override
     public String tableName() {
@@ -74,12 +74,12 @@ public abstract class AbstractDao<ENTITY, BUILDER> implements KeylessDaoDescript
     }
 
     @Override
-    public ColumnCollection<Long, ENTITY, BUILDER> getColumnCollection() {
+    public ColumnCollection<PK, ENTITY, BUILDER> getColumnCollection() {
         return columnCollection;
     }
 
     @Override
-    public Long atomicInsert(ENTITY item) {
+    public PK atomicInsert(ENTITY item) {
         Transactor transactor = new Transactor(connection);
         return transactor.runAndCommit(
                 con -> { return insert(item); }

@@ -2,7 +2,7 @@ package org.hrorm;
 
 import java.util.List;
 
-public interface GenericPrimaryKeyDao<PK,ENTITY> extends KeylessDao<ENTITY> {
+public interface GenericPrimaryKeyDao<PK,ENTITY> extends GenericKeyDao<ENTITY, PK> {
 
     /**
      * Run an update statement to change the values in the database associated

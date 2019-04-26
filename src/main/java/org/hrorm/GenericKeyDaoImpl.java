@@ -9,27 +9,29 @@ import java.util.List;
  * <p>
  *
  * There is no good reason to directly construct this class yourself.
- * Use a {@link DaoBuilder} or {@link IndirectDaoBuilder}.n
+ * Use a {@link DaoBuilder} or {@link IndirectDaoBuilder}.
  *
  * @param <ENTITY> The type whose persistence is managed by this <code>Dao</code>.
  * @param <PARENT> The type of the parent (if any) of type <code>ENTITY</code>.
  * @param <BUILDER> The type of object that can build an <code>ENTITY</code> instance.
  * @param <PARENTBUILDER> The type of the object that can build a <code>PARENT</code> instance.
  */
-public class DaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> extends AbstractDao<ENTITY, BUILDER, Long> implements Dao<ENTITY>, DaoDescriptor<Long,ENTITY, BUILDER> {
+public class GenericKeyDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER,PK>
+        extends AbstractDao<ENTITY, BUILDER, PK>
+        implements GenericPrimaryKeyDao<PK,ENTITY>, DaoDescriptor<PK,ENTITY, BUILDER> {
 
-    private final PrimaryKey<Long,ENTITY, BUILDER> primaryKey;
+    private final GenerativePrimaryKey<PK,ENTITY, BUILDER> primaryKey;
     private final ParentColumn<ENTITY, PARENT, BUILDER, PARENTBUILDER, ?> parentColumn;
     private final List<ChildrenDescriptor<ENTITY,?, BUILDER,?,?>> childrenDescriptors;
 
-    public DaoImpl(Connection connection,
-                   DaoDescriptor<Long,ENTITY, BUILDER> daoDescriptor){
+    public GenericKeyDaoImpl(Connection connection,
+                             DaoDescriptor<PK,ENTITY, BUILDER> daoDescriptor){
         super(connection, daoDescriptor);
         this.childrenDescriptors = daoDescriptor.childrenDescriptors();
         if (daoDescriptor.primaryKey() == null) {
             throw new IllegalArgumentException("Must have a Primary Key");
         }
-        this.primaryKey = daoDescriptor.primaryKey();
+        this.primaryKey = (GenerativePrimaryKey<PK,ENTITY, BUILDER>) daoDescriptor.primaryKey();
         this.parentColumn = daoDescriptor.parentColumn();
     }
 
@@ -47,46 +49,39 @@ public class DaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> extends AbstractDao
     }
 
     @Override
-    public Long insert(ENTITY item) {
+    public PK insert(ENTITY item) {
         String sql = sqlBuilder.insert();
-        KeyProducer<Long> keyProducer = primaryKey.getKeyProducer();
-        Long id = keyProducer.produceKey(connection);
+        KeyProducer<PK> keyProducer = primaryKey.getKeyProducer();
+        PK id = keyProducer.produceKey(connection);
         primaryKey.optimisticSetKey(item, id);
-        Envelope<ENTITY, Long> envelope = newEnvelope(item, id);
+        Envelope<ENTITY, PK> envelope = newEnvelope(item, id);
         sqlRunner.insert(sql, envelope);
-        for(ChildrenDescriptor<ENTITY,?, BUILDER,?, ?> childrenDescriptor : childrenDescriptors){
-            childrenDescriptor.saveChildren(connection, envelope);
-        }
+//        for(ChildrenDescriptor<ENTITY,?, BUILDER,?, ?> childrenDescriptor : childrenDescriptors){
+//            childrenDescriptor.saveChildren(connection, envelope);
+//        }
         return id;
     }
 
     @Override
     public void update(ENTITY item) {
-        String sql = sqlBuilder.update();
-        Envelope<ENTITY, Long> envelope = newEnvelope(item, primaryKey.getKey(item));
-        sqlRunner.update(sql, envelope);
-        for(ChildrenDescriptor<ENTITY,?, BUILDER,?, ?> childrenDescriptor : childrenDescriptors){
-            childrenDescriptor.saveChildren(connection, envelope);
-        }
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public void delete(ENTITY item) {
-        String sql = sqlBuilder.delete();
-        sqlRunner.runPreparedDelete(sql, primaryKey.getKey(item));
+        throw new UnsupportedOperationException();
     }
 
     @Override
-    public ENTITY select(Long id) {
-        Where where = new Where(primaryKey.getName(), Operator.EQUALS, id);
+    public ENTITY select(PK id) {
+        Where where = new Where(primaryKey.getName(), Operator.EQUALS, id, primaryKey.getGenericColumn());
         List<ENTITY> items = select(where);
         return KeylessDaoImpl.fromSingletonList(items);
     }
 
     @Override
-    public List<ENTITY> selectMany(List<Long> ids) {
-        Where where = Where.inLong(primaryKey.getName(), ids);
-        return select(where);
+    public List<ENTITY> selectMany(List<PK> ids) {
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -106,20 +101,20 @@ public class DaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> extends AbstractDao
     }
 
     @Override
-    public PrimaryKey<Long,ENTITY, BUILDER> primaryKey() { return primaryKey; }
+    public PrimaryKey<PK,ENTITY, BUILDER> primaryKey() { return primaryKey; }
 
     @Override
     public Queries queries() {
         return this.sqlBuilder;
     }
 
-    private Envelope<ENTITY, Long> newEnvelope(ENTITY item, long id){
-        if( parentColumn != null ){
-            Long parentId = (Long) parentColumn.getParentId(item);
-            if ( parentId != null ){
-                return new Envelope<>(item, id, parentId);
-            }
-        }
+    private Envelope<ENTITY, PK> newEnvelope(ENTITY item, PK id){
+//        if( parentColumn != null ){
+//            PK parentId = (PK) parentColumn.getParentId(item);
+//            if ( parentId != null ){
+//                return new Envelope<>(item, id, parentId);
+//            }
+//        }
         return new Envelope<>(item, id);
     }
 }
