@@ -19,7 +19,7 @@ public class SqlBuilder<ENTITY> implements Queries {
 
     private final String table;
     private final List<? extends Column<?,?,ENTITY,?>> nonJoinColumns;
-    private final List<? extends JoinColumn<ENTITY, ?, ?, ?>> joinColumns;
+    private final List<? extends JoinColumn<ENTITY, ?, ?, ?, ?>> joinColumns;
     private final PrimaryKey<Long,ENTITY,?> primaryKey;
 
     public SqlBuilder(DaoDescriptor<Long, ENTITY, ?> daoDescriptor){
@@ -53,7 +53,7 @@ public class SqlBuilder<ENTITY> implements Queries {
         StringBuilder buf = new StringBuilder();
         buf.append("select ");
         buf.append(columnsAsString("a", true, nonJoinColumns));
-        for(JoinColumn<?, ?, ?, ?> joinColumn : flattenedJoinColumns()) {
+        for(JoinColumn<?, ?, ?, ?, ?> joinColumn : flattenedJoinColumns()) {
             buf.append(", ");
             buf.append(columnsAsString(
                     joinColumn.getPrefix(),

@@ -22,15 +22,17 @@ import java.util.function.Function;
  * @param <ENTITYBUILDER> the class that can construct new entity instances
  * @param <JOINEDBUILDER> the class that can construct instances of the joined entity
  */
-public class JoinColumn<ENTITY, JOINED, ENTITYBUILDER, JOINEDBUILDER> implements Column<Long, Long, ENTITY, ENTITYBUILDER> {
+public class JoinColumn<ENTITY, JOINED, ENTITYBUILDER, JOINEDBUILDER, JOINEDPK> implements Column<JOINEDPK, JOINEDPK, ENTITY, ENTITYBUILDER> {
 
     private final String name;
     private final String prefix;
     private final String joinedTablePrefix;
     private final BiConsumer<ENTITYBUILDER, JOINED> setter;
     private final Function<ENTITY, JOINED> getter;
-    private final DaoDescriptor<Long, JOINED, JOINEDBUILDER> daoDescriptor;
+    private final DaoDescriptor<JOINEDPK, JOINED, JOINEDBUILDER> daoDescriptor;
     private final String joinedTablePrimaryKeyName;
+    private final ResultSetReader<JOINEDPK> joinedPkResultSetReader;
+    private final PreparedStatementSetter<JOINEDPK> joinedPkStatementSetter;
     private boolean nullable;
 
     private Function<JOINEDBUILDER, JOINED> joinBuilder;
@@ -42,20 +44,22 @@ public class JoinColumn<ENTITY, JOINED, ENTITYBUILDER, JOINEDBUILDER> implements
                       Prefixer prefixer,
                       Function<ENTITY, JOINED> getter,
                       BiConsumer<ENTITYBUILDER, JOINED> setter,
-                      DaoDescriptor<Long, JOINED, JOINEDBUILDER> daoDescriptor,
+                      DaoDescriptor<JOINEDPK, JOINED, JOINEDBUILDER> daoDescriptor,
                       boolean nullable){
         this.name = name;
         this.prefix = prefixer.nextPrefix();
         this.joinedTablePrefix = joinedTablePrefix;
         this.getter = getter;
         this.setter = setter;
+        this.joinedPkResultSetReader = daoDescriptor.primaryKey().getReader();
+        this.joinedPkStatementSetter = daoDescriptor.primaryKey().getStatementSetter();
         this.daoDescriptor = new RelativeDaoDescriptor<>(daoDescriptor, prefix, prefixer);
         this.nullable = nullable;
         this.joinedTablePrimaryKeyName = daoDescriptor.primaryKey().getName();
         this.joinBuilder = daoDescriptor.buildFunction();
     }
 
-    public List<JoinColumn<JOINED,?, JOINEDBUILDER,?>> getTransitiveJoins(){
+    public List<JoinColumn<JOINED,?, JOINEDBUILDER,?,?>> getTransitiveJoins(){
         return this.daoDescriptor.joinColumns();
     }
 
@@ -86,7 +90,7 @@ public class JoinColumn<ENTITY, JOINED, ENTITYBUILDER, JOINEDBUILDER> implements
                 return PopulateResult.Ignore;
             }
         }
-        for(JoinColumn<JOINED,?, JOINEDBUILDER,?> joinColumn : daoDescriptor.joinColumns()){
+        for(JoinColumn<JOINED,?, JOINEDBUILDER,?,?> joinColumn : daoDescriptor.joinColumns()){
             joinColumn.populate(joinedBuilder, resultSet);
         }
 
@@ -102,13 +106,13 @@ public class JoinColumn<ENTITY, JOINED, ENTITYBUILDER, JOINEDBUILDER> implements
     }
 
     @Override
-    public ResultSetReader<Long> getReader(){
-        return ResultSet::getLong;
+    public ResultSetReader<JOINEDPK> getReader(){
+        return joinedPkResultSetReader;
     }
 
     @Override
-    public PreparedStatementSetter<Long> getStatementSetter() {
-        return PreparedStatement::setLong;
+    public PreparedStatementSetter<JOINEDPK> getStatementSetter() {
+        return joinedPkStatementSetter;
     }
 
     @Override
@@ -121,13 +125,13 @@ public class JoinColumn<ENTITY, JOINED, ENTITYBUILDER, JOINEDBUILDER> implements
                 throw new HrormException("Tried to set a null value for " + prefix + "." + name + " which was set not nullable.");
             }
         } else {
-            Long id = daoDescriptor.primaryKey().getKey(value);
-            preparedStatement.setLong(index, id);
+            JOINEDPK id = daoDescriptor.primaryKey().getKey(value);
+            joinedPkStatementSetter.apply(preparedStatement, index, id);
         }
     }
 
     @Override
-    public JoinColumn<ENTITY, JOINED, ENTITYBUILDER, JOINEDBUILDER> withPrefix(String newPrefix, Prefixer prefixer) {
+    public JoinColumn<ENTITY, JOINED, ENTITYBUILDER, JOINEDBUILDER, JOINEDPK> withPrefix(String newPrefix, Prefixer prefixer) {
         return new JoinColumn(name, newPrefix, prefixer, getter, setter, daoDescriptor, nullable);
     }
 
@@ -161,7 +165,7 @@ public class JoinColumn<ENTITY, JOINED, ENTITYBUILDER, JOINEDBUILDER> implements
     }
 
     @Override
-    public Long toClassType(Long dbType) {
+    public JOINEDPK toClassType(JOINEDPK dbType) {
         return dbType;
     }
 }

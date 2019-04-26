@@ -234,7 +234,7 @@ public class DaoBuilder<ENTITY> implements SchemaDescriptor<Long, ENTITY, ENTITY
      * @return This instance.
      */
     public <U> DaoBuilder<ENTITY> withJoinColumn(String columnName, Function<ENTITY, U> getter, BiConsumer<ENTITY,U> setter, DaoDescriptor<Long, U,?> daoDescriptor){
-        JoinColumn<ENTITY,U, ENTITY,?> joinColumn = new JoinColumn<>(columnName, daoBuilderHelper.getPrefix(), daoBuilderHelper.getPrefixer(), getter, setter, daoDescriptor, true);
+        JoinColumn<ENTITY,U, ENTITY,?,?> joinColumn = new JoinColumn<>(columnName, daoBuilderHelper.getPrefix(), daoBuilderHelper.getPrefixer(), getter, setter, daoDescriptor, true);
         columnCollection.addJoinColumn(joinColumn);
         return this;
     }

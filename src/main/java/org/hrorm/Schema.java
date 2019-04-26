@@ -55,7 +55,7 @@ public class Schema {
 
     private Stream<String> joinConstraints(KeylessDaoDescriptor<?,?> descriptor){
         List<String> constraints = new ArrayList<>();
-        for( JoinColumn<?,?,?,?> joinColumn : descriptor.joinColumns() ) {
+        for( JoinColumn joinColumn : descriptor.joinColumns() ) {
             String constraint = foreignKeyConstraint(
                     descriptor.tableName(),
                     joinColumn.getName(),

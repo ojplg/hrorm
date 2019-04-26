@@ -81,7 +81,7 @@ public interface KeylessDaoDescriptor<ENTITY, ENTITYBUILDER> {
      *
      * @return all the reference columns supported
      */
-    default List<JoinColumn<ENTITY, ?, ENTITYBUILDER, ?>> joinColumns(){
+    default List<JoinColumn<ENTITY, ?, ENTITYBUILDER, ?,?>> joinColumns(){
         return getColumnCollection().getJoinColumns();
     }
 

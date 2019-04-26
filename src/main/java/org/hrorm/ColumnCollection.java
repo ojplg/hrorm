@@ -18,7 +18,7 @@ public class ColumnCollection<PK,ENTITY,BUILDER> {
     private PrimaryKey<PK,ENTITY, BUILDER> primaryKey;
     private ParentColumn<ENTITY, ?, BUILDER, ?> parentColumn;
     private List<Column<?, ?, ENTITY, BUILDER>> dataColumns;
-    private List<JoinColumn<ENTITY, ?, BUILDER, ?>> joinColumns;
+    private List<JoinColumn<ENTITY, ?, BUILDER, ?, ?>> joinColumns;
 
     private Column<?, ?, ENTITY, BUILDER> lastColumnAdded;
 
@@ -32,14 +32,14 @@ public class ColumnCollection<PK,ENTITY,BUILDER> {
     public ColumnCollection(PrimaryKey<PK,ENTITY, BUILDER> primaryKey,
                             ParentColumn<ENTITY, ?, BUILDER, ?> parentColumn,
                             List<Column<?, ?, ENTITY, BUILDER>> dataColumns,
-                            List<JoinColumn<ENTITY, ?, BUILDER, ?>> joinColumns) {
+                            List<JoinColumn<ENTITY, ?, BUILDER, ?, ?>> joinColumns) {
         this.primaryKey = primaryKey;
         this.parentColumn = parentColumn;
         this.dataColumns = dataColumns;
         this.joinColumns = joinColumns;
     }
 
-    public void addJoinColumn(JoinColumn<ENTITY, ?, BUILDER, ?> joinColumn) {
+    public void addJoinColumn(JoinColumn<ENTITY, ?, BUILDER, ?, ?> joinColumn) {
         lastColumnAdded = joinColumn;
         joinColumns.add(joinColumn);
     }
@@ -77,7 +77,7 @@ public class ColumnCollection<PK,ENTITY,BUILDER> {
         return Collections.unmodifiableList(dataColumns);
     }
 
-    public List<JoinColumn<ENTITY, ?, BUILDER, ?>> getJoinColumns() {
+    public List<JoinColumn<ENTITY, ?, BUILDER, ?, ?>> getJoinColumns() {
         return Collections.unmodifiableList(joinColumns);
     }
 
@@ -104,7 +104,7 @@ public class ColumnCollection<PK,ENTITY,BUILDER> {
     }
 
     public static <E,B> List<Column<?, ?, E, B>> allColumns(List<Column<?, ?, E,B>> nonJoinColumns,
-                                                         List<JoinColumn<E,?,B,?>> joinColumns) {
+                                                         List<JoinColumn<E,?,B,?,?>> joinColumns) {
         List<Column<?, ?, E, B>> columns = new ArrayList<>();
         columns.addAll(nonJoinColumns);
         columns.addAll(joinColumns);

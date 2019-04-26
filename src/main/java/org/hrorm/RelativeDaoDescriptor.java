@@ -27,14 +27,14 @@ public class RelativeDaoDescriptor<PK, ENTITY, PARENT, ENTITYBUILDER> implements
     private final List<ChildrenDescriptor<ENTITY,?, ENTITYBUILDER,?>> childrenDescriptors;
     private final Function<ENTITYBUILDER, ENTITY> buildFunction;
 
-    public RelativeDaoDescriptor(DaoDescriptor<Long, ENTITY, ENTITYBUILDER> originalDaoDescriptor, String newPrefix, Prefixer prefixer){
+    public RelativeDaoDescriptor(DaoDescriptor<PK, ENTITY, ENTITYBUILDER> originalDaoDescriptor, String newPrefix, Prefixer prefixer){
         this.tableName = originalDaoDescriptor.tableName();
         this.supplier = originalDaoDescriptor.supplier();
         this.childrenDescriptors = originalDaoDescriptor.childrenDescriptors();
         this.buildFunction = originalDaoDescriptor.buildFunction();
 
         List<Column<?, ?, ENTITY, ENTITYBUILDER>> dataColumns = originalDaoDescriptor.dataColumns().stream().map(c -> c.withPrefix(newPrefix, prefixer)).collect(Collectors.toList());
-        List<JoinColumn<ENTITY,?,ENTITYBUILDER,?>> joinColumns = resetColumnPrefixes(prefixer, newPrefix, originalDaoDescriptor.joinColumns());
+        List<JoinColumn<ENTITY,?,ENTITYBUILDER,?,?>> joinColumns = resetColumnPrefixes(prefixer, newPrefix, originalDaoDescriptor.joinColumns());
         PrimaryKey<PK,ENTITY, ENTITYBUILDER> primaryKey = (PrimaryKey<PK,ENTITY, ENTITYBUILDER>) originalDaoDescriptor.primaryKey().withPrefix(newPrefix, prefixer);
         ParentColumn<ENTITY, PARENT, ENTITYBUILDER, ?> parentColumn = null;
         if( originalDaoDescriptor.hasParent()) {
@@ -43,12 +43,12 @@ public class RelativeDaoDescriptor<PK, ENTITY, PARENT, ENTITYBUILDER> implements
         this.columnCollection = new ColumnCollection<PK, ENTITY, ENTITYBUILDER>(primaryKey, parentColumn, dataColumns, joinColumns);
     }
 
-    private List<JoinColumn<ENTITY,?, ENTITYBUILDER,?>> resetColumnPrefixes(Prefixer prefixer,
+    private List<JoinColumn<ENTITY,?, ENTITYBUILDER,?,?>> resetColumnPrefixes(Prefixer prefixer,
                                                                             String joinedTablePrefix,
-                                                                            List<JoinColumn<ENTITY,?, ENTITYBUILDER,?>> joinColumns){
-        List<JoinColumn<ENTITY,?, ENTITYBUILDER,?>> tmp = new ArrayList<>();
-        for(JoinColumn<ENTITY,?, ENTITYBUILDER,?> column : joinColumns){
-            JoinColumn<ENTITY,?, ENTITYBUILDER,?> resetColumn = column.withPrefix(joinedTablePrefix, prefixer);
+                                                                            List<JoinColumn<ENTITY,?, ENTITYBUILDER,?,?>> joinColumns){
+        List<JoinColumn<ENTITY,?, ENTITYBUILDER,?,?>> tmp = new ArrayList<>();
+        for(JoinColumn<ENTITY,?, ENTITYBUILDER,?,?> column : joinColumns){
+            JoinColumn<ENTITY,?, ENTITYBUILDER,?,?> resetColumn = column.withPrefix(joinedTablePrefix, prefixer);
             tmp.add(resetColumn);
         }
         return tmp;
