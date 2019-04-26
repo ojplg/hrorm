@@ -98,7 +98,8 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
         for(CHILD child : children){
             Long childId = childPrimaryKey.getKey(child);
             if( childId == null ) {
-                childId = sqlRunner.runSequenceNextValue(sqlBuilder.nextSequence());
+                KeyProducer<Long> keyProducer = childPrimaryKey.getKeyProducer();
+                childId = keyProducer.produceKey(connection);
                 childPrimaryKey.optimisticSetKey(child, childId);
                 String sql = sqlBuilder.insert();
                 Envelope<CHILD, Long> childEnvelope = new Envelope<>(child, childId, parentId);

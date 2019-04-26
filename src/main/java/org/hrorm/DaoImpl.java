@@ -49,7 +49,8 @@ public class DaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> extends AbstractDao
     @Override
     public Long insert(ENTITY item) {
         String sql = sqlBuilder.insert();
-        Long id = sqlRunner.runSequenceNextValue(sqlBuilder.nextSequence());
+        KeyProducer<Long> keyProducer = primaryKey.getKeyProducer();
+        Long id = keyProducer.produceKey(connection);
         primaryKey.optimisticSetKey(item, id);
         Envelope<ENTITY, Long> envelope = newEnvelope(item, id);
         sqlRunner.insert(sql, envelope);

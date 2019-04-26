@@ -17,7 +17,7 @@ import java.util.function.Function;
  *
  * @param <ENTITY> The type of the class being persisted.
  */
-public class DirectPrimaryKey<ENTITY> implements PrimaryKey<Long, ENTITY, ENTITY> {
+public class DirectPrimaryKey<ENTITY> implements SequencedPrimaryKey<ENTITY, ENTITY> {
 
     private final String prefix;
     private final String name;
@@ -137,5 +137,10 @@ public class DirectPrimaryKey<ENTITY> implements PrimaryKey<Long, ENTITY, ENTITY
     @Override
     public Long toClassType(Long value){
         return value;
+    }
+
+    @Override
+    public KeyProducer<Long> getKeyProducer() {
+        return new SequenceKeyProducer(this);
     }
 }

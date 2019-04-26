@@ -284,7 +284,6 @@ public class SqlRunner<PK, ENTITY, BUILDER> {
         }
     }
 
-
     public long runSequenceNextValue(String sql) {
         Statement statement = null;
         ResultSet resultSet = null;

@@ -18,7 +18,7 @@ import java.util.function.Function;
  * @param <ENTITY> The type of the class being persisted.
  * @param <BUILDER> The type of the class that can construct new <code>ENTITY</code> instances.
  */
-public class IndirectPrimaryKey<ENTITY, BUILDER> implements PrimaryKey<Long, ENTITY, BUILDER> {
+public class IndirectPrimaryKey<ENTITY, BUILDER> implements SequencedPrimaryKey<ENTITY, BUILDER> {
 
     private final String prefix;
     private final String name;
@@ -139,5 +139,10 @@ public class IndirectPrimaryKey<ENTITY, BUILDER> implements PrimaryKey<Long, ENT
     @Override
     public Long toClassType(Long dbType) {
         return dbType;
+    }
+
+    @Override
+    public KeyProducer<Long> getKeyProducer() {
+        return new SequenceKeyProducer(this);
     }
 }

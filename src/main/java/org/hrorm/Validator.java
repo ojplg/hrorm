@@ -63,11 +63,14 @@ public class Validator extends KeylessValidator {
     private static List<String> checkSequenceExists(Connection connection, DaoDescriptor<?, ?, ?> daoDescriptor) {
         List<String> errors = new ArrayList<>();
         try {
-            String sequenceName = daoDescriptor.primaryKey().getSequenceName();
-            Statement statement = connection.createStatement();
-            ResultSet resultSet = statement.executeQuery("select nextval('" + sequenceName + "')");
-            while (resultSet.next()) {
-                resultSet.getLong(1);
+            if( daoDescriptor.primaryKey() instanceof SequencedPrimaryKey ) {
+                SequencedPrimaryKey primaryKey = (SequencedPrimaryKey) daoDescriptor.primaryKey();
+                String sequenceName = primaryKey.getSequenceName();
+                Statement statement = connection.createStatement();
+                ResultSet resultSet = statement.executeQuery("select nextval('" + sequenceName + "')");
+                while (resultSet.next()) {
+                    resultSet.getLong(1);
+                }
             }
         } catch (SQLException ex){
             errors.add(ex.getMessage());

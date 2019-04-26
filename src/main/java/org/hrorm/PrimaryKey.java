@@ -24,11 +24,5 @@ public interface PrimaryKey<T, ENTITY, BUILDER> extends Column<T, T, ENTITY, BUI
 
     T getKey(ENTITY item);
 
-    /**
-     * The name of the database sequence that is used to populate this key
-     *
-     * @return the sequence name
-     */
-    String getSequenceName();
-
+    KeyProducer<T> getKeyProducer();
 }

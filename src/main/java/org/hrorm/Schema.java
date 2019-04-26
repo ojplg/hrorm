@@ -188,9 +188,15 @@ public class Schema {
      * @return The SQL to create the sequences.
      */
     public List<String> sequences(){
-        return descriptors.stream()
-                .map(d -> createSequenceSql(d.primaryKey().getSequenceName()))
-                .collect(Collectors.toList());
+        List<String> sequenceSqls = new ArrayList<>();
+        for(DaoDescriptor descriptor : descriptors){
+            PrimaryKey key = descriptor.primaryKey();
+            if ( key instanceof SequencedPrimaryKey ){
+                SequencedPrimaryKey castKey = (SequencedPrimaryKey) key;
+                sequenceSqls.add(createSequenceSql(castKey.getSequenceName()));
+            }
+        }
+        return sequenceSqls;
     }
 
     private String createSequenceSql(String sequenceName){

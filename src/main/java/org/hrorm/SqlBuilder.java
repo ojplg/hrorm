@@ -227,11 +227,4 @@ public class SqlBuilder<ENTITY> implements Queries {
 
         return buf.toString();
     }
-
-    public String nextSequence(){
-        if ( primaryKey == null ){
-            throw new HrormException("Cannot get sequence value without primary key");
-        }
-        return "select nextval('" + primaryKey.getSequenceName() + "')";
-    }
 }
