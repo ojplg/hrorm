@@ -33,7 +33,7 @@ public class KeylessDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> extends Abst
     }
 
     @Override
-    protected List<ChildrenDescriptor<ENTITY, ?, BUILDER, ?>> childrenDescriptors() {
+    protected List<ChildrenDescriptor<ENTITY, ?, BUILDER, ?, ?>> childrenDescriptors() {
         return Collections.emptyList();
     }
 }

@@ -23,7 +23,7 @@ public class DaoBuilder<ENTITY> implements SchemaDescriptor<Long, ENTITY, ENTITY
 
     private final ColumnCollection<Long, ENTITY,ENTITY> columnCollection = new ColumnCollection<>();
     private final DaoBuilderHelper<ENTITY, ENTITY> daoBuilderHelper;
-    private final List<ChildrenDescriptor<ENTITY,?, ENTITY,?>> childrenDescriptors = new ArrayList<>();
+    private final List<ChildrenDescriptor<ENTITY,?, ENTITY,?,?>> childrenDescriptors = new ArrayList<>();
 
     /**
      * Create a new DaoBuilder instance.
@@ -51,12 +51,12 @@ public class DaoBuilder<ENTITY> implements SchemaDescriptor<Long, ENTITY, ENTITY
     }
 
     @Override
-    public List<ChildrenDescriptor<ENTITY, ?, ENTITY, ?>> childrenDescriptors() {
+    public List<ChildrenDescriptor<ENTITY, ?, ENTITY, ?, ?>> childrenDescriptors() {
         return childrenDescriptors;
     }
 
     @Override
-    public ParentColumn<ENTITY, ?, ENTITY, ?> parentColumn() {
+    public ParentColumn<ENTITY, ?, ENTITY, ?, ?> parentColumn() {
         return columnCollection.getParentColumn();
     }
 
@@ -271,7 +271,7 @@ public class DaoBuilder<ENTITY> implements SchemaDescriptor<Long, ENTITY, ENTITY
             throw new HrormException("Children must have a parent column");
         }
 
-        ChildrenDescriptor<ENTITY, CHILD, ENTITY, CHILDBUILDER> childrenDescriptor
+        ChildrenDescriptor<ENTITY, CHILD, ENTITY, CHILDBUILDER,?> childrenDescriptor
                 = new ChildrenDescriptor<>(getter, setter, childDaoDescriptor, primaryKey(), daoBuilderHelper.getBuildFunction());
 
         childrenDescriptors.add(childrenDescriptor);
@@ -305,7 +305,7 @@ public class DaoBuilder<ENTITY> implements SchemaDescriptor<Long, ENTITY, ENTITY
      * @return This instance.
      */
     public <P> DaoBuilder<ENTITY> withParentColumn(String columnName, Function<ENTITY,P> getter, BiConsumer<ENTITY,P> setter){
-        ParentColumnImpl<ENTITY,P, ENTITY,?> column = new ParentColumnImpl<>(columnName, daoBuilderHelper.getPrefix(), getter, setter);
+        ParentColumnImpl<ENTITY,P, ENTITY,?,?> column = new ParentColumnImpl<>(columnName, daoBuilderHelper.getPrefix(), getter, setter);
         columnCollection.setParentColumn(column);
         return this;
     }
@@ -317,7 +317,7 @@ public class DaoBuilder<ENTITY> implements SchemaDescriptor<Long, ENTITY, ENTITY
      * @return This instance.
      */
     public DaoBuilder<ENTITY> withParentColumn(String columnName){
-        NoBackReferenceParentColumn<ENTITY, ?, ENTITY, ?> column = new NoBackReferenceParentColumn<>(columnName, daoBuilderHelper.getPrefix());
+        NoBackReferenceParentColumn<ENTITY, ?, ENTITY, ?, ?> column = new NoBackReferenceParentColumn<>(columnName, daoBuilderHelper.getPrefix());
         columnCollection.setParentColumn(column);
         return this;
     }

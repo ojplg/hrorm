@@ -24,7 +24,7 @@ public class RelativeDaoDescriptor<PK, ENTITY, PARENT, ENTITYBUILDER> implements
     private final Supplier<ENTITYBUILDER> supplier;
 
     private final ColumnCollection<PK, ENTITY, ENTITYBUILDER> columnCollection;
-    private final List<ChildrenDescriptor<ENTITY,?, ENTITYBUILDER,?>> childrenDescriptors;
+    private final List<ChildrenDescriptor<ENTITY,?, ENTITYBUILDER,?,?>> childrenDescriptors;
     private final Function<ENTITYBUILDER, ENTITY> buildFunction;
 
     public RelativeDaoDescriptor(DaoDescriptor<PK, ENTITY, ENTITYBUILDER> originalDaoDescriptor, String newPrefix, Prefixer prefixer){
@@ -36,9 +36,9 @@ public class RelativeDaoDescriptor<PK, ENTITY, PARENT, ENTITYBUILDER> implements
         List<Column<?, ?, ENTITY, ENTITYBUILDER>> dataColumns = originalDaoDescriptor.dataColumns().stream().map(c -> c.withPrefix(newPrefix, prefixer)).collect(Collectors.toList());
         List<JoinColumn<ENTITY,?,ENTITYBUILDER,?,?>> joinColumns = resetColumnPrefixes(prefixer, newPrefix, originalDaoDescriptor.joinColumns());
         PrimaryKey<PK,ENTITY, ENTITYBUILDER> primaryKey = (PrimaryKey<PK,ENTITY, ENTITYBUILDER>) originalDaoDescriptor.primaryKey().withPrefix(newPrefix, prefixer);
-        ParentColumn<ENTITY, PARENT, ENTITYBUILDER, ?> parentColumn = null;
+        ParentColumn<ENTITY, PARENT, ENTITYBUILDER, ?, ?> parentColumn = null;
         if( originalDaoDescriptor.hasParent()) {
-            parentColumn = (ParentColumn<ENTITY, PARENT, ENTITYBUILDER, ?>) originalDaoDescriptor.parentColumn().withPrefix(newPrefix, prefixer);
+            parentColumn = (ParentColumn<ENTITY, PARENT, ENTITYBUILDER, ?, ?>) originalDaoDescriptor.parentColumn().withPrefix(newPrefix, prefixer);
         }
         this.columnCollection = new ColumnCollection<PK, ENTITY, ENTITYBUILDER>(primaryKey, parentColumn, dataColumns, joinColumns);
     }
@@ -70,12 +70,12 @@ public class RelativeDaoDescriptor<PK, ENTITY, PARENT, ENTITYBUILDER> implements
     }
 
     @Override
-    public List<ChildrenDescriptor<ENTITY, ?, ENTITYBUILDER, ?>> childrenDescriptors() {
+    public List<ChildrenDescriptor<ENTITY, ?, ENTITYBUILDER, ?, ?>> childrenDescriptors() {
         return childrenDescriptors;
     }
 
     @Override
-    public ParentColumn<ENTITY, ?, ENTITYBUILDER, ?> parentColumn() {
+    public ParentColumn<ENTITY, ?, ENTITYBUILDER, ?, ?> parentColumn() {
         return columnCollection.getParentColumn();
     }
 

@@ -19,12 +19,14 @@ import java.util.function.BiConsumer;
  * @param <BUILDER> The type of object that can build an <code>ENTITY</code> instance.
  * @param <PARENTBUILDER> The type of the object that can build a <code>PARENT</code> instance.
  */
-public class NoBackReferenceParentColumn<ENTITY, PARENT, BUILDER, PARENTBUILDER> implements ParentColumn<ENTITY, PARENT, BUILDER, PARENTBUILDER> {
+public class NoBackReferenceParentColumn<ENTITY, PARENT, BUILDER, PARENTBUILDER, PARENTPK> implements ParentColumn<ENTITY, PARENT, BUILDER, PARENTBUILDER, PARENTPK> {
 
     private final String name;
     private final String prefix;
 
     private String sqlTypeName = "integer";
+
+    private PrimaryKey<PARENTPK, PARENT, PARENTBUILDER> parentPrimaryKey;
 
     public NoBackReferenceParentColumn(String name, String prefix) {
         this.name = name;
@@ -32,7 +34,8 @@ public class NoBackReferenceParentColumn<ENTITY, PARENT, BUILDER, PARENTBUILDER>
     }
 
     @Override
-    public void setParentPrimaryKey(PrimaryKey<Long,PARENT, PARENTBUILDER> primaryKey) {
+    public void setParentPrimaryKey(PrimaryKey<PARENTPK,PARENT, PARENTBUILDER> primaryKey) {
+        this.parentPrimaryKey = primaryKey;
     }
 
     @Override
@@ -61,18 +64,18 @@ public class NoBackReferenceParentColumn<ENTITY, PARENT, BUILDER, PARENTBUILDER>
     }
 
     @Override
-    public ResultSetReader<Long> getReader(){
-        return ResultSet::getLong;
+    public ResultSetReader<PARENTPK> getReader(){
+        return parentPrimaryKey.getReader();
     }
 
     @Override
-    public PreparedStatementSetter<Long> getStatementSetter() {
-        return PreparedStatement::setLong;
+    public PreparedStatementSetter<PARENTPK> getStatementSetter() {
+        return parentPrimaryKey.getStatementSetter();
     }
 
 
     @Override
-    public Column<Long, Long, ENTITY, BUILDER> withPrefix(String newPrefix, Prefixer prefixer) {
+    public Column<PARENTPK, PARENTPK, ENTITY, BUILDER> withPrefix(String newPrefix, Prefixer prefixer) {
         return new NoBackReferenceParentColumn(name, newPrefix);
     }
 
@@ -90,7 +93,7 @@ public class NoBackReferenceParentColumn<ENTITY, PARENT, BUILDER, PARENTBUILDER>
     public Set<Integer> supportedTypes() { return ColumnTypes.IntegerTypes; }
 
     @Override
-    public Long getParentId(ENTITY entity) {
+    public PARENTPK getParentId(ENTITY entity) {
         return null;
     }
 
@@ -108,7 +111,7 @@ public class NoBackReferenceParentColumn<ENTITY, PARENT, BUILDER, PARENTBUILDER>
     }
 
     @Override
-    public Long toClassType(Long dbType) {
+    public PARENTPK toClassType(PARENTPK dbType) {
         return dbType;
     }
 }

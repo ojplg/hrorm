@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 public class ColumnCollection<PK,ENTITY,BUILDER> {
 
     private PrimaryKey<PK,ENTITY, BUILDER> primaryKey;
-    private ParentColumn<ENTITY, ?, BUILDER, ?> parentColumn;
+    private ParentColumn<ENTITY, ?, BUILDER, ?, ?> parentColumn;
     private List<Column<?, ?, ENTITY, BUILDER>> dataColumns;
     private List<JoinColumn<ENTITY, ?, BUILDER, ?, ?>> joinColumns;
 
@@ -30,7 +30,7 @@ public class ColumnCollection<PK,ENTITY,BUILDER> {
     }
 
     public ColumnCollection(PrimaryKey<PK,ENTITY, BUILDER> primaryKey,
-                            ParentColumn<ENTITY, ?, BUILDER, ?> parentColumn,
+                            ParentColumn<ENTITY, ?, BUILDER, ?, ?> parentColumn,
                             List<Column<?, ?, ENTITY, BUILDER>> dataColumns,
                             List<JoinColumn<ENTITY, ?, BUILDER, ?, ?>> joinColumns) {
         this.primaryKey = primaryKey;
@@ -61,11 +61,11 @@ public class ColumnCollection<PK,ENTITY,BUILDER> {
         this.primaryKey = primaryKey;
     }
 
-    public ParentColumn<ENTITY, ?, BUILDER, ?> getParentColumn() {
+    public ParentColumn<ENTITY, ?, BUILDER, ?, ?> getParentColumn() {
         return parentColumn;
     }
 
-    public void setParentColumn(ParentColumn<ENTITY, ?, BUILDER, ?> parentColumn) {
+    public void setParentColumn(ParentColumn<ENTITY, ?, BUILDER, ?, ?> parentColumn) {
         if ( this.parentColumn != null ){
             throw new HrormException("Attempt to set a second parent");
         }
@@ -112,7 +112,7 @@ public class ColumnCollection<PK,ENTITY,BUILDER> {
     }
 
     public static <P, E, B> List<Column<?, ?, E, B>> nonJoinColumns(PrimaryKey<P, E, B> primaryKey,
-                                                                    ParentColumn<E, ?, B, ?> parentColumn,
+                                                                    ParentColumn<E, ?, B, ?, ?> parentColumn,
                                                                     List<Column<?, ?, E, B>> dataColumns) {
         List<Column<?, ?, E, B>> columns = new ArrayList<>();
         if (primaryKey != null) {

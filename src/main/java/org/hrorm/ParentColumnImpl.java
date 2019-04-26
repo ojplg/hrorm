@@ -2,7 +2,6 @@ package org.hrorm;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -20,13 +19,13 @@ import java.util.function.Function;
  * @param <CHILDBUILDER> The class used to construct new <code>CHILD</code> instances
  * @param <PARENTBUILDER> The class used to construct new <code>PARENT</code> instances
  */
-public class ParentColumnImpl<CHILD, PARENT, CHILDBUILDER, PARENTBUILDER> implements ParentColumn<CHILD, PARENT, CHILDBUILDER, PARENTBUILDER> {
+public class ParentColumnImpl<CHILD, PARENT, CHILDBUILDER, PARENTBUILDER, PARENTPK> implements ParentColumn<CHILD, PARENT, CHILDBUILDER, PARENTBUILDER, PARENTPK> {
 
     private final String name;
     private final String prefix;
     private final BiConsumer<CHILDBUILDER, PARENT> setter;
     private final Function<CHILD, PARENT> getter;
-    private PrimaryKey<Long,PARENT, PARENTBUILDER> parentPrimaryKey;
+    private PrimaryKey<PARENTPK,PARENT, PARENTBUILDER> parentPrimaryKey;
     private boolean nullable;
     private String sqlTypeName;
 
@@ -39,7 +38,7 @@ public class ParentColumnImpl<CHILD, PARENT, CHILDBUILDER, PARENTBUILDER> implem
     }
 
     public ParentColumnImpl(String name, String prefix, Function<CHILD, PARENT> getter, BiConsumer<CHILDBUILDER, PARENT> setter,
-                            PrimaryKey<Long,PARENT, PARENTBUILDER> parentPrimaryKey, boolean nullable) {
+                            PrimaryKey<PARENTPK,PARENT, PARENTBUILDER> parentPrimaryKey, boolean nullable) {
         this.name = name;
         this.prefix = prefix;
         this.getter = getter;
@@ -69,17 +68,17 @@ public class ParentColumnImpl<CHILD, PARENT, CHILDBUILDER, PARENTBUILDER> implem
     }
 
     @Override
-    public ResultSetReader<Long> getReader(){
-        return ResultSet::getLong;
+    public ResultSetReader<PARENTPK> getReader(){
+        return parentPrimaryKey.getReader();
     }
 
     @Override
-    public PreparedStatementSetter<Long> getStatementSetter() {
-        return PreparedStatement::setLong;
+    public PreparedStatementSetter<PARENTPK> getStatementSetter() {
+        return parentPrimaryKey.getStatementSetter();
     }
 
     @Override
-    public Column<Long, Long, CHILD, CHILDBUILDER> withPrefix(String prefix, Prefixer prefixer) {
+    public Column<PARENTPK, PARENTPK, CHILD, CHILDBUILDER> withPrefix(String prefix, Prefixer prefixer) {
         return new ParentColumnImpl<>(name, prefix, getter, setter, parentPrimaryKey, nullable);
     }
 
@@ -92,7 +91,7 @@ public class ParentColumnImpl<CHILD, PARENT, CHILDBUILDER, PARENTBUILDER> implem
         return setter;
     }
 
-    public void setParentPrimaryKey(PrimaryKey<Long, PARENT, PARENTBUILDER> parentPrimaryKey) {
+    public void setParentPrimaryKey(PrimaryKey<PARENTPK, PARENT, PARENTBUILDER> parentPrimaryKey) {
         this.parentPrimaryKey = parentPrimaryKey;
     }
 
@@ -100,7 +99,7 @@ public class ParentColumnImpl<CHILD, PARENT, CHILDBUILDER, PARENTBUILDER> implem
     public Set<Integer> supportedTypes() { return ColumnTypes.IntegerTypes; }
 
     @Override
-    public Long getParentId(CHILD child) {
+    public PARENTPK getParentId(CHILD child) {
         PARENT parent = getter.apply(child);
         return parentPrimaryKey.getKey(parent);
     }
@@ -117,7 +116,7 @@ public class ParentColumnImpl<CHILD, PARENT, CHILDBUILDER, PARENTBUILDER> implem
     public void setSqlTypeName(String sqlTypeName) { this.sqlTypeName = sqlTypeName; }
 
     @Override
-    public Long toClassType(Long value){
+    public PARENTPK toClassType(PARENTPK value){
         return value;
     }
 }

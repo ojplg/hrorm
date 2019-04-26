@@ -69,7 +69,7 @@ public class Schema {
 
     private Stream<String> childConstraints(DaoDescriptor<?,?,?> descriptor){
         List<String> constraints = new ArrayList<>();
-        for( ChildrenDescriptor<?,?,?,?> childDescriptor : descriptor.childrenDescriptors()){
+        for( ChildrenDescriptor childDescriptor : descriptor.childrenDescriptors()){
             String constraint = foreignKeyConstraint(
                     childDescriptor.childTableName(),
                     childDescriptor.parentChildColumnName(),

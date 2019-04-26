@@ -54,7 +54,7 @@ public abstract class AbstractDao<ENTITY, BUILDER> implements KeylessDaoDescript
         this.sqlRunner = new SqlRunner<>(connection, daoDescriptor);
     }
 
-    protected abstract List<ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors();
+    protected abstract List<ChildrenDescriptor<ENTITY,?, BUILDER,?, ?>> childrenDescriptors();
 
     public abstract Long insert(ENTITY item);
 

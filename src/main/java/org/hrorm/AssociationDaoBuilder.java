@@ -193,7 +193,7 @@ public class AssociationDaoBuilder<LEFT, RIGHT>
     }
 
     @Override
-    public List<ChildrenDescriptor<Association<LEFT, RIGHT>, ?, Association<LEFT, RIGHT>, ?>> childrenDescriptors() {
+    public List<ChildrenDescriptor<Association<LEFT, RIGHT>, ?, Association<LEFT, RIGHT>, ?, ?>> childrenDescriptors() {
         prepareDaoBuilder();
         return internalDaoBuilder.childrenDescriptors();
     }
@@ -204,7 +204,7 @@ public class AssociationDaoBuilder<LEFT, RIGHT>
     }
 
     @Override
-    public ParentColumn<Association<LEFT, RIGHT>, ?, Association<LEFT, RIGHT>, ?> parentColumn() {
+    public ParentColumn<Association<LEFT, RIGHT>, ?, Association<LEFT, RIGHT>, ?, ?> parentColumn() {
         prepareDaoBuilder();
         return internalDaoBuilder.parentColumn();
     }

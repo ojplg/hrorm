@@ -44,14 +44,14 @@ public class SqlRunner<PK, ENTITY, BUILDER> {
         this.allColumns = daoDescriptor.allColumns();
     }
 
-    public List<BUILDER> select(String sql, Supplier<BUILDER> supplier, List<ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors){
+    public List<BUILDER> select(String sql, Supplier<BUILDER> supplier, List<ChildrenDescriptor<ENTITY,?, BUILDER,?,?>> childrenDescriptors){
         return selectByColumns(sql, supplier, ColumnSelection.empty(), childrenDescriptors, null);
     }
 
     public List<BUILDER> selectByColumns(String sql,
                                          Supplier<BUILDER> supplier,
                                          ColumnSelection<ENTITY,BUILDER> columnSelection,
-                                         List<? extends ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors,
+                                         List<? extends ChildrenDescriptor<ENTITY,?, BUILDER,?,?>> childrenDescriptors,
                                          ENTITY item){
         BiFunction<List<BUILDER>, BUILDER, List<BUILDER>> accumulator =
                 (list, b) -> { list.add(b); return list; };
@@ -69,7 +69,7 @@ public class SqlRunner<PK, ENTITY, BUILDER> {
 
     public List<BUILDER> selectWhere(String sql,
                                      Supplier<BUILDER> supplier,
-                                     List<? extends ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors,
+                                     List<? extends ChildrenDescriptor<ENTITY,?, BUILDER,?,?>> childrenDescriptors,
                                      Where where){
         BiFunction<List<BUILDER>, BUILDER, List<BUILDER>> accumulator =
                 (list, b) -> { list.add(b); return list; };
@@ -87,7 +87,7 @@ public class SqlRunner<PK, ENTITY, BUILDER> {
     public <T,X> T foldingSelect(String sql,
                                StatementPopulator statementPopulator,
                                Supplier<BUILDER> supplier,
-                               List<? extends ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors,
+                               List<? extends ChildrenDescriptor<ENTITY,?, BUILDER,?,?>> childrenDescriptors,
                                Function<BUILDER, X> buildFunction,
                                T identity,
                                BiFunction<T,X,T> accumulator){
@@ -105,7 +105,7 @@ public class SqlRunner<PK, ENTITY, BUILDER> {
 
             while (resultSet.next()) {
                 BUILDER bldr = populate(resultSet, supplier);
-                for(ChildrenDescriptor<ENTITY,?, BUILDER,?> descriptor : childrenDescriptors){
+                for(ChildrenDescriptor<ENTITY,?, BUILDER,?,?> descriptor : childrenDescriptors){
                     descriptor.populateChildren(connection, bldr);
                 }
                 X item = buildFunction.apply(bldr);

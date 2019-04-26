@@ -19,8 +19,8 @@ import java.util.List;
 public class DaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> extends AbstractDao<ENTITY, BUILDER> implements Dao<ENTITY>, DaoDescriptor<Long,ENTITY, BUILDER> {
 
     private final PrimaryKey<Long,ENTITY, BUILDER> primaryKey;
-    private final ParentColumn<ENTITY, PARENT, BUILDER, PARENTBUILDER> parentColumn;
-    private final List<ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors;
+    private final ParentColumn<ENTITY, PARENT, BUILDER, PARENTBUILDER, ?> parentColumn;
+    private final List<ChildrenDescriptor<ENTITY,?, BUILDER,?,?>> childrenDescriptors;
 
     public DaoImpl(Connection connection,
                    DaoDescriptor<Long,ENTITY, BUILDER> daoDescriptor){
@@ -37,12 +37,12 @@ public class DaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> extends AbstractDao
     public boolean hasParent() { return parentColumn != null; }
 
     @Override
-    public ParentColumn<ENTITY, PARENT, BUILDER, PARENTBUILDER> parentColumn() {
+    public ParentColumn<ENTITY, PARENT, BUILDER, PARENTBUILDER, ?> parentColumn() {
         return parentColumn;
     }
 
     @Override
-    public List<ChildrenDescriptor<ENTITY, ?, BUILDER, ?>> childrenDescriptors() {
+    public List<ChildrenDescriptor<ENTITY, ?, BUILDER, ?, ?>> childrenDescriptors() {
         return childrenDescriptors;
     }
 
@@ -54,7 +54,7 @@ public class DaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> extends AbstractDao
         primaryKey.optimisticSetKey(item, id);
         Envelope<ENTITY, Long> envelope = newEnvelope(item, id);
         sqlRunner.insert(sql, envelope);
-        for(ChildrenDescriptor<ENTITY,?, BUILDER,?> childrenDescriptor : childrenDescriptors){
+        for(ChildrenDescriptor<ENTITY,?, BUILDER,?, ?> childrenDescriptor : childrenDescriptors){
             childrenDescriptor.saveChildren(connection, envelope);
         }
         return id;
@@ -65,7 +65,7 @@ public class DaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> extends AbstractDao
         String sql = sqlBuilder.update();
         Envelope<ENTITY, Long> envelope = newEnvelope(item, primaryKey.getKey(item));
         sqlRunner.update(sql, envelope);
-        for(ChildrenDescriptor<ENTITY,?, BUILDER,?> childrenDescriptor : childrenDescriptors){
+        for(ChildrenDescriptor<ENTITY,?, BUILDER,?, ?> childrenDescriptor : childrenDescriptors){
             childrenDescriptor.saveChildren(connection, envelope);
         }
     }
@@ -115,7 +115,7 @@ public class DaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> extends AbstractDao
 
     private Envelope<ENTITY, Long> newEnvelope(ENTITY item, long id){
         if( parentColumn != null ){
-            Long parentId = parentColumn.getParentId(item);
+            Long parentId = (Long) parentColumn.getParentId(item);
             if ( parentId != null ){
                 return new Envelope<>(item, id, parentId);
             }

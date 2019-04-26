@@ -31,7 +31,7 @@ public interface DaoDescriptor<PK, ENTITY, ENTITYBUILDER> extends KeylessDaoDesc
      * @param <PB> The type of the parent entity's builder class.
      * @return The parent column.
      */
-    <P,PB> ParentColumn<ENTITY, P, ENTITYBUILDER, PB> parentColumn();
+    <P,PB,PPK> ParentColumn<ENTITY, P, ENTITYBUILDER, PB, PPK> parentColumn();
 
     /**
      * Indicator of whether or not this entity has a parent.
@@ -47,6 +47,6 @@ public interface DaoDescriptor<PK, ENTITY, ENTITYBUILDER> extends KeylessDaoDesc
      *
      * @return all the owned entities
      */
-    List<ChildrenDescriptor<ENTITY, ?, ENTITYBUILDER, ?>> childrenDescriptors();
+    List<ChildrenDescriptor<ENTITY, ?, ENTITYBUILDER, ?, ?>> childrenDescriptors();
 
 }

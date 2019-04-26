@@ -27,7 +27,7 @@ public class IndirectDaoBuilder<ENTITY, BUILDER>  implements SchemaDescriptor<Lo
 
     private final ColumnCollection<Long,ENTITY,BUILDER> columnCollection = new ColumnCollection<>();
     private final DaoBuilderHelper<ENTITY, BUILDER> daoBuilderHelper;
-    private final List<ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors = new ArrayList<>();
+    private final List<ChildrenDescriptor<ENTITY,?, BUILDER,?,?>> childrenDescriptors = new ArrayList<>();
 
     /**
      * Create a new <code>IndirectDaoBuilder</code> instance.
@@ -56,12 +56,12 @@ public class IndirectDaoBuilder<ENTITY, BUILDER>  implements SchemaDescriptor<Lo
     }
 
     @Override
-    public List<ChildrenDescriptor<ENTITY, ?, BUILDER, ?>> childrenDescriptors() {
+    public List<ChildrenDescriptor<ENTITY, ?, BUILDER, ?, ?>> childrenDescriptors() {
         return childrenDescriptors;
     }
 
     @Override
-    public ParentColumn<ENTITY, ?, BUILDER, ?> parentColumn() {
+    public ParentColumn<ENTITY, ?, BUILDER, ?, ?> parentColumn() {
         return columnCollection.getParentColumn();
     }
 
@@ -277,7 +277,7 @@ public class IndirectDaoBuilder<ENTITY, BUILDER>  implements SchemaDescriptor<Lo
             throw new HrormException("Children must have a parent column");
         }
 
-        ChildrenDescriptor<ENTITY, CHILD, BUILDER, CHILDBUILDER> childrenDescriptor
+        ChildrenDescriptor<ENTITY, CHILD, BUILDER, CHILDBUILDER, ?> childrenDescriptor
                 = new ChildrenDescriptor<>(getter, setter, childDaoDescriptor, primaryKey(), daoBuilderHelper.getBuildFunction());
 
         childrenDescriptors.add(childrenDescriptor);
@@ -311,7 +311,7 @@ public class IndirectDaoBuilder<ENTITY, BUILDER>  implements SchemaDescriptor<Lo
      * @return This instance.
      */
     public <P> IndirectDaoBuilder<ENTITY, BUILDER> withParentColumn(String columnName, Function<ENTITY,P> getter, BiConsumer<BUILDER,P> setter){
-        ParentColumnImpl<ENTITY,P, BUILDER,?> column = new ParentColumnImpl<>(columnName, daoBuilderHelper.getPrefix(), getter, setter);
+        ParentColumnImpl<ENTITY,P, BUILDER,?, ?> column = new ParentColumnImpl<>(columnName, daoBuilderHelper.getPrefix(), getter, setter);
         columnCollection.setParentColumn(column);
         return this;
     }
@@ -323,7 +323,7 @@ public class IndirectDaoBuilder<ENTITY, BUILDER>  implements SchemaDescriptor<Lo
      * @return This instance.
      */
     public IndirectDaoBuilder<ENTITY, BUILDER> withParentColumn(String columnName) {
-        NoBackReferenceParentColumn<ENTITY, ?, BUILDER, ?> column = new NoBackReferenceParentColumn<>(columnName, daoBuilderHelper.getPrefix());
+        NoBackReferenceParentColumn<ENTITY, ?, BUILDER, ?, ?> column = new NoBackReferenceParentColumn<>(columnName, daoBuilderHelper.getPrefix());
         columnCollection.setParentColumn(column);
         return this;
     }
