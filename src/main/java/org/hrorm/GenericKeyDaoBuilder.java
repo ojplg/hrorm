@@ -79,11 +79,11 @@ public class GenericKeyDaoBuilder<ENTITY, BUILDER, PK>  implements SchemaDescrip
      *                   for its operations.
      * @return The newly created <code>Dao</code>.
      */
-    public Dao<ENTITY> buildDao(Connection connection){
+    public GenericKeyDao<ENTITY, PK> buildDao(Connection connection){
         if( primaryKey() == null){
             throw new HrormException("Cannot create a Dao without a primary key.");
         }
-        throw new UnsupportedOperationException();
+        return new GenericKeyDaoImpl<>(connection, this);
     }
 
     /**

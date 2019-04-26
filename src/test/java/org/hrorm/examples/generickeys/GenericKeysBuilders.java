@@ -12,6 +12,7 @@ public class GenericKeysBuilders {
 
     public static final GenericKeyDaoBuilder<StringKeyed, StringKeyed, String> STRING_KEYED_DAO_BUILDER =
             new GenericKeyDaoBuilder<>("string_keyed_table", StringKeyed::new, t -> t, newStringKey)
-                    .withPrimaryKey("id", GenericColumn.STRING, StringKeyed::getId, StringKeyed::setId);
+                    .withPrimaryKey("id", GenericColumn.STRING, StringKeyed::getId, StringKeyed::setId).setSqlTypeName("varchar")
+                    .withLongColumn("data", StringKeyed::getData, StringKeyed::setData);
 
 }

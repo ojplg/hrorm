@@ -156,6 +156,11 @@ public class GenerativePrimaryKey<PK, ENTITY, BUILDER> implements PrimaryKey<PK,
         this.sqlTypeName = sqlTypeName;
     }
 
+    @Override
+    public boolean isPrimaryKey() {
+        return true;
+    }
+
     public GenericColumn<PK> getGenericColumn(){
         return genericColumn;
     }
