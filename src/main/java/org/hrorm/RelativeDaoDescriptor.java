@@ -18,12 +18,12 @@ import java.util.stream.Collectors;
  * @param <PARENT> The type of the parent of type <code>ENTITY</code>, if there is one
  * @param <ENTITYBUILDER> The type that can build a <code>ENTITY</code>
  */
-public class RelativeDaoDescriptor<ENTITY, PARENT, ENTITYBUILDER> implements DaoDescriptor<Long, ENTITY, ENTITYBUILDER> {
+public class RelativeDaoDescriptor<PK, ENTITY, PARENT, ENTITYBUILDER> implements DaoDescriptor<PK, ENTITY, ENTITYBUILDER> {
 
     private final String tableName;
     private final Supplier<ENTITYBUILDER> supplier;
 
-    private final ColumnCollection<Long, ENTITY, ENTITYBUILDER> columnCollection;
+    private final ColumnCollection<PK, ENTITY, ENTITYBUILDER> columnCollection;
     private final List<ChildrenDescriptor<ENTITY,?, ENTITYBUILDER,?>> childrenDescriptors;
     private final Function<ENTITYBUILDER, ENTITY> buildFunction;
 
@@ -35,12 +35,12 @@ public class RelativeDaoDescriptor<ENTITY, PARENT, ENTITYBUILDER> implements Dao
 
         List<Column<?, ?, ENTITY, ENTITYBUILDER>> dataColumns = originalDaoDescriptor.dataColumns().stream().map(c -> c.withPrefix(newPrefix, prefixer)).collect(Collectors.toList());
         List<JoinColumn<ENTITY,?,ENTITYBUILDER,?>> joinColumns = resetColumnPrefixes(prefixer, newPrefix, originalDaoDescriptor.joinColumns());
-        PrimaryKey<Long,ENTITY, ENTITYBUILDER> primaryKey = (PrimaryKey<Long,ENTITY, ENTITYBUILDER>) originalDaoDescriptor.primaryKey().withPrefix(newPrefix, prefixer);
+        PrimaryKey<PK,ENTITY, ENTITYBUILDER> primaryKey = (PrimaryKey<PK,ENTITY, ENTITYBUILDER>) originalDaoDescriptor.primaryKey().withPrefix(newPrefix, prefixer);
         ParentColumn<ENTITY, PARENT, ENTITYBUILDER, ?> parentColumn = null;
         if( originalDaoDescriptor.hasParent()) {
             parentColumn = (ParentColumn<ENTITY, PARENT, ENTITYBUILDER, ?>) originalDaoDescriptor.parentColumn().withPrefix(newPrefix, prefixer);
         }
-        this.columnCollection = new ColumnCollection<Long, ENTITY, ENTITYBUILDER>(primaryKey, parentColumn, dataColumns, joinColumns);
+        this.columnCollection = new ColumnCollection<PK, ENTITY, ENTITYBUILDER>(primaryKey, parentColumn, dataColumns, joinColumns);
     }
 
     private List<JoinColumn<ENTITY,?, ENTITYBUILDER,?>> resetColumnPrefixes(Prefixer prefixer,
@@ -65,7 +65,7 @@ public class RelativeDaoDescriptor<ENTITY, PARENT, ENTITYBUILDER> implements Dao
     }
 
     @Override
-    public ColumnCollection<Long, ENTITY, ENTITYBUILDER> getColumnCollection() {
+    public ColumnCollection<PK, ENTITY, ENTITYBUILDER> getColumnCollection() {
         return columnCollection;
     }
 
