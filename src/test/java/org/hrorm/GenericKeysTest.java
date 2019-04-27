@@ -66,6 +66,8 @@ public class GenericKeysTest {
             StringKeyed item = items.get(0);
             Assert.assertEquals(16L, (long) item.getData());
             Assert.assertNotNull(item.getId());
+
+            connection.close();
         }
 
     }
