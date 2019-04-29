@@ -18,7 +18,7 @@ import java.util.List;
  */
 public class GenericKeyDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER,PK>
         extends AbstractDao<ENTITY, BUILDER, PK>
-        implements GenericPrimaryKeyDao<PK,ENTITY>, DaoDescriptor<PK,ENTITY, BUILDER> {
+        implements GenericKeyDao<ENTITY, PK>, DaoDescriptor<PK,ENTITY, BUILDER> {
 
     private final GenerativePrimaryKey<PK,ENTITY, BUILDER> primaryKey;
     private final ParentColumn<ENTITY, PARENT, BUILDER, PARENTBUILDER, ?> parentColumn;
@@ -69,7 +69,12 @@ public class GenericKeyDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER,PK>
 
     @Override
     public void update(ENTITY item) {
-        throw new UnsupportedOperationException();
+        String sql = sqlBuilder.update();
+        Envelope<ENTITY, PK> envelope = newEnvelope(item, primaryKey.getKey(item));
+        keyedSqlRunner.update(sql, envelope);
+//        for(ChildrenDescriptor<ENTITY,?, BUILDER,?, ?> childrenDescriptor : childrenDescriptors){
+//            childrenDescriptor.saveChildren(connection, envelope);
+//        }
     }
 
     @Override

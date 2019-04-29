@@ -13,10 +13,6 @@ import org.junit.Test;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.List;
-
-import static org.hrorm.Operator.EQUALS;
-import static org.hrorm.Where.where;
 
 public class GenericKeysTest {
 
@@ -66,6 +62,47 @@ public class GenericKeysTest {
 
             connection.close();
         }
+    }
+
+
+    @Test
+    public void testInsertUpdateAndSelect() throws SQLException {
+        String key;
+        {
+            Connection connection = helper.connect();
+            GenericKeyDao<StringKeyed, String> dao = GenericKeysBuilders.STRING_KEYED_DAO_BUILDER.buildDao(connection);
+
+            StringKeyed item = new StringKeyed();
+            item.setData(166L);
+
+            key = dao.insert(item);
+
+            connection.commit();
+            connection.close();
+        }
+        {
+            Connection connection = helper.connect();
+            GenericKeyDao<StringKeyed, String> dao = GenericKeysBuilders.STRING_KEYED_DAO_BUILDER.buildDao(connection);
+
+            StringKeyed item = dao.select(key);
+            Assert.assertEquals(166L, (long) item.getData());
+            Assert.assertNotNull(item.getId());
+
+            item.setData(133L);
+
+            dao.update(item);
+
+            connection.commit();
+            connection.close();
+        }
+        {
+            Connection connection = helper.connect();
+            GenericKeyDao<StringKeyed, String> dao = GenericKeysBuilders.STRING_KEYED_DAO_BUILDER.buildDao(connection);
+
+            StringKeyed item = dao.select(key);
+            Assert.assertEquals(133L, (long) item.getData());
+        }
+
     }
 
 }

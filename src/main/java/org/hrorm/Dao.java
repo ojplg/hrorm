@@ -8,4 +8,4 @@ import java.util.List;
  *
  * @param <ENTITY> The type of the data to be persisted.
  */
-public interface Dao<ENTITY> extends GenericPrimaryKeyDao<Long,ENTITY> {}
+public interface Dao<ENTITY> extends GenericKeyDao<ENTITY, Long> {}
