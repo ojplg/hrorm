@@ -22,6 +22,9 @@ public class DaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> extends AbstractDao
     private final ParentColumn<ENTITY, PARENT, BUILDER, PARENTBUILDER, ?> parentColumn;
     private final List<ChildrenDescriptor<ENTITY,?, BUILDER,?,?>> childrenDescriptors;
 
+    // TODO: This should not be necessary, split the sql runner into parts again maybe?
+    private final SqlRunner<Long, ENTITY, BUILDER> keyedSqlRunner;
+
     public DaoImpl(Connection connection,
                    DaoDescriptor<Long,ENTITY, BUILDER> daoDescriptor){
         super(connection, daoDescriptor);
@@ -31,6 +34,7 @@ public class DaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> extends AbstractDao
         }
         this.primaryKey = daoDescriptor.primaryKey();
         this.parentColumn = daoDescriptor.parentColumn();
+        this.keyedSqlRunner = new SqlRunner<>(connection, daoDescriptor);
     }
 
     @Override
@@ -53,7 +57,7 @@ public class DaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> extends AbstractDao
         Long id = keyProducer.produceKey(connection);
         primaryKey.optimisticSetKey(item, id);
         Envelope<ENTITY, Long> envelope = newEnvelope(item, id);
-        sqlRunner.insert(sql, envelope);
+        keyedSqlRunner.insert(sql, envelope);
         for(ChildrenDescriptor<ENTITY,?, BUILDER,?, ?> childrenDescriptor : childrenDescriptors){
             childrenDescriptor.saveChildren(connection, envelope);
         }
@@ -64,7 +68,7 @@ public class DaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> extends AbstractDao
     public void update(ENTITY item) {
         String sql = sqlBuilder.update();
         Envelope<ENTITY, Long> envelope = newEnvelope(item, primaryKey.getKey(item));
-        sqlRunner.update(sql, envelope);
+        keyedSqlRunner.update(sql, envelope);
         for(ChildrenDescriptor<ENTITY,?, BUILDER,?, ?> childrenDescriptor : childrenDescriptors){
             childrenDescriptor.saveChildren(connection, envelope);
         }

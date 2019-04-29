@@ -24,6 +24,9 @@ public class GenericKeyDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER,PK>
     private final ParentColumn<ENTITY, PARENT, BUILDER, PARENTBUILDER, ?> parentColumn;
     private final List<ChildrenDescriptor<ENTITY,?, BUILDER,?,?>> childrenDescriptors;
 
+    // TODO: This should not be necessary, split the sql runner into parts again maybe?
+    private final SqlRunner<PK, ENTITY, BUILDER> keyedSqlRunner;
+
     public GenericKeyDaoImpl(Connection connection,
                              DaoDescriptor<PK,ENTITY, BUILDER> daoDescriptor){
         super(connection, daoDescriptor);
@@ -33,6 +36,8 @@ public class GenericKeyDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER,PK>
         }
         this.primaryKey = (GenerativePrimaryKey<PK,ENTITY, BUILDER>) daoDescriptor.primaryKey();
         this.parentColumn = daoDescriptor.parentColumn();
+
+        this.keyedSqlRunner = new SqlRunner<>(connection, daoDescriptor);
     }
 
     @Override
@@ -55,7 +60,7 @@ public class GenericKeyDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER,PK>
         PK id = keyProducer.produceKey(connection);
         primaryKey.optimisticSetKey(item, id);
         Envelope<ENTITY, PK> envelope = newEnvelope(item, id);
-        sqlRunner.insert(sql, envelope);
+        keyedSqlRunner.insert(sql, envelope);
 //        for(ChildrenDescriptor<ENTITY,?, BUILDER,?, ?> childrenDescriptor : childrenDescriptors){
 //            childrenDescriptor.saveChildren(connection, envelope);
 //        }

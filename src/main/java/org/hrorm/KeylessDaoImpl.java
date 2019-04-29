@@ -17,7 +17,7 @@ import java.util.List;
  * @param <BUILDER> The type of object that can build an <code>ENTITY</code> instance.
  * @param <PARENTBUILDER> The type of the object that can build a <code>PARENT</code> instance.
  */
-public class KeylessDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> extends AbstractDao<ENTITY, BUILDER, Long> implements KeylessDao<ENTITY> {
+public class KeylessDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> extends AbstractKeylessDao<ENTITY, BUILDER> implements KeylessDao<ENTITY> {
 
     public KeylessDaoImpl(Connection connection,
                           KeylessDaoDescriptor<ENTITY, BUILDER> daoDescriptor){
@@ -25,11 +25,10 @@ public class KeylessDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> extends Abst
     }
 
     @Override
-    public Long insert(ENTITY item) {
+    public void insert(ENTITY item) {
         String sql = sqlBuilder.insert();
-        Envelope<ENTITY, Long> envelope = new Envelope(item);
+        Envelope<ENTITY, Object> envelope = new Envelope(item);
         sqlRunner.insert(sql, envelope);
-        return null;
     }
 
     @Override

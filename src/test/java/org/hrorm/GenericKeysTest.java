@@ -60,16 +60,12 @@ public class GenericKeysTest {
             Connection connection = helper.connect();
             GenericKeyDao<StringKeyed, String> dao = GenericKeysBuilders.STRING_KEYED_DAO_BUILDER.buildDao(connection);
 
-            List<StringKeyed> items = dao.select(where("id", EQUALS, key));
-            Assert.assertEquals(1, items.size());
-
-            StringKeyed item = items.get(0);
+            StringKeyed item = dao.select(key);
             Assert.assertEquals(16L, (long) item.getData());
             Assert.assertNotNull(item.getId());
 
             connection.close();
         }
-
     }
 
 }

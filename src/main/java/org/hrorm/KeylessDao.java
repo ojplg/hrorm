@@ -11,4 +11,6 @@ import java.util.function.BiFunction;
  *
  * @param <ENTITY> The type of the data to be persisted.
  */
-public interface KeylessDao<ENTITY> extends GenericKeyDao<ENTITY, Long> {}
+public interface KeylessDao<ENTITY> extends UnkeyedDao<ENTITY> {
+    void insert(ENTITY entity);
+}
