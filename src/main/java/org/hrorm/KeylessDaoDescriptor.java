@@ -46,6 +46,7 @@ public interface KeylessDaoDescriptor<ENTITY, ENTITYBUILDER> {
         return new ColumnSelection(allColumns(), columnNames);
     }
 
+    // FIXME: Need a keyless and a keyed column collection? Ugh.
     ColumnCollection<?,ENTITY, ENTITYBUILDER> getColumnCollection();
 
     /**

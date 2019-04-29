@@ -77,7 +77,7 @@ public class DaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> extends AbstractDao
     @Override
     public void delete(ENTITY item) {
         String sql = sqlBuilder.delete();
-        sqlRunner.runPreparedDelete(sql, primaryKey.getKey(item));
+        keyedSqlRunner.runPreparedDelete(sql, primaryKey.getKey(item));
     }
 
     @Override

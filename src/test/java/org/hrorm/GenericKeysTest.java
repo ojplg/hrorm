@@ -66,6 +66,44 @@ public class GenericKeysTest {
 
 
     @Test
+    public void testInsertAndDelete() throws SQLException {
+        String key;
+        {
+            Connection connection = helper.connect();
+            GenericKeyDao<StringKeyed, String> dao = GenericKeysBuilders.STRING_KEYED_DAO_BUILDER.buildDao(connection);
+
+            StringKeyed item = new StringKeyed();
+            item.setData(166L);
+
+            key = dao.insert(item);
+
+            connection.commit();
+            connection.close();
+        }
+        {
+            Connection connection = helper.connect();
+            GenericKeyDao<StringKeyed, String> dao = GenericKeysBuilders.STRING_KEYED_DAO_BUILDER.buildDao(connection);
+
+            StringKeyed item = dao.select(key);
+            Assert.assertEquals(166L, (long) item.getData());
+            Assert.assertNotNull(item.getId());
+
+            dao.delete(item);
+
+            connection.commit();
+            connection.close();
+        }
+        {
+            Connection connection = helper.connect();
+            GenericKeyDao<StringKeyed, String> dao = GenericKeysBuilders.STRING_KEYED_DAO_BUILDER.buildDao(connection);
+
+            StringKeyed item = dao.select(key);
+            Assert.assertNull(item);
+        }
+
+    }
+
+    @Test
     public void testInsertUpdateAndSelect() throws SQLException {
         String key;
         {
@@ -104,5 +142,6 @@ public class GenericKeysTest {
         }
 
     }
+
 
 }

@@ -33,15 +33,24 @@ public class SqlRunner<PK, ENTITY, BUILDER> {
 
     private final Connection connection;
     private final List<Column<?, ?, ENTITY, BUILDER>> allColumns;
+    private final PrimaryKey<PK, ENTITY, BUILDER> primaryKey;
 
     public SqlRunner(Connection connection){
         this.connection = connection;
         this.allColumns = Collections.emptyList();
+        this.primaryKey = null;
     }
 
     public SqlRunner(Connection connection, KeylessDaoDescriptor<ENTITY, BUILDER> daoDescriptor) {
         this.connection = connection;
         this.allColumns = daoDescriptor.allColumns();
+        this.primaryKey = null;
+    }
+
+    public SqlRunner(Connection connection, DaoDescriptor<PK, ENTITY, BUILDER> daoDescriptor) {
+        this.connection = connection;
+        this.allColumns = daoDescriptor.allColumns();
+        this.primaryKey = daoDescriptor.primaryKey();
     }
 
     public List<BUILDER> select(String sql, Supplier<BUILDER> supplier, List<ChildrenDescriptor<ENTITY,?, BUILDER,?,?>> childrenDescriptors){
@@ -274,9 +283,10 @@ public class SqlRunner<PK, ENTITY, BUILDER> {
 
     }
 
-    public void runPreparedDelete(String sql, Long id){
+    public void runPreparedDelete(String sql, PK id){
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)){
-            preparedStatement.setLong(1, id);
+            PreparedStatementSetter<PK> setter = primaryKey.getStatementSetter();
+            setter.apply(preparedStatement, 1, id);
             logger.info(sql);
             preparedStatement.execute();
         } catch (SQLException ex){

@@ -79,7 +79,8 @@ public class GenericKeyDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER,PK>
 
     @Override
     public void delete(ENTITY item) {
-        throw new UnsupportedOperationException();
+        String sql = sqlBuilder.delete();
+        keyedSqlRunner.runPreparedDelete(sql, primaryKey.getKey(item));
     }
 
     @Override

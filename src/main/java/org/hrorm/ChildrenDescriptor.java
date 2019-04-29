@@ -132,7 +132,7 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER,PARENTPK
 
     private void deleteOrphans(Connection connection, Set<Long> badChildrenIds) {
         String preparedSql = sqlBuilder.delete();
-        SqlRunner<Long, CHILD, CHILDBUILDER> sqlRunner = new SqlRunner<>(connection);
+        SqlRunner<Long, CHILD, CHILDBUILDER> sqlRunner = new SqlRunner<>(connection, childDaoDescriptor);
 
         for(Long badId : badChildrenIds) {
             for( ChildrenDescriptor<CHILD,?,?,?,?> grandChildDescriptor : grandChildrenDescriptors()){
