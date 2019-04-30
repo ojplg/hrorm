@@ -102,6 +102,8 @@ public class GenericKeysTest {
 
             StringKeyed item = dao.select(key);
             Assert.assertNull(item);
+
+            connection.close();
         }
 
     }
@@ -142,6 +144,8 @@ public class GenericKeysTest {
 
             StringKeyed item = dao.select(key);
             Assert.assertEquals(133L, (long) item.getData());
+
+            connection.close();
         }
 
     }
@@ -167,7 +171,8 @@ public class GenericKeysTest {
             GenericKeyDao<StringKeyed, String> dao = GenericKeysBuilders.STRING_KEYED_DAO_BUILDER.buildDao(connection);
 
             List<StringKeyed> items = dao.selectAll();
-            AssertHelp.sameContents(keys, items, item -> item.getId());
+            AssertHelp.sameContents(keys, items, StringKeyed::getId);
+            connection.close();
         }
     }
 
