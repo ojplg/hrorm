@@ -90,7 +90,7 @@ public class NoBackReferenceParentColumn<ENTITY, PARENT, BUILDER, PARENTBUILDER,
     }
 
     @Override
-    public Set<Integer> supportedTypes() { return ColumnTypes.IntegerTypes; }
+    public Set<Integer> supportedTypes() { return parentPrimaryKey.supportedTypes(); }
 
     @Override
     public PARENTPK getParentId(ENTITY entity) {

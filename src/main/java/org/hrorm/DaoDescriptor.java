@@ -47,6 +47,6 @@ public interface DaoDescriptor<PK, ENTITY, ENTITYBUILDER> extends KeylessDaoDesc
      *
      * @return all the owned entities
      */
-    List<ChildrenDescriptor<ENTITY, ?, ENTITYBUILDER, ?, ?>> childrenDescriptors();
+    List<ChildrenDescriptor<ENTITY, ?, ENTITYBUILDER, ?, ?, ?>> childrenDescriptors();
 
 }

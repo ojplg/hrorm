@@ -30,7 +30,7 @@ public abstract class AbstractDao<ENTITY, BUILDER, PK> extends AbstractKeylessDa
         super(connection, daoDescriptor);
     }
 
-    protected abstract List<ChildrenDescriptor<ENTITY,?, BUILDER,?, ?>> childrenDescriptors();
+    protected abstract List<ChildrenDescriptor<ENTITY,?, BUILDER,?, ?,?>> childrenDescriptors();
 
     public abstract PK insert(ENTITY item);
 

@@ -24,7 +24,7 @@ public class RelativeDaoDescriptor<PK, ENTITY, PARENT, ENTITYBUILDER> implements
     private final Supplier<ENTITYBUILDER> supplier;
 
     private final ColumnCollection<PK, ENTITY, ENTITYBUILDER> columnCollection;
-    private final List<ChildrenDescriptor<ENTITY,?, ENTITYBUILDER,?,?>> childrenDescriptors;
+    private final List<ChildrenDescriptor<ENTITY,?, ENTITYBUILDER,?,?,?>> childrenDescriptors;
     private final Function<ENTITYBUILDER, ENTITY> buildFunction;
 
     public RelativeDaoDescriptor(DaoDescriptor<PK, ENTITY, ENTITYBUILDER> originalDaoDescriptor, String newPrefix, Prefixer prefixer){
@@ -70,7 +70,7 @@ public class RelativeDaoDescriptor<PK, ENTITY, PARENT, ENTITYBUILDER> implements
     }
 
     @Override
-    public List<ChildrenDescriptor<ENTITY, ?, ENTITYBUILDER, ?, ?>> childrenDescriptors() {
+    public List<ChildrenDescriptor<ENTITY, ?, ENTITYBUILDER, ?, ?, ?>> childrenDescriptors() {
         return childrenDescriptors;
     }
 

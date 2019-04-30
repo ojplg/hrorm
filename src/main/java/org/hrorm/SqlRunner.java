@@ -53,14 +53,14 @@ public class SqlRunner<PK, ENTITY, BUILDER> {
         this.primaryKey = daoDescriptor.primaryKey();
     }
 
-    public List<BUILDER> select(String sql, Supplier<BUILDER> supplier, List<ChildrenDescriptor<ENTITY,?, BUILDER,?,?>> childrenDescriptors){
+    public List<BUILDER> select(String sql, Supplier<BUILDER> supplier, List<ChildrenDescriptor<ENTITY,?, BUILDER,?,?,?>> childrenDescriptors){
         return selectByColumns(sql, supplier, ColumnSelection.empty(), childrenDescriptors, null);
     }
 
     public List<BUILDER> selectByColumns(String sql,
                                          Supplier<BUILDER> supplier,
                                          ColumnSelection<ENTITY,BUILDER> columnSelection,
-                                         List<? extends ChildrenDescriptor<ENTITY,?, BUILDER,?,?>> childrenDescriptors,
+                                         List<? extends ChildrenDescriptor<ENTITY,?, BUILDER,?,?,?>> childrenDescriptors,
                                          ENTITY item){
         BiFunction<List<BUILDER>, BUILDER, List<BUILDER>> accumulator =
                 (list, b) -> { list.add(b); return list; };
@@ -78,7 +78,7 @@ public class SqlRunner<PK, ENTITY, BUILDER> {
 
     public List<BUILDER> selectWhere(String sql,
                                      Supplier<BUILDER> supplier,
-                                     List<? extends ChildrenDescriptor<ENTITY,?, BUILDER,?,?>> childrenDescriptors,
+                                     List<? extends ChildrenDescriptor<ENTITY,?, BUILDER,?,?,?>> childrenDescriptors,
                                      Where where){
         BiFunction<List<BUILDER>, BUILDER, List<BUILDER>> accumulator =
                 (list, b) -> { list.add(b); return list; };
@@ -96,7 +96,7 @@ public class SqlRunner<PK, ENTITY, BUILDER> {
     public <T,X> T foldingSelect(String sql,
                                StatementPopulator statementPopulator,
                                Supplier<BUILDER> supplier,
-                               List<? extends ChildrenDescriptor<ENTITY,?, BUILDER,?,?>> childrenDescriptors,
+                               List<? extends ChildrenDescriptor<ENTITY,?, BUILDER,?,?,?>> childrenDescriptors,
                                Function<BUILDER, X> buildFunction,
                                T identity,
                                BiFunction<T,X,T> accumulator){
@@ -114,7 +114,7 @@ public class SqlRunner<PK, ENTITY, BUILDER> {
 
             while (resultSet.next()) {
                 BUILDER bldr = populate(resultSet, supplier);
-                for(ChildrenDescriptor<ENTITY,?, BUILDER,?,?> descriptor : childrenDescriptors){
+                for(ChildrenDescriptor<ENTITY,?, BUILDER,?,?,?> descriptor : childrenDescriptors){
                     descriptor.populateChildren(connection, bldr);
                 }
                 X item = buildFunction.apply(bldr);
@@ -228,15 +228,15 @@ public class SqlRunner<PK, ENTITY, BUILDER> {
         }
     }
 
-    public void insert(String sql, Envelope<ENTITY, PK> envelope) {
+    public void insert(String sql, Envelope<ENTITY, PK, ?> envelope) {
         runInsertOrUpdate(sql, envelope, false);
     }
 
-    public void update(String sql, Envelope<ENTITY, PK> envelope) {
+    public void update(String sql, Envelope<ENTITY, PK, ?> envelope) {
         runInsertOrUpdate(sql, envelope, true);
     }
 
-    private void runInsertOrUpdate(String sql, Envelope<ENTITY, PK> envelope, boolean isUpdate){
+    private <PARENTPK> void runInsertOrUpdate(String sql, Envelope<ENTITY, PK, PARENTPK> envelope, boolean isUpdate){
 
         PreparedStatement preparedStatement = null;
 
@@ -254,7 +254,8 @@ public class SqlRunner<PK, ENTITY, BUILDER> {
                         idx++;
                     }
                 } else if ( column.isParentColumn() ){
-                    preparedStatement.setLong(idx, envelope.getParentId());
+                    Column castColumn = (Column<PARENTPK, PARENTPK, ENTITY,BUILDER>) column;
+                    castColumn.getStatementSetter().apply(preparedStatement, idx, envelope.getParentId());
                     idx++;
                 } else if ( ! column.isPrimaryKey()  ){
                     column.setValue(envelope.getItem(), idx, preparedStatement);
@@ -319,20 +320,21 @@ public class SqlRunner<PK, ENTITY, BUILDER> {
         }
     }
 
-    public Set<Long> runChildSelectChildIds(String sql, Long id){
+    public <CHILDPK> Set<CHILDPK> runChildSelectChildIds(String sql, PK id, ResultSetReader<CHILDPK> reader, PreparedStatementSetter<PK> setter, String columnName){
         PreparedStatement statement = null;
         ResultSet resultSet = null;
 
         try {
-            Set<Long> longs = new HashSet<>();
+            Set<CHILDPK> ids = new HashSet<>();
             logger.info(sql);
             statement = connection.prepareStatement(sql);
-            statement.setLong(1, id);
+            setter.apply(statement, 1, id);
             resultSet = statement.executeQuery();
             while (resultSet.next()) {
-                longs.add(resultSet.getLong(1));
+                CHILDPK childId = reader.read(resultSet, columnName);
+                ids.add(childId);
             }
-            return longs;
+            return ids;
         } catch (SQLException ex){
             throw new HrormException(ex, sql);
         } finally {

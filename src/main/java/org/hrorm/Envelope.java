@@ -10,13 +10,13 @@ package org.hrorm;
  *
  * @param <T> The type of the item being held.
  */
-public class Envelope<T,PK> {
+public class Envelope<T,PK,PARENT_PK> {
 
     private final T item;
     private final PK id;
-    private final Long parentId;
+    private final PARENT_PK parentId;
 
-    public Envelope(T item, PK id, Long parentId){
+    public Envelope(T item, PK id, PARENT_PK parentId){
         if( item == null ){
             throw new HrormException("Cannot persist a null item");
         }
@@ -41,7 +41,7 @@ public class Envelope<T,PK> {
         return id;
     }
 
-    public Long getParentId() {
+    public PARENT_PK getParentId() {
         return parentId;
     }
 

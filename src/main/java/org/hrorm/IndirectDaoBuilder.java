@@ -27,7 +27,7 @@ public class IndirectDaoBuilder<ENTITY, BUILDER>  implements SchemaDescriptor<Lo
 
     private final ColumnCollection<Long,ENTITY,BUILDER> columnCollection = new ColumnCollection<>();
     private final DaoBuilderHelper<ENTITY, BUILDER> daoBuilderHelper;
-    private final List<ChildrenDescriptor<ENTITY,?, BUILDER,?,?>> childrenDescriptors = new ArrayList<>();
+    private final List<ChildrenDescriptor<ENTITY,?, BUILDER,?,?,?>> childrenDescriptors = new ArrayList<>();
 
     /**
      * Create a new <code>IndirectDaoBuilder</code> instance.
@@ -56,7 +56,7 @@ public class IndirectDaoBuilder<ENTITY, BUILDER>  implements SchemaDescriptor<Lo
     }
 
     @Override
-    public List<ChildrenDescriptor<ENTITY, ?, BUILDER, ?, ?>> childrenDescriptors() {
+    public List<ChildrenDescriptor<ENTITY, ?, BUILDER, ?, ?, ?>> childrenDescriptors() {
         return childrenDescriptors;
     }
 
@@ -277,7 +277,7 @@ public class IndirectDaoBuilder<ENTITY, BUILDER>  implements SchemaDescriptor<Lo
             throw new HrormException("Children must have a parent column");
         }
 
-        ChildrenDescriptor<ENTITY, CHILD, BUILDER, CHILDBUILDER, ?> childrenDescriptor
+        ChildrenDescriptor<ENTITY, CHILD, BUILDER, CHILDBUILDER, ?, ?> childrenDescriptor
                 = new ChildrenDescriptor<>(getter, setter, childDaoDescriptor, primaryKey(), daoBuilderHelper.getBuildFunction());
 
         childrenDescriptors.add(childrenDescriptor);

@@ -27,7 +27,7 @@ public class GenericKeyDaoBuilder<ENTITY, BUILDER, PK>  implements SchemaDescrip
 
     private final ColumnCollection<PK,ENTITY,BUILDER> columnCollection = new ColumnCollection<>();
     private final DaoBuilderHelper<ENTITY, BUILDER> daoBuilderHelper;
-    private final List<ChildrenDescriptor<ENTITY,?, BUILDER,?,?>> childrenDescriptors = new ArrayList<>();
+    private final List<ChildrenDescriptor<ENTITY,?, BUILDER,?,?,?>> childrenDescriptors = new ArrayList<>();
     private final Supplier<PK> primaryKeyGenerator;
 
     /**
@@ -58,7 +58,7 @@ public class GenericKeyDaoBuilder<ENTITY, BUILDER, PK>  implements SchemaDescrip
     }
 
     @Override
-    public List<ChildrenDescriptor<ENTITY, ?, BUILDER, ?, ?>> childrenDescriptors() {
+    public List<ChildrenDescriptor<ENTITY, ?, BUILDER, ?, ?, ?>> childrenDescriptors() {
         return childrenDescriptors;
     }
 
@@ -272,15 +272,15 @@ public class GenericKeyDaoBuilder<ENTITY, BUILDER, PK>  implements SchemaDescrip
      * @param <CHILDBUILDER> The type of the builder of child data elements
      * @return This instance.
      */
-    public <CHILD,CHILDBUILDER> GenericKeyDaoBuilder<ENTITY, BUILDER, PK> withChildren(Function<ENTITY, List<CHILD>> getter,
+    public <CHILD,FK,CHILDBUILDER> GenericKeyDaoBuilder<ENTITY, BUILDER, PK> withChildren(Function<ENTITY, List<CHILD>> getter,
                                                                                    BiConsumer<BUILDER, List<CHILD>> setter,
-                                                                                   DaoDescriptor<Long, CHILD,CHILDBUILDER> childDaoDescriptor){
+                                                                                   DaoDescriptor<FK, CHILD,CHILDBUILDER> childDaoDescriptor){
         if( ! childDaoDescriptor.hasParent() ){
             throw new HrormException("Children must have a parent column");
         }
 
-        ChildrenDescriptor<ENTITY, CHILD, BUILDER, CHILDBUILDER, ?> childrenDescriptor
-                = new ChildrenDescriptor<>(getter, setter, childDaoDescriptor, primaryKey(), daoBuilderHelper.getBuildFunction());
+        ChildrenDescriptor<ENTITY, CHILD, BUILDER, CHILDBUILDER, PK,FK> childrenDescriptor
+                = new ChildrenDescriptor<ENTITY, CHILD, BUILDER, CHILDBUILDER, PK, FK>(getter, setter, childDaoDescriptor, primaryKey(), daoBuilderHelper.getBuildFunction());
 
         childrenDescriptors.add(childrenDescriptor);
         return this;

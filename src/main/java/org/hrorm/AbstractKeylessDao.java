@@ -18,13 +18,13 @@ public abstract class AbstractKeylessDao<ENTITY, BUILDER> implements KeylessDaoD
     private final String tableName;
     private final Supplier<BUILDER> supplier;
     private final Function<BUILDER, ENTITY> buildFunction;
-    private final ColumnCollection<Object, ENTITY, BUILDER> columnCollection;
+    private final ColumnCollection<?, ENTITY, BUILDER> columnCollection;
 
     public AbstractKeylessDao(Connection connection,
                               KeylessDaoDescriptor<ENTITY, BUILDER> keylessDaoDescriptor){
         this.connection = connection;
         this.tableName = keylessDaoDescriptor.tableName();
-        this.columnCollection = (ColumnCollection<Object, ENTITY, BUILDER>) keylessDaoDescriptor.getColumnCollection();
+        this.columnCollection = keylessDaoDescriptor.getColumnCollection();
         this.supplier = keylessDaoDescriptor.supplier();
         this.buildFunction = keylessDaoDescriptor.buildFunction();
 
@@ -37,7 +37,7 @@ public abstract class AbstractKeylessDao<ENTITY, BUILDER> implements KeylessDaoD
         this.sqlRunner = new SqlRunner<>(connection, keylessDaoDescriptor);
     }
 
-    protected abstract List<ChildrenDescriptor<ENTITY,?, BUILDER,?, ?>> childrenDescriptors();
+    protected abstract List<ChildrenDescriptor<ENTITY,?, BUILDER,?, ?, ?>> childrenDescriptors();
 
     @Override
     public String tableName() {
@@ -55,7 +55,7 @@ public abstract class AbstractKeylessDao<ENTITY, BUILDER> implements KeylessDaoD
     }
 
     @Override
-    public ColumnCollection<Object, ENTITY, BUILDER> getColumnCollection() {
+    public ColumnCollection<?, ENTITY, BUILDER> getColumnCollection() {
         return columnCollection;
     }
 

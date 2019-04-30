@@ -27,12 +27,12 @@ public class KeylessDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> extends Abst
     @Override
     public void insert(ENTITY item) {
         String sql = sqlBuilder.insert();
-        Envelope<ENTITY, Object> envelope = new Envelope(item);
+        Envelope<ENTITY, Object, ?> envelope = new Envelope(item);
         sqlRunner.insert(sql, envelope);
     }
 
     @Override
-    protected List<ChildrenDescriptor<ENTITY, ?, BUILDER, ?, ?>> childrenDescriptors() {
+    protected List<ChildrenDescriptor<ENTITY, ?, BUILDER, ?, ?, ?>> childrenDescriptors() {
         return Collections.emptyList();
     }
 }

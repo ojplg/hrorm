@@ -4,6 +4,7 @@ import org.hrorm.GenericKeyDaoBuilder;
 import org.hrorm.GenericColumn;
 import org.hrorm.util.RandomUtils;
 
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.function.Supplier;
@@ -13,6 +14,8 @@ public class GenericKeysBuilders {
     public static Supplier<String> newStringKey = () -> RandomUtils.randomAlphabeticString(10,12);
 
     public static Supplier<Timestamp> newTimestampKey = () -> Timestamp.from(Instant.now());
+
+    public static Supplier<BigDecimal> newBigDecimalKey = () -> RandomUtils.bigDecimal();
 
     public static final GenericKeyDaoBuilder<StringKeyed, StringKeyed, String> STRING_KEYED_DAO_BUILDER =
             new GenericKeyDaoBuilder<>("string_keyed_table", StringKeyed::new, t -> t, newStringKey)
@@ -24,9 +27,16 @@ public class GenericKeysBuilders {
                     .withPrimaryKey("f_id", GenericColumn.TIMESTAMP, Frosting::getId, Frosting::setId)
                     .withBigDecimalColumn("amount", Frosting::getAmount, Frosting::setAmount);
 
+    public static final GenericKeyDaoBuilder<Layer, Layer, BigDecimal> LAYER_DAO_BUILDER =
+            new GenericKeyDaoBuilder<>("layer_table", Layer::new, t -> t, newBigDecimalKey)
+                    .withPrimaryKey("height", GenericColumn.BIG_DECIMAL, Layer::getHeight, Layer::setHeight)
+                    .withStringColumn("color", Layer::getColor, Layer::setColor)
+                    .withParentColumn("cake_reference_id").setSqlTypeName("varchar");
+
     public static final GenericKeyDaoBuilder<Cake, Cake, String> CAKE_DAO_BUILDER =
             new GenericKeyDaoBuilder<>("cake_table", Cake::new, c -> c, newStringKey)
                     .withPrimaryKey("id", GenericColumn.STRING, Cake::getName, Cake::setName).setSqlTypeName("varchar")
                     .withStringColumn("flavor", Cake::getFlavor, Cake::setFlavor)
-                    .withJoinColumn("frosting_id", Cake::getFrosting, Cake::setFrosting, FROSTING_DAO_BUILDER);
+                    .withJoinColumn("frosting_id", Cake::getFrosting, Cake::setFrosting, FROSTING_DAO_BUILDER)
+                    .withChildren(Cake::getLayers, Cake::setLayers, LAYER_DAO_BUILDER);
 }

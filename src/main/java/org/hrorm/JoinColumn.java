@@ -100,7 +100,7 @@ public class JoinColumn<ENTITY, JOINED, ENTITYBUILDER, JOINEDBUILDER, JOINEDPK> 
         setter.accept(builder, joinedItem);
         return PopulateResult.fromJoinColumn(
                 connection -> {
-                    for(ChildrenDescriptor<JOINED,?, JOINEDBUILDER,?,?> childrenDescriptor : joinedDaoDescriptor.childrenDescriptors()){
+                    for(ChildrenDescriptor<JOINED,?, JOINEDBUILDER,?,?,?> childrenDescriptor : joinedDaoDescriptor.childrenDescriptors()){
                         childrenDescriptor.populateChildren(connection, joinedBuilder);
                     }
                 }

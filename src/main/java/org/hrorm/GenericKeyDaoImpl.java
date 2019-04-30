@@ -22,7 +22,7 @@ public class GenericKeyDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER,PK>
 
     private final GenerativePrimaryKey<PK,ENTITY, BUILDER> primaryKey;
     private final ParentColumn<ENTITY, PARENT, BUILDER, PARENTBUILDER, ?> parentColumn;
-    private final List<ChildrenDescriptor<ENTITY,?, BUILDER,?,?>> childrenDescriptors;
+    private final List<ChildrenDescriptor<ENTITY,?, BUILDER,?,?,?>> childrenDescriptors;
 
     // TODO: This should not be necessary, split the sql runner into parts again maybe?
     private final SqlRunner<PK, ENTITY, BUILDER> keyedSqlRunner;
@@ -49,7 +49,7 @@ public class GenericKeyDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER,PK>
     }
 
     @Override
-    public List<ChildrenDescriptor<ENTITY, ?, BUILDER, ?, ?>> childrenDescriptors() {
+    public List<ChildrenDescriptor<ENTITY, ?, BUILDER, ?, ?, ?>> childrenDescriptors() {
         return childrenDescriptors;
     }
 
@@ -59,18 +59,18 @@ public class GenericKeyDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER,PK>
         KeyProducer<PK> keyProducer = primaryKey.getKeyProducer();
         PK id = keyProducer.produceKey(connection);
         primaryKey.optimisticSetKey(item, id);
-        Envelope<ENTITY, PK> envelope = newEnvelope(item, id);
+        Envelope envelope = newEnvelope(item, id);
         keyedSqlRunner.insert(sql, envelope);
-//        for(ChildrenDescriptor<ENTITY,?, BUILDER,?, ?> childrenDescriptor : childrenDescriptors){
-//            childrenDescriptor.saveChildren(connection, envelope);
-//        }
+        for(ChildrenDescriptor<ENTITY,?, BUILDER,?, ?, ?> childrenDescriptor : childrenDescriptors){
+            childrenDescriptor.saveChildren(connection, envelope);
+        }
         return id;
     }
 
     @Override
     public void update(ENTITY item) {
         String sql = sqlBuilder.update();
-        Envelope<ENTITY, PK> envelope = newEnvelope(item, primaryKey.getKey(item));
+        Envelope<ENTITY, PK, ?> envelope = newEnvelope(item, primaryKey.getKey(item));
         keyedSqlRunner.update(sql, envelope);
 //        for(ChildrenDescriptor<ENTITY,?, BUILDER,?, ?> childrenDescriptor : childrenDescriptors){
 //            childrenDescriptor.saveChildren(connection, envelope);
@@ -119,7 +119,7 @@ public class GenericKeyDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER,PK>
         return this.sqlBuilder;
     }
 
-    private Envelope<ENTITY, PK> newEnvelope(ENTITY item, PK id){
+    private Envelope<ENTITY, PK, ?> newEnvelope(ENTITY item, PK id){
 //        if( parentColumn != null ){
 //            PK parentId = (PK) parentColumn.getParentId(item);
 //            if ( parentId != null ){

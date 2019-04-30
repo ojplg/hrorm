@@ -23,7 +23,7 @@ public class DaoBuilder<ENTITY> implements SchemaDescriptor<Long, ENTITY, ENTITY
 
     private final ColumnCollection<Long, ENTITY,ENTITY> columnCollection = new ColumnCollection<>();
     private final DaoBuilderHelper<ENTITY, ENTITY> daoBuilderHelper;
-    private final List<ChildrenDescriptor<ENTITY,?, ENTITY,?,?>> childrenDescriptors = new ArrayList<>();
+    private final List<ChildrenDescriptor<ENTITY,?, ENTITY,?,?,?>> childrenDescriptors = new ArrayList<>();
 
     /**
      * Create a new DaoBuilder instance.
@@ -51,7 +51,7 @@ public class DaoBuilder<ENTITY> implements SchemaDescriptor<Long, ENTITY, ENTITY
     }
 
     @Override
-    public List<ChildrenDescriptor<ENTITY, ?, ENTITY, ?, ?>> childrenDescriptors() {
+    public List<ChildrenDescriptor<ENTITY, ?, ENTITY, ?, ?, ?>> childrenDescriptors() {
         return childrenDescriptors;
     }
 
@@ -271,7 +271,7 @@ public class DaoBuilder<ENTITY> implements SchemaDescriptor<Long, ENTITY, ENTITY
             throw new HrormException("Children must have a parent column");
         }
 
-        ChildrenDescriptor<ENTITY, CHILD, ENTITY, CHILDBUILDER,?> childrenDescriptor
+        ChildrenDescriptor<ENTITY, CHILD, ENTITY, CHILDBUILDER,?,?> childrenDescriptor
                 = new ChildrenDescriptor<>(getter, setter, childDaoDescriptor, primaryKey(), daoBuilderHelper.getBuildFunction());
 
         childrenDescriptors.add(childrenDescriptor);
