@@ -4,6 +4,7 @@ import org.hrorm.database.Helper;
 import org.hrorm.database.HelperFactory;
 import org.hrorm.examples.generickeys.GenericKeysBuilders;
 import org.hrorm.examples.generickeys.StringKeyed;
+import org.hrorm.util.AssertHelp;
 import org.hrorm.util.TestLogConfig;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -13,6 +14,8 @@ import org.junit.Test;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class GenericKeysTest {
 
@@ -143,5 +146,29 @@ public class GenericKeysTest {
 
     }
 
+    @Test
+    public void testSelectAll() throws SQLException {
+        List<String> keys = new ArrayList<>();
+        {
+            Connection connection = helper.connect();
+            GenericKeyDao<StringKeyed, String> dao = GenericKeysBuilders.STRING_KEYED_DAO_BUILDER.buildDao(connection);
+
+            for(long idx=178L; idx<233L; idx++){
+                StringKeyed item = new StringKeyed();
+                item.setData(idx);
+                keys.add(dao.insert(item));
+            }
+
+            connection.commit();
+            connection.close();
+        }
+        {
+            Connection connection = helper.connect();
+            GenericKeyDao<StringKeyed, String> dao = GenericKeysBuilders.STRING_KEYED_DAO_BUILDER.buildDao(connection);
+
+            List<StringKeyed> items = dao.selectAll();
+            AssertHelp.sameContents(keys, items, item -> item.getId());
+        }
+    }
 
 }
