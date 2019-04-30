@@ -230,4 +230,8 @@ public class Schema {
         return String.join("\n", Arrays.asList(sequences, tables, constraints));
     }
 
+    @Override
+    public String toString() {
+        return "Schema{'" + sql() +  "'}";
+    }
 }

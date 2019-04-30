@@ -9,7 +9,7 @@ create table things (
 create sequence sibling_seq;
 
 create table siblings (
-    sibling_id integer primary key,
+    sibling_id_id integer primary key,
     number integer,
     cousin_id integer
 );

@@ -240,8 +240,8 @@ public class GenericKeyDaoBuilder<ENTITY, BUILDER, PK>  implements SchemaDescrip
      * @param <U> The type of the data element.
      * @return This instance.
      */
-    public <U> GenericKeyDaoBuilder<ENTITY, BUILDER, PK> withJoinColumn(String columnName, Function<ENTITY, U> getter, BiConsumer<BUILDER,U> setter, DaoDescriptor<Long, U,?> daoDescriptor){
-        JoinColumn<ENTITY,U, BUILDER,?,?> joinColumn = new JoinColumn<>(columnName, daoBuilderHelper.getPrefix(), daoBuilderHelper.getPrefixer(), getter, setter, daoDescriptor, true);
+    public <U,FK> GenericKeyDaoBuilder<ENTITY, BUILDER, PK> withJoinColumn(String columnName, Function<ENTITY, U> getter, BiConsumer<BUILDER,U> setter, DaoDescriptor<FK, U,?> daoDescriptor){
+        JoinColumn<ENTITY,U, BUILDER,?,FK> joinColumn = new JoinColumn<>(columnName, daoBuilderHelper.getPrefix(), daoBuilderHelper.getPrefixer(), getter, setter, daoDescriptor, true);
         columnCollection.addJoinColumn(joinColumn);
         return this;
     }

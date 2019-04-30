@@ -26,10 +26,10 @@ public class JoinColumn<ENTITY, JOINED, ENTITYBUILDER, JOINEDBUILDER, JOINEDPK> 
 
     private final String name;
     private final String prefix;
-    private final String joinedTablePrefix;
+    private final String joiningTablePrefix;
     private final BiConsumer<ENTITYBUILDER, JOINED> setter;
     private final Function<ENTITY, JOINED> getter;
-    private final DaoDescriptor<JOINEDPK, JOINED, JOINEDBUILDER> daoDescriptor;
+    private final DaoDescriptor<JOINEDPK, JOINED, JOINEDBUILDER> joinedDaoDescriptor;
     private final String joinedTablePrimaryKeyName;
     private final ResultSetReader<JOINEDPK> joinedPkResultSetReader;
     private final PreparedStatementSetter<JOINEDPK> joinedPkStatementSetter;
@@ -37,34 +37,36 @@ public class JoinColumn<ENTITY, JOINED, ENTITYBUILDER, JOINEDBUILDER, JOINEDPK> 
 
     private Function<JOINEDBUILDER, JOINED> joinBuilder;
 
-    private String sqlTypeName = "integer";
+    private String sqlTypeName;
 
     public JoinColumn(String name,
-                      String joinedTablePrefix,
+                      String joiningTablePrefix,
                       Prefixer prefixer,
                       Function<ENTITY, JOINED> getter,
                       BiConsumer<ENTITYBUILDER, JOINED> setter,
                       DaoDescriptor<JOINEDPK, JOINED, JOINEDBUILDER> daoDescriptor,
                       boolean nullable){
         this.name = name;
+        this.joiningTablePrefix = joiningTablePrefix;
         this.prefix = prefixer.nextPrefix();
-        this.joinedTablePrefix = joinedTablePrefix;
+        this.joinedDaoDescriptor = new RelativeDaoDescriptor<>(daoDescriptor, prefix, prefixer);
         this.getter = getter;
         this.setter = setter;
-        this.joinedPkResultSetReader = daoDescriptor.primaryKey().getReader();
-        this.joinedPkStatementSetter = daoDescriptor.primaryKey().getStatementSetter();
-        this.daoDescriptor = new RelativeDaoDescriptor<>(daoDescriptor, prefix, prefixer);
+        this.joinedPkResultSetReader = joinedDaoDescriptor.primaryKey().getReader();
+        this.joinedPkStatementSetter = joinedDaoDescriptor.primaryKey().getStatementSetter();
         this.nullable = nullable;
-        this.joinedTablePrimaryKeyName = daoDescriptor.primaryKey().getName();
-        this.joinBuilder = daoDescriptor.buildFunction();
+        this.joinedTablePrimaryKeyName = joinedDaoDescriptor.primaryKey().getName();
+        this.joinBuilder = joinedDaoDescriptor.buildFunction();
+
+        this.sqlTypeName = joinedDaoDescriptor.primaryKey().getSqlTypeName();
     }
 
     public List<JoinColumn<JOINED,?, JOINEDBUILDER,?,?>> getTransitiveJoins(){
-        return this.daoDescriptor.joinColumns();
+        return this.joinedDaoDescriptor.joinColumns();
     }
 
     public String getTable(){
-        return this.daoDescriptor.tableName();
+        return this.joinedDaoDescriptor.tableName();
     }
 
     @Override
@@ -72,8 +74,8 @@ public class JoinColumn<ENTITY, JOINED, ENTITYBUILDER, JOINEDBUILDER, JOINEDPK> 
         return name;
     }
 
-    public String getJoinedTablePrefix(){
-        return joinedTablePrefix;
+    public String getJoiningTablePrefix(){
+        return joiningTablePrefix;
     }
 
     @Override
@@ -83,14 +85,14 @@ public class JoinColumn<ENTITY, JOINED, ENTITYBUILDER, JOINEDBUILDER, JOINEDPK> 
 
     @Override
     public PopulateResult populate(ENTITYBUILDER builder, ResultSet resultSet) throws SQLException {
-        JOINEDBUILDER joinedBuilder = daoDescriptor.supplier().get();
-        for (Column<?, ?, JOINED, JOINEDBUILDER> column: daoDescriptor.nonJoinColumns()) {
+        JOINEDBUILDER joinedBuilder = joinedDaoDescriptor.supplier().get();
+        for (Column<?, ?, JOINED, JOINEDBUILDER> column: joinedDaoDescriptor.nonJoinColumns()) {
             PopulateResult result = column.populate(joinedBuilder, resultSet);
             if ( result == PopulateResult.NoPrimaryKey ){
                 return PopulateResult.Ignore;
             }
         }
-        for(JoinColumn<JOINED,?, JOINEDBUILDER,?,?> joinColumn : daoDescriptor.joinColumns()){
+        for(JoinColumn<JOINED,?, JOINEDBUILDER,?,?> joinColumn : joinedDaoDescriptor.joinColumns()){
             joinColumn.populate(joinedBuilder, resultSet);
         }
 
@@ -98,7 +100,7 @@ public class JoinColumn<ENTITY, JOINED, ENTITYBUILDER, JOINEDBUILDER, JOINEDPK> 
         setter.accept(builder, joinedItem);
         return PopulateResult.fromJoinColumn(
                 connection -> {
-                    for(ChildrenDescriptor<JOINED,?, JOINEDBUILDER,?,?> childrenDescriptor : daoDescriptor.childrenDescriptors()){
+                    for(ChildrenDescriptor<JOINED,?, JOINEDBUILDER,?,?> childrenDescriptor : joinedDaoDescriptor.childrenDescriptors()){
                         childrenDescriptor.populateChildren(connection, joinedBuilder);
                     }
                 }
@@ -125,18 +127,18 @@ public class JoinColumn<ENTITY, JOINED, ENTITYBUILDER, JOINEDBUILDER, JOINEDPK> 
                 throw new HrormException("Tried to set a null value for " + prefix + "." + name + " which was set not nullable.");
             }
         } else {
-            JOINEDPK id = daoDescriptor.primaryKey().getKey(value);
+            JOINEDPK id = joinedDaoDescriptor.primaryKey().getKey(value);
             joinedPkStatementSetter.apply(preparedStatement, index, id);
         }
     }
 
     @Override
     public JoinColumn<ENTITY, JOINED, ENTITYBUILDER, JOINEDBUILDER, JOINEDPK> withPrefix(String newPrefix, Prefixer prefixer) {
-        return new JoinColumn(name, newPrefix, prefixer, getter, setter, daoDescriptor, nullable);
+        return new JoinColumn(name, newPrefix, prefixer, getter, setter, joinedDaoDescriptor, nullable);
     }
 
     public List<Column<?, ?, JOINED, JOINEDBUILDER>> getNonJoinColumns(){
-        return this.daoDescriptor.nonJoinColumns();
+        return this.joinedDaoDescriptor.nonJoinColumns();
     }
 
     @Override
@@ -149,7 +151,10 @@ public class JoinColumn<ENTITY, JOINED, ENTITYBUILDER, JOINEDBUILDER, JOINEDPK> 
     }
 
     @Override
-    public Set<Integer> supportedTypes() { return ColumnTypes.IntegerTypes; }
+    public Set<Integer> supportedTypes() {
+        // FIXME: incorrect types here
+        return ColumnTypes.IntegerTypes;
+    }
 
     @Override
     public boolean isNullable() {

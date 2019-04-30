@@ -118,7 +118,7 @@ public class GenerativePrimaryKey<PK, ENTITY, BUILDER> implements PrimaryKey<PK,
         return new GenerativePrimaryKey<>(
                 supplier,
                 genericColumn,
-                prefix,
+                newPrefix,
                 name,
                 getter,
                 setter,

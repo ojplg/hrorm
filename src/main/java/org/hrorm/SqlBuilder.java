@@ -71,7 +71,7 @@ public class SqlBuilder<ENTITY> implements Queries {
             buf.append(" ");
             buf.append(joinColumn.getPrefix());
             buf.append(" ON ");
-            buf.append(joinColumn.getJoinedTablePrefix());
+            buf.append(joinColumn.getJoiningTablePrefix());
             buf.append(".");
             buf.append(joinColumn.getName());
             buf.append("=");

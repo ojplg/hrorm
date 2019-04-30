@@ -46,7 +46,7 @@ public class JoinsTest {
 
     private static DaoBuilder<Sibling> SiblingDaoBuilder =
             new DaoBuilder<>("siblings", Sibling::new)
-                    .withPrimaryKey("sibling_id", "sibling_seq", Sibling::getId, Sibling::setId)
+                    .withPrimaryKey("sibling_id_id", "sibling_seq", Sibling::getId, Sibling::setId)
                     .withLongColumn("number", Sibling::getNumber, Sibling::setNumber)
                     .withJoinColumn("cousin_id", Sibling::getCousin, Sibling::setCousin, CousinDaoBuilder);
 
