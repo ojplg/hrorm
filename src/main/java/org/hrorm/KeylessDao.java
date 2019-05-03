@@ -197,4 +197,5 @@ public interface KeylessDao<ENTITY> {
 
     <T,U> List<Pair<T,U>> selectDistinctPairs(String firstColumnName, String secondColumnName, Where where);
 
+    <T,U,V> List<Triplet<T,U,V>> selectDistinctTriplets(String firstColumnName, String secondColumnName, String thirdColumnName, Where where);
 }

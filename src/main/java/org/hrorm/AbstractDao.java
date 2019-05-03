@@ -187,6 +187,25 @@ public abstract class AbstractDao<ENTITY, BUILDER> implements KeylessDaoDescript
         return values;
     }
 
+    @Override
+    public <T, U, V> List<Triplet<T, U, V>> selectDistinctTriplets(String firstColumnName, String secondColumnName, String thirdColumnName, Where where) {
+        String sql = sqlBuilder.selectDistinct(where, firstColumnName, secondColumnName, thirdColumnName);
+        // Casting as above
+        Column<?,T,ENTITY, BUILDER> firstColumn = (Column<?,T,ENTITY,BUILDER>) columnCollection.columnByName(firstColumnName);
+        Column<?,U,ENTITY, BUILDER> secondColumn = (Column<?,U,ENTITY,BUILDER>) columnCollection.columnByName(secondColumnName);
+        Column<?,V,ENTITY, BUILDER> thirdColumn = (Column<?,V,ENTITY,BUILDER>) columnCollection.columnByName(thirdColumnName);
+        Function<ResultSet,Triplet<T,U,V>> reader = rs ->
+        {
+            T t = firstColumn.fromResultSet(rs);
+            U u = secondColumn.fromResultSet(rs);
+            V v = thirdColumn.fromResultSet(rs);
+            return new Triplet<>(t, u, v);
+        };
+        List<Triplet<T,U,V>> values = sqlRunner.selectDistinct(sql, where, reader);
+        return values;
+
+    }
+
     private List<ENTITY> mapBuilders(List<BUILDER> bs){
         return bs.stream().map(buildFunction).collect(Collectors.toList());
     }

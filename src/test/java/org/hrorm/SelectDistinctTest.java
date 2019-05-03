@@ -174,4 +174,45 @@ public class SelectDistinctTest {
         });
     }
 
+
+    @Test
+    public void testDistinctTriplets(){
+        LocalDateTime baseTestTime = LocalDateTime.of(2019, 4, 17, 18, 0, 0);
+        Instant[] distinctDates = {
+                baseTestTime.toInstant(ZoneOffset.UTC),
+                baseTestTime.plusDays(1).toInstant(ZoneOffset.UTC)};
+
+        helper.useConnection(connection -> {
+            Dao<Columns> dao = daoBuilder().buildDao(connection);
+
+            for(long idx=0; idx<10; idx++){
+                boolean even = idx % 2 == 0;
+
+                Columns columns = new Columns();
+
+                columns.setStringThing(even ? "A" : "B");
+                columns.setIntegerThing(even ? 8L : 17L);
+
+                Instant instant = distinctDates[(int)idx%2];
+                columns.setTimeStampThing(instant);
+
+                dao.insert(columns);
+            }
+        });
+        helper.useConnection(connection -> {
+            Dao<Columns> dao = daoBuilder().buildDao(connection);
+            List<Triplet<String, Long, Instant>> values = dao.selectDistinctTriplets(
+                    "string_column",
+                    "integer_column",
+                    "timestamp_column",
+                    new Where());
+
+            List<Triplet<String, Long, Instant>> expected = Arrays.asList(
+                    new Triplet("A", 8L, distinctDates[0]),
+                    new Triplet("B", 17L, distinctDates[1])
+            );
+
+            AssertHelp.sameContents(expected, values);
+        });
+    }
 }
