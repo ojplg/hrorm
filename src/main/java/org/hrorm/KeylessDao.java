@@ -186,16 +186,59 @@ public interface KeylessDao<ENTITY> {
     BigDecimal runBigDecimalFunction(SqlFunction function, String columnName, Where where);
 
     /**
+     * Select unique values from the database for a particular column.
      *
+     * <p>
+     *     The response will be of the type associated with the class being
+     *     persisted, not the database type.
+     * </p>
      *
-     * @param columnName
-     * @param where
-     * @param <T>
-     * @return
+     * @param columnName The column to search for unique values.
+     * @param where Filters on the search.
+     * @param <T> The type that this column represents, on the <code>ENTITY</code>,
+     *           not necessarily the type of the database column.
+     * @return The distinct values found.
      */
     <T> List<T> selectDistinct(String columnName, Where where);
 
+    /**
+     * Select unique value pairs from the database for a particular column.
+     *
+     * <p>
+     *     The response will be of the types associated with the class being
+     *     persisted, not the database type.
+     * </p>
+     *
+     * @param firstColumnName The column name for to search for <code>T</code> values.
+     * @param secondColumnName The column name for to search for <code>U</code> values.
+     * @param where Filters on the search.
+     * @param <T> The type that the first column represents, on the <code>ENTITY</code>,
+     *           not necessarily the type of the database column.
+     * @param <U> The type that the second column represents, on the <code>ENTITY</code>,
+     *           not necessarily the type of the database column.
+     * @return The distinct values found.
+     */
     <T,U> List<Pair<T,U>> selectDistinctPairs(String firstColumnName, String secondColumnName, Where where);
 
+    /**
+     * Select unique value triplets from the database for a particular column.
+     *
+     * <p>
+     *     The response will be of the types associated with the class being
+     *     persisted, not the database type.
+     * </p>
+     *
+     * @param firstColumnName The column name for to search for <code>T</code> values.
+     * @param secondColumnName The column name for to search for <code>U</code> values.
+     * @param thirdColumnName The column name for to search for <code>V</code> values.
+     * @param where Filters on the search.
+     * @param <T> The type that the first column represents, on the <code>ENTITY</code>,
+     *           not necessarily the type of the database column.
+     * @param <U> The type that the second column represents, on the <code>ENTITY</code>,
+     *           not necessarily the type of the database column.
+     * @param <V> The type that the second column represents, on the <code>ENTITY</code>,
+     *           not necessarily the type of the database column.
+     * @return The distinct values found.
+     */
     <T,U,V> List<Triplet<T,U,V>> selectDistinctTriplets(String firstColumnName, String secondColumnName, String thirdColumnName, Where where);
 }
