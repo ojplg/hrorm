@@ -2,6 +2,7 @@ package org.hrorm;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Types;
 import java.util.Set;
 import java.util.function.BiConsumer;
 
@@ -60,7 +61,12 @@ public class NoBackReferenceParentColumn<ENTITY, PARENT, BUILDER, PARENTBUILDER>
     }
 
     @Override
-    public Column<ENTITY, BUILDER> withPrefix(String newPrefix, Prefixer prefixer) {
+    public ResultSetReader<Long> getReader(){
+        return ResultSet::getLong;
+    }
+
+    @Override
+    public Column<Long, Long, ENTITY, BUILDER> withPrefix(String newPrefix, Prefixer prefixer) {
         return new NoBackReferenceParentColumn(name, newPrefix);
     }
 
@@ -93,5 +99,15 @@ public class NoBackReferenceParentColumn<ENTITY, PARENT, BUILDER, PARENTBUILDER>
     @Override
     public void setSqlTypeName(String sqlTypeName) {
         this.sqlTypeName = sqlTypeName;
+    }
+
+    @Override
+    public Long toClassType(Long dbType) {
+        return dbType;
+    }
+
+    @Override
+    public GenericColumn<Long> asGenericColumn() {
+        return new GenericColumn<>(PreparedStatement::setLong, ResultSet::getLong, Types.INTEGER, sqlTypeName, ColumnTypes.IntegerTypes);
     }
 }

@@ -48,7 +48,7 @@ public class Schema {
         this.keylessDescriptors = Collections.unmodifiableList(keylessDaoDescriptors);
     }
 
-    private String renderColumn(Column<?,?> column){
+    private String renderColumn(Column<?,?,?,?> column){
         String extension = column.isNullable() ? "" : " not null";
         return column.getName() + " " + column.getSqlTypeName() + extension;
     }

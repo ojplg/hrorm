@@ -54,7 +54,7 @@ public interface KeylessDaoDescriptor<ENTITY, ENTITYBUILDER> {
      *
      * @return all the data and other non-join columns
      */
-    default List<Column<ENTITY, ENTITYBUILDER>> nonJoinColumns(){
+    default List<Column<?, ?, ENTITY, ENTITYBUILDER>> nonJoinColumns(){
         return getColumnCollection().nonJoinColumns();
     }
 
@@ -63,7 +63,7 @@ public interface KeylessDaoDescriptor<ENTITY, ENTITYBUILDER> {
      *
      * @return all the data columns supported
      */
-    default List<Column<ENTITY, ENTITYBUILDER>> dataColumns(){
+    default List<Column<?, ?, ENTITY, ENTITYBUILDER>> dataColumns(){
         return getColumnCollection().getDataColumns();
     }
 
@@ -72,7 +72,7 @@ public interface KeylessDaoDescriptor<ENTITY, ENTITYBUILDER> {
      *
      * @return all the columns
      */
-    default List<Column<ENTITY, ENTITYBUILDER>> allColumns(){
+    default List<Column<?, ?, ENTITY, ENTITYBUILDER>> allColumns(){
         return getColumnCollection().allColumns();
     }
 

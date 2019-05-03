@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 public class SqlBuilder<ENTITY> implements Queries {
 
     private final String table;
-    private final List<? extends Column<ENTITY,?>> nonJoinColumns;
+    private final List<? extends Column<?,?,ENTITY,?>> nonJoinColumns;
     private final List<? extends JoinColumn<ENTITY, ?, ?, ?>> joinColumns;
     private final PrimaryKey<ENTITY,?> primaryKey;
 
@@ -93,6 +93,19 @@ public class SqlBuilder<ENTITY> implements Queries {
 
     public String select(Where where, Order order){
         return select(where) + order.render();
+    }
+
+    public String selectDistinct(Where where, String ... columnNames){
+        StringBuilder buf = new StringBuilder();
+        buf.append("select distinct ");
+        buf.append(String.join(", ", columnNames));
+        buf.append("  ");
+        buf.append(" from ");
+        buf.append(table);
+        buf.append(" a");
+        buf.append(where.render());
+
+        return buf.toString();
     }
 
     public String selectFunction(SqlFunction function, String columnName, Where where){

@@ -185,4 +185,17 @@ public interface KeylessDao<ENTITY> {
      */
     BigDecimal runBigDecimalFunction(SqlFunction function, String columnName, Where where);
 
+    /**
+     *
+     *
+     * @param columnName
+     * @param where
+     * @param <T>
+     * @return
+     */
+    <T> List<T> selectDistinct(String columnName, Where where);
+
+    <T,U> List<Pair<T,U>> selectDistinctPairs(String firstColumnName, String secondColumnName, Where where);
+
+    <T,U,V> List<Triplet<T,U,V>> selectDistinctTriplets(String firstColumnName, String secondColumnName, String thirdColumnName, Where where);
 }

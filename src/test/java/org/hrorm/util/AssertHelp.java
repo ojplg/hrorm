@@ -12,9 +12,13 @@ import java.util.stream.Stream;
 public class AssertHelp {
 
     public static final <T> void sameContents(Collection<T> expected, Collection<T> found){
-        Assert.assertEquals(expected.size(), found.size());
-        Assert.assertTrue(expected.containsAll(found));
-        Assert.assertTrue(found.containsAll(expected));
+        Assert.assertEquals("Counts mismatched ", expected.size(), found.size());
+        for(T t : found ){
+            Assert.assertTrue("Extra item found " + t + " not in " + expected, expected.contains(t));
+        }
+        for(T t : expected){
+            Assert.assertTrue("Missing item " + t, found.contains(t));
+        }
     }
 
     public static final <T> void sameContents(T[] expectedArray, Collection<T> found){

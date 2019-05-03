@@ -165,6 +165,15 @@ public class GenericColumn<TYPE> {
         this.supportedTypes = Collections.unmodifiableSet(supportedTypes);
     }
 
+    public GenericColumn<TYPE> withTypeName(String sqlTypeName){
+        return new GenericColumn<>(this.preparedStatementSetter,
+                this.resultReader,
+                this.sqlType,
+                sqlTypeName,
+                this.supportedTypes);
+    }
+
+
     public TYPE fromResultSet(ResultSet resultSet, String columnName) throws SQLException {
         TYPE value = resultReader.read(resultSet, columnName);
         if( resultSet.wasNull() ){

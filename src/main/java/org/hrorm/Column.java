@@ -15,7 +15,7 @@ import java.util.Set;
  * @param <ENTITY> The type of the entity.
  * @param <BUILDER> The class that is used to build new entity instances.
  */
-public interface Column<ENTITY, BUILDER> {
+public interface Column<DBTYPE, CLASSTYPE, ENTITY, BUILDER> {
 
     /**
      * The name of the database column this instance represents.
@@ -93,15 +93,23 @@ public interface Column<ENTITY, BUILDER> {
      * @param prefixer The source for new prefixes
      * @return A new instance of the column with the reset prefix
      */
-    Column<ENTITY, BUILDER> withPrefix(String newPrefix, Prefixer prefixer);
+    Column<DBTYPE, CLASSTYPE, ENTITY, BUILDER> withPrefix(String newPrefix, Prefixer prefixer);
 
+    /**
+     * Returns the function used by this column to read a result set.
+     *
+     * @return The result set reader
+     */
+    default ResultSetReader<DBTYPE> getReader(){ return asGenericColumn()::fromResultSet; }
+
+    CLASSTYPE toClassType(DBTYPE dbType);
 
     /**
      * The members of <code>java.sql.Types</code> that this column should support.
      *
      * @return The types that should be handled by this column type.
      */
-    Set<Integer> supportedTypes();
+    default Set<Integer> supportedTypes() { return asGenericColumn().getSupportedTypes(); }
 
     /**
      * Returns the name of the column type in SQL, e.g. "text" for <code>String</code>,
@@ -109,7 +117,19 @@ public interface Column<ENTITY, BUILDER> {
      *
      * @return The SQL name of the type.
      */
-    String getSqlTypeName();
+    default String getSqlTypeName() { return asGenericColumn().getSqlTypeName(); }
 
     void setSqlTypeName(String sqlTypeName);
+
+    GenericColumn<DBTYPE> asGenericColumn();
+
+    default CLASSTYPE fromResultSet(ResultSet resultSet) {
+        try {
+            DBTYPE dbType = asGenericColumn().fromResultSet(resultSet, getName());
+            return toClassType(dbType);
+        } catch (SQLException ex){
+            throw new HrormException(ex);
+        }
+    }
+
 }

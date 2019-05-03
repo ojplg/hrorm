@@ -3,6 +3,7 @@ package org.hrorm;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -86,6 +87,12 @@ public class IndirectPrimaryKey<ENTITY, BUILDER> implements PrimaryKey<ENTITY, B
     }
 
     @Override
+    public ResultSetReader<Long> getReader(){
+        return ResultSet::getLong;
+    }
+
+
+    @Override
     public void setValue(ENTITY item, int index, PreparedStatement preparedStatement) throws SQLException {
         Long value = getter.apply(item);
         if ( value == null ){
@@ -96,7 +103,7 @@ public class IndirectPrimaryKey<ENTITY, BUILDER> implements PrimaryKey<ENTITY, B
     }
 
     @Override
-    public Column<ENTITY, BUILDER> withPrefix(String newPrefix, Prefixer prefixer) {
+    public Column<Long, Long, ENTITY, BUILDER> withPrefix(String newPrefix, Prefixer prefixer) {
         return new IndirectPrimaryKey<>(newPrefix, name, sequenceName, getter, setter);
     }
 
@@ -125,4 +132,15 @@ public class IndirectPrimaryKey<ENTITY, BUILDER> implements PrimaryKey<ENTITY, B
     public void setSqlTypeName(String sqlTypeName) {
         this.sqlTypeName = sqlTypeName;
     }
+
+    @Override
+    public Long toClassType(Long dbType) {
+        return dbType;
+    }
+
+    @Override
+    public GenericColumn<Long> asGenericColumn() {
+        return new GenericColumn<>(PreparedStatement::setLong, ResultSet::getLong, Types.INTEGER, sqlTypeName, ColumnTypes.IntegerTypes);
+    }
+
 }

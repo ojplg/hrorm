@@ -89,7 +89,7 @@ public class RandomUtils {
      * Produces a random Instant.
      */
     public static Instant instant() {
-        return Instant.ofEpochMilli(range(-10000000, 1000000000));
+        return Instant.ofEpochSecond(range(-10000000, 1000000000));
     }
 
     /**

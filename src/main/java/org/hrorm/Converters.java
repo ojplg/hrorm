@@ -21,6 +21,8 @@ public class Converters {
 
     public static Converter<Instant, Timestamp> INSTANT_TIMESTAMP_CONVERTER = new InstantTimestampConverter();
 
+    public static <T> Converter<T,T> identity(){ return new IdentityConverter<>(); }
+
     /**
      * This <code>Converter</code> translates between <code>Boolean</code> values and <code>String</code> values.
      */
@@ -111,6 +113,18 @@ public class Converters {
             }
             Instant instant = timestamp.toInstant();
             return instant;
+        }
+    }
+
+    private static class IdentityConverter<T> implements Converter<T,T> {
+        @Override
+        public T from(T t) {
+            return t;
+        }
+
+        @Override
+        public T to(T t) {
+            return t;
         }
     }
 }
