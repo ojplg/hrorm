@@ -100,7 +100,7 @@ public interface Column<DBTYPE, CLASSTYPE, ENTITY, BUILDER> {
      *
      * @return The result set reader
      */
-    ResultSetReader<DBTYPE> getReader();
+    default ResultSetReader<DBTYPE> getReader(){ return asGenericColumn()::fromResultSet; }
 
     CLASSTYPE toClassType(DBTYPE dbType);
 
@@ -109,7 +109,7 @@ public interface Column<DBTYPE, CLASSTYPE, ENTITY, BUILDER> {
      *
      * @return The types that should be handled by this column type.
      */
-    Set<Integer> supportedTypes();
+    default Set<Integer> supportedTypes() { return asGenericColumn().getSupportedTypes(); }
 
     /**
      * Returns the name of the column type in SQL, e.g. "text" for <code>String</code>,
@@ -117,7 +117,19 @@ public interface Column<DBTYPE, CLASSTYPE, ENTITY, BUILDER> {
      *
      * @return The SQL name of the type.
      */
-    String getSqlTypeName();
+    default String getSqlTypeName() { return asGenericColumn().getSqlTypeName(); }
 
     void setSqlTypeName(String sqlTypeName);
+
+    GenericColumn<DBTYPE> asGenericColumn();
+
+    default CLASSTYPE fromResultSet(ResultSet resultSet) {
+        try {
+            DBTYPE dbType = asGenericColumn().fromResultSet(resultSet, getName());
+            return toClassType(dbType);
+        } catch (SQLException ex){
+            throw new HrormException(ex);
+        }
+    }
+
 }

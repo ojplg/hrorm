@@ -2,6 +2,7 @@ package org.hrorm;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -161,37 +162,30 @@ public abstract class AbstractDao<ENTITY, BUILDER> implements KeylessDaoDescript
     }
 
     @Override
-    public <T,DBTYPE> List<T> selectDistinct(String columnName, Where where) {
+    public <T> List<T> selectDistinct(String columnName, Where where) {
         String sql = sqlBuilder.selectDistinct(where, columnName);
         // This cast is unfortunate. But I do not see how to avoid it, except
         // by requiring the user to specify the column type in the Dao interface.
-        Column<DBTYPE,T,ENTITY, BUILDER> column = (Column<DBTYPE,T,ENTITY,BUILDER>) columnCollection.columnByName(columnName);
-        ResultSetReader<T> reader = (res, col) -> {
-            DBTYPE dbType = column.getReader().read(res, col);
-            return column.toClassType(dbType);
-        };
-        List<T> values = sqlRunner.selectDistinct(sql, where, columnName, reader);
+        Column<?,T,ENTITY, BUILDER> column = (Column<?,T,ENTITY,BUILDER>) columnCollection.columnByName(columnName);
+        List<T> values = sqlRunner.selectDistinct(sql, where, column::fromResultSet);
         return values;
     }
 
     @Override
-    public <T,DBT,U,DBU> List<Pair<T,U>> selectDistinctPairs(String firstColumnName, String secondColumnName, Where where) {
+    public <T,U> List<Pair<T,U>> selectDistinctPairs(String firstColumnName, String secondColumnName, Where where) {
         String sql = sqlBuilder.selectDistinct(where, firstColumnName, secondColumnName);
         // Casting as above
-        Column<DBT,T,ENTITY, BUILDER> firstColumn = (Column<DBT,T,ENTITY,BUILDER>) columnCollection.columnByName(firstColumnName);
-        Column<DBU,U,ENTITY, BUILDER> secondColumn = (Column<DBU,U,ENTITY,BUILDER>) columnCollection.columnByName(secondColumnName);
-        ResultSetReader<T> firstReader = (res, col) -> {
-            DBT dbt = firstColumn.getReader().read(res, col);
-            return firstColumn.toClassType(dbt);
+        Column<?,T,ENTITY, BUILDER> firstColumn = (Column<?,T,ENTITY,BUILDER>) columnCollection.columnByName(firstColumnName);
+        Column<?,U,ENTITY, BUILDER> secondColumn = (Column<?,U,ENTITY,BUILDER>) columnCollection.columnByName(secondColumnName);
+        Function<ResultSet,Pair<T,U>> reader = rs ->
+        {
+            T t = firstColumn.fromResultSet(rs);
+            U u = secondColumn.fromResultSet(rs);
+            return new Pair<>(t, u);
         };
-        ResultSetReader<U> secondReader = (res, col) -> {
-            DBU dbu = secondColumn.getReader().read(res, col);
-            return secondColumn.toClassType(dbu);
-        };
-        List<Pair<T,U>> values = sqlRunner.selectDistinctPairs(sql, where, firstColumnName, firstReader, secondColumnName, secondReader);
+        List<Pair<T,U>> values = sqlRunner.selectDistinct(sql, where, reader);
         return values;
     }
-
 
     private List<ENTITY> mapBuilders(List<BUILDER> bs){
         return bs.stream().map(buildFunction).collect(Collectors.toList());

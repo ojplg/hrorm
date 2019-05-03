@@ -153,4 +153,7 @@ public class ColumnImpl<DBTYPE, CLASSTYPE, ENTITY, BUILDER> implements Column<DB
         return converter.to(dbType);
     }
 
+    public GenericColumn<DBTYPE> asGenericColumn(){
+        return genericColumn;
+    }
 }
