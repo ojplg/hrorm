@@ -12,6 +12,8 @@ import java.util.Set;
  *
  * Most users of hrorm will have no need to directly use this.
  *
+ * @param <DBTYPE> The type of the data element as represented in the JDBC.
+ * @param <CLASSTYPE> The type of the data element as defined in the entity class.
  * @param <ENTITY> The type of the entity.
  * @param <BUILDER> The class that is used to build new entity instances.
  */
@@ -96,12 +98,14 @@ public interface Column<DBTYPE, CLASSTYPE, ENTITY, BUILDER> {
     Column<DBTYPE, CLASSTYPE, ENTITY, BUILDER> withPrefix(String newPrefix, Prefixer prefixer);
 
     /**
-     * Returns the function used by this column to read a result set.
+     * Applies any <code>Converter</code> associated with this column to
+     * a raw database type.
      *
-     * @return The result set reader
+     * @param dbType The value of an element represented by this column, as
+     *               stored in the database, or at least, as represented in the
+     *               JDBC.
+     * @return The value in the type as defined on the <code>ENTITY</code> class.
      */
-    default ResultSetReader<DBTYPE> getReader(){ return asGenericColumn()::fromResultSet; }
-
     CLASSTYPE toClassType(DBTYPE dbType);
 
     /**
@@ -119,10 +123,27 @@ public interface Column<DBTYPE, CLASSTYPE, ENTITY, BUILDER> {
      */
     default String getSqlTypeName() { return asGenericColumn().getSqlTypeName(); }
 
+    /**
+     * Set the name of the type of this column as it would be in the SQL schema.
+     *
+     * @param sqlTypeName The name of the SQL type.
+     */
     void setSqlTypeName(String sqlTypeName);
 
+    /**
+     * Returns a generic column instance that supports the underlying <code>DBTYPE</code>
+     *
+     * @return A generic column instance.
+     */
     GenericColumn<DBTYPE> asGenericColumn();
 
+    /**
+     * Parses a result set object for the value of this column
+     * using its name without using the prefix value.
+     *
+     * @param resultSet The result set to parse.
+     * @return The value represented by this column.
+     */
     default CLASSTYPE fromResultSet(ResultSet resultSet) {
         try {
             DBTYPE dbType = asGenericColumn().fromResultSet(resultSet, getName());

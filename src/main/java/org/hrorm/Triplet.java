@@ -2,6 +2,13 @@ package org.hrorm;
 
 import java.util.Objects;
 
+/**
+ * Represents a three-tuple of objects.
+ *
+ * @param <T> The type of the first object.
+ * @param <U> The type of the second object.
+ * @param <V> The type of the third object.
+ */
 public class Triplet<T,U,V> {
 
     private final T first;

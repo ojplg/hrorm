@@ -61,11 +61,6 @@ public class NoBackReferenceParentColumn<ENTITY, PARENT, BUILDER, PARENTBUILDER>
     }
 
     @Override
-    public ResultSetReader<Long> getReader(){
-        return ResultSet::getLong;
-    }
-
-    @Override
     public Column<Long, Long, ENTITY, BUILDER> withPrefix(String newPrefix, Prefixer prefixer) {
         return new NoBackReferenceParentColumn(name, newPrefix);
     }

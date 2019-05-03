@@ -54,11 +54,6 @@ public class DirectPrimaryKey<ENTITY> implements PrimaryKey<ENTITY, ENTITY> {
     }
 
     @Override
-    public void setKey(ENTITY builder, Long id) {
-        setter.accept(builder, id);
-    }
-
-    @Override
     public void optimisticSetKey(ENTITY item, Long id) {
         setter.accept(item, id);
     }
@@ -75,18 +70,13 @@ public class DirectPrimaryKey<ENTITY> implements PrimaryKey<ENTITY, ENTITY> {
 
     @Override
     public PopulateResult populate(ENTITY constructor, ResultSet resultSet) throws SQLException {
-        Long value = resultSet.getLong(prefix  + name);
+        long value = resultSet.getLong(prefix  + name);
         setter.accept(constructor, value);
         if (value == 0){
             return PopulateResult.NoPrimaryKey;
         }
         return PopulateResult.PrimaryKey;
 
-    }
-
-    @Override
-    public ResultSetReader<Long> getReader(){
-        return ResultSet::getLong;
     }
 
     @Override

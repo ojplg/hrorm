@@ -13,11 +13,9 @@ import java.util.List;
  * Use a {@link IndirectKeylessDaoBuilder}.
  *
  * @param <ENTITY> The type whose persistence is managed by this <code>Dao</code>.
- * @param <PARENT> The type of the parent (if any) of type <code>ENTITY</code>.
  * @param <BUILDER> The type of object that can build an <code>ENTITY</code> instance.
- * @param <PARENTBUILDER> The type of the object that can build a <code>PARENT</code> instance.
  */
-public class KeylessDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> extends AbstractDao<ENTITY, BUILDER> {
+public class KeylessDaoImpl<ENTITY, BUILDER> extends AbstractDao<ENTITY, BUILDER> {
 
     public KeylessDaoImpl(Connection connection,
                           KeylessDaoDescriptor<ENTITY, BUILDER> daoDescriptor){

@@ -102,8 +102,7 @@ public class Converters {
             if( item == null ){
                 return null;
             }
-            Timestamp timestamp = Timestamp.from(item);
-            return timestamp;
+            return Timestamp.from(item);
         }
 
         @Override
@@ -111,8 +110,7 @@ public class Converters {
             if ( timestamp == null ) {
                 return null;
             }
-            Instant instant = timestamp.toInstant();
-            return instant;
+            return timestamp.toInstant();
         }
     }
 

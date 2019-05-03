@@ -167,8 +167,7 @@ public abstract class AbstractDao<ENTITY, BUILDER> implements KeylessDaoDescript
         // This cast is unfortunate. But I do not see how to avoid it, except
         // by requiring the user to specify the column type in the Dao interface.
         Column<?,T,ENTITY, BUILDER> column = (Column<?,T,ENTITY,BUILDER>) columnCollection.columnByName(columnName);
-        List<T> values = sqlRunner.selectDistinct(sql, where, column::fromResultSet);
-        return values;
+        return sqlRunner.selectDistinct(sql, where, column::fromResultSet);
     }
 
     @Override
@@ -183,8 +182,7 @@ public abstract class AbstractDao<ENTITY, BUILDER> implements KeylessDaoDescript
             U u = secondColumn.fromResultSet(rs);
             return new Pair<>(t, u);
         };
-        List<Pair<T,U>> values = sqlRunner.selectDistinct(sql, where, reader);
-        return values;
+        return sqlRunner.selectDistinct(sql, where, reader);
     }
 
     @Override
@@ -201,9 +199,7 @@ public abstract class AbstractDao<ENTITY, BUILDER> implements KeylessDaoDescript
             V v = thirdColumn.fromResultSet(rs);
             return new Triplet<>(t, u, v);
         };
-        List<Triplet<T,U,V>> values = sqlRunner.selectDistinct(sql, where, reader);
-        return values;
-
+        return sqlRunner.selectDistinct(sql, where, reader);
     }
 
     private List<ENTITY> mapBuilders(List<BUILDER> bs){
@@ -219,5 +215,4 @@ public abstract class AbstractDao<ENTITY, BUILDER> implements KeylessDaoDescript
         }
         throw new HrormException("Found " + items.size() + " items.");
     }
-
 }

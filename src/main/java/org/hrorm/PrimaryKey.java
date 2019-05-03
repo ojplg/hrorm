@@ -20,8 +20,6 @@ public interface PrimaryKey<ENTITY, BUILDER> extends Column<Long, Long, ENTITY, 
      */
     void optimisticSetKey(ENTITY item, Long id);
 
-    void setKey(BUILDER builder, Long id);
-
     Long getKey(ENTITY item);
 
     /**

@@ -96,11 +96,6 @@ public class JoinColumn<ENTITY, JOINED, ENTITYBUILDER, JOINEDBUILDER> implements
     }
 
     @Override
-    public ResultSetReader<Long> getReader(){
-        return ResultSet::getLong;
-    }
-
-    @Override
     public void setValue(ENTITY item, int index, PreparedStatement preparedStatement) throws SQLException {
         JOINED value = getter.apply(item);
         if( value == null ){

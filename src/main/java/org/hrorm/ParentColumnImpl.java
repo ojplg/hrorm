@@ -2,7 +2,6 @@ package org.hrorm;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Types;
 import java.util.Set;
 import java.util.function.BiConsumer;
@@ -67,11 +66,6 @@ public class ParentColumnImpl<CHILD, PARENT, CHILDBUILDER, PARENTBUILDER> implem
     @Override
     public void setValue(CHILD item, int index, PreparedStatement preparedStatement) {
         throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public ResultSetReader<Long> getReader(){
-        return ResultSet::getLong;
     }
 
     @Override

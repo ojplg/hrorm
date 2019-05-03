@@ -54,11 +54,6 @@ public class IndirectPrimaryKey<ENTITY, BUILDER> implements PrimaryKey<ENTITY, B
     }
 
     @Override
-    public void setKey(BUILDER builder, Long id) {
-        setter.accept(builder, id);
-    }
-
-    @Override
     public void optimisticSetKey(ENTITY item, Long id) {
         // nothing to do in this case
         // in the indirect case the primary key has no
@@ -77,20 +72,14 @@ public class IndirectPrimaryKey<ENTITY, BUILDER> implements PrimaryKey<ENTITY, B
 
     @Override
     public PopulateResult populate(BUILDER constructor, ResultSet resultSet) throws SQLException {
-        Long value = resultSet.getLong(prefix  + name);
+        long value = resultSet.getLong(prefix  + name);
         setter.accept(constructor, value);
-        if ( value == null || value == 0 ){
+        if ( value == 0 ){
             return PopulateResult.NoPrimaryKey;
         }
         return PopulateResult.PrimaryKey;
 
     }
-
-    @Override
-    public ResultSetReader<Long> getReader(){
-        return ResultSet::getLong;
-    }
-
 
     @Override
     public void setValue(ENTITY item, int index, PreparedStatement preparedStatement) throws SQLException {

@@ -2,6 +2,12 @@ package org.hrorm;
 
 import java.util.Objects;
 
+/**
+ * Represents a two-tuple of objects.
+ *
+ * @param <T> The type of the first object.
+ * @param <U> The type of the second object.
+ */
 public class Pair<T,U> {
 
     private final T first;
