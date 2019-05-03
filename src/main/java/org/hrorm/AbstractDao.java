@@ -162,7 +162,7 @@ public abstract class AbstractDao<ENTITY, BUILDER> implements KeylessDaoDescript
 
     @Override
     public <T,DBTYPE> List<T> selectDistinct(String columnName, Where where) {
-        String sql = sqlBuilder.selectDistinct(columnName, where);
+        String sql = sqlBuilder.selectDistinct(where, columnName);
         // This cast is unfortunate. But I do not see how to avoid it, except
         // by requiring the user to specify the column type in the Dao interface.
         Column<DBTYPE,T,ENTITY, BUILDER> column = (Column<DBTYPE,T,ENTITY,BUILDER>) columnCollection.columnByName(columnName);
@@ -173,6 +173,25 @@ public abstract class AbstractDao<ENTITY, BUILDER> implements KeylessDaoDescript
         List<T> values = sqlRunner.selectDistinct(sql, where, columnName, reader);
         return values;
     }
+
+    @Override
+    public <T,DBT,U,DBU> List<Pair<T,U>> selectDistinctPairs(String firstColumnName, String secondColumnName, Where where) {
+        String sql = sqlBuilder.selectDistinct(where, firstColumnName, secondColumnName);
+        // Casting as above
+        Column<DBT,T,ENTITY, BUILDER> firstColumn = (Column<DBT,T,ENTITY,BUILDER>) columnCollection.columnByName(firstColumnName);
+        Column<DBU,U,ENTITY, BUILDER> secondColumn = (Column<DBU,U,ENTITY,BUILDER>) columnCollection.columnByName(secondColumnName);
+        ResultSetReader<T> firstReader = (res, col) -> {
+            DBT dbt = firstColumn.getReader().read(res, col);
+            return firstColumn.toClassType(dbt);
+        };
+        ResultSetReader<U> secondReader = (res, col) -> {
+            DBU dbu = secondColumn.getReader().read(res, col);
+            return secondColumn.toClassType(dbu);
+        };
+        List<Pair<T,U>> values = sqlRunner.selectDistinctPairs(sql, where, firstColumnName, firstReader, secondColumnName, secondReader);
+        return values;
+    }
+
 
     private List<ENTITY> mapBuilders(List<BUILDER> bs){
         return bs.stream().map(buildFunction).collect(Collectors.toList());

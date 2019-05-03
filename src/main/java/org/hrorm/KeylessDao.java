@@ -187,4 +187,6 @@ public interface KeylessDao<ENTITY> {
 
     <T,DBTYPE> List<T> selectDistinct(String columnName, Where where);
 
+    <T,DBT,U,DBU> List<Pair<T,U>> selectDistinctPairs(String firstColumnName, String secondColumnName, Where where);
+
 }

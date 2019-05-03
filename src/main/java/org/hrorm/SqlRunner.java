@@ -187,7 +187,24 @@ public class SqlRunner<ENTITY, BUILDER> {
         return runFunction(sql, where, reader);
     }
 
+    public <T, U> List<Pair<T,U>> selectDistinctPairs(String sql, Where where,
+                                           String firstColumnName, ResultSetReader<T> firstReader,
+                                           String secondColumnName, ResultSetReader<U> secondReader){
+        ResultParser<Pair<T,U>> parser = rs ->
+        {
+            T t = firstReader.read(rs, firstColumnName);
+            U u = secondReader.read(rs, secondColumnName);
+            return new Pair<>(t, u);
+        };
+        return selectDistinctTuples(sql, where, parser);
+    }
+
     public <T> List<T> selectDistinct(String sql, Where where, String columnName, ResultSetReader<T> reader){
+        ResultParser<T> parser = rs -> reader.read(rs, columnName);
+        return selectDistinctTuples(sql, where, parser);
+    }
+
+    private <T> List<T> selectDistinctTuples(String sql, Where where, ResultParser<T> resultParser){
         ResultSet resultSet = null;
         PreparedStatement statement = null;
         List<T> values = new ArrayList<>();
@@ -199,7 +216,7 @@ public class SqlRunner<ENTITY, BUILDER> {
             resultSet = statement.executeQuery();
 
             while(resultSet.next()){
-                T value = reader.read(resultSet, columnName);
+                T value = resultParser.parse(resultSet);
                 values.add(value);
             }
             return values;
@@ -217,6 +234,11 @@ public class SqlRunner<ENTITY, BUILDER> {
                 throw new HrormException(se);
             }
         }
+    }
+
+    @FunctionalInterface
+    private interface ResultParser<T> {
+        T parse(ResultSet rs) throws SQLException;
     }
 
     public void insert(String sql, Envelope<ENTITY> envelope) {
