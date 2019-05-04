@@ -1093,6 +1093,16 @@
                 <p>Of course, the ordering applied by the database may be different than that applied
                 by Java.</p>
 
+                <h5>Distinct</h5>
+
+                <p>
+                    The overloaded <code>selectDistinct()</code> methods provide a mechanism for providing
+                    distinct values from the database. There are variants for selecting distinct single values,
+                    two-tuples, and three-tuples. The methods accept the name(s) of the database columns to select
+                    distinct values from. The returned results will have the types of the object model specified
+                    in the <code>Dao</code>, i.e. any <code>Converter</code> that was specified will be applied.
+                </p>
+
             </div>
 
             <a id="update"></a>
