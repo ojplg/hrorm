@@ -202,7 +202,7 @@ public interface KeylessDao<ENTITY> {
     <T> List<T> selectDistinct(String columnName, Where where);
 
     /**
-     * Select unique value pairs from the database for a particular column.
+     * Select unique value pairs from the database for a particular pair of columns.
      *
      * <p>
      *     The response will be of the types associated with the class being
@@ -221,7 +221,7 @@ public interface KeylessDao<ENTITY> {
     <T,U> List<Pair<T,U>> selectDistinct(String firstColumnName, String secondColumnName, Where where);
 
     /**
-     * Select unique value triplets from the database for a particular column.
+     * Select unique value triplets from the database for a particular triplet of columns.
      *
      * <p>
      *     The response will be of the types associated with the class being
