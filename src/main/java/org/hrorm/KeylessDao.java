@@ -218,7 +218,7 @@ public interface KeylessDao<ENTITY> {
      *           not necessarily the type of the database column.
      * @return The distinct values found.
      */
-    <T,U> List<Pair<T,U>> selectDistinctPairs(String firstColumnName, String secondColumnName, Where where);
+    <T,U> List<Pair<T,U>> selectDistinct(String firstColumnName, String secondColumnName, Where where);
 
     /**
      * Select unique value triplets from the database for a particular column.
@@ -240,5 +240,5 @@ public interface KeylessDao<ENTITY> {
      *           not necessarily the type of the database column.
      * @return The distinct values found.
      */
-    <T,U,V> List<Triplet<T,U,V>> selectDistinctTriplets(String firstColumnName, String secondColumnName, String thirdColumnName, Where where);
+    <T,U,V> List<Triplet<T,U,V>> selectDistinct(String firstColumnName, String secondColumnName, String thirdColumnName, Where where);
 }

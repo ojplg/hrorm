@@ -171,7 +171,7 @@ public abstract class AbstractDao<ENTITY, BUILDER> implements KeylessDaoDescript
     }
 
     @Override
-    public <T,U> List<Pair<T,U>> selectDistinctPairs(String firstColumnName, String secondColumnName, Where where) {
+    public <T,U> List<Pair<T,U>> selectDistinct(String firstColumnName, String secondColumnName, Where where) {
         String sql = sqlBuilder.selectDistinct(where, firstColumnName, secondColumnName);
         // Casting as above
         Column<?,T,ENTITY, BUILDER> firstColumn = (Column<?,T,ENTITY,BUILDER>) columnCollection.columnByName(firstColumnName);
@@ -186,7 +186,7 @@ public abstract class AbstractDao<ENTITY, BUILDER> implements KeylessDaoDescript
     }
 
     @Override
-    public <T, U, V> List<Triplet<T, U, V>> selectDistinctTriplets(String firstColumnName, String secondColumnName, String thirdColumnName, Where where) {
+    public <T, U, V> List<Triplet<T, U, V>> selectDistinct(String firstColumnName, String secondColumnName, String thirdColumnName, Where where) {
         String sql = sqlBuilder.selectDistinct(where, firstColumnName, secondColumnName, thirdColumnName);
         // Casting as above
         Column<?,T,ENTITY, BUILDER> firstColumn = (Column<?,T,ENTITY,BUILDER>) columnCollection.columnByName(firstColumnName);

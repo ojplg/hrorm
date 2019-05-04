@@ -160,7 +160,7 @@ public class SelectDistinctTest {
         });
         helper.useConnection(connection -> {
             Dao<Columns> dao = daoBuilder().buildDao(connection);
-            List<Pair<String,Long>> values = dao.selectDistinctPairs(
+            List<Pair<String,Long>> values = dao.selectDistinct(
                     "string_column",
                     "integer_column",
                     where("integer_column", GREATER_THAN, 3L));
@@ -201,7 +201,7 @@ public class SelectDistinctTest {
         });
         helper.useConnection(connection -> {
             Dao<Columns> dao = daoBuilder().buildDao(connection);
-            List<Triplet<String, Long, Instant>> values = dao.selectDistinctTriplets(
+            List<Triplet<String, Long, Instant>> values = dao.selectDistinct(
                     "string_column",
                     "integer_column",
                     "timestamp_column",
