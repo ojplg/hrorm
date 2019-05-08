@@ -2,6 +2,7 @@ package org.hrorm;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -133,17 +134,44 @@ public abstract class AbstractKeylessDao<ENTITY, BUILDER> implements KeylessDaoD
     }
 
     @Override
-    public <T,DBTYPE> List<T> selectDistinct(String columnName, Where where) {
-        String sql = sqlBuilder.selectDistinct(columnName, where);
+    public <T> List<T> selectDistinct(String columnName, Where where) {
+        String sql = sqlBuilder.selectDistinct(where, columnName);
         // This cast is unfortunate. But I do not see how to avoid it, except
         // by requiring the user to specify the column type in the Dao interface.
-        Column<DBTYPE,T,ENTITY, BUILDER> column = (Column<DBTYPE,T,ENTITY,BUILDER>) columnCollection.columnByName(columnName);
-        ResultSetReader<T> reader = (res, col) -> {
-            DBTYPE dbType = column.getReader().read(res, col);
-            return column.toClassType(dbType);
+        Column<?,T,ENTITY, BUILDER> column = (Column<?,T,ENTITY,BUILDER>) columnCollection.columnByName(columnName);
+        return sqlRunner.selectDistinct(sql, where, column::fromResultSet);
+    }
+
+    @Override
+    public <T,U> List<Pair<T,U>> selectDistinct(String firstColumnName, String secondColumnName, Where where) {
+        String sql = sqlBuilder.selectDistinct(where, firstColumnName, secondColumnName);
+        // Casting as above
+        Column<?,T,ENTITY, BUILDER> firstColumn = (Column<?,T,ENTITY,BUILDER>) columnCollection.columnByName(firstColumnName);
+        Column<?,U,ENTITY, BUILDER> secondColumn = (Column<?,U,ENTITY,BUILDER>) columnCollection.columnByName(secondColumnName);
+        Function<ResultSet,Pair<T,U>> reader = rs ->
+        {
+            T t = firstColumn.fromResultSet(rs);
+            U u = secondColumn.fromResultSet(rs);
+            return new Pair<>(t, u);
         };
-        List<T> values = sqlRunner.selectDistinct(sql, where, columnName, reader);
-        return values;
+        return sqlRunner.selectDistinct(sql, where, reader);
+    }
+
+    @Override
+    public <T, U, V> List<Triplet<T, U, V>> selectDistinct(String firstColumnName, String secondColumnName, String thirdColumnName, Where where) {
+        String sql = sqlBuilder.selectDistinct(where, firstColumnName, secondColumnName, thirdColumnName);
+        // Casting as above
+        Column<?,T,ENTITY, BUILDER> firstColumn = (Column<?,T,ENTITY,BUILDER>) columnCollection.columnByName(firstColumnName);
+        Column<?,U,ENTITY, BUILDER> secondColumn = (Column<?,U,ENTITY,BUILDER>) columnCollection.columnByName(secondColumnName);
+        Column<?,V,ENTITY, BUILDER> thirdColumn = (Column<?,V,ENTITY,BUILDER>) columnCollection.columnByName(thirdColumnName);
+        Function<ResultSet,Triplet<T,U,V>> reader = rs ->
+        {
+            T t = firstColumn.fromResultSet(rs);
+            U u = secondColumn.fromResultSet(rs);
+            V v = thirdColumn.fromResultSet(rs);
+            return new Triplet<>(t, u, v);
+        };
+        return sqlRunner.selectDistinct(sql, where, reader);
     }
 
     private List<ENTITY> mapBuilders(List<BUILDER> bs){

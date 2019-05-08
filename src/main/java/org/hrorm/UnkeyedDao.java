@@ -37,11 +37,11 @@ public interface UnkeyedDao<ENTITY> {
      * by joining the various column names with 'AND'.
      * </p>
      *
-     * @param template An instance of type ENTITY with populated values corresponding to the
-     *             column names to select by.
+     * @param template    An instance of type ENTITY with populated values corresponding to the
+     *                    column names to select by.
      * @param columnNames The names of the database columns
      * @return The populated instances of type ENTITY with matching values with the passed item for
-     *         the indicated columnNames.
+     * the indicated columnNames.
      */
     List<ENTITY> selectManyByColumns(ENTITY template, String... columnNames);
 
@@ -55,26 +55,26 @@ public interface UnkeyedDao<ENTITY> {
      * by joining the various column names with 'AND'.
      * </p>
      *
-     * @param template An instance of type ENTITY with populated values corresponding to the
-     *             column names to select by.
-     * @param order The ordering to use
+     * @param template    An instance of type ENTITY with populated values corresponding to the
+     *                    column names to select by.
+     * @param order       The ordering to use
      * @param columnNames The names of the database columns
      * @return The populated instances of type ENTITY with matching values with the passed item for
-     *         the indicated columnNames.
+     * the indicated columnNames.
      */
     List<ENTITY> selectManyByColumns(ENTITY template, Order order, String... columnNames);
 
 
     /**
      * Select a single record from the database by some search criteria.
-     *
+     * <p>
      * If multiple records are found that match the passed item, an exception will be thrown.
      *
-     * @param item An instance of type ENTITY with populated values corresponding to the
-     *             column names to select by.
+     * @param item        An instance of type ENTITY with populated values corresponding to the
+     *                    column names to select by.
      * @param columnNames The names of the database columns
      * @return The populated instance of type ENTITY with matching values with the passed item for
-     *         the indicated columnNames.
+     * the indicated columnNames.
      */
     ENTITY selectByColumns(ENTITY item, String... columnNames);
 
@@ -101,12 +101,12 @@ public interface UnkeyedDao<ENTITY> {
      * Computes a result based on the entities found by a select statement
      * without realizing the entire list of found entities in memory.
      *
-     * @param identity The identity element of the return type.
+     * @param identity    The identity element of the return type.
      * @param accumulator A function that computes the desired value based on
      *                    the values seen thus far and the next instance
      *                    of the entity found in the result set.
-     * @param where Predicates to drive selection of results
-     * @param <T> The type of the value to be computed.
+     * @param where       Predicates to drive selection of results
+     * @param <T>         The type of the value to be computed.
      * @return The computed value based on the results found in the underlying store.
      */
     <T> T foldingSelect(T identity, BiFunction<T, ENTITY, T> accumulator, Where where);
@@ -117,16 +117,16 @@ public interface UnkeyedDao<ENTITY> {
      * and the given SqlFunction and column name.
      *
      * <p>
-     *     Will run SQL that looks like this:
+     * Will run SQL that looks like this:
      * </p>
      *
      * <code>
-     *     select FUNCTION(COLUMN) from TABLE where ...
+     * select FUNCTION(COLUMN) from TABLE where ...
      * </code>
      *
-     * @param function The function to run
+     * @param function   The function to run
      * @param columnName The column to apply the function to
-     * @param where Predicates to drive selection of results
+     * @param where      Predicates to drive selection of results
      * @return The value returned by applying the specified function to the values in the
      * specified column in the matching results, or null if no results are found.
      */
@@ -137,20 +137,25 @@ public interface UnkeyedDao<ENTITY> {
      * and the given SqlFunction and column name.
      *
      * <p>
-     *     Will run SQL that looks like this:
+     * Will run SQL that looks like this:
      * </p>
      *
      * <code>
-     *     select FUNCTION(COLUMN) from TABLE where ...
+     * select FUNCTION(COLUMN) from TABLE where ...
      * </code>
      *
-     * @param function The function to run
+     * @param function   The function to run
      * @param columnName The column to apply the function to
-     * @param where Predicates to drive selection of results
+     * @param where      Predicates to drive selection of results
      * @return The value returned by applying the specified function to the values in the
      * specified column in the matching results, or null if no results are found.
      */
     BigDecimal runBigDecimalFunction(SqlFunction function, String columnName, Where where);
 
-    <T,DBTYPE> List<T> selectDistinct(String columnName, Where where);
+    <T> List<T> selectDistinct(String columnName, Where where);
+
+    <T, U> List<Pair<T, U>> selectDistinct(String firstColumnName, String secondColumnName, Where where);
+
+    <T, U, V> List<Triplet<T, U, V>> selectDistinct(String firstColumnName, String secondColumnName, String thirdColumnName, Where where);
+
 }

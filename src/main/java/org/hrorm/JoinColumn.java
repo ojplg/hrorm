@@ -107,7 +107,6 @@ public class JoinColumn<ENTITY, JOINED, ENTITYBUILDER, JOINEDBUILDER, JOINEDPK> 
         );
     }
 
-    @Override
     public ResultSetReader<JOINEDPK> getReader(){
         return joinedPkResultSetReader;
     }
@@ -172,5 +171,10 @@ public class JoinColumn<ENTITY, JOINED, ENTITYBUILDER, JOINEDBUILDER, JOINEDPK> 
     @Override
     public JOINEDPK toClassType(JOINEDPK dbType) {
         return dbType;
+    }
+
+    @Override
+    public GenericColumn<JOINEDPK> asGenericColumn() {
+        return new GenericColumn<>(joinedPkStatementSetter, joinedPkResultSetReader, supportedTypes().iterator().next(), sqlTypeName, supportedTypes());
     }
 }

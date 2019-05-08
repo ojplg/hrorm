@@ -20,9 +20,15 @@ public interface PrimaryKey<T, ENTITY, BUILDER> extends Column<T, T, ENTITY, BUI
      */
     void optimisticSetKey(ENTITY item, T id);
 
-    void setKey(BUILDER builder, T id);
 
     T getKey(ENTITY item);
+
+//    /**
+//     * The name of the database sequence that is used to populate this key
+//     *
+//     * @return the sequence name
+//     */
+//    String getSequenceName();
 
     KeyProducer<T> getKeyProducer();
 }

@@ -3,7 +3,6 @@ package org.hrorm;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
@@ -21,7 +20,7 @@ import java.util.function.Function;
  */
 public class ColumnImpl<DBTYPE, CLASSTYPE, ENTITY, BUILDER> implements Column<DBTYPE, CLASSTYPE, ENTITY, BUILDER> {
 
-    private final GenericColumn<DBTYPE> genericColumn;
+    private GenericColumn<DBTYPE> genericColumn;
 
     private final String name;
     private final String prefix;
@@ -30,7 +29,6 @@ public class ColumnImpl<DBTYPE, CLASSTYPE, ENTITY, BUILDER> implements Column<DB
 
     private final Converter<CLASSTYPE, DBTYPE> converter;
 
-    private String sqlTypeName;
     private boolean nullable;
 
     public static <T,E,B> Column<T,T,E,B> directColumn(GenericColumn<T> genericColumn,
@@ -60,13 +58,12 @@ public class ColumnImpl<DBTYPE, CLASSTYPE, ENTITY, BUILDER> implements Column<DB
                                   String sqlTypeName,
                                   boolean nullable,
                                   Converter<CLASSTYPE, DBTYPE> converter){
-        this.genericColumn = genericColumn;
+        this.genericColumn = genericColumn.withTypeName(sqlTypeName);
 
         this.prefix = prefix;
         this.name = name;
         this.setter = setter;
         this.getter = getter;
-        this.sqlTypeName = sqlTypeName;
         this.nullable = nullable;
         this.converter = converter;
     }
@@ -127,18 +124,8 @@ public class ColumnImpl<DBTYPE, CLASSTYPE, ENTITY, BUILDER> implements Column<DB
     }
 
     @Override
-    public Set<Integer> supportedTypes() {
-        return genericColumn.getSupportedTypes();
-    }
-
-    @Override
-    public String getSqlTypeName() {
-        return sqlTypeName;
-    }
-
-    @Override
     public void setSqlTypeName(String sqlTypeName) {
-        this.sqlTypeName = sqlTypeName;
+        this.genericColumn = genericColumn.withTypeName(sqlTypeName);
     }
 
     @Override
@@ -148,7 +135,7 @@ public class ColumnImpl<DBTYPE, CLASSTYPE, ENTITY, BUILDER> implements Column<DB
                 this.name,
                 this.getter,
                 this.setter,
-                this.sqlTypeName,
+                this.genericColumn.getSqlTypeName(),
                 this.nullable,
                 this.converter);
     }
@@ -158,4 +145,7 @@ public class ColumnImpl<DBTYPE, CLASSTYPE, ENTITY, BUILDER> implements Column<DB
         return converter.to(dbType);
     }
 
+    public GenericColumn<DBTYPE> asGenericColumn(){
+        return genericColumn;
+    }
 }

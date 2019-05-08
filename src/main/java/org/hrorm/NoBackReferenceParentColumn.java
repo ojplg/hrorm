@@ -2,7 +2,6 @@ package org.hrorm;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.Set;
 import java.util.function.BiConsumer;
 
@@ -113,5 +112,10 @@ public class NoBackReferenceParentColumn<ENTITY, PARENT, BUILDER, PARENTBUILDER,
     @Override
     public PARENTPK toClassType(PARENTPK dbType) {
         return dbType;
+    }
+
+    @Override
+    public GenericColumn<PARENTPK> asGenericColumn() {
+        return new GenericColumn<>(getStatementSetter(), getReader(), supportedTypes().iterator().next(), sqlTypeName, supportedTypes());
     }
 }

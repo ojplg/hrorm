@@ -119,4 +119,10 @@ public class ParentColumnImpl<CHILD, PARENT, CHILDBUILDER, PARENTBUILDER, PARENT
     public PARENTPK toClassType(PARENTPK value){
         return value;
     }
+
+    @Override
+    public GenericColumn<PARENTPK> asGenericColumn() {
+        return new GenericColumn<>(getStatementSetter(), getReader(), supportedTypes().iterator().next(), sqlTypeName, supportedTypes());
+    }
+
 }

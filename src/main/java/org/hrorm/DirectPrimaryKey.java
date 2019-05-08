@@ -3,6 +3,7 @@ package org.hrorm;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -53,11 +54,6 @@ public class DirectPrimaryKey<ENTITY> implements SequencedPrimaryKey<ENTITY, ENT
     }
 
     @Override
-    public void setKey(ENTITY builder, Long id) {
-        setter.accept(builder, id);
-    }
-
-    @Override
     public void optimisticSetKey(ENTITY item, Long id) {
         setter.accept(item, id);
     }
@@ -74,7 +70,7 @@ public class DirectPrimaryKey<ENTITY> implements SequencedPrimaryKey<ENTITY, ENT
 
     @Override
     public PopulateResult populate(ENTITY constructor, ResultSet resultSet) throws SQLException {
-        Long value = resultSet.getLong(prefix  + name);
+        long value = resultSet.getLong(prefix  + name);
         setter.accept(constructor, value);
         if (value == 0){
             return PopulateResult.NoPrimaryKey;
@@ -142,5 +138,11 @@ public class DirectPrimaryKey<ENTITY> implements SequencedPrimaryKey<ENTITY, ENT
     @Override
     public KeyProducer<Long> getKeyProducer() {
         return new SequenceKeyProducer(this);
+    }
+
+    @Override
+    public GenericColumn<Long> asGenericColumn() {
+        return new GenericColumn<>(PreparedStatement::setLong, ResultSet::getLong, Types.INTEGER, sqlTypeName, ColumnTypes.IntegerTypes);
+
     }
 }

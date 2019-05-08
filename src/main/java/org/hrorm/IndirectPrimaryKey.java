@@ -3,6 +3,7 @@ package org.hrorm;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -53,11 +54,6 @@ public class IndirectPrimaryKey<ENTITY, BUILDER> implements SequencedPrimaryKey<
     }
 
     @Override
-    public void setKey(BUILDER builder, Long id) {
-        setter.accept(builder, id);
-    }
-
-    @Override
     public void optimisticSetKey(ENTITY item, Long id) {
         // nothing to do in this case
         // in the indirect case the primary key has no
@@ -76,9 +72,9 @@ public class IndirectPrimaryKey<ENTITY, BUILDER> implements SequencedPrimaryKey<
 
     @Override
     public PopulateResult populate(BUILDER constructor, ResultSet resultSet) throws SQLException {
-        Long value = resultSet.getLong(prefix  + name);
+        long value = resultSet.getLong(prefix  + name);
         setter.accept(constructor, value);
-        if ( value == null || value == 0 ){
+        if ( value == 0 ){
             return PopulateResult.NoPrimaryKey;
         }
         return PopulateResult.PrimaryKey;
@@ -144,5 +140,9 @@ public class IndirectPrimaryKey<ENTITY, BUILDER> implements SequencedPrimaryKey<
     @Override
     public KeyProducer<Long> getKeyProducer() {
         return new SequenceKeyProducer(this);
+    }
+
+    public GenericColumn<Long> asGenericColumn() {
+        return new GenericColumn<>(PreparedStatement::setLong, ResultSet::getLong, Types.INTEGER, sqlTypeName, ColumnTypes.IntegerTypes);
     }
 }

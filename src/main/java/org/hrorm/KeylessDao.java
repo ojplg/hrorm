@@ -12,5 +12,17 @@ import java.util.function.BiFunction;
  * @param <ENTITY> The type of the data to be persisted.
  */
 public interface KeylessDao<ENTITY> extends UnkeyedDao<ENTITY> {
-    void insert(ENTITY entity);
+
+    void insert(ENTITY item);
+
+    /**
+     * Insert a record into the database within a transaction that is
+     * managed within the Dao. The Dao will either commit or rollback
+     * the transaction and <b>close the underlying <code>Connection</code></b>
+     * when complete.
+     *
+     * @param item The instance to be inserted.
+     * @return The newly issued primary key of the record, if there is one. Else, Optional.empty()
+     */
+    void atomicInsert(ENTITY item);
 }

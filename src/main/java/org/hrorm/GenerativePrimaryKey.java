@@ -64,11 +64,6 @@ public class GenerativePrimaryKey<PK, ENTITY, BUILDER> implements PrimaryKey<PK,
     }
 
     @Override
-    public void setKey(BUILDER builder, PK id) {
-        setter.accept(builder, id);
-    }
-
-    @Override
     public PK getKey(ENTITY item) {
         return getter.apply(item);
     }
@@ -161,7 +156,7 @@ public class GenerativePrimaryKey<PK, ENTITY, BUILDER> implements PrimaryKey<PK,
         return true;
     }
 
-    public GenericColumn<PK> getGenericColumn(){
+    public GenericColumn<PK> asGenericColumn(){
         return genericColumn;
     }
 }

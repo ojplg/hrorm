@@ -85,7 +85,7 @@ public class GenericKeyDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER,PK>
 
     @Override
     public ENTITY select(PK id) {
-        Where where = new Where(primaryKey.getName(), Operator.EQUALS, id, primaryKey.getGenericColumn());
+        Where where = new Where(primaryKey.getName(), Operator.EQUALS, id, primaryKey.asGenericColumn());
         List<ENTITY> items = select(where);
         return KeylessDaoImpl.fromSingletonList(items);
     }

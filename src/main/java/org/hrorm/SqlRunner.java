@@ -196,7 +196,7 @@ public class SqlRunner<PK, ENTITY, BUILDER> {
         return runFunction(sql, where, reader);
     }
 
-    public <T> List<T> selectDistinct(String sql, Where where, String columnName, ResultSetReader<T> reader){
+    public <T> List<T> selectDistinct(String sql, Where where, Function<ResultSet, T> resultParser){
         ResultSet resultSet = null;
         PreparedStatement statement = null;
         List<T> values = new ArrayList<>();
@@ -208,7 +208,7 @@ public class SqlRunner<PK, ENTITY, BUILDER> {
             resultSet = statement.executeQuery();
 
             while(resultSet.next()){
-                T value = reader.read(resultSet, columnName);
+                T value = resultParser.apply(resultSet);
                 values.add(value);
             }
             return values;

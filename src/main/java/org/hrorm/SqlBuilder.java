@@ -95,11 +95,11 @@ public class SqlBuilder<ENTITY> implements Queries {
         return select(where) + order.render();
     }
 
-    public String selectDistinct(String columnName, Where where){
+    public String selectDistinct(Where where, String ... columnNames){
         StringBuilder buf = new StringBuilder();
-        buf.append("select distinct (");
-        buf.append(columnName);
-        buf.append(" ) ");
+        buf.append("select distinct ");
+        buf.append(String.join(", ", columnNames));
+        buf.append("  ");
         buf.append(" from ");
         buf.append(table);
         buf.append(" a");
