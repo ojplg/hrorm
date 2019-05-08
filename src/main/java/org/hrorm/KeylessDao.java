@@ -22,7 +22,6 @@ public interface KeylessDao<ENTITY> extends UnkeyedDao<ENTITY> {
      * when complete.
      *
      * @param item The instance to be inserted.
-     * @return The newly issued primary key of the record, if there is one. Else, Optional.empty()
      */
     void atomicInsert(ENTITY item);
 }

@@ -36,6 +36,7 @@ public class GenericKeyDaoBuilder<ENTITY, BUILDER, PK>  implements SchemaDescrip
      * @param tableName The name of the table in the database.
      * @param supplier A mechanism (generally a constructor) for creating a new instance.
      * @param buildFunction How to create an instance of the entity class from its builder.
+     * @param primaryKeyGenerator The function for the creation of new primary keys on insert
      */
     public GenericKeyDaoBuilder(String tableName, Supplier<BUILDER> supplier, Function<BUILDER, ENTITY> buildFunction, Supplier<PK> primaryKeyGenerator){
         this.daoBuilderHelper = new DaoBuilderHelper<>(tableName, supplier, buildFunction);
@@ -238,6 +239,7 @@ public class GenericKeyDaoBuilder<ENTITY, BUILDER, PK>  implements SchemaDescrip
      *                      is persisted. Both <code>Dao</code> and <code>DaoBuilder</code>
      *                      objects implement the <code>DaoDescriptor</code> interface.
      * @param <U> The type of the data element.
+     * @param <FK> The type of the primary key of the joined entity.
      * @return This instance.
      */
     public <U,FK> GenericKeyDaoBuilder<ENTITY, BUILDER, PK> withJoinColumn(String columnName, Function<ENTITY, U> getter, BiConsumer<BUILDER,U> setter, DaoDescriptor<FK, U,?> daoDescriptor){
@@ -270,6 +272,7 @@ public class GenericKeyDaoBuilder<ENTITY, BUILDER, PK>  implements SchemaDescrip
      *                      objects implement the <code>DaoDescriptor</code> interface.
      * @param <CHILD> The type of the child data elements.
      * @param <CHILDBUILDER> The type of the builder of child data elements
+     * @param <FK> The type of the primary key of the child entity
      * @return This instance.
      */
     public <CHILD,FK,CHILDBUILDER> GenericKeyDaoBuilder<ENTITY, BUILDER, PK> withChildren(Function<ENTITY, List<CHILD>> getter,

@@ -10,7 +10,8 @@ import java.util.List;
  *
  * Most users of hrorm will have no need to directly use this.
  *
- * @param <ENTITY> The type representing the enitity being persisted.
+ * @param <ENTITY> The type representing the entity being persisted.
+ * @param <PK> The type of the primary key of the entity
  * @param <ENTITYBUILDER> The type of object that can build an <code>ENTITY</code> instance.
  */
 public interface DaoDescriptor<PK, ENTITY, ENTITYBUILDER> extends KeylessDaoDescriptor<ENTITY, ENTITYBUILDER> {
@@ -29,6 +30,7 @@ public interface DaoDescriptor<PK, ENTITY, ENTITYBUILDER> extends KeylessDaoDesc
      *
      * @param <P> The type of the parent entity.
      * @param <PB> The type of the parent entity's builder class.
+     * @param <PPK> The type of the primary key of the parent entity class.
      * @return The parent column.
      */
     <P,PB,PPK> ParentColumn<ENTITY, P, ENTITYBUILDER, PB, PPK> parentColumn();
