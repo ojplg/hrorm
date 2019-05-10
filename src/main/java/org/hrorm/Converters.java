@@ -19,14 +19,26 @@ public class Converters {
      */
     public static Converter<Boolean, Long> ONE_ZERO_BOOLEAN_LONG_CONVERTER = new BooleanLongConverter(1, 0);
 
+    /**
+     * This <code>Converter</code> translates between the <code>Instant</code>
+     * class and the <code>Timestamp</code> and is used by the built-in
+     * support for <code>Instant</code>.
+     */
     public static Converter<Instant, Timestamp> INSTANT_TIMESTAMP_CONVERTER = new InstantTimestampConverter();
 
+    /**
+     * An empty <code>Converter</code> that does no transformations.
+     *
+     * @param <T> The type supported by the <code>Converter</code>
+     * @return An instance of the <code>Converter</code> interface that passes objects through
+     * without change
+     */
     public static <T> Converter<T,T> identity(){ return new IdentityConverter<>(); }
 
     /**
      * This <code>Converter</code> translates between <code>Boolean</code> values and <code>String</code> values.
      */
-    public static class BooleanStringConverter implements Converter<Boolean, String> {
+    private static class BooleanStringConverter implements Converter<Boolean, String> {
 
         private final String trueRepresentation;
         private final String falseRepresentation;
@@ -61,7 +73,7 @@ public class Converters {
     /**
      * This <code>Converter</code> translates between <code>Boolean</code> values and <code>Long</code> values.
      */
-    public static class BooleanLongConverter implements Converter<Boolean, Long> {
+    private static class BooleanLongConverter implements Converter<Boolean, Long> {
 
         private final long trueRepresentation;
         private final long falseRepresentation;
@@ -96,7 +108,7 @@ public class Converters {
     /**
      * This <code>Converter</code> translates between <code>Instant</code> values and <code>Timestamp</code> values.
      */
-    public static class InstantTimestampConverter implements Converter<Instant, Timestamp> {
+    private static class InstantTimestampConverter implements Converter<Instant, Timestamp> {
         @Override
         public Timestamp from(Instant item) {
             if( item == null ){
