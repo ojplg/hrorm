@@ -973,28 +973,37 @@
                 <p>All of the selection mechanisms below will fully read and populate the entire relevant object graph
                     including all children and siblings and all their transitive references.</p>
 
+                <p>
+                    Hrorm provides overloaded <code>select()</code> and <code>selectOne()</code> methods.
+                    All the various <code>select()</code> methods will return a <code>List</code> of all
+                    the matching entities. The <code>selectOne()</code> method will return either null,
+                    if no matches are found, a single instance if one database record is found, or throw
+                    an exception if multiple matching records are found.
+                </p>
+
                 <h5>Primary Key</h5>
 
                 <p>You can read an item from the database if you know its primary key.</p>
 
                 <pre>
-    Person person = dao.select(432L);</pre>
+    Person person = dao.selectOne(432L);</pre>
 
                 <p>If you want to read several IDs at once, you can.</p>
 
                 <pre>
-    List&lt;Person&gt; personList = dao.selectMany(Arrays.asList(432L,21L,7659L));</pre>
+    List&lt;Person&gt; personList = dao.select(Arrays.asList(432L,21L,7659L));</pre>
 
                 <h5>All Records</h5>
 
                 <p>If you want all the records (presumably for a smallish table) just do</p>
 
                 <pre>
-    List&lt;Person&gt; personList = dao.selectAll();</pre>
+    List&lt;Person&gt; personList = dao.select();</pre>
 
                 <h5>By Columns</h5>
 
-                <p>Most of the time, you do not know up front what ID or IDs you are interested in, so
+                <p>
+                    Most of the time, you do not know up front what ID or IDs you are interested in, so
                     hrorm provides ways to specify which records you are interested in.
                     One way is by using hrorm's ability to select by columns.
                     The idea of this interface is to use an instance of the entity class as a template
@@ -1010,22 +1019,20 @@
     personTemplate.setWeight(100L);</pre>
 
                 <p>Then, we can find the matching records by passing that object and the names of the
-                    columns to filter on to the <code>selectManyByColumns</code> method on the <code>Dao</code>.</p>
+                    columns to filter on.</p>
 
                 <pre>
-    List&lt;Person&gt; people = personDao.selectManyByColumns(personTemplate, "IS_HIGH_SCHOOL_GRADUATE", "WEIGHT");</pre>
+    List&lt;Person&gt; people = personDao.select(personTemplate, "IS_HIGH_SCHOOL_GRADUATE", "WEIGHT");</pre>
 
                 <p>Notice that hrorm wants the names of the database <b>columns</b>, not the fields on the object.</p>
 
-                <p>If we know that a particular query will only return 0 or 1 results, hrorm provides a convenience method for that.</p>
+                <p>If a particular query will only return 0 or 1 results, hrorm provides a convenience method for that.</p>
 
                 <pre>
     Person personTemplate = new Person();
     personTemplate.setName("Rumpelstiltskin");
 
-    Person person = personDao.selectByColumns(personTemplate, "NAME");</pre>
-
-                <p>If you use this method and hrorm finds more than one record, it will raise an exception.</p>
+    Person person = personDao.selectOne(personTemplate, "NAME");</pre>
 
                 <h5>Where objects</h5>
 
