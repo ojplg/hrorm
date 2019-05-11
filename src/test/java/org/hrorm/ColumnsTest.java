@@ -58,7 +58,7 @@ public class ColumnsTest {
 
         Long id = dao.insert(columns);
 
-        Columns dbInstance = dao.select(id);
+        Columns dbInstance = dao.selectOne(id);
 
         Assert.assertEquals(columns, dbInstance);
         Assert.assertNotNull(columns.getId());
@@ -83,7 +83,7 @@ public class ColumnsTest {
         {
             Connection connection = helper.connect();
             Dao<Columns> dao = daoBuilder().buildDao(connection);
-            Columns columns = dao.select(id);
+            Columns columns = dao.selectOne(id);
 
             Assert.assertNull(columns.getIntegerThing());
             Assert.assertNull(columns.getBooleanThing());
@@ -112,7 +112,7 @@ public class ColumnsTest {
 
         dao.insert(columns);
 
-        Columns dbInstance = dao.select(columns.getId());
+        Columns dbInstance = dao.selectOne(columns.getId());
         Assert.assertEquals(columns, dbInstance);
 
         Instant oct5 = LocalDateTime.of(2019, 10, 5, 4, 45).toInstant(ZoneOffset.UTC);
@@ -125,7 +125,7 @@ public class ColumnsTest {
 
         dao.update(columns);
 
-        Columns dbInstance2 = dao.select(columns.getId());
+        Columns dbInstance2 = dao.selectOne(columns.getId());
         Assert.assertEquals(columns, dbInstance2);
 
         connection.close();
@@ -154,7 +154,7 @@ public class ColumnsTest {
         template.setTimeStampThing(dec1);
         template.setColorThing(EnumeratedColor.Green);
 
-        Columns dbInstance = dao.selectByColumns(template, "string_column", "integer_column", "boolean_column", "timestamp_column", "color_column");
+        Columns dbInstance = dao.selectOne(template, "string_column", "integer_column", "boolean_column", "timestamp_column", "color_column");
         Assert.assertEquals(columns.getId(), dbInstance.getId());
 
         connection.close();
@@ -209,7 +209,7 @@ public class ColumnsTest {
         template.setStringThing("Select Many By Column Test");
         template.setTimeStampThing(dec1);
 
-        List<Columns> dbInstanceList = dao.selectManyByColumns(template, "string_column", "timestamp_column");
+        List<Columns> dbInstanceList = dao.select(template, "string_column", "timestamp_column");
         Assert.assertEquals(3, dbInstanceList.size());
 
         connection.close();
@@ -245,7 +245,7 @@ public class ColumnsTest {
         {
             Connection connection = helper.connect();
             Dao<Columns> dao = daoBuilder().buildDao(connection);
-            Columns columns = dao.select(itemId);
+            Columns columns = dao.selectOne(itemId);
             Assert.assertNotNull(columns);
             dao.delete(columns);
 
@@ -254,7 +254,7 @@ public class ColumnsTest {
         {
             Connection connection = helper.connect();
             Dao<Columns> dao = daoBuilder().buildDao(connection);
-            Columns columns = dao.select(itemId);
+            Columns columns = dao.selectOne(itemId);
             Assert.assertNull(columns);
 
             connection.close();}
@@ -283,7 +283,7 @@ public class ColumnsTest {
             columns.setDecimalThing(new BigDecimal(123.4));
             columns.setIntegerThing(1234L);
 
-            Columns readFromDb = dao.selectByColumns(columns, "decimal_column", "integer_column");
+            Columns readFromDb = dao.selectOne(columns, "decimal_column", "integer_column");
             Assert.assertEquals(itemId, (long) readFromDb.getId());
 
             connection.commit();
@@ -296,7 +296,7 @@ public class ColumnsTest {
             columns.setDecimalThing(new BigDecimal(123.4));
             columns.setIntegerThing(1234L);
 
-            Columns readFromDb = dao.selectByColumns(columns, "DECIMAL_COLUMN", "INTEGER_COLUMN");
+            Columns readFromDb = dao.selectOne(columns, "DECIMAL_COLUMN", "INTEGER_COLUMN");
             Assert.assertEquals(itemId, (long) readFromDb.getId());
 
             connection.close();
@@ -308,7 +308,7 @@ public class ColumnsTest {
             columns.setDecimalThing(new BigDecimal(123.4));
             columns.setIntegerThing(1234L);
 
-            Columns readFromDb = dao.selectByColumns(columns, "DECIMal_colUMN", "InTEGeR_COlUmn");
+            Columns readFromDb = dao.selectOne(columns, "DECIMal_colUMN", "InTEGeR_COlUmn");
             Assert.assertEquals(itemId, (long) readFromDb.getId());
 
             connection.close();
@@ -368,7 +368,7 @@ public class ColumnsTest {
             Connection connection = helper.connect();
             Dao<Columns> dao = daoBuilder().buildDao(connection);
 
-            List<Columns> found = dao.selectMany(ids);
+            List<Columns> found = dao.select(ids);
             Assert.assertEquals(100, found.size());
 
             connection.close();
@@ -389,7 +389,7 @@ public class ColumnsTest {
         }
         {
             Dao<Columns> dao = daoBuilder().buildDao(helper.connect());
-            Columns found = dao.select(id);
+            Columns found = dao.selectOne(id);
             Assert.assertEquals("Test Atomic Operations", found.getStringThing());
             found.setStringThing("Updated Atomic Operations Test");
             dao.atomicUpdate(found);
@@ -397,14 +397,14 @@ public class ColumnsTest {
         }
         {
             Dao<Columns> dao = daoBuilder().buildDao(helper.connect());
-            Columns found = dao.select(id);
+            Columns found = dao.selectOne(id);
             Assert.assertEquals("Updated Atomic Operations Test", found.getStringThing());
             dao.atomicDelete(found);
         }
         {
             Connection connection = helper.connect();
             Dao<Columns> dao = daoBuilder().buildDao(connection);
-            Columns found = dao.select(id);
+            Columns found = dao.selectOne(id);
             Assert.assertNull(found);
             connection.close();
         }
@@ -442,7 +442,7 @@ public class ColumnsTest {
             });
             helper.useConnection(connection -> {
                 Dao<Columns> dao = daoBuilder().buildDao(connection);
-                Columns dbInstance = dao.select(id);
+                Columns dbInstance = dao.selectOne(id);
 
                 Assert.assertEquals(columns.getStringThing(), dbInstance.getStringThing());
                 Assert.assertEquals(columns.getTimeStampThing(), dbInstance.getTimeStampThing());

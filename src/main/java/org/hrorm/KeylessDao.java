@@ -6,7 +6,7 @@ import java.util.function.BiFunction;
 
 /**
  * A <code>KeylessDao</code> is an interface that allows basic, non-singular CRUD operations to be performed.
- * Using a <code>KeylessDao</code>, you can insert, records individually, but select, update, and delete all are limited
+ * Using a <code>KeylessDao</code>, you can insert, records individually, but selectOne, update, and delete all are limited
  * to multi-row operations, as there is no Primary Key defined.
  *
  * @param <ENTITY> The type of the data to be persisted.
@@ -36,7 +36,7 @@ public interface KeylessDao<ENTITY> {
      *
      * @return A list of populated instances of type ENTITY.
      */
-    List<ENTITY> selectAll();
+    List<ENTITY> select();
 
     /**
      * Read all the records in the database of type ENTITY in the
@@ -48,43 +48,43 @@ public interface KeylessDao<ENTITY> {
      * @param order The ordering to use
      * @return A list of populated instances of type ENTITY.
      */
-    List<ENTITY> selectAll(Order order);
+    List<ENTITY> select(Order order);
 
     /**
      * Select multiple records from the database by some search criteria.
      *
-     * <p>The SQL generated will specify a select by the column names passed,
+     * <p>The SQL generated will specify a selectOne by the column names passed,
      * where the values are equal to the values specified in the passed template
      * object. All the values must match, as the where clause will be formed
      * by joining the various column names with 'AND'.
      * </p>
      *
      * @param template An instance of type ENTITY with populated values corresponding to the
-     *             column names to select by.
+     *             column names to selectOne by.
      * @param columnNames The names of the database columns
      * @return The populated instances of type ENTITY with matching values with the passed item for
      *         the indicated columnNames.
      */
-    List<ENTITY> selectManyByColumns(ENTITY template, String... columnNames);
+    List<ENTITY> select(ENTITY template, String... columnNames);
 
     /**
      * Select multiple records from the database by some search criteria in the
      * required order.
      *
-     * <p>The SQL generated will specify a select by the column names passed,
+     * <p>The SQL generated will specify a selectOne by the column names passed,
      * where the values are equal to the values specified in the passed template
      * object. All the values must match, as the where clause will be formed
      * by joining the various column names with 'AND'.
      * </p>
      *
      * @param template An instance of type ENTITY with populated values corresponding to the
-     *             column names to select by.
+     *             column names to selectOne by.
      * @param order The ordering to use
      * @param columnNames The names of the database columns
      * @return The populated instances of type ENTITY with matching values with the passed item for
      *         the indicated columnNames.
      */
-    List<ENTITY> selectManyByColumns(ENTITY template, Order order, String... columnNames);
+    List<ENTITY> select(ENTITY template, Order order, String... columnNames);
 
 
     /**
@@ -93,15 +93,15 @@ public interface KeylessDao<ENTITY> {
      * If multiple records are found that match the passed item, an exception will be thrown.
      *
      * @param item An instance of type ENTITY with populated values corresponding to the
-     *             column names to select by.
+     *             column names to selectOne by.
      * @param columnNames The names of the database columns
      * @return The populated instance of type ENTITY with matching values with the passed item for
      *         the indicated columnNames.
      */
-    ENTITY selectByColumns(ENTITY item, String... columnNames);
+    ENTITY selectOne(ENTITY item, String... columnNames);
 
     /**
-     * Run a select in the data store for entities matching the given where predicates.
+     * Run a selectOne in the data store for entities matching the given where predicates.
      *
      * @param where The predicates to drive selection.
      * @return The matching results.
@@ -110,7 +110,7 @@ public interface KeylessDao<ENTITY> {
 
 
     /**
-     * Run a select in the data store for entities matching the given where predicates
+     * Run a selectOne in the data store for entities matching the given where predicates
      * returned in the order specified.
      *
      * @param where The predicates to drive selection.
@@ -131,7 +131,7 @@ public interface KeylessDao<ENTITY> {
     Long atomicInsert(ENTITY item);
 
     /**
-     * Computes a result based on the entities found by a select statement
+     * Computes a result based on the entities found by a selectOne statement
      * without realizing the entire list of found entities in memory.
      *
      * @param identity The identity element of the return type.
@@ -146,7 +146,7 @@ public interface KeylessDao<ENTITY> {
 
 
     /**
-     * Computes an aggregated Long value, based on the select criteria specified
+     * Computes an aggregated Long value, based on the selectOne criteria specified
      * and the given SqlFunction and column name.
      *
      * <p>
@@ -154,7 +154,7 @@ public interface KeylessDao<ENTITY> {
      * </p>
      *
      * <code>
-     *     select FUNCTION(COLUMN) from TABLE where ...
+     *     selectOne FUNCTION(COLUMN) from TABLE where ...
      * </code>
      *
      * @param function The function to run
@@ -166,7 +166,7 @@ public interface KeylessDao<ENTITY> {
     Long runLongFunction(SqlFunction function, String columnName, Where where);
 
     /**
-     * Computes an aggregated BigDecimal value, based on the select criteria specified
+     * Computes an aggregated BigDecimal value, based on the selectOne criteria specified
      * and the given SqlFunction and column name.
      *
      * <p>
@@ -174,7 +174,7 @@ public interface KeylessDao<ENTITY> {
      * </p>
      *
      * <code>
-     *     select FUNCTION(COLUMN) from TABLE where ...
+     *     selectOne FUNCTION(COLUMN) from TABLE where ...
      * </code>
      *
      * @param function The function to run

@@ -4,7 +4,7 @@ import java.util.List;
 
 /**
  * A <code>Dao</code> is an interface that allows basic CRUD operations to be performed.
- * Using a <code>Dao</code>, you can insert, select, update, and delete records.
+ * Using a <code>Dao</code>, you can insert, selectOne, update, and delete records.
  *
  * @param <ENTITY> The type of the data to be persisted.
  */
@@ -32,7 +32,7 @@ public interface Dao<ENTITY> extends KeylessDao<ENTITY> {
      * @param id The primary key of the record desired.
      * @return The populated instance of type ENTITY.
      */
-    ENTITY select(long id);
+    ENTITY selectOne(long id);
 
     /**
      * Read several records from the database by their primary keys.
@@ -40,7 +40,7 @@ public interface Dao<ENTITY> extends KeylessDao<ENTITY> {
      * @param ids The primary keys of the records desired.
      * @return A list of populated instances of type ENTITY.
      */
-    List<ENTITY> selectMany(List<Long> ids);
+    List<ENTITY> select(List<Long> ids);
 
 
     /**

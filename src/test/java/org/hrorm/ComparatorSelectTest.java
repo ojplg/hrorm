@@ -76,7 +76,7 @@ public class ComparatorSelectTest {
 
         Long id = dao.insert(columns);
 
-        Columns dbInstance = dao.select(id);
+        Columns dbInstance = dao.selectOne(id);
 
         Assert.assertEquals(columns, dbInstance);
         Assert.assertNotNull(columns.getId());
@@ -418,7 +418,7 @@ public class ComparatorSelectTest {
         {
             Connection connection = helper.connect();
             Dao<Columns> dao = daoBuilder().buildDao(connection);
-            List<Columns> all = dao.selectAll();
+            List<Columns> all = dao.select();
             Assert.assertEquals(25, all.size());
 
             connection.close();
@@ -453,7 +453,7 @@ public class ComparatorSelectTest {
         {
             Connection connection = helper.connect();
             Dao<Columns> dao = daoBuilder().buildDao(connection);
-            List<Columns> all = dao.selectAll();
+            List<Columns> all = dao.select();
             Assert.assertEquals(25, all.size());
 
             connection.close();
@@ -489,7 +489,7 @@ public class ComparatorSelectTest {
         {
             Connection connection = helper.connect();
             Dao<Columns> dao = daoBuilder().buildDao(connection);
-            List<Columns> all = dao.selectAll();
+            List<Columns> all = dao.select();
             Assert.assertEquals(25, all.size());
 
             connection.close();
@@ -525,7 +525,7 @@ public class ComparatorSelectTest {
             Connection connection = helper.connect();
             Dao<Columns> dao = daoBuilder().buildDao(connection);
 
-            List<Columns> all = dao.selectAll();
+            List<Columns> all = dao.select();
             Assert.assertEquals(25, all.size());
 
             connection.close();
@@ -562,7 +562,7 @@ public class ComparatorSelectTest {
             Connection connection = helper.connect();
             Dao<Columns> dao = daoBuilder().buildDao(connection);
 
-            List<Columns> all = dao.selectAll();
+            List<Columns> all = dao.select();
             Assert.assertEquals(25, all.size());
             connection.close();
         }
@@ -598,7 +598,7 @@ public class ComparatorSelectTest {
         {
             Connection connection = helper.connect();
             Dao<Columns> dao = daoBuilder().buildDao(connection);
-            List<Columns> all = dao.selectAll();
+            List<Columns> all = dao.select();
             Assert.assertEquals(25, all.size());
             connection.close();
         }

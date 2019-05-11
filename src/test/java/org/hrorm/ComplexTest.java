@@ -77,7 +77,7 @@ public class ComplexTest {
         {
             Connection connection = helper.connect();
             Dao<Beth> bethDao = bethDaoBuilder.buildDao(connection);
-            Beth beth = bethDao.select(bethId);
+            Beth beth = bethDao.selectOne(bethId);
 
             Assert.assertNotNull(beth);
 
@@ -148,7 +148,7 @@ public class ComplexTest {
         {
             Connection connection = helper.connect();
             Dao<Ann> annDao = annDaoBuilder.buildDao(connection);
-            Ann ann = annDao.select(annId);
+            Ann ann = annDao.selectOne(annId);
 
             Beth beth = ann.getBeth();
 

@@ -2,7 +2,6 @@ package org.hrorm;
 
 import lombok.Builder;
 import lombok.Data;
-import org.hrorm.database.H2Helper;
 import org.hrorm.database.Helper;
 import org.hrorm.database.HelperFactory;
 import org.hrorm.util.TestLogConfig;
@@ -56,7 +55,7 @@ public class MixedMutabilityTest {
 
             long forkId = forkDao.insert(fork);
 
-            fork = forkDao.select(forkId);
+            fork = forkDao.selectOne(forkId);
 
             Stuck stuck = Stuck.builder()
                     .name("FooBar")
@@ -76,7 +75,7 @@ public class MixedMutabilityTest {
             Connection connection = helper.connect();
             Dao<Mover> moverDao = moverBuilder.buildDao(connection);
 
-            Mover mover = moverDao.select(id);
+            Mover mover = moverDao.selectOne(id);
 
             Assert.assertNotNull(mover);
 

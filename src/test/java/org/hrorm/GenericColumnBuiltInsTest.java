@@ -60,7 +60,7 @@ public class GenericColumnBuiltInsTest {
         helper.useConnection(connection -> {
             Dao<BuiltIns> dao = Builders.forPlatform(helper.getPlatform()).buildDao(connection);
 
-            BuiltIns builtIns = dao.select(id);
+            BuiltIns builtIns = dao.selectOne(id);
 
             Assert.assertEquals(32, builtIns.getIntValue());
             Assert.assertEquals(2, builtIns.getByteValue());

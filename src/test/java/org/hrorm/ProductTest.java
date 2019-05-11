@@ -92,7 +92,7 @@ public class ProductTest {
         {
             Connection connection = helper.connect();
             Dao<Product> dao = daoBuilder().buildDao(connection);
-            Product product = dao.select(id);
+            Product product = dao.selectOne(id);
 
             Assert.assertEquals(ProductCategory.Kitchen, product.getCategory());
             connection.close();
@@ -129,7 +129,7 @@ public class ProductTest {
             template.setCategory(ProductCategory.Electronic);
             template.setDiscontinued(false);
 
-            List<Product> products = dao.selectManyByColumns(template, "category", "discontinued");
+            List<Product> products = dao.select(template, "category", "discontinued");
 
             Assert.assertEquals(5, products.size());
 

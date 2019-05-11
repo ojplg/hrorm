@@ -52,7 +52,7 @@ public class KeylessTest {
     }
 
     /**
-     * Comprehensively tests insert/select.
+     * Comprehensively tests insert/selectOne.
      */
     @Test
     public void testInsertAndSelect() throws SQLException {
@@ -82,7 +82,7 @@ public class KeylessTest {
             Keyless template = new Keyless();
             template.setStringColumn(keyless.getStringColumn());
 
-            Keyless dbInstance = dao.selectByColumns(template, "string_column");
+            Keyless dbInstance = dao.selectOne(template, "string_column");
 
             Assert.assertNotNull(dbInstance);
             Assert.assertEquals(keyless.getIntegerColumn(), dbInstance.getIntegerColumn());
@@ -91,16 +91,16 @@ public class KeylessTest {
     }
 
     /**
-     * This comprehensively tests selectAll().
+     * This comprehensively tests select().
      */
     @Test
     public void testSelectAll() throws SQLException {
         Connection connection = helper.connect();
 
         KeylessDao<Keyless> dao = Keyless.DAO_BUILDER.buildDao(connection);
-        List<Keyless> allSelected = dao.selectAll();
+        List<Keyless> allSelected = dao.select();
 
-        // We should select the same number we inserted, and every one of our generated keyless
+        // We should selectOne the same number we inserted, and every one of our generated keyless
         // should be present in the selection.
         Assert.assertEquals(fakeEntities.size(), allSelected.size());
         fakeEntities.forEach(expected -> Assert.assertTrue(allSelected.contains(expected)));
@@ -110,7 +110,7 @@ public class KeylessTest {
 
 
     /**
-     * This comprehensively tests selectManyByColumns.
+     * This comprehensively tests select.
      */
     @Test
     public void testSelectByColumns() throws SQLException {
@@ -287,7 +287,7 @@ public class KeylessTest {
         // Setup and exec query
         //Map<String, Operator> columnOperatorMap = new HashMap<>();
         //columnOperatorMap.put(columnName, operator);
-        //List<Keyless> fromDatabase = dao.selectManyByColumns(template, columnOperatorMap);
+        //List<Keyless> fromDatabase = dao.select(template, columnOperatorMap);
 
         List<Keyless> fromDatabase = dao.select(where);
 
@@ -301,7 +301,7 @@ public class KeylessTest {
     
     
     /**
-     * Test that selectManyByColumns works as intended by taking a sample dataset and comparing it
+     * Test that select works as intended by taking a sample dataset and comparing it
      * to entities fetched from the database by the sample's field value.
       */
     private static <F> void sampleTest(KeylessDao<Keyless> dao, Function<Keyless, F> getter, String columnName) {
@@ -314,7 +314,7 @@ public class KeylessTest {
 
         // Select from the database based upon this template.
         // Should contain all entities from expectedSample
-        List<Keyless> selected = dao.selectManyByColumns(one, columnName);
+        List<Keyless> selected = dao.select(one, columnName);
 
         // We should have the same number selected as sampled.
         Assert.assertEquals(expectedSample.size(), selected.size());

@@ -82,7 +82,7 @@ public class GenericColumnTest {
         });
         helper.useConnection(connection -> {
             Dao<Foo> dao = daoBuilder().buildDao(connection);
-            Foo foo = dao.select(id);
+            Foo foo = dao.selectOne(id);
             Assert.assertEquals(32, (int) foo.getData());
             Assert.assertEquals("6732", foo.getJunk());
         });
@@ -100,7 +100,7 @@ public class GenericColumnTest {
         });
         helper.useConnection(connection -> {
             Dao<Foo> dao = daoBuilder().buildDao(connection);
-            Foo foo = dao.select(id);
+            Foo foo = dao.selectOne(id);
             Assert.assertNull(foo.getData());
             Assert.assertNull(foo.getJunk());
         });

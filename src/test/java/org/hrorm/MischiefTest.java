@@ -73,7 +73,7 @@ public class MischiefTest {
     public void testReifyAll() throws SQLException {
         Connection connection = helper.connect();
         KeylessDao<Keyless> dao = Keyless.DAO_BUILDER.buildDao(connection);
-        List<Keyless> items = dao.selectAll();
+        List<Keyless> items = dao.select();
         Assert.assertTrue(items.size() > 0);
         connection.close();
     }

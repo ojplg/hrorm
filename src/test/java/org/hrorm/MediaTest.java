@@ -101,8 +101,8 @@ public class MediaTest {
         Dao<Actor> actorDao = MediaDaoBuilders.ACTOR_DAO_BUILDER.buildDao(connection);
         Dao<ActorMovieAssociation> actorMovieAssociationDao = MediaDaoBuilders.ACTOR_MOVIE_ASSOCIATION_DAO_BUILDER.buildDao(connection);
 
-        List<Actor> actors = actorDao.selectAll();
-        List<Movie> movies = movieDao.selectAll();
+        List<Actor> actors = actorDao.select();
+        List<Movie> movies = movieDao.select();
 
         for( String[] pair : ASSOCIATIONS ){
             String movieName = pair[0];
