@@ -7,7 +7,7 @@ import java.util.Set;
 
 /**
  * Represents a means for reading or writing a value of a column
- * on a database table.
+ * on a database table for a particular entity class.
  *
  * <p>
  *     The class {@link GenericColumn} is intended for clients that
@@ -82,7 +82,7 @@ public interface Column<DBTYPE, CLASSTYPE, ENTITY, BUILDER> {
     }
 
     /**
-     * Populates the object with the data read from the database.
+     * Populates the passed builder object with the data read from the database.
      *
      * @param constructor The object being populated
      * @param resultSet The result said being read
