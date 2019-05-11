@@ -46,7 +46,7 @@ public class Validator extends KeylessValidator {
         }
     }
 
-    public static List<String> findErrors(Connection connection, DaoDescriptor daoDescriptor) {
+    private static List<String> findErrors(Connection connection, DaoDescriptor daoDescriptor) {
         List<String> errors = KeylessValidator.findErrors(connection, daoDescriptor);
         errors.addAll(checkSequenceExists(connection, daoDescriptor));
         errors.addAll(checkPrimaryKeyExists(daoDescriptor));

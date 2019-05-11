@@ -21,7 +21,8 @@ public class Where implements StatementPopulator {
             };
 
     /**
-     * Factory method equivalent to <code>new Where()</code>
+     * Factory method equivalent to <code>new Where()</code>.
+     * This will create an empty clause that will match anything.
      *
      * @return the new object
      */

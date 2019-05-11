@@ -42,7 +42,6 @@ public interface Dao<ENTITY> extends KeylessDao<ENTITY> {
      */
     List<ENTITY> select(List<Long> ids);
 
-
     /**
      * Run an update statement to change the values in the database associated
      * with an existing record. Updates are applied by primary key.

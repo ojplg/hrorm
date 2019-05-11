@@ -105,9 +105,6 @@ public class DaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> extends AbstractDao
     }
 
     @Override
-    public PrimaryKey<ENTITY, BUILDER> primaryKey() { return primaryKey; }
-
-    @Override
     public Queries queries() {
         return this.sqlBuilder;
     }

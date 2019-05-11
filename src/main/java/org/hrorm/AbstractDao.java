@@ -10,7 +10,8 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**
- * An abstract class that is almost a <code>KeylessDao</code>.
+ * An abstract class that aids in creating full <code>Dao</code>
+ * implementations.
  *
  * <p>
  *     Most users of hrorm will have no need to directly use this.

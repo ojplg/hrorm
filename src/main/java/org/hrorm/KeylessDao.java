@@ -96,13 +96,13 @@ public interface KeylessDao<ENTITY> {
      * If no records are found, <code>null</code> will be returned.
      * </p>
      *
-     * @param item An instance of type ENTITY with populated values corresponding to the
+     * @param template An instance of type ENTITY with populated values corresponding to the
      *             column names to select by.
      * @param columnNames The names of the database columns
      * @return The populated instance of type ENTITY with matching values with the passed item for
      *         the indicated columnNames.
      */
-    ENTITY selectOne(ENTITY item, String... columnNames);
+    ENTITY selectOne(ENTITY template, String... columnNames);
 
     /**
      * Select a single record from the database by some search criteria.
