@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Describes how to order entities during selectOne.
+ * Describes how to order entities during select.
  */
 public class Order {
 

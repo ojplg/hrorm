@@ -109,6 +109,12 @@ public abstract class AbstractDao<ENTITY, BUILDER> implements KeylessDaoDescript
     }
 
     @Override
+    public ENTITY selectOne(Where where){
+        List<ENTITY> items = select(where);
+        return fromSingletonList(items);
+    }
+
+    @Override
     public List<ENTITY> select(ENTITY item, String ... columnNames) {
         ColumnSelection columnSelection = select(columnNames);
         String sql = sqlBuilder.selectByColumns(columnSelection);
