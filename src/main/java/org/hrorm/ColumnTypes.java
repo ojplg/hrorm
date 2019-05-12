@@ -14,7 +14,7 @@ import java.util.Set;
  *     The {@link java.sql.Types} class enumerates all the SQL types supported by the
  *     JDBC. These types are exposed on the {@link java.sql.ResultSetMetaData} class.
  *     By inspecting these values, hrorm can attempt to determine if the types of the
- *     database are correct for the mappings it intendes to do.
+ *     database are correct for the mappings it intends to do.
  * </p>
  */
 public class ColumnTypes {

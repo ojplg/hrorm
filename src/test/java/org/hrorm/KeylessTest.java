@@ -10,6 +10,7 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
@@ -19,6 +20,9 @@ import java.util.UUID;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+
+import static org.hrorm.Operator.EQUALS;
+import static org.hrorm.Where.where;
 
 /**
  * Test operations for tables without primary keys, and KeylessDao.
@@ -52,7 +56,7 @@ public class KeylessTest {
     }
 
     /**
-     * Comprehensively tests insert/select.
+     * Comprehensively tests insert/selectOne.
      */
     @Test
     public void testInsertAndSelect() throws SQLException {
@@ -82,7 +86,7 @@ public class KeylessTest {
             Keyless template = new Keyless();
             template.setStringColumn(keyless.getStringColumn());
 
-            Keyless dbInstance = dao.selectByColumns(template, "string_column");
+            Keyless dbInstance = dao.selectOne(template, "string_column");
 
             Assert.assertNotNull(dbInstance);
             Assert.assertEquals(keyless.getIntegerColumn(), dbInstance.getIntegerColumn());
@@ -91,16 +95,16 @@ public class KeylessTest {
     }
 
     /**
-     * This comprehensively tests selectAll().
+     * This comprehensively tests select().
      */
     @Test
     public void testSelectAll() throws SQLException {
         Connection connection = helper.connect();
 
         KeylessDao<Keyless> dao = Keyless.DAO_BUILDER.buildDao(connection);
-        List<Keyless> allSelected = dao.selectAll();
+        List<Keyless> allSelected = dao.select();
 
-        // We should select the same number we inserted, and every one of our generated keyless
+        // We should selectOne the same number we inserted, and every one of our generated keyless
         // should be present in the selection.
         Assert.assertEquals(fakeEntities.size(), allSelected.size());
         fakeEntities.forEach(expected -> Assert.assertTrue(allSelected.contains(expected)));
@@ -110,7 +114,7 @@ public class KeylessTest {
 
 
     /**
-     * This comprehensively tests selectManyByColumns.
+     * This comprehensively tests select.
      */
     @Test
     public void testSelectByColumns() throws SQLException {
@@ -136,7 +140,7 @@ public class KeylessTest {
                 .sum();
 
         KeylessDao<Keyless> dao = Keyless.DAO_BUILDER.buildDao(connection);
-        long foldedSum = dao.foldingSelect(0L, (l, k) -> l + k.getIntegerColumn(), Where.where());
+        long foldedSum = dao.foldingSelect(0L, (l, k) -> l + k.getIntegerColumn(), where());
 
         Assert.assertEquals(expectedSum, foldedSum);
         connection.close();
@@ -175,7 +179,7 @@ public class KeylessTest {
 
         KeylessDao<Keyless> dao = Keyless.DAO_BUILDER.buildDao(connection);
 
-        List<Keyless> fromDatabase = dao.select( Where.where("string_column", Operator.LIKE, '%'+template.getStringColumn()+'%'));
+        List<Keyless> fromDatabase = dao.select( where("string_column", Operator.LIKE, '%'+template.getStringColumn()+'%'));
 
         Assert.assertEquals(matching.size(), fromDatabase.size());
         matching.forEach(keyless -> Assert.assertTrue(fromDatabase.contains(keyless)));
@@ -191,23 +195,23 @@ public class KeylessTest {
 
         predicateTest(
                 equalTo(template, Keyless::getDecimalColumn),
-                Where.where("decimal_column", Operator.EQUALS, template.getDecimalColumn()));
+                where("decimal_column", EQUALS, template.getDecimalColumn()));
 
         predicateTest(
                 lessThan(template, Keyless::getDecimalColumn),
-                Where.where("decimal_column", Operator.LESS_THAN, template.getDecimalColumn()));
+                where("decimal_column", Operator.LESS_THAN, template.getDecimalColumn()));
 
         predicateTest(
                 lessThanOrEqual(template, Keyless::getDecimalColumn),
-                Where.where("decimal_column", Operator.LESS_THAN_OR_EQUALS, template.getDecimalColumn()));
+                where("decimal_column", Operator.LESS_THAN_OR_EQUALS, template.getDecimalColumn()));
 
         predicateTest(
                 greaterThan(template, Keyless::getDecimalColumn),
-                Where.where("decimal_column", Operator.GREATER_THAN, template.getDecimalColumn()));
+                where("decimal_column", Operator.GREATER_THAN, template.getDecimalColumn()));
 
         predicateTest(
                 greaterThanOrEqual(template, Keyless::getDecimalColumn),
-                Where.where("decimal_column", Operator.GREATER_THAN_OR_EQUALS, template.getDecimalColumn()));
+                where("decimal_column", Operator.GREATER_THAN_OR_EQUALS, template.getDecimalColumn()));
     }
 
     @Test
@@ -218,23 +222,23 @@ public class KeylessTest {
 
         predicateTest(
                 equalTo(template, Keyless::getIntegerColumn),
-                Where.where("integer_column", Operator.EQUALS, template.getIntegerColumn()));
+                where("integer_column", EQUALS, template.getIntegerColumn()));
 
         predicateTest(
                 lessThan(template, Keyless::getIntegerColumn),
-                Where.where("integer_column", Operator.LESS_THAN, template.getIntegerColumn()));
+                where("integer_column", Operator.LESS_THAN, template.getIntegerColumn()));
 
         predicateTest(
                 lessThanOrEqual(template, Keyless::getIntegerColumn),
-                Where.where("integer_column", Operator.LESS_THAN_OR_EQUALS, template.getIntegerColumn()));
+                where("integer_column", Operator.LESS_THAN_OR_EQUALS, template.getIntegerColumn()));
 
         predicateTest(
                 greaterThan(template, Keyless::getIntegerColumn),
-                Where.where("integer_column", Operator.GREATER_THAN, template.getIntegerColumn()));
+                where("integer_column", Operator.GREATER_THAN, template.getIntegerColumn()));
 
         predicateTest(
                 greaterThanOrEqual(template, Keyless::getIntegerColumn),
-                Where.where("integer_column", Operator.GREATER_THAN_OR_EQUALS, template.getIntegerColumn()));
+                where("integer_column", Operator.GREATER_THAN_OR_EQUALS, template.getIntegerColumn()));
     }
 
     @Test
@@ -245,23 +249,23 @@ public class KeylessTest {
 
         predicateTest(
                 equalTo(template, Keyless::getTimeStampColumn),
-                Where.where("timestamp_column", Operator.EQUALS, template.getTimeStampColumn()));
+                where("timestamp_column", EQUALS, template.getTimeStampColumn()));
 
         predicateTest(
                 lessThan(template, Keyless::getTimeStampColumn),
-                Where.where("timestamp_column", Operator.LESS_THAN, template.getTimeStampColumn()));
+                where("timestamp_column", Operator.LESS_THAN, template.getTimeStampColumn()));
 
         predicateTest(
                 lessThanOrEqual(template, Keyless::getTimeStampColumn),
-                Where.where("timestamp_column", Operator.LESS_THAN_OR_EQUALS, template.getTimeStampColumn()));
+                where("timestamp_column", Operator.LESS_THAN_OR_EQUALS, template.getTimeStampColumn()));
 
         predicateTest(
                 greaterThan(template, Keyless::getTimeStampColumn),
-                Where.where("timestamp_column", Operator.GREATER_THAN, template.getTimeStampColumn()));
+                where("timestamp_column", Operator.GREATER_THAN, template.getTimeStampColumn()));
 
         predicateTest(
                 greaterThanOrEqual(template, Keyless::getTimeStampColumn),
-                Where.where("timestamp_column", Operator.GREATER_THAN_OR_EQUALS, template.getTimeStampColumn()));
+                where("timestamp_column", Operator.GREATER_THAN_OR_EQUALS, template.getTimeStampColumn()));
     }
 
     /**
@@ -287,7 +291,7 @@ public class KeylessTest {
         // Setup and exec query
         //Map<String, Operator> columnOperatorMap = new HashMap<>();
         //columnOperatorMap.put(columnName, operator);
-        //List<Keyless> fromDatabase = dao.selectManyByColumns(template, columnOperatorMap);
+        //List<Keyless> fromDatabase = dao.select(template, columnOperatorMap);
 
         List<Keyless> fromDatabase = dao.select(where);
 
@@ -301,7 +305,7 @@ public class KeylessTest {
     
     
     /**
-     * Test that selectManyByColumns works as intended by taking a sample dataset and comparing it
+     * Test that select works as intended by taking a sample dataset and comparing it
      * to entities fetched from the database by the sample's field value.
       */
     private static <F> void sampleTest(KeylessDao<Keyless> dao, Function<Keyless, F> getter, String columnName) {
@@ -314,7 +318,7 @@ public class KeylessTest {
 
         // Select from the database based upon this template.
         // Should contain all entities from expectedSample
-        List<Keyless> selected = dao.selectManyByColumns(one, columnName);
+        List<Keyless> selected = dao.select(one, columnName);
 
         // We should have the same number selected as sampled.
         Assert.assertEquals(expectedSample.size(), selected.size());
@@ -334,6 +338,38 @@ public class KeylessTest {
         keyless.setDecimalColumn(RandomUtils.bigDecimal()); // Probably Unique
         keyless.setTimeStampColumn(RandomUtils.instant()); // Probably Unique, millisecond precision
         return keyless;
+    }
+
+    @Test
+    public void testSelectOneWhere() throws SQLException {
+        String stringValue;
+        Long integerValue;
+        BigDecimal bigDecimalValue;
+
+        {
+            Connection connection = helper.connect();
+            KeylessDao<Keyless> dao = Keyless.DAO_BUILDER.buildDao(connection);
+            Keyless keyless = randomKeyless();
+            stringValue = keyless.getStringColumn();
+            integerValue = keyless.getIntegerColumn();
+            bigDecimalValue = keyless.getDecimalColumn();
+
+            dao.insert(keyless);
+
+            connection.commit();
+            connection.close();
+        }
+        {
+            Connection connection = helper.connect();
+            KeylessDao<Keyless> dao = Keyless.DAO_BUILDER.buildDao(connection);
+
+            Keyless keyless = dao.selectOne(where("integer_column", EQUALS, integerValue)
+                                .and("string_column", EQUALS, stringValue)
+                                .and("decimal_column", EQUALS, bigDecimalValue));
+
+            Assert.assertNotNull(keyless);
+            connection.close();
+        }
     }
 
     /**

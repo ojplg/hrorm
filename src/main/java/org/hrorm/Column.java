@@ -6,11 +6,17 @@ import java.sql.SQLException;
 import java.util.Set;
 
 /**
- * Represents a column in a table that holds entity values.
+ * Represents a means for reading or writing a value of a column
+ * on a database table for a particular entity class.
  *
  * <p>
+ *     The class {@link GenericColumn} is intended for clients that
+ *     wish to extend hrorm to new types.
+ * </p>
  *
- * Most users of hrorm will have no need to directly use this.
+ * <p>
+ *     Most users of hrorm will have no need to directly use this.
+ * </p>
  *
  * @param <DBTYPE> The type of the data element as represented in the JDBC.
  * @param <CLASSTYPE> The type of the data element as defined in the entity class.
@@ -76,7 +82,7 @@ public interface Column<DBTYPE, CLASSTYPE, ENTITY, BUILDER> {
     }
 
     /**
-     * Populates the object with the data read from the database.
+     * Populates the passed builder object with the data read from the database.
      *
      * @param constructor The object being populated
      * @param resultSet The result said being read

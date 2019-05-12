@@ -128,7 +128,7 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER,PARENTPK
     private Set<CHILDPK> findExistingChildrenIds(Connection connection, PARENTPK parentId){
         String sql = sqlBuilder.selectChildIds(parentChildColumnName());
         SqlRunner sqlRunner = new SqlRunner(connection, childDaoDescriptor);
-        return sqlRunner.runChildSelectChildIds(sql, parentId, parentPrimaryKey.getReader(),parentPrimaryKey.getStatementSetter(), parentPrimaryKey.getName());
+        return sqlRunner.runSelectChildIds(sql, parentId, parentPrimaryKey.getReader(),parentPrimaryKey.getStatementSetter(), parentPrimaryKey.getName());
     }
 
     private void deleteOrphans(Connection connection, Set badChildrenIds) {

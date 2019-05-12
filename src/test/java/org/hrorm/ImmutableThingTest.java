@@ -6,7 +6,6 @@ import org.hrorm.examples.immutables.DaoBuilders;
 import org.hrorm.examples.immutables.ImmutableChild;
 import org.hrorm.examples.immutables.ImmutableSibling;
 import org.hrorm.examples.immutables.ImmutableThing;
-import org.hrorm.util.TestLogConfig;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -74,7 +73,7 @@ public class ImmutableThingTest {
             Connection connection = helper.connect();
             Dao<ImmutableThing> dao = DaoBuilders.IMMUTABLE_OBJECT_DAO_BUILDER.buildDao(connection);
 
-            ImmutableThing it = dao.select(id);
+            ImmutableThing it = dao.selectOne(id);
 
             Assert.assertNotNull(it.getId());
             Assert.assertEquals("test one", it.getWord());
@@ -116,7 +115,7 @@ public class ImmutableThingTest {
             Connection connection = helper.connect();
             Dao<ImmutableThing> dao = DaoBuilders.IMMUTABLE_OBJECT_DAO_BUILDER.buildDao(connection);
 
-            ImmutableThing it = dao.select(id);
+            ImmutableThing it = dao.selectOne(id);
 
             Assert.assertNotNull(it.getId());
             Assert.assertEquals("test one", it.getWord());
@@ -153,7 +152,7 @@ public class ImmutableThingTest {
         {
             Connection connection = helper.connect();
             Dao<ImmutableSibling> siblingDao = DaoBuilders.IMMUTABLE_SIBLING_DAO_BUILDER.buildDao(connection);
-            ImmutableSibling sibling = siblingDao.select(siblingId);
+            ImmutableSibling sibling = siblingDao.selectOne(siblingId);
 
             Dao<ImmutableThing> dao = DaoBuilders.IMMUTABLE_OBJECT_DAO_BUILDER.buildDao(connection);
 
@@ -178,7 +177,7 @@ public class ImmutableThingTest {
             Connection connection = helper.connect();
             Dao<ImmutableThing> dao = DaoBuilders.IMMUTABLE_OBJECT_DAO_BUILDER.buildDao(connection);
 
-            ImmutableThing it = dao.select(id);
+            ImmutableThing it = dao.selectOne(id);
 
             Assert.assertNotNull(it.getId());
             Assert.assertEquals("something or other", it.getWord());
@@ -233,8 +232,8 @@ public class ImmutableThingTest {
         {
             Connection connection = helper.connect();
             Dao<ImmutableSibling> siblingDao = DaoBuilders.IMMUTABLE_SIBLING_DAO_BUILDER.buildDao(connection);
-            ImmutableSibling secondSibling = siblingDao.select(secondSiblingId);
-            ImmutableSibling thirdSibling = siblingDao.select(thirdSiblingId);
+            ImmutableSibling secondSibling = siblingDao.selectOne(secondSiblingId);
+            ImmutableSibling thirdSibling = siblingDao.selectOne(thirdSiblingId);
 
             Dao<ImmutableThing> dao = DaoBuilders.IMMUTABLE_OBJECT_DAO_BUILDER.buildDao(connection);
 
@@ -265,11 +264,11 @@ public class ImmutableThingTest {
             Connection connection = helper.connect();
             Dao<ImmutableSibling> siblingDao = DaoBuilders.IMMUTABLE_SIBLING_DAO_BUILDER.buildDao(connection);
 
-            ImmutableSibling firstSibling = siblingDao.select(firstSiblingId);
+            ImmutableSibling firstSibling = siblingDao.selectOne(firstSiblingId);
 
             Dao<ImmutableThing> dao = DaoBuilders.IMMUTABLE_OBJECT_DAO_BUILDER.buildDao(connection);
 
-            ImmutableThing it = dao.select(id);
+            ImmutableThing it = dao.selectOne(id);
 
             Assert.assertNotNull(it.getId());
             Assert.assertEquals("chirp", it.getWord());
@@ -306,7 +305,7 @@ public class ImmutableThingTest {
         {
             Connection connection = helper.connect();
             Dao<ImmutableThing> dao = DaoBuilders.IMMUTABLE_OBJECT_DAO_BUILDER.buildDao(connection);
-            ImmutableThing it = dao.select(id);
+            ImmutableThing it = dao.selectOne(id);
 
             Assert.assertEquals("cheap", it.getWord());
             List<ImmutableChild> children = it.getChildren();

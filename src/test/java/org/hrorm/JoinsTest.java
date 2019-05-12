@@ -93,7 +93,7 @@ public class JoinsTest {
         thing.setSibling(sibling);
         long thingId = thingDao.insert(thing);
 
-        Thing readFromDb = thingDao.select(thingId);
+        Thing readFromDb = thingDao.selectOne(thingId);
 
         Assert.assertEquals(44L, (long) readFromDb.getSibling().getNumber());
         Assert.assertEquals(EnumeratedColor.Green, readFromDb.getSibling().getCousin().getColor());
@@ -138,7 +138,7 @@ public class JoinsTest {
         thing.setSibling(sibling);
         long thingId = thingDao.insert(thing);
 
-        Thing readFromDb = thingDao.select(thingId);
+        Thing readFromDb = thingDao.selectOne(thingId);
 
         Sibling newSibling = new Sibling();
         newSibling.setNumber(58L);
@@ -149,7 +149,7 @@ public class JoinsTest {
 
         thingDao.update(readFromDb);
 
-        Thing secondReadFromDb = thingDao.select(thingId);
+        Thing secondReadFromDb = thingDao.selectOne(thingId);
 
         Assert.assertEquals(58L, (long) secondReadFromDb.getSibling().getNumber());
         Assert.assertEquals(now, secondReadFromDb.getSibling().getCousin().getSecondCousin().getDateTime());
@@ -188,17 +188,17 @@ public class JoinsTest {
         thing.setSibling(sibling);
         long thingId = thingDao.insert(thing);
 
-        Thing readFromDb = thingDao.select(thingId);
+        Thing readFromDb = thingDao.selectOne(thingId);
 
         Assert.assertNotNull(readFromDb);
 
         thingDao.delete(readFromDb);
 
-        Thing secondFromDb = thingDao.select(thingId);
+        Thing secondFromDb = thingDao.selectOne(thingId);
 
         Assert.assertNull(secondFromDb);
 
-        Sibling readSibling = siblingDao.select(sibling.getId());
+        Sibling readSibling = siblingDao.selectOne(sibling.getId());
         Assert.assertNotNull(readSibling);
         Assert.assertEquals(44L, (long) sibling.getNumber());
 
@@ -217,7 +217,7 @@ public class JoinsTest {
 
         long id = thingDao.insert(thing);
 
-        Thing readThing = thingDao.select(id);
+        Thing readThing = thingDao.selectOne(id);
 
         Assert.assertEquals("only child", readThing.getName());
         Assert.assertNull(readThing.getSibling());

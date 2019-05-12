@@ -64,7 +64,7 @@ class Person {
         personTemplate.setHighSchoolGraduate(true);
         personTemplate.setWeight(100L);
 
-        List<Person> people = personDao.selectManyByColumns(person, "IS_HIGH_SCHOOL_GRADUATE", "WEIGHT");
+        List<Person> people = personDao.select(person, "IS_HIGH_SCHOOL_GRADUATE", "WEIGHT");
 
     }
 

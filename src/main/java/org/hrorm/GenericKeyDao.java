@@ -44,7 +44,7 @@ public interface GenericKeyDao<ENTITY,PK> extends UnkeyedDao<ENTITY> {
      * @param id The primary key of the record desired.
      * @return The populated instance of type ENTITY.
      */
-    ENTITY select(PK id);
+    ENTITY selectOne(PK id);
 
     /**
      * Read several records from the database by their primary keys.
@@ -52,7 +52,7 @@ public interface GenericKeyDao<ENTITY,PK> extends UnkeyedDao<ENTITY> {
      * @param ids The primary keys of the records desired.
      * @return A list of populated instances of type ENTITY.
      */
-    List<ENTITY> selectMany(List<PK> ids);
+    List<ENTITY> select(List<PK> ids);
 
     /**
      * Run an update statement to change the values in the database associated

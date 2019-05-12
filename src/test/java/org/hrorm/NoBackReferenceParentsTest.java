@@ -78,7 +78,7 @@ public class NoBackReferenceParentsTest {
         {
             Connection connection = helper.connect();
             Dao<SimpleParent> dao = simpleParentDaoBuilder.buildDao(connection);
-            SimpleParent parent = dao.select(parentId);
+            SimpleParent parent = dao.selectOne(parentId);
 
             Assert.assertEquals(100, parent.getSimpleChildList().size());
 
@@ -117,7 +117,7 @@ public class NoBackReferenceParentsTest {
         {
             Connection connection = helper.connect();
             Dao<SimpleParent> dao = simpleParentDaoBuilder.buildDao(connection);
-            SimpleParent parent = dao.select(parentId);
+            SimpleParent parent = dao.selectOne(parentId);
 
             Assert.assertEquals(10, parent.getSimpleChildList().size());
 
@@ -133,7 +133,7 @@ public class NoBackReferenceParentsTest {
         {
             Connection connection = helper.connect();
             Dao<SimpleParent> dao = simpleParentDaoBuilder.buildDao(connection);
-            SimpleParent parent = dao.select(parentId);
+            SimpleParent parent = dao.selectOne(parentId);
 
             Assert.assertEquals(10, parent.getSimpleChildList().size());
 

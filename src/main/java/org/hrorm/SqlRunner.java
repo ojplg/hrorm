@@ -320,7 +320,7 @@ public class SqlRunner<PK, ENTITY, BUILDER> {
         }
     }
 
-    public <CHILDPK> Set<CHILDPK> runChildSelectChildIds(String sql, PK id, ResultSetReader<CHILDPK> reader, PreparedStatementSetter<PK> setter, String columnName){
+    public <CHILDPK> Set<CHILDPK> runSelectChildIds(String sql, PK id, ResultSetReader<CHILDPK> reader, PreparedStatementSetter<PK> setter, String columnName){
         PreparedStatement statement = null;
         ResultSet resultSet = null;
 

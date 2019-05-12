@@ -111,8 +111,8 @@ public class SimpleParentChildTest {
             Connection connection = helper.connect();
             Dao<SimpleParent> dao = SimpleParentChildDaos.PARENT.buildDao(connection);
 
-            // Check that the select worked
-            SimpleParent parent = dao.select(parentId);
+            // Check that the selectOne worked
+            SimpleParent parent = dao.selectOne(parentId);
             Assert.assertEquals(parentName, parent.getName());
 
             List<SimpleChild> children = parent.getChildren();
@@ -141,8 +141,8 @@ public class SimpleParentChildTest {
             Connection connection = helper.connect();
             Dao<SimpleParent> dao = SimpleParentChildDaos.PARENT.buildDao(connection);
 
-            // Check that the select worked
-            SimpleParent parent = dao.select(parentId);
+            // Check that the selectOne worked
+            SimpleParent parent = dao.selectOne(parentId);
             Assert.assertEquals(parentName, parent.getName());
 
             List<SimpleChild> children = parent.getChildren();
@@ -202,7 +202,7 @@ public class SimpleParentChildTest {
             Dao<SimpleParent> parentDao = SimpleParentChildDaos.PARENT.buildDao(connection);
             SimpleParent template = new SimpleParent();
             template.setName(parentName);
-            List<SimpleParent> parentList = parentDao.selectManyByColumns(template, "name");
+            List<SimpleParent> parentList = parentDao.select(template, "name");
             Assert.assertEquals(1, parentList.size());
             SimpleParent parent = parentList.get(0);
             List<SimpleChild> children = parent.getChildren();

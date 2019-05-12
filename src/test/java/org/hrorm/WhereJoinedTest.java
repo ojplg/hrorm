@@ -74,7 +74,7 @@ public class WhereJoinedTest {
             Connection connection = helper.connect();
             Dao<City> cityDao = GeographyDaos.CityDaoBuilder.buildDao(connection);
 
-            City frankfort = cityDao.select(cityId);
+            City frankfort = cityDao.selectOne(cityId);
 
             Assert.assertEquals("Kentucky", frankfort.getState().getName());
             connection.close();
@@ -115,7 +115,7 @@ public class WhereJoinedTest {
         Connection connection = helper.connect();
 
         Dao<State> stateDao = GeographyDaos.StateDaoBuilder.buildDao(connection);
-        State wisconsin = stateDao.select(wisconsinId);
+        State wisconsin = stateDao.selectOne(wisconsinId);
 
         List<City> wisconsinCitiesTemplateSelect;
         {
@@ -124,7 +124,7 @@ public class WhereJoinedTest {
             City wisconsinTemplate = new City();
             wisconsinTemplate.setState(wisconsin);
 
-            wisconsinCitiesTemplateSelect = cityDao.selectManyByColumns(wisconsinTemplate, "state_id");
+            wisconsinCitiesTemplateSelect = cityDao.select(wisconsinTemplate, "state_id");
 
             Assert.assertEquals(3, wisconsinCitiesTemplateSelect.size());
         }

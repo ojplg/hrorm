@@ -10,16 +10,28 @@ import java.util.Collections;
 import java.util.Set;
 
 /**
- * A column that represents a particular Java type.
+ * A representation of a database column that directly persists a particular Java type.
  *
  * <p>
- *     Hrorm has a number of built in types that users can access directly from
- *     their static instance variables of this class.
- *     But users can also easily extend hrorm to support whatever column types they wish.
- *     To create an instance of this class, the caller must provide a mechanism for setting the
- *     type's value onto a <code>java.sql.PreparedStatement</code>,
- *     a mechanism for reading a value from a <code>java.sql.ResultSet</code>,
- *     and the type of the column, as given in <code>java.sql.Types</code>.
+ *     For the type it represents this class encapsulates
+ * </p>
+ *
+ * <ul>
+ *     <li>
+ *         how to set a value of the given type onto a <code>java.sql.PreparedStatement</code>
+ *     </li>
+ *     <li>
+ *         how to read a value of the given type from a <code>java.sql.ResultSet</code>
+ *     </li>
+ *     <li>
+ *         the type of the column, as given in <code>java.sql.Types</code>
+ *     </li>
+ * </ul>
+ *
+ * <p>
+ *     In addition to creating their own instances, users can access a number
+ *     of implementations of this class that are provided as public static
+ *     variables.
  * </p>
  *
  * <p>
@@ -39,11 +51,11 @@ import java.util.Set;
  * </p>
  *
  * <p>
- * Using a custom <code>GenericColumn</code> is easy, as shown in the example above,
- * but greater care must be taken when using hrorm's facilities for validation ({@link Validator})
- * or schema generation ({@link Schema}). For example, users may wish to create multiple instances of
- * this class that all support <code>float</code> member variables, if there are a variety
- * of sizes of columns in their database, all represented by different SQL variable types.
+ *     Using a custom <code>GenericColumn</code> is easy, as shown in the example above,
+ *     but greater care must be taken when using hrorm's facilities for validation ({@link Validator})
+ *     or schema generation ({@link Schema}). For example, users may wish to create multiple instances of
+ *     this class that all support <code>float</code> member variables, if there are a variety
+ *     of sizes of columns in their database, all represented by different SQL variable types.
  * </p>
  *
  * @param <TYPE> The Java type represented by the column.
@@ -165,6 +177,15 @@ public class GenericColumn<TYPE> {
         this.supportedTypes = Collections.unmodifiableSet(supportedTypes);
     }
 
+    /**
+     * Create a new instance with a new SQL type name to be used in a generated
+     * schema.
+     *
+     * @param sqlTypeName The name of this column type as represented in the
+     *                    table create statement.
+     * @return A new instance of the class with nothing changed except the given
+     * SQL type name.
+     */
     public GenericColumn<TYPE> withTypeName(String sqlTypeName){
         return new GenericColumn<>(this.preparedStatementSetter,
                 this.resultReader,
@@ -172,7 +193,6 @@ public class GenericColumn<TYPE> {
                 sqlTypeName,
                 this.supportedTypes);
     }
-
 
     public TYPE fromResultSet(ResultSet resultSet, String columnName) throws SQLException {
         TYPE value = resultReader.read(resultSet, columnName);
@@ -183,6 +203,9 @@ public class GenericColumn<TYPE> {
     }
 
     public void setPreparedStatement(PreparedStatement preparedStatement, int index, TYPE value) throws SQLException {
+        if ( value == null ) {
+            preparedStatement.setNull(index,sqlType());
+        }
         preparedStatementSetter.apply(preparedStatement, index, value);
     }
 

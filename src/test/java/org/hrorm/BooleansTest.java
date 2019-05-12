@@ -69,7 +69,7 @@ public class BooleansTest {
             Connection connection = helper.connect();
             Dao<Booleans> dao = daoBuilder().buildDao(connection);
 
-            Booleans booleans = dao.select(id);
+            Booleans booleans = dao.selectOne(id);
 
             Assert.assertTrue(booleans.isBooleanFlag());
             Assert.assertTrue(booleans.isStringFlag());
@@ -106,7 +106,7 @@ public class BooleansTest {
             Connection connection = helper.connect();
             Dao<Booleans> dao = daoBuilder().buildDao(connection);
 
-            Booleans booleans = dao.select(id);
+            Booleans booleans = dao.selectOne(id);
 
             Assert.assertFalse(booleans.isBooleanFlag());
             Assert.assertFalse(booleans.isStringFlag());
@@ -131,7 +131,7 @@ public class BooleansTest {
             Connection connection = helper.connect();
             Dao<Booleans> dao = daoBuilder().buildDao(connection);
 
-            Booleans booleans = dao.select(id);
+            Booleans booleans = dao.selectOne(id);
 
             Assert.assertTrue(booleans.isBooleanFlag());
             Assert.assertTrue(booleans.isStringFlag());

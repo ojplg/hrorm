@@ -182,7 +182,7 @@ public class OrderTest {
         {
             Connection connection = helper.connect();
             Dao<Columns> dao = daoBuilder().buildDao(connection);
-            List<Columns> ordered = dao.selectAll(Order.descending("integer_column"));
+            List<Columns> ordered = dao.select(Order.descending("integer_column"));
             Assert.assertEquals(100, ordered.size() );
             long last = 100;
             for(int idx=0 ; idx<100; idx++ ){
@@ -226,7 +226,7 @@ public class OrderTest {
             Columns template = new Columns();
             template.setStringThing("a");
 
-            List<Columns> ordered = dao.selectManyByColumns(template,
+            List<Columns> ordered = dao.select(template,
                     Order.ascending( "integer_column"),
                     "string_column");
 

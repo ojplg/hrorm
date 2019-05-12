@@ -81,14 +81,14 @@ public class DaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> extends AbstractDao
     }
 
     @Override
-    public ENTITY select(Long id) {
+    public ENTITY selectOne(Long id) {
         Where where = new Where(primaryKey.getName(), Operator.EQUALS, id);
         List<ENTITY> items = select(where);
         return KeylessDaoImpl.fromSingletonList(items);
     }
 
     @Override
-    public List<ENTITY> selectMany(List<Long> ids) {
+    public List<ENTITY> select(List<Long> ids) {
         Where where = Where.inLong(primaryKey.getName(), ids);
         return select(where);
     }

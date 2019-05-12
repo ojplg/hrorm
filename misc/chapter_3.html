@@ -279,6 +279,132 @@ interface DaoBuilder&lt;T&gt; a {
         * Manage resources properly, closing things
 </p>
 
+<p>
+    One of hrorm's contributors has suggested that hrorm include a lazy loading,
+    <code>java.util.stream.Stream</code> style interface. The utility of such an
+    interface is easy to see. When doing an operation on items read from the
+    database, you might not wish to have all the objects you plan to operate
+    on resident in memory simultaneously. A method that returned <code>Stream&lt;Entity&gt;</code>
+    could be backed by a <code>javax.sql.Connection</code> that read only some
+    small number of items at a time, as required by running program. One the
+    stream was exhausted, and the calculation complete, closing the <code>Stream</code>
+    could automatically close the <code>Connection</code>. It's a very reasonable
+    design to solve a real problem. So, why have I resisted it?
+</p>
+
+<p>
+    The <code>Stream</code> API is a powerful and worthwhile addition to the language.
+    I myself find that I mostly use it for cases like this:
+</p>
+
+<pre>
+    List&lt;Foo&gt; foos = someFunctionThatGetsTheFoos();
+    List&lt;Bar&gt; bars = foos.stream().map(transformationFunction).collect(Collectors.toList());
+</pre>
+
+<p>
+    That's a good improvement from the older days of Java, but really for those cases,
+    I would just like <code>List</code> to implement <code>map</code> directly, it would
+    save some noisy characters in the code. The problem is that Java's type system does
+    not really have a way to express an ML-style functor: a container that preserves its
+    own character, while modifying the contents.
+</p>
+
+<p>
+    Even though there's a lot of code that looks like the above in the world, that's not
+    really what <code>Stream</code> is for. To quote the Javadocs, a <code>Stream</code>
+    is "A sequence of elements supporting sequential and parallel aggregate operations."
+    That sounds somewhat like what we want in the lazy sequence of database elements, but
+    there are some mismatches.
+</p>
+
+<p>
+    First of all, it's not going to support parallel operations. A <code>Connection</code>
+    backed <code>Stream</code> will only support sequential operations. A good use for
+    <code>Stream</code> is when we want to write some processing code that is impervious
+    to how the underlying <code>Stream</code> works, so when appropriate, parallel operations
+    can be performed transparently. This is certainly not the impression we want to leave
+    the user with.
+</p>
+
+<p>
+    Instead, hrorm provides a method, <code>foldingSelect</code> that accomplishes more
+    or less the same thing as a <code>Stream</code> API would: the user can write a function
+    that folds over the result set, accumulating a result while never realizing all the
+    data from the database simultaneously.
+</p>
+
+<p>
+    None of that is very convincing, so how about an example of what can go wrong?
+    (Showing some code that looks like hrorm, but uses a method that does not actually
+    exist.)
+</p>
+
+<pre>
+    try {
+        Connection connection = connectionFactory.get();
+        Dao&lt;Foo&gt; fooDao = fooDaoBuilder.buildDao(connection);
+        // this method does not exist
+        Stream&lt;Foo&gt; fooStream = fooDao.lazySelectAll();
+    } catch(HrormException ex){
+        // hrorm wraps all database errors with its own extension of RuntimeException
+        handleDatabaseProblems(ex);
+    }
+    processStream(fooStream);
+</pre>
+
+<p>
+    That code has a problem that many readers probably noticed: the <code>processStream</code>
+    method should be inside the try-catch block, since it still uses the <code>Connection</code>
+    and can throw database exceptions. And now the reader might object: sure, that's a problem,
+    but people understand how live database streams work, and the docs can explain it, etc. Only
+    a noob would make an error like that.
+</p>
+
+<p>
+    My answer is two parts. One is that I would rather write a library that would hard to use
+    wrong than possible to use right. But also, I think passing over bugs like the above as
+    ones only bad developers would make is wrong. Sure, most of us will avoid a bug like that,
+    working alone on a piece of code that we are designing, but that's not how applications are
+    developed. Instead, what would happen is something like this. Developer A writes some code
+    using the lazy stream and does all the exception handling correctly. A few months later,
+    developer B needs to make some changes, and moves some of the stream processing to a
+    different location, further distant from the bulk of the database interactions. Developer B
+    is careful and scrupulous though, and sees that the exception handling needs to be in place
+    now in the new location. That works fine, until developer C works on the processing and
+    just sees that there's a <code>Stream&lt;Foo&gt;</code> being handled. During refactoring,
+    the annoying try/catch block is removed. All the tests pass, and even running the application
+    several times shows no problems.
+</p>
+
+<p>
+    Finally, after everything has been in production for several months, the network team is
+    making some changes that cause the application and database servers to be temporarily
+    partitioned. What would normally be properly handled by the database problem handling
+    code, even if it resulted in errors visible to the user, would be cleaned up and reported
+    properly. As it is, only the top-level application exception handler sees the problem,
+    and it does not do the proper clean-up, just logs something and moves on. Now the application's
+    database connection pool is being poisoned, since exceptions are happening on the
+    connections, and they are not being cleaned up. Eventually, the application is up and
+    running, but becomes unresponsive, and won't allow users to login.
+</p>
+
+<p>
+    That's your 2AM problem. Requests are made, but just block, not logging any errors. The
+    network team is paged, but they report their changes were completed and they can ping to
+    and from all the relevant servers. The database engineers are also woken up, but they can
+    connect to the database fine, and have no reason to think anything is wrong. Finally,
+    the software engineers start looking at the server, and cannot see anything wrong. There
+    is nothing in the last few releases that could have changed to make something like this
+    happen. The exceptions that led to the problem happened hours ago, and in any case, they
+    don't look like they are anything particularly worrying: just database connection problems
+    when the network was being reconfigured. Eventually, a hard reboot solves the problem
+    and everyone goes back to bed. In the morning, some of the developers half-heartedly
+    look at the problem, but no one really understands what happened. A time bomb exists
+    in the code. Maybe someone will find it eventually, or everyone will just accept that
+    whenever there are network changes, such-and-such an application needs to be rebooted.
+</p>
+
 </body>
 
 </html>

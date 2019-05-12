@@ -80,7 +80,7 @@ public class GenericKeysRelationsTest {
 
             GenericKeyDao<Cake, String> cakeDao = GenericKeysBuilders.CAKE_DAO_BUILDER.buildDao(connection);
 
-            Cake cake = cakeDao.select(key);
+            Cake cake = cakeDao.selectOne(key);
 
             Assert.assertEquals(new BigDecimal("11.345"), cake.getFrosting().getAmount());
 
@@ -126,7 +126,7 @@ public class GenericKeysRelationsTest {
 
             GenericKeyDao<Cake, String> cakeDao = GenericKeysBuilders.CAKE_DAO_BUILDER.buildDao(connection);
 
-            Cake cake = cakeDao.select(key);
+            Cake cake = cakeDao.selectOne(key);
 
             Assert.assertEquals(new BigDecimal("11.345"), cake.getFrosting().getAmount());
 

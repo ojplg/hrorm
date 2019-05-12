@@ -59,7 +59,7 @@ public class GenericKeysTest {
             Connection connection = helper.connect();
             GenericKeyDao<StringKeyed, String> dao = GenericKeysBuilders.STRING_KEYED_DAO_BUILDER.buildDao(connection);
 
-            StringKeyed item = dao.select(key);
+            StringKeyed item = dao.selectOne(key);
             Assert.assertEquals(16L, (long) item.getData());
             Assert.assertNotNull(item.getId());
 
@@ -87,7 +87,7 @@ public class GenericKeysTest {
             Connection connection = helper.connect();
             GenericKeyDao<StringKeyed, String> dao = GenericKeysBuilders.STRING_KEYED_DAO_BUILDER.buildDao(connection);
 
-            StringKeyed item = dao.select(key);
+            StringKeyed item = dao.selectOne(key);
             Assert.assertEquals(166L, (long) item.getData());
             Assert.assertNotNull(item.getId());
 
@@ -100,7 +100,7 @@ public class GenericKeysTest {
             Connection connection = helper.connect();
             GenericKeyDao<StringKeyed, String> dao = GenericKeysBuilders.STRING_KEYED_DAO_BUILDER.buildDao(connection);
 
-            StringKeyed item = dao.select(key);
+            StringKeyed item = dao.selectOne(key);
             Assert.assertNull(item);
 
             connection.close();
@@ -127,7 +127,7 @@ public class GenericKeysTest {
             Connection connection = helper.connect();
             GenericKeyDao<StringKeyed, String> dao = GenericKeysBuilders.STRING_KEYED_DAO_BUILDER.buildDao(connection);
 
-            StringKeyed item = dao.select(key);
+            StringKeyed item = dao.selectOne(key);
             Assert.assertEquals(166L, (long) item.getData());
             Assert.assertNotNull(item.getId());
 
@@ -142,7 +142,7 @@ public class GenericKeysTest {
             Connection connection = helper.connect();
             GenericKeyDao<StringKeyed, String> dao = GenericKeysBuilders.STRING_KEYED_DAO_BUILDER.buildDao(connection);
 
-            StringKeyed item = dao.select(key);
+            StringKeyed item = dao.selectOne(key);
             Assert.assertEquals(133L, (long) item.getData());
 
             connection.close();
@@ -170,7 +170,7 @@ public class GenericKeysTest {
             Connection connection = helper.connect();
             GenericKeyDao<StringKeyed, String> dao = GenericKeysBuilders.STRING_KEYED_DAO_BUILDER.buildDao(connection);
 
-            List<StringKeyed> items = dao.selectAll();
+            List<StringKeyed> items = dao.select();
             AssertHelp.sameContents(keys, items, StringKeyed::getId);
             connection.close();
         }

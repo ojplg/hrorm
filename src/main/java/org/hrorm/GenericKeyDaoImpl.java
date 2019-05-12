@@ -84,14 +84,20 @@ public class GenericKeyDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER,PK>
     }
 
     @Override
-    public ENTITY select(PK id) {
+    public ENTITY selectOne(PK id) {
         Where where = new Where(primaryKey.getName(), Operator.EQUALS, id, primaryKey.asGenericColumn());
         List<ENTITY> items = select(where);
         return KeylessDaoImpl.fromSingletonList(items);
     }
 
     @Override
-    public List<ENTITY> selectMany(List<PK> ids) {
+    public ENTITY selectOne(Where where) {
+        List<ENTITY> items = select(where);
+        return KeylessDaoImpl.fromSingletonList(items);
+    }
+
+    @Override
+    public List<ENTITY> select(List<PK> ids) {
         throw new UnsupportedOperationException();
     }
 

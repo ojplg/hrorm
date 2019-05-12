@@ -57,7 +57,7 @@ public class SimpleTableTest {
 
         dao.insert(simple);
 
-        Simple dbInstance = dao.select(simple.getId());
+        Simple dbInstance = dao.selectOne(simple.getId());
 
         Assert.assertEquals("InsertSelectTest", dbInstance.getField());
         connection.commit();
@@ -74,13 +74,13 @@ public class SimpleTableTest {
 
         dao.insert(simple);
 
-        Simple dbInstance = dao.select(simple.getId());
+        Simple dbInstance = dao.selectOne(simple.getId());
         Assert.assertEquals("UpdateTest", dbInstance.getField());
 
         simple.setField("UpdateTest New Value");
         dao.update(simple);
 
-        dbInstance = dao.select(simple.getId());
+        dbInstance = dao.selectOne(simple.getId());
         Assert.assertEquals("UpdateTest New Value", dbInstance.getField());
         connection.commit();
         connection.close();
@@ -99,7 +99,7 @@ public class SimpleTableTest {
         Simple template = new Simple();
         template.setField("Select By Column Test");
 
-        Simple dbInstance = dao.selectByColumns(template, "field");
+        Simple dbInstance = dao.selectOne(template, "field");
         Assert.assertEquals(simple.getId(), dbInstance.getId());
         connection.commit();
         connection.close();
@@ -115,12 +115,12 @@ public class SimpleTableTest {
 
         dao.insert(simple);
 
-        Simple fromDb = dao.select(simple.getId());
+        Simple fromDb = dao.selectOne(simple.getId());
         Assert.assertNotNull(fromDb);
 
         dao.delete(simple);
 
-        Simple fromDbAfterDelete = dao.select(simple.getId());
+        Simple fromDbAfterDelete = dao.selectOne(simple.getId());
         Assert.assertNull(fromDbAfterDelete);
         connection.commit();
         connection.close();
@@ -148,7 +148,7 @@ public class SimpleTableTest {
         green.setField("Green");
         dao.insert(green);
 
-        List<Simple> items = dao.selectAll();
+        List<Simple> items = dao.select();
 
         Assert.assertEquals(3, items.size());
         connection.commit();

@@ -2,7 +2,7 @@ package org.hrorm;
 
 /**
  * The <code>Operator</code> type supports the generation of SQL statements
- * that specify the various comparisons allows in SQL where clauses.
+ * that specify the various comparisons allowed in SQL where clauses.
  *
  * <p>
  *     There are no instances for the SQL operators "IS NULL", "IS NOT NULL",

@@ -14,7 +14,7 @@ public interface UnkeyedDao<ENTITY> {
      *
      * @return A list of populated instances of type ENTITY.
      */
-    List<ENTITY> selectAll();
+    List<ENTITY> select();
 
     /**
      * Read all the records in the database of type ENTITY in the
@@ -26,7 +26,7 @@ public interface UnkeyedDao<ENTITY> {
      * @param order The ordering to use
      * @return A list of populated instances of type ENTITY.
      */
-    List<ENTITY> selectAll(Order order);
+    List<ENTITY> select(Order order);
 
     /**
      * Select multiple records from the database by some search criteria.
@@ -43,7 +43,7 @@ public interface UnkeyedDao<ENTITY> {
      * @return The populated instances of type ENTITY with matching values with the passed item for
      * the indicated columnNames.
      */
-    List<ENTITY> selectManyByColumns(ENTITY template, String... columnNames);
+    List<ENTITY> select(ENTITY template, String... columnNames);
 
     /**
      * Select multiple records from the database by some search criteria in the
@@ -62,7 +62,7 @@ public interface UnkeyedDao<ENTITY> {
      * @return The populated instances of type ENTITY with matching values with the passed item for
      * the indicated columnNames.
      */
-    List<ENTITY> selectManyByColumns(ENTITY template, Order order, String... columnNames);
+    List<ENTITY> select(ENTITY template, Order order, String... columnNames);
 
 
     /**
@@ -76,7 +76,7 @@ public interface UnkeyedDao<ENTITY> {
      * @return The populated instance of type ENTITY with matching values with the passed item for
      * the indicated columnNames.
      */
-    ENTITY selectByColumns(ENTITY item, String... columnNames);
+    ENTITY selectOne(ENTITY item, String... columnNames);
 
     /**
      * Run a select in the data store for entities matching the given where predicates.
@@ -86,6 +86,7 @@ public interface UnkeyedDao<ENTITY> {
      */
     List<ENTITY> select(Where where);
 
+    ENTITY selectOne(Where where);
 
     /**
      * Run a select in the data store for entities matching the given where predicates

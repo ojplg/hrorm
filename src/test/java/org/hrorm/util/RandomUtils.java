@@ -44,7 +44,7 @@ public class RandomUtils {
 
     /**
      * Picks a random element out of a list.
-     * @param list The Dataset to select from.
+     * @param list The Dataset to selectOne from.
      * @param <E> The Type of entity in the list, and the type of entity returned.
      * @return A random element from in list.
      */
@@ -54,7 +54,7 @@ public class RandomUtils {
 
     /**
      * Produces a random subset of list, all containing the same value from getter::apply
-     * @param list The Dataset to select from.
+     * @param list The Dataset to selectOne from.
      * @param getter The Getter method on E to invoke.
      * @param <E> The Entity Type.
      * @param <F> The Field Type returned by getter::apply.
@@ -70,7 +70,7 @@ public class RandomUtils {
 
     /**
      * Produces a random, field value from within the distinct possibilities contained in list.
-     * @param list The Dataset to select from.
+     * @param list The Dataset to selectOne from.
      * @param getter The Getter method on E to invoke.
      * @param <E> The Entity Type.
      * @param <F> The Field Type returned by getter::apply.
@@ -150,7 +150,7 @@ public class RandomUtils {
     }
 
     /**
-     * Names to select from.
+     * Names to selectOne from.
      */
     private static final List<String> NAMES = Stream.of(
         "Donut",

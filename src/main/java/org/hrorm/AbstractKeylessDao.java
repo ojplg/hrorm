@@ -61,27 +61,27 @@ public abstract class AbstractKeylessDao<ENTITY, BUILDER> implements KeylessDaoD
     }
 
     @Override
-    public List<ENTITY> selectAll() {
+    public List<ENTITY> select() {
         String sql = sqlBuilder.select();
         List<BUILDER> bs = sqlRunner.select(sql, supplier, childrenDescriptors());
         return mapBuilders(bs);
     }
 
     @Override
-    public List<ENTITY> selectAll(Order order) {
+    public List<ENTITY> select(Order order) {
         String sql = sqlBuilder.select(order);
         List<BUILDER> bs = sqlRunner.select(sql, supplier, childrenDescriptors());
         return mapBuilders(bs);
     }
 
     @Override
-    public ENTITY selectByColumns(ENTITY item, String ... columnNames){
-        List<ENTITY> items = selectManyByColumns(item, columnNames);
+    public ENTITY selectOne(ENTITY item, String ... columnNames){
+        List<ENTITY> items = select(item, columnNames);
         return fromSingletonList(items);
     }
 
     @Override
-    public List<ENTITY> selectManyByColumns(ENTITY item, String ... columnNames) {
+    public List<ENTITY> select(ENTITY item, String ... columnNames) {
         ColumnSelection columnSelection = select(columnNames);
         String sql = sqlBuilder.selectByColumns(columnSelection);
         List<BUILDER> bs = sqlRunner.selectByColumns(sql, supplier, select(columnNames), childrenDescriptors(), item);
@@ -89,7 +89,7 @@ public abstract class AbstractKeylessDao<ENTITY, BUILDER> implements KeylessDaoD
     }
 
     @Override
-    public List<ENTITY> selectManyByColumns(ENTITY template, Order order, String... columnNames) {
+    public List<ENTITY> select(ENTITY template, Order order, String... columnNames) {
         ColumnSelection columnSelection = select(columnNames);
         String sql = sqlBuilder.selectByColumns(columnSelection, order);
         List<BUILDER> bs = sqlRunner.selectByColumns(sql, supplier, select(columnNames), childrenDescriptors(), template);
@@ -124,6 +124,12 @@ public abstract class AbstractKeylessDao<ENTITY, BUILDER> implements KeylessDaoD
         String sql = sqlBuilder.select(where);
         List<BUILDER> bs = sqlRunner.selectWhere(sql, supplier, childrenDescriptors(), where);
         return mapBuilders(bs);
+    }
+
+    @Override
+    public ENTITY selectOne(Where where){
+        List<ENTITY> entities = select(where);
+        return fromSingletonList(entities);
     }
 
     @Override
