@@ -34,9 +34,6 @@ public class DaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> extends AbstractDao
     }
 
     @Override
-    public boolean hasParent() { return parentColumn != null; }
-
-    @Override
     public ParentColumn<ENTITY, PARENT, BUILDER, PARENTBUILDER> parentColumn() {
         return parentColumn;
     }
