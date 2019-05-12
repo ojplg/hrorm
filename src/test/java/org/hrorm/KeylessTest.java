@@ -341,7 +341,7 @@ public class KeylessTest {
     }
 
     @Test
-    public void testSelectOneWhere(){
+    public void testSelectOneWhere() throws SQLException {
         String stringValue;
         Long integerValue;
         BigDecimal bigDecimalValue;
@@ -355,6 +355,9 @@ public class KeylessTest {
             bigDecimalValue = keyless.getDecimalColumn();
 
             dao.insert(keyless);
+
+            connection.commit();
+            connection.close();
         }
         {
             Connection connection = helper.connect();
@@ -365,6 +368,7 @@ public class KeylessTest {
                                 .and("decimal_column", EQUALS, bigDecimalValue));
 
             Assert.assertNotNull(keyless);
+            connection.close();
         }
     }
 
