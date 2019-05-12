@@ -11,22 +11,6 @@ import java.util.List;
 public interface Dao<ENTITY> extends KeylessDao<ENTITY> {
 
     /**
-     * Run an update statement to change the values in the database associated
-     * with an existing record. Updates are applied by primary key.
-     *
-     * @param item An instance of the class with a populated primary key field
-     *             and updated field values.
-     */
-    void update(ENTITY item);
-
-    /**
-     * Run a delete statement in the database. Deletion is done by primary key.
-     *
-     * @param item An instance of type ENTITY with a populated primary key.
-     */
-    void delete(ENTITY item);
-
-    /**
      * Read a record from the database by its primary key.
      *
      * @param id The primary key of the record desired.
@@ -41,6 +25,22 @@ public interface Dao<ENTITY> extends KeylessDao<ENTITY> {
      * @return A list of populated instances of type ENTITY.
      */
     List<ENTITY> select(List<Long> ids);
+
+    /**
+     * Run an update statement to change the values in the database associated
+     * with an existing record. Updates are applied by primary key.
+     *
+     * @param item An instance of the class with a populated primary key field
+     *             and updated field values.
+     */
+    void update(ENTITY item);
+
+    /**
+     * Run a delete statement in the database. Deletion is done by primary key.
+     *
+     * @param item An instance of type ENTITY with a populated primary key.
+     */
+    void delete(ENTITY item);
 
     /**
      * Run an update statement to change the values in the database associated

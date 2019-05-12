@@ -17,20 +17,6 @@ import java.util.function.BiFunction;
 public interface KeylessDao<ENTITY> {
 
     /**
-     * Insert a record into the database.
-     *
-     * <p>Depending on how the Dao was constucted (whether from a regular
-     * <code>DaoBuilder</code> or an <code>IndirectDaoBuilder</code>)
-     * a particular instance of this class may or may not attempt
-     * to mutate the state of the passed item by setting its primary
-     * key.</p>
-     *
-     * @param item The instance to be inserted.
-     * @return The newly issued primary key of the record, if there is one. Else, Optional.empty()
-     */
-    Long insert(ENTITY item);
-
-    /**
      * Read all the records in the database of type ENTITY.
      *
      * <p>No laziness or caching is involved here. This simply tries to
@@ -39,6 +25,14 @@ public interface KeylessDao<ENTITY> {
      * @return A list of populated instances of type ENTITY.
      */
     List<ENTITY> select();
+
+    /**
+     * Run a select in the data store for entities matching the given where predicates.
+     *
+     * @param where The predicates to drive selection.
+     * @return The matching results.
+     */
+    List<ENTITY> select(Where where);
 
     /**
      * Read all the records in the database of type ENTITY in the
@@ -51,6 +45,16 @@ public interface KeylessDao<ENTITY> {
      * @return A list of populated instances of type ENTITY.
      */
     List<ENTITY> select(Order order);
+
+    /**
+     * Run a select in the data store for entities matching the given where predicates
+     * returned in the order specified.
+     *
+     * @param where The predicates to drive selection.
+     * @param order The ordering to use
+     * @return The matching results.
+     */
+    List<ENTITY> select(Where where, Order order);
 
     /**
      * Select multiple records from the database by some search criteria.
@@ -92,6 +96,19 @@ public interface KeylessDao<ENTITY> {
      * Select a single record from the database by some search criteria.
      *
      * <p>
+     * If multiple records are found that match the given criteria, an exception will be thrown.
+     * If no records are found, <code>null</code> will be returned.
+     * </p>
+     *
+     * @param where The predicates to drive selection.
+     * @return The populated instance of type ENTITY matching the given criteria
+     */
+    ENTITY selectOne(Where where);
+
+    /**
+     * Select a single record from the database by some search criteria.
+     *
+     * <p>
      * If multiple records are found that match the passed item, an exception will be thrown.
      * If no records are found, <code>null</code> will be returned.
      * </p>
@@ -103,49 +120,6 @@ public interface KeylessDao<ENTITY> {
      *         the indicated columnNames.
      */
     ENTITY selectOne(ENTITY template, String... columnNames);
-
-    /**
-     * Select a single record from the database by some search criteria.
-     *
-     * <p>
-     * If multiple records are found that match the given criteria, an exception will be thrown.
-     * If no records are found, <code>null</code> will be returned.
-     * </p>
-     *
-     * @param where The predicates to drive selection.
-     * @return The populated instance of type ENTITY matching the given criteria
-     */
-    ENTITY selectOne(Where where);
-
-    /**
-     * Run a select in the data store for entities matching the given where predicates.
-     *
-     * @param where The predicates to drive selection.
-     * @return The matching results.
-     */
-    List<ENTITY> select(Where where);
-
-
-    /**
-     * Run a select in the data store for entities matching the given where predicates
-     * returned in the order specified.
-     *
-     * @param where The predicates to drive selection.
-     * @param order The ordering to use
-     * @return The matching results.
-     */
-    List<ENTITY> select(Where where, Order order);
-
-    /**
-     * Insert a record into the database within a transaction that is
-     * managed within the Dao. The Dao will either commit or rollback
-     * the transaction and <b>close the underlying <code>Connection</code></b>
-     * when complete.
-     *
-     * @param item The instance to be inserted.
-     * @return The newly issued primary key of the record, if there is one. Else, Optional.empty()
-     */
-    Long atomicInsert(ENTITY item);
 
     /**
      * Computes a result based on the entities found by a select statement
@@ -161,10 +135,34 @@ public interface KeylessDao<ENTITY> {
      */
     <T> T foldingSelect(T identity, BiFunction<T,ENTITY,T> accumulator, Where where);
 
+    /**
+     * Insert a record into the database.
+     *
+     * <p>Depending on how the Dao was constucted (whether from a regular
+     * <code>DaoBuilder</code> or an <code>IndirectDaoBuilder</code>)
+     * a particular instance of this class may or may not attempt
+     * to mutate the state of the passed item by setting its primary
+     * key.</p>
+     *
+     * @param item The instance to be inserted.
+     * @return The newly issued primary key of the record, if there is one. Else, Optional.empty()
+     */
+    Long insert(ENTITY item);
 
     /**
-     * Computes an aggregated Long value, based on the selectcriteria specified
-     * and the given SqlFunction and column name.
+     * Insert a record into the database within a transaction that is
+     * managed within the <code>Dao</code>. The <code>Dao</code> will either commit or rollback
+     * the transaction and <b>close the underlying <code>Connection</code></b>
+     * when complete.
+     *
+     * @param item The instance to be inserted.
+     * @return The newly issued primary key of the record, if there is one. Else, Optional.empty()
+     */
+    Long atomicInsert(ENTITY item);
+
+    /**
+     * Computes an aggregated <code>Long</code> value, based on the select criteria specified
+     * and the given <code>SqlFunction</code> and column name.
      *
      * <p>
      *     Will run SQL that looks like this:
