@@ -120,7 +120,7 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
     private Set<Long> findExistingChildrenIds(Connection connection, Long parentId){
         String sql = sqlBuilder.selectChildIds(parentChildColumnName());
         SqlRunner<PARENT,PARENTBUILDER> sqlRunner = new SqlRunner(connection);
-        return sqlRunner.runChildSelectChildIds(sql, parentId);
+        return sqlRunner.runSelectChildIds(sql, parentId);
     }
 
     private void deleteOrphans(Connection connection, Set<Long> badChildrenIds) {

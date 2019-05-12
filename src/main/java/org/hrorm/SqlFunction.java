@@ -4,8 +4,8 @@ package org.hrorm;
  * Representation of various aggregation functions that a database can perform.
  *
  * <p>
- *     To be used in conjunction with the <code>KeylessDao.runLongFunction()</code>
- *     or <code>KeylessDao.runBigDecimalFunction()</code> methods.
+ *     To be used in conjunction with the {@link KeylessDao#runLongFunction}
+ *     or {@link KeylessDao#runBigDecimalFunction} methods.
  * </p>
  */
 public class SqlFunction {

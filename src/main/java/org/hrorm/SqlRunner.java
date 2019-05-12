@@ -306,7 +306,7 @@ public class SqlRunner<ENTITY, BUILDER> {
         }
     }
 
-    public Set<Long> runChildSelectChildIds(String sql, Long id){
+    public Set<Long> runSelectChildIds(String sql, Long id){
         PreparedStatement statement = null;
         ResultSet resultSet = null;
 
