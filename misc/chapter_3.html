@@ -10,12 +10,88 @@
 <body>
 
 <p>
-    In the Java world, the hardest part of selecting tools can be the
-    over-abundance of choices. There's something ridiculous about writing
-    a new object relational mapping library. There are already a large
-    number of choices, including the Java Persistence API,
-    now part of the standard library.
+    We are spoiled in the Java world. For almost any programming task you
+    can imagine there are many freely available, open source projects you
+    can choose from.
+    If I was a programmer manager and my team came to me and suggested that
+    we write our own ORM framework, I would send them home and tell them to
+    come back when they sobered up.
+    Nevertheless, when I was working on a personal project beginning last
+    year, I could not find what I wanted, and so I began <a href="https://hrorm.org">hrorm</a>.
+    I've written some articles about hrorm (for example,
+    <a href="https://dzone.com/articles/introducing-hrorm-a-simple-declarative-type-checke">here</a>)
+    that describe some aspects of hrorm. In this article, I want to talk about some
+    of the choices I faced in writing hrorm, and why I made some of the choices
+    I did.
 </p>
+
+<h3>Libraries and Frameworks</h3>
+
+<p>
+    As an application developer I prefer libraries to frameworks. I won't try to formally
+    distinguish between the two, but I think most programmers have some idea about
+    the distinction I am making. Libraries are imported by putting a jar file
+    in your classpath; they provide clients with classes and methods; they define interfaces
+    and then provide implementations of them. Frameworks require set-up and
+    configuration and containers; they have interfaces they expect clients to
+    to implement; they start up threads and start doing work before you even call
+    them.
+</p>
+
+<p>
+    Frameworks can deliver big bang for the buck of course. With very little
+    programming work (but rather a lot of research and learning work) frameworks
+    can allow small teams of developers to build big applications quickly. But it
+    comes with a cost. Frameworks can be magical, but magical can mean unpredictable,
+    hard to debug, have confusing performance characteristics, and can make seemingly
+    simple things incredibly frustrating, if the authors have not anticipated your
+    particular needs.
+    That's perhaps unfair, and many frameworks are terrific, but I like using libraries
+    better. If something is going to venture into framework territory, it better give
+    me something very valuable for the added complexity they bring.
+</p>
+
+<p>
+    The paradigmatic example in my mind of a library is something like the apache
+    or guava collections. A bunch of classes you can use (or not) by just putting
+    a jar file in your classpath. No configuration or set-up needed. And the library
+    just does what you ask of it. If you don't create instances of the classes or
+    call their methods, it doesn't require a bunch of set-up or run threads in your
+    application. And when you encounter a problem the stack traces make sense, they
+    don't flood your screen with lines of ConfigurationManagerProviderImplementationDirector
+    objects doing reflection.
+</p>
+
+<h3>Cleverness</h3>
+
+<p>
+    One of my favorite programming aphorisms is Brian Kernighan's comment on debugging:
+    "Debugging is twice as hard as writing the code in the first place.
+    Therefore, if you write the code as cleverly as possible, you are,
+    by definition, not smart enough to debug it." My corollary to his theorem is
+    that you are twice as stupid at two in the morning when called by the operations
+    team than you are during the work day. And therefore, if you have to debug
+    clever code at two in the morning, you are 4 times stupider than you need to be.
+</p>
+
+<p>
+    Hrorm is not a library that is built to impress when you are fully caffeinated and
+    relaxing in the post-doughnut mid-morning surfing session on your dual 30 inch
+    monitors. It's built for the dead of night when you're trying to sleep one off
+    and you don't want to figure out why a lazy sequence cannot be realized, why
+    all the threads in the thread pool are simultaneously busy-waiting, or
+    why a cache has over a billion entries when there are only a total of a million
+    records in the database.
+</p>
+
+<p>
+    When you call one of hrorm's methods, it does something pretty simple. It generates
+    some SQL, it passes it along a <code>Connection</code>, and it parses the results
+    into your object model, calling methods that you defined.
+</p>
+
+
+
 
 <p>
     When I started a new project last year, I could not find what I wanted.
@@ -103,51 +179,7 @@
     pointers, just using the language without any meta-programming got a lot easier.
 </p>
 
-<h3>Libraries and Frameworks</h3>
 
-<p>
-    As an application I prefer libraries to frameworks. I won't try to formally
-    distinguish between the two, but I think most programmers have some idea about
-    the distinction I am making. Libraries are imported by putting a jar file
-    in your classpath; they give you objects and methods; they define interfaces
-    and then provide implementations of them. Frameworks require set-up and
-    configuration and containers. They have interfaces they expect you to
-    to implement. They start up threads and start doing work before you even call
-    them.
-</p>
-
-<p>
-    That's perhaps unfair, and some frameworks are terrific, but I like using libraries
-    better. If something is going to venture into framework territory, it better give
-    me something valuable for the added compexity they bring.
-</p>
-
-<h3>Cleverness</h3>
-
-<p>
-    One of my favorite programming aphorisms is Brian Kernighan's thoughts on debugging:
-    "Debugging is twice as hard as writing the code in the first place.
-    Therefore, if you write the code as cleverly as possible, you are,
-    by definition, not smart enough to debug it." My corollary to his theorem is
-    that you are twice as stupid at two in the morning when called by the operations
-    team than you are during the work day. And therefore, if you have to debug
-    clever code at two in the morning, you are 4 times stupider than you need to be.
-</p>
-
-<p>
-    Hrorm is not a library that is built to impress when you are fully caffeinated and
-    relaxing in the post-doughnut mid-morning surfing session on your dual 30 inch
-    monitors. It's built for the dead of night when you're trying to sleep one off
-    and you don't want to figure out why a lazy sequence cannot be realized, or
-    why a cache has over a billion entries when there are only a million records in
-    the database.
-</p>
-
-<p>
-    When you call one of hrorm's methods, it does something pretty simple. It generates
-    some SQL, it passes it along a <code>Connection</code>, and it parses the results
-    into your object model, calling methods that you defined.
-</p>
 
 <h3>Libraries and Applications</h3>
 
@@ -170,7 +202,7 @@
 </p>
 
 <pre>
-DaoBuilder&lt;Item&gt; = new DaoBuilder&&lt;&gt;("item_table",Item::new)
+DaoBuilder&lt;Item&gt; = new DaoBuilder&lt;&gt;("item_table",Item::new)
         .withPrimaryKey( ... )
         .withStringColumn( ... );</pre>
 
@@ -279,6 +311,15 @@ interface DaoBuilder&lt;T&gt; a {
         * Manage resources properly, closing things
 </p>
 
+<h3>Laziness</h3>
+
+<p>
+    Hrorm is pretty simple. If you call a <code>select()</code> method on a
+    hrorm <code>Dao&lt;T&gt;</code> object, you get a fully-realized, eagerly
+    created <code>List&lt;T&gt;</code>. There are plenty of times when that
+    works fine, but not always.
+</p>
+
 <p>
     One of hrorm's contributors has suggested that hrorm include a lazy loading,
     <code>java.util.stream.Stream</code> style interface. The utility of such an
@@ -335,7 +376,7 @@ interface DaoBuilder&lt;T&gt; a {
 </p>
 
 <p>
-    None of that is very convincing, so how about an example of what can go wrong?
+    Perhaps none of that is very convincing to you, so how about an example of what can go wrong?
     (Showing some code that looks like hrorm, but uses a method that does not actually
     exist.)
 </p>
@@ -345,7 +386,7 @@ interface DaoBuilder&lt;T&gt; a {
         Connection connection = connectionFactory.get();
         Dao&lt;Foo&gt; fooDao = fooDaoBuilder.buildDao(connection);
         // this method does not exist
-        Stream&lt;Foo&gt; fooStream = fooDao.lazySelectAll();
+        Stream&lt;Foo&gt; fooStream = fooDao.lazySelect();
     } catch(HrormException ex){
         // hrorm wraps all database errors with its own extension of RuntimeException
         handleDatabaseProblems(ex);
@@ -354,7 +395,7 @@ interface DaoBuilder&lt;T&gt; a {
 </pre>
 
 <p>
-    That code has a problem that many readers probably noticed: the <code>processStream</code>
+    That code has a problem that many readers probably noticed: the <code>processStream()</code>
     method should be inside the try-catch block, since it still uses the <code>Connection</code>
     and can throw database exceptions. And now the reader might object: sure, that's a problem,
     but people understand how live database streams work, and the docs can explain it, etc. Only
@@ -362,8 +403,9 @@ interface DaoBuilder&lt;T&gt; a {
 </p>
 
 <p>
-    My answer is two parts. One is that I would rather write a library that would hard to use
-    wrong than possible to use right. But also, I think passing over bugs like the above as
+    My answer is two parts. One is that I would rather write a library that is hard to use
+    wrong than one that is possible (perhaps even easy?) to use right.
+    But also, I think passing over bugs like the above as
     ones only bad developers would make is wrong. Sure, most of us will avoid a bug like that,
     working alone on a piece of code that we are designing, but that's not how applications are
     developed. Instead, what would happen is something like this. Developer A writes some code
@@ -378,9 +420,9 @@ interface DaoBuilder&lt;T&gt; a {
 </p>
 
 <p>
-    Finally, after everything has been in production for several months, the network team is
+    Finally, after everything has been in production for several months, one evening the network team is
     making some changes that cause the application and database servers to be temporarily
-    partitioned. What would normally be properly handled by the database problem handling
+    partitioned. What would normally be properly handled by the database error handling
     code, even if it resulted in errors visible to the user, would be cleaned up and reported
     properly. As it is, only the top-level application exception handler sees the problem,
     and it does not do the proper clean-up, just logs something and moves on. Now the application's
@@ -403,6 +445,26 @@ interface DaoBuilder&lt;T&gt; a {
     look at the problem, but no one really understands what happened. A time bomb exists
     in the code. Maybe someone will find it eventually, or everyone will just accept that
     whenever there are network changes, such-and-such an application needs to be rebooted.
+</p>
+
+<p>
+    Lazy streams in Java are a powerful abstraction that allows some programming tasks
+    to be expressed in very elegant and expressive ways. But they violate some deeply
+    held intuitions most of us have about how Java code executes.
+    Lazy objects violate locality and
+    happens-before relations. Like a <code>Future</code>, they seem to change the
+    guarantee that the semi-colon operator is a sequence point: dividing the code into
+    two parts, the first of which is totally completed before anything happens in the second.
+</p>
+
+<p>
+    One way applications become buggy is because there are too many powerful abstractions
+    woven together in patterns that are too complicated for the developers to reason about
+    clearly. Hrorm expresses an opinion about how database interactions should work, it
+    isn't right for all situations and needs, but I believe it makes things more reliable.
+    Does that mean hrorm is bug-free or perfectly reliable? Of course not. But I hope it
+    does mean that when problems with and around hrorm happen, they will happen fast and
+    loud, so they will at least be easy to understand.
 </p>
 
 </body>
