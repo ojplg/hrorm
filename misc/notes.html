@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Notes</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/mini.css/3.0.0/mini-default.min.css">
+</head>
+
+<body>
+
+
+<p>
+    When I started a new project last year, I could not find what I wanted.
+</p>
+
+<ul>
+    <li>SQL generation</li>
+    <li>Declarative, type-checked API</li>
+    <li>Simple API for CRUD operations directly on my object model</li>
+</ul>
+
+<p>
+    And a list of things I did not want.
+</p>
+
+<ul>
+    <li>External configuration or containers</li>
+    <li>Caching, threading, or laziness</li>
+    <li>Reflection, unsafe code</li>
+</ul>
+
+<p>
+    There are probably seven libraries out there that could have sufficed, but
+    I started writing my own persistence layer for my project, and that
+    became a library, and that became Hrorm.
+</p>
+
+<p>
+    Building a library for public release makes you think about some design
+    questions.
+</p>
+
+<h3>The Work of Persistence</h3>
+
+<p>
+    To manage the persistence of objects in an RDBMS requires doing a few things.
+</p>
+
+<ul>
+    <li>Decomposing an object into its atoms (strings, numbers, timestamps, etc)</li>
+    <li>Generating SQL statements</li>
+    <li>Taking the decomposed parts and inserting them into the SQL</li>
+    <li>Parsing results from the database</li>
+    <li>Recomposing objects from their constituents</li>
+</ul>
+
+<p>
+    Composing and decomposing objects can be done using getters and setters,
+    or builder objects in the case of immutable models. SQL can be easily
+    created through simple string manipulation, since there is a limited
+    universe of statements to create, and generation is so much simpler
+    than parsing. The biggest challenge in parsing result sets is making
+    sure to correctly alias and prefix column names when doing joins.
+    Mostly, the tasks of doing persistence are a matter of careful accounting
+    rather than clever programming.
+</p>
+
+<p>
+    There's a bit of a hidden problem that is only referenced above: classes
+    are not just made of atomic parts that directly decompose into atomic parts.
+    They are made up of other objects. But really, this mostly adds another
+    layer of accounting. It's not like things suddenly went NP on us.
+</p>
+
+<h3>Meta-Programming</h3>
+
+<p>
+    Some languages (Lisps, Ocaml, Ruby) embrace meta-progmramming. Others have more
+    grudging support (C with it's macros). Others are a bit schizoophrenic (Haskell
+    versus Template Haskell). I would put Java in the grudging support category.
+    Reflection exists, and has for a long time. But it's clumsy and leads to code
+    that is unexpressive and unintuitive.
+</p>
+
+<p>
+    For certain kinds of libraries, reflection is an essential part of the architecture.
+    Many go further and use <code>sun.misc.Unsafe</code>. I get nervous when my tools are
+    using the features of unsafe. I want my objects to be constructed using my methods, so
+    that the invariants I establish are obeyed. It's nothing to worry too much over, but
+    I prefer to stick with simpler code.
+</p>
+
+<p>
+    Fortunately, since Java 8, and the introduction of things that look like function
+    pointers, just using the language without any meta-programming got a lot easier.
+</p>
+
+
+
+<h3>Libraries and Applications</h3>
+
+<p>
+    Generalizing wildly, there are two kinds of programmers: those that work on applications
+    and those that work on libraries. Application developers' work will be judged overwhelmingly
+    by application users on one criteria: does the application do what I want it to reliably
+    and without undue fuss. Library writers are judged by muddier criteria. Clearly, some
+    libraries become more popular than others (just as some applications do, and I would not
+    say that an application's popularity is strictly proportional to its quality), but when
+    programmers pick a library, they weigh more criteria more heavily than application consumers do.
+    What are they looking for?
+</p>
+
+<h3>Ease of use versus ease of implementation</h3>
+
+<p>
+    When I wrote hrorm, it was very important to me that users (like me) be able to write code
+    like this:
+</p>
+
+<pre>
+DaoBuilder&lt;Item&gt; = new DaoBuilder&lt;&gt;("item_table",Item::new)
+        .withPrimaryKey( ... )
+        .withStringColumn( ... );</pre>
+
+<p>
+    What are the implications of that requirement, from a Java language perspective?
+    First of all, it means <code>DaoBuilder</code> cannot be an interface or an abstract
+    class. The code instantiates an instance of one, so it has to be an object. This is in
+    no way a functional requirement on hrorm, and it's easy to imagine a way that it could
+    be different: <code>DaoBuilder</code> could be an interface, and you could instantiate
+    a <code>SimpleDaoBuilder</code>, or numerous other alternatives. But it was very important
+    to me that it work exactly as shown. Partly because I think it makes looking at hrorm
+    for the very first time easier. Partly just because I think it reads better. But there's
+    a bigger issue lurking: if <code>DaoBuilder</code> is an interface, and there are
+    multiple implementations (and eventually, hrorm came to support more than one way to
+    build a <code>Dao</code>), the different implementations cannot support different methods
+    and still provide a fluent interface: each <code>withSomething()</code> method will
+    return the lowest common denominator interface type, and then users can only call methods
+    on that interface, not any specialty methods the different implementations provide.
+</p>
+
+<p>
+    Because of this, the multiple mechanisms for building a <code>Dao</code> in hrorm are
+    largely independent, with a lot of cut-and-pasted code and documentation that is
+    irritating and error prone to maintain.
+</p>
+
+<p>
+    We can perhaps imagine some new language (let's call it Jaskell) that gets around this
+    problem that allows us to write code like this:
+</p>
+
+<pre>
+interface DaoBuilder&lt;T&gt; a {
+    buildDao : a -> Connection -> T;
+    withColumn : a -> String -> (T -> String) -> (T -> String -> ()) -> a;
+}</pre>
+
+<p>
+    I won't bother to explain what that might mean, since it's both theoretical and a monstrosity.
+    And beside the point anyway, since this whole issue is self-imposed. If I could let go
+    of the unimportant requirement that a user's first exposure to hrorm look exactly one
+    particular way, the code could be simplified. But somehow, I have in my mind the declarative,
+    fluent interface that hrorm provides. As long as I want to provide that, I am stuck with
+    maintaining the code as it is. My hope is that the ease-of-use for clients outweighs the
+    annoyance of implementation to me and other hrorm contributors.
+</p>
+
+<h3>More on the type checker</h3>
+
+<p>
+    To use hrorm, the application developer must provide it with two things: information
+    about the Java object model and data about the SQL schema. The object model is clearly
+    the easier one for hrorm to deal with: it's in hrorm's language. The SQL schema is not,
+    it's just a bunch of strings.
+</p>
+
+<p>
+    That's annoying for users since you would like to define the name of the column once,
+    just as you define a constant once, and then always have the benefit of the compiler
+    to make sure you are refering to it correctly. (You can just make constants for all
+    your column names, of course, but now you're doing extra work, not having work
+    done for you.) The reason you want to refer to columns more than once is in building
+    where clauses, like this.
+</p>
+
+<pre>
+    Dao&lt;Item&gt; dao = // comes from something
+    List&lt;Item&gt; = dao.select(where("COLUMN_A", EQUALS, "Foo")
+                                   .and("COLUMN_B" GREATER_THAN, 7L));</pre>
+
+<p>
+    There are really two problems here. The first is that the name of the column might
+    be wrong: "COLUMNA" instead of "COLUMN_A". The second is that the type of the
+    column might be wrong: using an illegal comparison, like comparing a string to an
+    integer. When creating a hrorm <code>Dao</code>, the user has already defined
+    the name and something about the type of the column, it would be nice to make
+    use of it, but I do not see how, except by some form of code generation which
+    adds a huge overhead to using hrorm.
+</p>
+
+<p>
+    Hrorm does use one trick to somewhat mitigate the type problem, though not
+    the mis-spelled column name problem. It has methods to select that are based
+    on passing an instance of the object itself to the method on the DAO. An object
+    is initialized with some of its values set, and a list of objects is returned
+    that match the specified values on the specified columns. That way, the types
+    of the values have to be correct, and of the types that hrorm knows about,
+    but of course, the column names can still be wrong.
+</p>
+
+<hr>
+
+<p>
+    TOPICS:
+    * Dao builder: interface clarity versus sharing code, problems with inheritance
+    * Dependencies and logging
+    * Frameworks versus libraries
+    * meta-programming, annotations and reflection (unsafe)
+    * lack of type-checking for where clauses
+    * Lack of optimization (Hrorm is really slow)
+    * packages/namespacing
+    * What basic Java types are supported
+    * Jobs to do:
+    * Generate SQL - should be efficient (i.e. joins)
+    * Build objects from result sets
+    * Manage resources properly, closing things
+</p>
+
+
+</body>
+</html>
