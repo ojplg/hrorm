@@ -19,12 +19,10 @@ public class KeylessValidator {
 
     /**
      * Calling this method will attempt to check to make sure that certain basics of the
-     * <code>Dao</code> definition correctly match the database schema. The following will
+     * <code>KeylessDao</code> definition correctly match the database schema. The following will
      * be checked.
      *
      * <ul>
-     *     <li>That the <code>Dao</code> has a <code>PrimaryKey</code> defined</li>
-     *     <li>That the sequence exists</li>
      *     <li>That the table exists</li>
      *     <li>That the columns are correctly named</li>
      *     <li>That the columns are of correct type</li>
@@ -35,7 +33,7 @@ public class KeylessValidator {
      *
      * <p>This is no substitute for testing.</p>
      *
-     * @param connection A connection to the database with the schema for the passed <code>DaoDescriptor</code>
+     * @param connection A connection to the database with the schema for the passed <code>KeylessDaoDescriptor</code>
      * @param daoDescriptor The definition of the <code>Dao</code> to be checked
      * @throws HrormException if a problem is discovered
      */
