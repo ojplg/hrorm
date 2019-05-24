@@ -19,7 +19,7 @@ import java.util.function.Supplier;
  *
  * @param <ENTITY> The class that the Dao will support.
  */
-public class DaoBuilder<ENTITY> implements SchemaDescriptor<ENTITY, ENTITY> {
+public class DaoBuilder<ENTITY> extends Builder<ENTITY, ENTITY, DaoBuilder<ENTITY>> implements SchemaDescriptor<ENTITY, ENTITY> {
 
     private final ColumnCollection<ENTITY,ENTITY> columnCollection = new ColumnCollection<>();
     private final DaoBuilderHelper<ENTITY, ENTITY> daoBuilderHelper;
@@ -32,6 +32,7 @@ public class DaoBuilder<ENTITY> implements SchemaDescriptor<ENTITY, ENTITY> {
      * @param supplier A mechanism (generally a constructor) for creating a new instance.
      */
     public DaoBuilder(String tableName, Supplier<ENTITY> supplier){
+        super(tableName, supplier, t -> t);
         this.daoBuilderHelper = new DaoBuilderHelper<>(tableName, supplier, t -> t);
     }
 
@@ -65,20 +66,20 @@ public class DaoBuilder<ENTITY> implements SchemaDescriptor<ENTITY, ENTITY> {
         return daoBuilderHelper.getBuildFunction();
     }
 
-    /**
-     * Creates a {@link Dao} for performing CRUD operations of type <code>ENTITY</code>.
-     *
-     * @param connection The SQL connection this <code>Dao</code> will use
-     *                   for its operations.
-     * @return The newly created <code>Dao</code>.
-     */
-    public Dao<ENTITY> buildDao(Connection connection){
-
-        if( primaryKey() == null){
-            throw new HrormException("Cannot create a Dao without a primary key.");
-        }
-        return new DaoImpl<>(connection, this);
-    }
+//    /**
+//     * Creates a {@link Dao} for performing CRUD operations of type <code>ENTITY</code>.
+//     *
+//     * @param connection The SQL connection this <code>Dao</code> will use
+//     *                   for its operations.
+//     * @return The newly created <code>Dao</code>.
+//     */
+//    public Dao<ENTITY> buildDao(Connection connection){
+//
+//        if( primaryKey() == null){
+//            throw new HrormException("Cannot create a Dao without a primary key.");
+//        }
+//        return new DaoImpl<>(connection, this);
+//    }
 
     /**
      * Build the SQL that will be used by <code>DAO</code> objects created by this builder.
@@ -87,19 +88,19 @@ public class DaoBuilder<ENTITY> implements SchemaDescriptor<ENTITY, ENTITY> {
      */
     public Queries buildQueries() { return new SqlBuilder<>(this); }
 
-    /**
-     * Describes a text or string data element.
-     *
-     * @param columnName The name of the column that holds the data element.
-     * @param getter The function on <code>ENTITY</code> that returns the data element.
-     * @param setter The function on <code>ENTITY</code> that consumes the data element.
-     * @return This instance.
-     */
-    public DaoBuilder<ENTITY> withStringColumn(String columnName, Function<ENTITY, String> getter, BiConsumer<ENTITY, String> setter){
-        Column<?,?,ENTITY, ENTITY> column = DataColumnFactory.stringColumn(columnName, daoBuilderHelper.getPrefix(), getter, setter, true);
-        columnCollection.addDataColumn(column);
-        return this;
-    }
+//    /**
+//     * Describes a text or string data element.
+//     *
+//     * @param columnName The name of the column that holds the data element.
+//     * @param getter The function on <code>ENTITY</code> that returns the data element.
+//     * @param setter The function on <code>ENTITY</code> that consumes the data element.
+//     * @return This instance.
+//     */
+//    public DaoBuilder<ENTITY> withStringColumn(String columnName, Function<ENTITY, String> getter, BiConsumer<ENTITY, String> setter){
+//        Column<?,?,ENTITY, ENTITY> column = DataColumnFactory.stringColumn(columnName, daoBuilderHelper.getPrefix(), getter, setter, true);
+//        columnCollection.addDataColumn(column);
+//        return this;
+//    }
 
     /**
      * Describes a numeric data element with no decimal or fractional part.
