@@ -249,19 +249,6 @@ public abstract class Builder<ENTITY, ENTITYBUILDER, B extends Builder<?,?,?>>
     }
 
     /**
-     * Set data about the primary key of the table for this type. Hrorm demands that primary keys be
-     * sequence numbers from the database. GUIDs and other constructions are not allowed. All
-     * Daos must have a primary key.
-     *
-     * @param columnName The name of the column in the table that holds the primary key.
-     * @param sequenceName The name of the sequence that will provide new keys.
-     * @param getter The function to call to get the primary key value from an object instance.
-     * @param setter The function to call to set the primary key value to an object instance.
-     * @return This instance.
-     */
-    public abstract B withPrimaryKey(String columnName, String sequenceName, Function<ENTITY, Long> getter, BiConsumer<ENTITYBUILDER, Long> setter);
-
-    /**
      * Indicator that the column is a reference to an owning parent object.
      *
      * @param columnName The name of the column that holds the foreign key reference.
