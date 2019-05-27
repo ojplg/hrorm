@@ -1,10 +1,5 @@
 package org.hrorm;
 
-import java.math.BigDecimal;
-import java.sql.Connection;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -19,7 +14,7 @@ import java.util.function.Supplier;
  *
  * @param <ENTITY> The class that the Dao will support.
  */
-public class DaoBuilder<ENTITY> extends Builder<ENTITY, ENTITY, DaoBuilder<ENTITY>> implements SchemaDescriptor<ENTITY, ENTITY> {
+public class DaoBuilder<ENTITY> extends AbstractDaoBuilder<ENTITY, ENTITY, DaoBuilder<ENTITY>> implements SchemaDescriptor<ENTITY, ENTITY> {
 
     /**
      * Create a new DaoBuilder instance.

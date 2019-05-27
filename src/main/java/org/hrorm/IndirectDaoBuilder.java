@@ -1,10 +1,5 @@
 package org.hrorm;
 
-import java.math.BigDecimal;
-import java.sql.Connection;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -23,7 +18,8 @@ import java.util.function.Supplier;
  * @param <BUILDER> The type of the class that can be used to construct new <code>ENTITY</code>
  *                 instances and accept individual data elements.
  */
-public class IndirectDaoBuilder<ENTITY, BUILDER> extends Builder<ENTITY, BUILDER, IndirectDaoBuilder<ENTITY, BUILDER>>
+public class IndirectDaoBuilder<ENTITY, BUILDER>
+        extends AbstractDaoBuilder<ENTITY, BUILDER, IndirectDaoBuilder<ENTITY, BUILDER>>
         implements SchemaDescriptor<ENTITY, BUILDER> {
 
     /**
