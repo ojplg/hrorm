@@ -15,6 +15,7 @@ import org.junit.Test;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -210,6 +211,7 @@ public class SimpleParentChildTest {
             AssertHelp.sameContents(childNames, children, SimpleChild::getName);
         });
     }
+
 
     private static String randomName(){
         return RandomUtils.randomAlphabeticString(5,15);
