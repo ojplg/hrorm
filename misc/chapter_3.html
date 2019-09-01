@@ -11,9 +11,9 @@
 
 <p>
     We are spoiled in the Java world. For almost any programming task you
-    can imagine there are many freely available, open source projects you
+    can imagine there are many freely-available, open-source projects you
     can choose from.
-    If I was a programmer manager and my team came to me and suggested that
+    If I was managing a team and they came to me and suggested that
     we write our own ORM framework, I would send them home and tell them to
     come back when they sobered up.
     Nevertheless, when I was working on a personal project beginning last
@@ -58,8 +58,14 @@
     just does what you ask of it. If you don't create instances of the classes or
     call their methods, it doesn't require a bunch of set-up or run threads in your
     application. And when you encounter a problem the stack traces make sense, they
-    don't flood your screen with lines of ConfigurationManagerProviderImplementationDirector
-    objects doing reflection.
+    don't flood your screen with lines of <code>ConfigurationManagerProviderImplementationDirector</code>
+    objects called who knows how, since everything happens via reflection.
+</p>
+
+<p>
+    Hrorm is a library, not a framework. You put the jar in the classpath and you
+    use what you want. If you just put it in a small corner of your application,
+    hrorm stays there.
 </p>
 
 <h3>Cleverness</h3>
@@ -76,7 +82,7 @@
 
 <p>
     Hrorm is not a library that is built to impress when you are fully caffeinated and
-    relaxing in the post-doughnut mid-morning surfing session on your dual 30 inch
+    relaxing in the post-doughnut mid-morning surfing session on your dual 30-inch
     monitors. It's built for the dead of night when you're trying to sleep one off
     and you don't want to figure out why a lazy sequence cannot be realized, why
     all the threads in the thread pool are simultaneously busy-waiting, or
@@ -86,8 +92,9 @@
 
 <p>
     When you call one of hrorm's methods, it does something pretty simple. It generates
-    some SQL, it passes it along a <code>Connection</code>, and it parses the results
-    into your object model, calling methods that you defined.
+    some SQL, it passes it along a <code>Connection</code> to the database, and it parses the results
+    into your object model. If something goes wrong, exceptions and stack traces 
+    are straight-forward and the SQL being executed is always exposed.
 </p>
 
 <h3>Laziness</h3>
@@ -126,7 +133,7 @@
     That's a good improvement from the older days of Java, but really for those cases,
     I would just like <code>List</code> to implement <code>map</code> directly, it would
     save some noise in the code. The problem is that Java's type system does
-    not really have a way to express an ML-style functor: a container that preserves its
+    not really have a good way to express an ML-style functor: a container that preserves its
     own character, while modifying the contents.
 </p>
 
@@ -183,7 +190,7 @@
 
 <p>
     My answer is two parts. One is that I would rather write a library that is hard to use
-    wrong than one that is possible (perhaps even easy?) to use right.
+    wrong than one that is possible to use right.
     But also, I think passing over bugs like the above as
     ones only bad developers would make is wrong. Sure, most of us will avoid a bug like that,
     working alone on a piece of code that we are designing, but that's not how applications are
@@ -224,7 +231,7 @@
     look at the problem, but no one really understands what happened. A time bomb exists
     in the code. Maybe someone will find it eventually, but there are some real hurdles to
     overcome: the introduction of the bug to the program is distant in time from its
-    discovery, its hard to reproduce, the side-effects visible in the logs do not
+    discovery, it's hard to reproduce, the side-effects visible in the logs do not
     directly point to the root of the problem. Maybe everyone will just accept that
     whenever there are network changes, such-and-such an application needs to be rebooted.
 </p>
@@ -234,7 +241,7 @@
     to be expressed in very elegant and expressive ways. But they violate some deeply
     held intuitions most of us have about how Java code executes. Lazy objects violate locality and
     happens-before relations. Like a <code>Future</code>, they seem to remove the
-    guarantee that the semi-colon operator is a sequence point: dividing the code into
+    guarantee that the semi-colon separator is a sequence point: dividing the code into
     two parts, the first of which is totally completed before anything happens in the second.
 </p>
 
