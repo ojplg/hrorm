@@ -34,7 +34,7 @@
     in your classpath; they provide clients with classes and methods; they define interfaces
     and then provide implementations of them. Frameworks require set-up and
     configuration and containers; they have interfaces they expect clients to
-    to implement; they start up threads and start doing work before you even call
+    to implement; they start up threads and begin doing work before you even call
     them.
 </p>
 
@@ -43,12 +43,12 @@
     programming work (but perhaps rather a lot of research and learning work) frameworks
     can allow small teams of developers to build big applications quickly. But it
     comes with a cost. Frameworks can be magical, and magical can mean unpredictable,
-    hard to debug, having confusing performance characteristics, and making seemingly
+    hard to debug, have confusing performance characteristics, and make seemingly
     simple things incredibly frustrating if the authors have not anticipated your
     particular needs.
     That's perhaps unfair, and many frameworks are terrific, but I like using libraries
     better. If something is going to venture into framework territory, it better give
-    me something very valuable for the added complexity they bring.
+    me something very valuable for the added complexity and work a framework demands.
 </p>
 
 <p>
@@ -120,26 +120,7 @@
 </p>
 
 <p>
-    The <code>Stream</code> API is a powerful and worthwhile addition to the language.
-    I myself find that I mostly use it for cases like this:
-</p>
-
-<pre>
-    List&lt;Foo&gt; foos = someFunctionThatGetsTheFoos();
-    List&lt;Bar&gt; bars = foos.stream().map(transformationFunction).collect(Collectors.toList());
-</pre>
-
-<p>
-    That's a good improvement from the older days of Java, but really for those cases,
-    I would just like <code>List</code> to implement <code>map</code> directly, it would
-    save some noise in the code. The problem is that Java's type system does
-    not really have a good way to express an ML-style functor: a container that preserves its
-    own character, while modifying the contents.
-</p>
-
-<p>
-    Even though there's a lot of code that looks like the above in the world, that's not
-    really what <code>Stream</code> is for. To quote the Javadocs, a <code>Stream</code>
+    The Javadocs say a <code>Stream</code>
     is "A sequence of elements supporting sequential and parallel aggregate operations."
     That sounds somewhat like what we want in the lazy sequence of database elements, but
     there are some mismatches.
@@ -155,16 +136,11 @@
 </p>
 
 <p>
-    Instead, hrorm provides a method, <code>foldingSelect</code> that accomplishes more
-    or less the same thing as a <code>Stream</code> API would: the user can write a function
-    that folds over the result set, accumulating a result while never realizing all the
-    data from the database simultaneously.
-</p>
-
-<p>
-    Perhaps none of that is very convincing to you, so how about an example of what can go wrong?
-    (Showing some code that looks like hrorm, but uses a method that does not actually
-    exist.)
+    But that's not my main objection. What I really worry about is how laziness 
+    violates some deeply held assumptions most of us have about locality and scoping
+    when writing Java.
+    Here's an example showing some code that looks like hrorm, but uses a method that does not actually
+    exist.
 </p>
 
 <pre>
@@ -245,14 +221,29 @@
     two parts, the first of which is totally completed before anything happens in the second.
 </p>
 
+<h3>If not laziness, what?</h3>
+
+<p>
+    The problem that a stream interface could solve is real. How to code against 
+    a selection of elements without putting them all into a fully realized collection
+    at one time?
+    Hrorm provides a method, <code>foldingSelect</code> that accomplishes more
+    or less the same thing as a <code>Stream</code> API would: the user can write a function
+    that folds over the result set, accumulating a result while never realizing all the
+    data from the database simultaneously. It's true that for some developers using a 
+    fold does not feel like a natural operation (though if you use streams, it's more
+    likely to), but you can have the benefits to memory usage that laziness brings
+    without the added complexity overhead.
+</p>
+
+
 <h3>In Conclusion</h3>
 
 <p>
     Applications become hard to work on when they become to complicated and then
     developers start to lobby to replace them. It can happen long before the intrinsic
-    complexity of the job the application is doing would make you think. It can happen
-    in many ways, but even
-    if the developers working on the code are talented and produce decent code,
+    complexity of the job the application is doing would make you think. 
+    Even if the developers working on the program are talented and produce decent code,
     sometimes applications collapse from the weight of the tools that should be
     supporting it. Too many annotations, too much reflection, too much XML configuration,
     too many secret caches and delayed execution, and not enough expressive, easy 
