@@ -245,18 +245,27 @@
     two parts, the first of which is totally completed before anything happens in the second.
 </p>
 
+<h3>In Conclusion</h3>
+
 <p>
-    One way applications become buggy is because there are too many powerful features
-    woven together in patterns that are too complicated for the developers to reason about
-    clearly. Hrorm expresses an opinion about how database interactions should work, it
-    isn't right for all situations and needs, but I believe it makes things more reliable.
-    Does that mean hrorm is bug-free or perfectly reliable? Of course not. But I hope it
-    does mean that when problems with and around hrorm happen, they will happen fast and
-    loud, so they will at least be easy to understand.
+    Applications become hard to work on when they become to complicated and then
+    developers start to lobby to replace them. It can happen long before the intrinsic
+    complexity of the job the application is doing would make you think. It can happen
+    in many ways, but even
+    if the developers working on the code are talented and produce decent code,
+    sometimes applications collapse from the weight of the tools that should be
+    supporting it. Too many annotations, too much reflection, too much XML configuration,
+    too many secret caches and delayed execution, and not enough expressive, easy 
+    to understand Java code.
 </p>
 
-
-
+<p>
+    I am too jaded to make claims about hrorm like "it's bug free." But I think it tries
+    to do what a developer would expect it to. When you call the <code>insert()</code> method
+    on a <code>Dao</code> it pulls the data from the entiry object's getters, generates
+    a SQL <code>INSERT</code> statement, and executes it. There is no magic, but sometimes
+    when you just want to save something to a database, magic is not what you need.
+</p>
 
 </body>
 
