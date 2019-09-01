@@ -9,11 +9,13 @@
 
 <body>
 
+<h3>Writing a Library for 2AM</h3>
+
 <p>
     We are spoiled in the Java world. For almost any programming task you
     can imagine there are many freely-available, open-source projects you
     can choose from.
-    If I was managing a team and they came to me and suggested that
+    If I was managing a team and they came to me suggesting that
     we write our own ORM framework, I would send them home and tell them to
     come back when they sobered up.
     Nevertheless, when I was working on a personal project beginning last
@@ -113,7 +115,7 @@
     database, you might not wish to have all the objects you plan to operate
     on resident in memory simultaneously. A method that returned <code>Stream&lt;Entity&gt;</code>
     could be backed by a <code>javax.sql.Connection</code> that read only some
-    small number of items at a time, as required by running program. One the
+    small number of items at a time, as required at runtime. One the
     stream was exhausted, and the calculation complete, closing the <code>Stream</code>
     could automatically close the <code>Connection</code>. It's a very reasonable
     design to solve a real problem. So, why have I resisted it?
@@ -233,16 +235,16 @@
     data from the database simultaneously. It's true that for some developers using a 
     fold does not feel like a natural operation (though if you use streams, it's more
     likely to), but you can have the benefits to memory usage that laziness brings
-    without the added complexity overhead.
+    without the added cognitive overhead.
 </p>
 
 
 <h3>In Conclusion</h3>
 
 <p>
-    Applications become hard to work on when they become to complicated and then
+    Applications become hard to work on when they become too complicated and then
     developers start to lobby to replace them. It can happen long before the intrinsic
-    complexity of the job the application is doing would make you think. 
+    complexity of the work the application is doing would make you think. 
     Even if the developers working on the program are talented and produce decent code,
     sometimes applications collapse from the weight of the tools that should be
     supporting it. Too many annotations, too much reflection, too much XML configuration,
@@ -253,7 +255,7 @@
 <p>
     I am too jaded to make claims about hrorm like "it's bug free." But I think it tries
     to do what a developer would expect it to. When you call the <code>insert()</code> method
-    on a <code>Dao</code> it pulls the data from the entiry object's getters, generates
+    on a <code>Dao</code> it pulls the data from the entity object's getters, generates
     a SQL <code>INSERT</code> statement, and executes it. There is no magic, but sometimes
     when you just want to save something to a database, magic is not what you need.
 </p>
