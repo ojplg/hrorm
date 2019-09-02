@@ -44,13 +44,13 @@
     Frameworks can deliver big bang for the buck of course. With very little
     programming work (but perhaps rather a lot of research and learning work) frameworks
     can allow small teams of developers to build big applications quickly. But it
-    comes with a cost. Frameworks can be magical, and magical can mean unpredictable,
+    comes with a cost. Frameworks can be magical, and magic can be unpredictable,
     hard to debug, have confusing performance characteristics, and make seemingly
     simple things incredibly frustrating if the authors have not anticipated your
     particular needs.
     That's perhaps unfair, and many frameworks are terrific, but I like using libraries
     better. If something is going to venture into framework territory, it better give
-    me something very valuable for the added complexity and work a framework demands.
+    me something very valuable for the added complexity and effort a framework demands.
 </p>
 
 <p>
@@ -216,8 +216,9 @@
 
 <p>
     Lazy streams in Java are a powerful abstraction that allows some programming tasks
-    to be expressed in very elegant and expressive ways. But they violate some deeply
-    held intuitions most of us have about how Java code executes. Lazy objects violate locality and
+    to be expressed in very elegant and expressive ways. But 
+    our intuitions about how Java code executes do not match their reality. 
+    Lazy objects break locality and
     happens-before relations. Like a <code>Future</code>, they seem to remove the
     guarantee that the semi-colon separator is a sequence point: dividing the code into
     two parts, the first of which is totally completed before anything happens in the second.
