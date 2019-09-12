@@ -6,6 +6,7 @@ import org.hrorm.examples.SimpleChild;
 import org.hrorm.examples.SimpleParent;
 import org.hrorm.examples.SimpleParentChildDaos;
 import org.hrorm.util.AssertHelp;
+import org.hrorm.util.ListUtil;
 import org.hrorm.util.RandomUtils;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -15,8 +16,9 @@ import org.junit.Test;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -212,6 +214,47 @@ public class SimpleParentChildTest {
         });
     }
 
+
+    @Test
+    public void testNqueryProblem(){
+        int LIMIT = 10;
+        int CHILD_COUNT = 15;
+        Map<String, List<String>> childNamesMap = new HashMap<>();
+
+        helper.useConnection(connection -> {
+            for(int i=0; i<LIMIT; i++){
+                SimpleParent parent = new SimpleParent();
+                parent.setName("Nquery_Problem_" + i);
+                List<SimpleChild> children = newChildren(CHILD_COUNT, CHILD_COUNT + 1);
+                parent.setChildren(children);
+                List<String> childNames = extractNames(children);
+                childNamesMap.put(parent.getName(), childNames);
+                Dao<SimpleParent> dao = SimpleParentChildDaos.PARENT.buildDao(connection);
+                dao.insert(parent);
+            }
+        });
+
+//        helper.useConnection(connection -> {
+//            Dao<SimpleParent> dao = SimpleParentChildDaos.PARENT.buildDao(connection);
+//            List<SimpleParent> parents = dao.select(where("name", Operator.LIKE, "Nquery_Problem%"));
+//            Assert.assertEquals(LIMIT, parents.size());
+//            for(SimpleParent parent : parents){
+//                Assert.assertEquals(CHILD_COUNT, parent.getChildren().size());
+//            }
+//        });
+
+        helper.useConnection( connection -> {
+            Dao<SimpleParent> dao = SimpleParentChildDaos.PARENT.buildDao(connection);
+            List<SimpleParent> parents = dao.selectNqueries(where("name", Operator.LIKE, "Nquery_Problem%"));
+            Assert.assertEquals(LIMIT, parents.size());
+            for(SimpleParent parent : parents){
+                Assert.assertEquals(CHILD_COUNT, parent.getChildren().size());
+                List<String> childNamesFound = extractNames(parent.getChildren());
+                List<String> expectedChildNames = childNamesMap.get(parent.getName());
+                AssertHelp.sameContents(expectedChildNames, childNamesFound);
+            }
+        });
+    }
 
     private static String randomName(){
         return RandomUtils.randomAlphabeticString(5,15);

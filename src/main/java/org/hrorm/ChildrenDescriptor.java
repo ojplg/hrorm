@@ -3,7 +3,9 @@ package org.hrorm;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -76,6 +78,50 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
         }
 
         setter.accept(parentBuilder, children);
+    }
+
+    public void populateChildren(Connection connection, List<Envelope<PARENTBUILDER>> parentBuilders){
+
+        System.out.println("Populating children for list of " + parentBuilders.size());
+        List<Long> parentIds = new ArrayList<>();
+        for( Envelope<PARENTBUILDER> parentbuilderEnvelope : parentBuilders ) {
+            if (parentbuilderEnvelope.getId() != null) {
+                parentIds.add(parentbuilderEnvelope.getId());
+            }
+        }
+
+        Where where = Where.inLong(parentChildColumnName(), new ArrayList<>(parentIds));
+
+        String sql = sqlBuilder.select(where);
+        SqlRunner<CHILD,CHILDBUILDER> sqlRunner = new SqlRunner<>(connection, childDaoDescriptor);
+        List<ChildrenDescriptor<CHILD,?,CHILDBUILDER, ?>> childrenDescriptorsList = childDaoDescriptor.childrenDescriptors();
+
+        Supplier<CHILDBUILDER> supplier = childDaoDescriptor.supplier();
+
+        List<Envelope<CHILDBUILDER>> childrenBuilders = sqlRunner.selectWhereNQueries(
+                sql,
+                supplier,
+                childrenDescriptorsList,
+                where,
+                parentChildColumnName());
+
+        Map<Long, List<CHILD>> childrenMapByParentId = new HashMap<>();
+        for( Envelope<CHILDBUILDER> childBuilderEnvelope : childrenBuilders ) {
+            // TODO: what about grandchildren???
+            Long parentId = childBuilderEnvelope.getParentId();
+            if( ! childrenMapByParentId.containsKey(parentId)){
+                childrenMapByParentId.put(parentId, new ArrayList<>());
+            }
+            List<CHILD> childList = childrenMapByParentId.get(parentId);
+            CHILD child = childBuilder().apply(childBuilderEnvelope.getItem());
+            childList.add(child);
+        }
+
+        for( Envelope<PARENTBUILDER> parentBuilderEnvelope : parentBuilders){
+            long parentId = parentBuilderEnvelope.getId();
+            List<CHILD> children = childrenMapByParentId.get(parentId);
+            setter.accept(parentBuilderEnvelope.getItem(), children);
+        }
     }
 
     public void saveChildren(Connection connection, Envelope<PARENT> envelope) {

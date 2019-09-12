@@ -3,7 +3,9 @@ package org.hrorm;
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.ResultSet;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -209,9 +211,25 @@ public abstract class AbstractDao<ENTITY, BUILDER> implements KeylessDaoDescript
         return sqlRunner.selectDistinct(sql, where, reader);
     }
 
+    public List<ENTITY> selectNqueries(Where where) {
+        String sql = sqlBuilder.select(where);
+        List<Envelope<BUILDER>> envelopes = sqlRunner.selectWhereNQueries(sql, supplier, childrenDescriptors(), where, null);
+        return mapEnvelopedBuilders(envelopes);
+    }
+
     private List<ENTITY> mapBuilders(List<BUILDER> bs){
         return bs.stream().map(buildFunction).collect(Collectors.toList());
     }
+
+    private List<ENTITY> mapEnvelopedBuilders(List<Envelope<BUILDER>> bs){
+        return bs.stream()
+                .map(envelope -> {
+                    BUILDER builder = envelope.getItem();
+                    return buildFunction.apply(builder);
+                })
+                .collect(Collectors.toList());
+    }
+
 
     public static <A> A fromSingletonList(List<A> items) {
         if (items.isEmpty()) {

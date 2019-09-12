@@ -1,6 +1,7 @@
 package org.hrorm;
 
 import java.sql.Connection;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -83,6 +84,11 @@ public class DaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> extends AbstractDao
     public List<ENTITY> select(List<Long> ids) {
         Where where = Where.inLong(primaryKey.getName(), ids);
         return select(where);
+    }
+
+    @Override
+    public List<ENTITY> selectNqueries(Where where){
+        return super.selectNqueries(where);
     }
 
     @Override

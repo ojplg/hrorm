@@ -8,8 +8,10 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -65,6 +67,49 @@ public class SqlRunner<ENTITY, BUILDER> {
                 new ArrayList<>(),
                 accumulator
         );
+    }
+
+    public List<Envelope<BUILDER>> selectWhereNQueries(String sql,
+                                     Supplier<BUILDER> supplier,
+                                     List<? extends ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors,
+                                     Where where,
+                                     String parentColumnName) {
+        ResultSet resultSet = null;
+        PreparedStatement statement = null;
+        try {
+            statement = connection.prepareStatement(sql);
+            where.populate(statement);
+
+            logger.info(sql);
+            resultSet = statement.executeQuery();
+
+            List<Envelope<BUILDER>> builders = new ArrayList<>();
+
+            while (resultSet.next()) {
+                Envelope<BUILDER> envelope = populate(resultSet, supplier, parentColumnName);
+                builders.add(envelope);
+            }
+
+            for( ChildrenDescriptor<ENTITY,?, BUILDER,?> descriptor : childrenDescriptors){
+                descriptor.populateChildren(connection, builders);
+            }
+
+            return builders;
+
+        } catch (SQLException ex){
+            throw new HrormException(ex, sql);
+        } finally {
+            try {
+                if (resultSet != null) {
+                    resultSet.close();
+                }
+                if (statement != null) {
+                    statement.close();
+                }
+            } catch (SQLException se){
+                throw new HrormException(se);
+            }
+        }
     }
 
     public List<BUILDER> selectWhere(String sql,
@@ -348,4 +393,25 @@ public class SqlRunner<ENTITY, BUILDER> {
 
         return item;
     }
+
+    private Envelope<BUILDER> populate(ResultSet resultSet, Supplier<BUILDER> supplier, String parentColumName)
+            throws SQLException {
+        BUILDER item = supplier.get();
+        Long parentId = null;
+        Long itemId = null;
+
+        for (Column<?, ?, ENTITY, BUILDER> column: allColumns) {
+            PopulateResult populateResult = column.populate(item, resultSet);
+            populateResult.populateChildren(connection);
+            if( column.getName().equalsIgnoreCase(parentColumName)){
+                parentId  = resultSet.getLong(column.getPrefix() + column.getName());
+            }
+            if( column.isPrimaryKey() ){
+                itemId = resultSet.getLong(column.getPrefix() + column.getName());
+            }
+        }
+
+        return new Envelope<>(item, itemId, parentId);
+    }
+
 }
