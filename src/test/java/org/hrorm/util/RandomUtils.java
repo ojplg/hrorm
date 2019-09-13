@@ -85,6 +85,10 @@ public class RandomUtils {
         return randomMemberOf(possibleValues);
     }
 
+    public static Long randomLong(){
+        return RANDOM.nextLong() % 10000000;
+    }
+
     /*
      * Produces a random Instant.
      */

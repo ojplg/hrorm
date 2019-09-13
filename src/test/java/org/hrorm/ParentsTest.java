@@ -7,6 +7,7 @@ import org.hrorm.examples.EnumeratedColor;
 import org.hrorm.examples.parentage.Grandchild;
 import org.hrorm.examples.parentage.Parent;
 import org.hrorm.examples.parentage.ParentChildBuilders;
+import org.hrorm.util.RandomUtils;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -14,10 +15,14 @@ import org.junit.Test;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static org.hrorm.Operator.LIKE;
+import static org.hrorm.Where.where;
 
 public class ParentsTest {
 
@@ -540,4 +545,59 @@ public class ParentsTest {
             connection.close();
         }
     }
+
+    @Test
+    public void testNquerySelects() {
+
+        int insertCount = 25;
+        int childCount = 10;
+
+        helper.useConnection(connection -> {
+            Dao<Parent> dao = ParentChildBuilders.ParentDaoBuilder.buildDao(connection);
+            for(int i=0; i<insertCount; i++){
+                Parent parent = newParent("nquery_test_" + i, childCount);
+                dao.insert(parent);
+            }
+        });
+
+        helper.useConnection(connection -> {
+            Dao<Parent> dao = ParentChildBuilders.ParentDaoBuilder.buildDao(connection);
+            List<Parent> parents = dao.selectNqueries(where("name", LIKE, "nquery_test%"));
+            Assert.assertEquals(insertCount, parents.size());
+            for(Parent parent : parents){
+                List<Child> children = parent.getChildList();
+                Assert.assertEquals(childCount, children.size());
+                for(Child child : children){
+                    Assert.assertEquals(2, child.getGrandchildList().size());
+                }
+            }
+        });
+
+    }
+
+    private Parent newParent(String name, int childCount){
+        Parent parent = new Parent();
+        parent.setName(name);
+
+        List<Child> childList = new ArrayList<>();
+        for(int i=0; i<childCount; i++){
+            Child child = new Child();
+            child.setNumber(RandomUtils.randomLong());
+            List<Grandchild> grandchildList = new ArrayList<>();
+            for(int j=0; j<2; j++){
+                Grandchild grandchild = new Grandchild();
+                grandchild.setColor(RandomUtils.randomMemberOf(EnumeratedColor.AllColors));
+                grandchild.setChild(child);
+                grandchildList.add(grandchild);
+            }
+            child.setGrandchildList(grandchildList);
+            child.setParent(parent);
+            childList.add(child);
+        }
+
+        parent.setChildList(childList);
+
+        return parent;
+    }
+
 }

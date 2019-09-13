@@ -107,7 +107,6 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
 
         Map<Long, List<CHILD>> childrenMapByParentId = new HashMap<>();
         for( Envelope<CHILDBUILDER> childBuilderEnvelope : childrenBuilders ) {
-            // TODO: what about grandchildren???
             Long parentId = childBuilderEnvelope.getParentId();
             if( ! childrenMapByParentId.containsKey(parentId)){
                 childrenMapByParentId.put(parentId, new ArrayList<>());
