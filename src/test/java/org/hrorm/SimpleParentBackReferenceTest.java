@@ -7,6 +7,7 @@ import org.hrorm.examples.back_reference_parents.SimpleParent;
 import org.hrorm.examples.back_reference_parents.SimpleParentChildDaos;
 import org.hrorm.util.AssertHelp;
 import org.junit.AfterClass;
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -72,6 +73,40 @@ public class SimpleParentBackReferenceTest {
                     Arrays.asList("Fred", "Helen", "Archie"),
                     parent.getChildren(),
                     SimpleChild::getName);
+        });
+    }
+
+    @Test
+    public void testBackReferenceIsSameAsParentObject(){
+        String parentName = "testBackReferenceIsSameAsParentObject";
+        Long parentId = helper.useConnection(connection -> {
+            Dao<SimpleParent> parentDao = SimpleParentChildDaos.PARENT.buildDao(connection);
+
+            SimpleParent simpleParent = new SimpleParent();
+            simpleParent.setName(parentName);
+
+            SimpleChild simpleChild = new SimpleChild();
+            simpleChild.setName("SomeChildName");
+            simpleChild.setParent(simpleParent);
+
+            simpleParent.setChildren(Arrays.asList(simpleChild));
+            parentDao.insert(simpleParent);
+
+            return simpleParent.getId();
+        });
+        helper.useConnection(connection -> {
+            Dao<SimpleParent> parentDao = SimpleParentChildDaos.PARENT.buildDao(connection);
+            SimpleParent parent = parentDao.selectOne(parentId);
+
+            SimpleChild child = parent.getChildNamed("SomeChildName");
+
+            Assert.assertNotNull(child);
+
+            Assert.assertNotNull(child.getParent());
+
+            Assert.assertEquals(parentName, child.getParent().getName());
+
+            Assert.assertTrue(parent == child.getParent());
         });
     }
 
