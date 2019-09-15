@@ -6,7 +6,6 @@ import org.hrorm.examples.SimpleChild;
 import org.hrorm.examples.SimpleParent;
 import org.hrorm.examples.SimpleParentChildDaos;
 import org.hrorm.util.AssertHelp;
-import org.hrorm.util.ListUtil;
 import org.hrorm.util.RandomUtils;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -23,6 +22,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import static org.hrorm.Operator.EQUALS;
 import static org.hrorm.Where.where;
 
 public class SimpleParentChildTest {
@@ -50,6 +50,14 @@ public class SimpleParentChildTest {
             testInsertUpdateSelect();
         }
     }
+
+    private void runManyTimesWithNqueries() throws SQLException {
+        int numberTimes = RandomUtils.range(10,20);
+        for(int idx=0; idx<numberTimes; idx++){
+            testInsertUpdateSelectWithNqueries();
+        }
+    }
+
 
     @Test
     public void runMultipleThreads() throws SQLException {
@@ -87,6 +95,44 @@ public class SimpleParentChildTest {
             Assert.fail(ex.getMessage());
         }
     }
+
+    @Test
+    public void runMultipleThreadsWithNqueries() throws SQLException {
+        int numberThreads = RandomUtils.range(2,10);
+        final CountDownLatch latch = new CountDownLatch(numberThreads);
+        List<AssertionError> errors = new ArrayList<>();
+        List<SQLException> exceptions = new ArrayList<>();
+        for(int idx=0; idx<numberThreads; idx++){
+            Thread thread = new Thread(
+                    () -> {
+                        try {
+                            runManyTimesWithNqueries();
+                            latch.countDown();
+                        } catch (AssertionError failure){
+                            errors.add(failure);
+                        } catch (SQLException ex){
+                            exceptions.add(ex);
+                        }
+                    });
+            thread.start();
+        }
+        try {
+            boolean completed = latch.await(10, TimeUnit.SECONDS);
+
+            if( errors.size() > 0){
+                throw errors.get(0);
+            }
+
+            if( exceptions.size() > 0 ){
+                throw exceptions.get(0);
+            }
+
+            Assert.assertTrue(completed);
+        } catch (InterruptedException ex){
+            Assert.fail(ex.getMessage());
+        }
+    }
+
 
     private void testInsertUpdateSelect() throws SQLException {
         long parentId;
@@ -156,6 +202,76 @@ public class SimpleParentChildTest {
         }
     }
 
+
+    private void testInsertUpdateSelectWithNqueries() throws SQLException {
+        long parentId;
+        String parentName;
+        List<String> childNames;
+        {
+            SimpleParent parent = new SimpleParent();
+            parentName = randomName();
+            parent.setName(parentName);
+
+            childNames = RandomUtils.randomNumberOf(0, 20, SimpleParentChildTest::randomName);
+
+            List<SimpleChild> children = newChildren(childNames);
+
+            parent.setChildren(children);
+
+            Connection connection = helper.connect();
+            Dao<SimpleParent> dao = SimpleParentChildDaos.PARENT.buildDao(connection);
+
+            parentId = dao.insert(parent);
+            connection.commit();
+            connection.close();
+        }
+        {
+            Connection connection = helper.connect();
+            Dao<SimpleParent> dao = SimpleParentChildDaos.PARENT.buildDao(connection);
+
+            List<SimpleParent> parents = dao.selectNqueries(where("id", EQUALS, parentId));
+            SimpleParent parent = parents.get(0);
+            Assert.assertEquals(parentName, parent.getName());
+
+            List<SimpleChild> children = parent.getChildren();
+            List<String> names = extractNames(children);
+
+            AssertHelp.sameContents(names, childNames);
+
+            List<SimpleChild> filteredChildren = RandomUtils.randomFiltering(children);
+            for(SimpleChild child : filteredChildren){
+                if( RandomUtils.bool() ){
+                    child.setName(randomName());
+                }
+            }
+            List<SimpleChild> newChildren = newChildren(0, 10);
+            newChildren.addAll(filteredChildren);
+
+            childNames = extractNames(newChildren);
+
+            parent.setChildren(newChildren);
+
+            dao.update(parent);
+            connection.commit();
+            connection.close();
+        }
+        {
+            Connection connection = helper.connect();
+            Dao<SimpleParent> dao = SimpleParentChildDaos.PARENT.buildDao(connection);
+
+            List<SimpleParent> parents = dao.selectNqueries(where("id", EQUALS, parentId));
+            SimpleParent parent = parents.get(0);
+            Assert.assertEquals(parentName, parent.getName());
+
+            List<SimpleChild> children = parent.getChildren();
+            List<String> names = extractNames(children);
+
+            AssertHelp.sameContents(names, childNames);
+            connection.close();
+        }
+    }
+
+
     @Test
     public void testSelectWhereLoadsChildren(){
         String parentName = "testSelectWhereLoadsChildren";
@@ -175,7 +291,7 @@ public class SimpleParentChildTest {
         });
         helper.useConnection(connection -> {
             Dao<SimpleParent> parentDao = SimpleParentChildDaos.PARENT.buildDao(connection);
-            List<SimpleParent> parentList = parentDao.select(where("name", Operator.EQUALS, parentName));
+            List<SimpleParent> parentList = parentDao.select(where("name", EQUALS, parentName));
             Assert.assertEquals(1, parentList.size());
             SimpleParent parent = parentList.get(0);
             List<SimpleChild> children = parent.getChildren();

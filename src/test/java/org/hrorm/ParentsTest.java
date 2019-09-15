@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static org.hrorm.Operator.EQUALS;
 import static org.hrorm.Operator.LIKE;
 import static org.hrorm.Where.where;
 
@@ -98,6 +99,38 @@ public class ParentsTest {
         connection.commit();
         connection.close();
     }
+
+    @Test
+    public void testDeletesHappenOnUpdateWithNquery() throws SQLException {
+        Connection connection = helper.connect();
+        Dao<Parent> parentDao = ParentChildBuilders.ParentDaoBuilder.buildDao(connection);
+
+        Child child = new Child();
+        child.setNumber(123L);
+
+        Parent parent = new Parent();
+        parent.setName("propagated deletes test");
+        parent.setChildList(Arrays.asList(child));
+
+        long id = parentDao.insert(parent);
+
+        List<Parent> readParents = parentDao.selectNqueries(where("id", EQUALS, id));
+        Parent readParent = readParents.get(0);
+
+        Assert.assertEquals(1, readParent.getChildList().size());
+
+        readParent.setChildList(Collections.emptyList());
+
+        parentDao.update(readParent);
+
+        Parent readAfterUpdate = parentDao.selectOne(id);
+
+        Assert.assertEquals(0, readAfterUpdate.getChildList().size());
+
+        connection.commit();
+        connection.close();
+    }
+
 
     @Test
     public void testUpdatesPropagate() throws SQLException {
@@ -261,6 +294,55 @@ public class ParentsTest {
         connection.commit();
         connection.close();
     }
+
+    @Test
+    public void deletionOfChildrenDoesNotOrphanGrandchildRecordsWithNquery() throws SQLException {
+
+        Grandchild grandchild = new Grandchild();
+        grandchild.setColor(EnumeratedColor.Green);
+
+        Child child = new Child();
+        child.setNumber(123L);
+        child.setGrandchildList(Arrays.asList(grandchild));
+
+        Parent parent = new Parent();
+        parent.setName("delete orphan grandchildren test");
+        parent.setChildList(Arrays.asList(child));
+
+        Connection connection = helper.connect();
+
+        Dao<Parent> parentDao = ParentChildBuilders.ParentDaoBuilder.buildDao(connection);
+
+        parentDao.insert(parent);
+
+        long parentId = parent.getId();
+
+        List<Parent> readItems = parentDao.selectNqueries(where("id", EQUALS, parentId));
+        Parent readItem = readItems.get(0);
+
+        Assert.assertEquals(1, readItem.getChildList().get(0).getGrandchildList().size());
+        Assert.assertEquals(EnumeratedColor.Green,  readItem.getChildList().get(0).getGrandchildList().get(0).getColor());
+
+        Dao<Grandchild> grandchildDao = ParentChildBuilders.GrandchildDaoBuilder.buildDao(connection);
+        List<Grandchild> allGrandchildren = grandchildDao.select();
+
+        Assert.assertEquals(1, allGrandchildren.size());
+
+        readItem.setChildList(Collections.emptyList());
+
+        parentDao.update(readItem);
+
+        Parent secondReadItem = parentDao.selectOne(parentId);
+
+        Assert.assertEquals(0, secondReadItem.getChildList().size());
+
+        allGrandchildren = grandchildDao.select();
+        Assert.assertEquals(0, allGrandchildren.size());
+
+        connection.commit();
+        connection.close();
+    }
+
 
     @Test
     public void testInsertMultipleChildren() throws SQLException {

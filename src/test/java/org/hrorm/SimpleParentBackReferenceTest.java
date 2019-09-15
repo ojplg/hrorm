@@ -14,6 +14,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static org.hrorm.Operator.EQUALS;
+import static org.hrorm.Where.where;
+
 public class SimpleParentBackReferenceTest {
 
     private static Helper helper = HelperFactory.forSchema("simple_parents");
@@ -71,6 +74,53 @@ public class SimpleParentBackReferenceTest {
                     SimpleChild::getName);
         });
     }
+
+    @Test
+    public void testUpdateChildDirectlyWorksWithNquery() {
+        String parentName = "testUpdateChildDirectlyWorksWithNquery";
+        Long parentId = helper.useConnection(connection -> {
+            Dao<SimpleParent> parentDao = SimpleParentChildDaos.PARENT.buildDao(connection);
+
+            SimpleParent simpleParent = new SimpleParent();
+            simpleParent.setName(parentName);
+
+            List<String> names = Arrays.asList("Fred", "Helen", "Archibald");
+            List<SimpleChild> children = newChildren(names);
+
+            simpleParent.setChildren(children);
+            parentDao.insert(simpleParent);
+
+            return simpleParent.getId();
+        });
+        helper.useConnection(connection -> {
+            Dao<SimpleParent> parentDao = SimpleParentChildDaos.PARENT.buildDao(connection);
+            List<SimpleParent> parents = parentDao.selectNqueries(where("id", EQUALS, parentId));
+            SimpleParent parent = parents.get(0);
+
+            AssertHelp.sameContents(
+                    Arrays.asList("Fred", "Helen", "Archibald"),
+                    parent.getChildren(),
+                    SimpleChild::getName);
+
+            SimpleChild archie = parent.getChildNamed("Archibald");
+            archie.setName("Archie");
+
+            Dao<SimpleChild> childDao = SimpleParentChildDaos.CHILD.buildDao(connection);
+
+            childDao.update(archie);
+        });
+        helper.useConnection(connection -> {
+            Dao<SimpleParent> parentDao = SimpleParentChildDaos.PARENT.buildDao(connection);
+            List<SimpleParent> parents = parentDao.selectNqueries(where("id", EQUALS, parentId));
+            SimpleParent parent = parents.get(0);
+
+            AssertHelp.sameContents(
+                    Arrays.asList("Fred", "Helen", "Archie"),
+                    parent.getChildren(),
+                    SimpleChild::getName);
+        });
+    }
+
 
     private static List<SimpleChild> newChildren(List<String> names){
         return names.stream().map(n -> newChild(n)).collect(Collectors.toList());

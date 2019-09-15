@@ -82,7 +82,6 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
 
     public void populateChildren(Connection connection, List<Envelope<PARENTBUILDER>> parentBuilders){
 
-        System.out.println("Populating children for list of " + parentBuilders.size());
         List<Long> parentIds = new ArrayList<>();
         for( Envelope<PARENTBUILDER> parentbuilderEnvelope : parentBuilders ) {
             if (parentbuilderEnvelope.getId() != null) {
