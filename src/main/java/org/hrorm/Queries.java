@@ -15,6 +15,7 @@ public interface Queries {
     String update();
     String delete();
     String select();
+    String select(Where where);
 
 }
 
