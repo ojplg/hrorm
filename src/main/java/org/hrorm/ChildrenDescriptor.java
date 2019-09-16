@@ -90,6 +90,10 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
 
     private void populateChildren(Connection connection, List<Envelope<PARENTBUILDER>> parentBuilders, boolean selectAll){
 
+        if( parentBuilders.size() == 0 ){
+            return;
+        }
+
         List<Long> parentIds = new ArrayList<>();
         Map<Long, PARENT> parentsByIds = new HashMap<>();
         for( Envelope<PARENTBUILDER> parentbuilderEnvelope : parentBuilders ) {
