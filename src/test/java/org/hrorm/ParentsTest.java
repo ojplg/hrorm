@@ -298,49 +298,51 @@ public class ParentsTest {
     @Test
     public void deletionOfChildrenDoesNotOrphanGrandchildRecordsWithNquery() throws SQLException {
 
-        Grandchild grandchild = new Grandchild();
-        grandchild.setColor(EnumeratedColor.Green);
+        helper.clearTables();
 
-        Child child = new Child();
-        child.setNumber(123L);
-        child.setGrandchildList(Arrays.asList(grandchild));
+        long parentId = helper.useConnection(connection -> {
+            Grandchild grandchild = new Grandchild();
+            grandchild.setColor(EnumeratedColor.Green);
 
-        Parent parent = new Parent();
-        parent.setName("delete orphan grandchildren test");
-        parent.setChildList(Arrays.asList(child));
+            Child child = new Child();
+            child.setNumber(123L);
+            child.setGrandchildList(Arrays.asList(grandchild));
 
-        Connection connection = helper.connect();
+            Parent parent = new Parent();
+            parent.setName("delete orphan grandchildren test");
+            parent.setChildList(Arrays.asList(child));
 
-        Dao<Parent> parentDao = ParentChildBuilders.ParentDaoBuilder.buildDao(connection);
+            Dao<Parent> parentDao = ParentChildBuilders.ParentDaoBuilder.buildDao(connection);
 
-        parentDao.insert(parent);
+            parentDao.insert(parent);
 
-        long parentId = parent.getId();
+            return parent.getId();
+        });
+        helper.useConnection(connection -> {;
+            Dao<Parent> parentDao = ParentChildBuilders.ParentDaoBuilder.buildDao(connection);
 
-        List<Parent> readItems = parentDao.selectNqueries(where("id", EQUALS, parentId));
-        Parent readItem = readItems.get(0);
+            List<Parent> readItems = parentDao.selectNqueries(where("id", EQUALS, parentId));
+            Parent readItem = readItems.get(0);
 
-        Assert.assertEquals(1, readItem.getChildList().get(0).getGrandchildList().size());
-        Assert.assertEquals(EnumeratedColor.Green,  readItem.getChildList().get(0).getGrandchildList().get(0).getColor());
+            Assert.assertEquals(1, readItem.getChildList().get(0).getGrandchildList().size());
+            Assert.assertEquals(EnumeratedColor.Green,  readItem.getChildList().get(0).getGrandchildList().get(0).getColor());
 
-        Dao<Grandchild> grandchildDao = ParentChildBuilders.GrandchildDaoBuilder.buildDao(connection);
-        List<Grandchild> allGrandchildren = grandchildDao.select();
+            Dao<Grandchild> grandchildDao = ParentChildBuilders.GrandchildDaoBuilder.buildDao(connection);
+            List<Grandchild> allGrandchildren = grandchildDao.select();
 
-        Assert.assertEquals(1, allGrandchildren.size());
+            Assert.assertEquals(1, allGrandchildren.size());
 
-        readItem.setChildList(Collections.emptyList());
+            readItem.setChildList(Collections.emptyList());
 
-        parentDao.update(readItem);
+            parentDao.update(readItem);
 
-        Parent secondReadItem = parentDao.selectOne(parentId);
+            Parent secondReadItem = parentDao.selectOne(parentId);
 
-        Assert.assertEquals(0, secondReadItem.getChildList().size());
+            Assert.assertEquals(0, secondReadItem.getChildList().size());
 
-        allGrandchildren = grandchildDao.select();
-        Assert.assertEquals(0, allGrandchildren.size());
-
-        connection.commit();
-        connection.close();
+            allGrandchildren = grandchildDao.select();
+            Assert.assertEquals(0, allGrandchildren.size());
+        });
     }
 
 
