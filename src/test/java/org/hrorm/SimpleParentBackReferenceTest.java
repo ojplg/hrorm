@@ -111,8 +111,8 @@ public class SimpleParentBackReferenceTest {
     }
 
     @Test
-    public void testUpdateChildDirectlyWorksWithNquery() {
-        String parentName = "testUpdateChildDirectlyWorksWithNquery";
+    public void testNqueryLoadsAndSetsParentOnChild() {
+        String parentName = "testNqueryLoadsAndSetsParentOnChild";
         Long parentId = helper.useConnection(connection -> {
             Dao<SimpleParent> parentDao = SimpleParentChildDaos.PARENT.buildDao(connection);
 
@@ -138,21 +138,9 @@ public class SimpleParentBackReferenceTest {
                     SimpleChild::getName);
 
             SimpleChild archie = parent.getChildNamed("Archibald");
-            archie.setName("Archie");
-
-            Dao<SimpleChild> childDao = SimpleParentChildDaos.CHILD.buildDao(connection);
-
-            childDao.update(archie);
-        });
-        helper.useConnection(connection -> {
-            Dao<SimpleParent> parentDao = SimpleParentChildDaos.PARENT.buildDao(connection);
-            List<SimpleParent> parents = parentDao.selectNqueries(where("id", EQUALS, parentId));
-            SimpleParent parent = parents.get(0);
-
-            AssertHelp.sameContents(
-                    Arrays.asList("Fred", "Helen", "Archie"),
-                    parent.getChildren(),
-                    SimpleChild::getName);
+            Assert.assertNotNull(archie);
+            Assert.assertNotNull(archie.getParent());
+            Assert.assertTrue(parent == archie.getParent());
         });
     }
 

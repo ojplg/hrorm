@@ -83,9 +83,12 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
     public void populateChildren(Connection connection, List<Envelope<PARENTBUILDER>> parentBuilders){
 
         List<Long> parentIds = new ArrayList<>();
+        Map<Long, PARENT> parentsByIds = new HashMap<>();
         for( Envelope<PARENTBUILDER> parentbuilderEnvelope : parentBuilders ) {
             if (parentbuilderEnvelope.getId() != null) {
                 parentIds.add(parentbuilderEnvelope.getId());
+                PARENT parent = parentBuildFunction.apply(parentbuilderEnvelope.getItem());
+                parentsByIds.put(parentbuilderEnvelope.getId(), parent);
             }
         }
 
@@ -107,10 +110,12 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
         Map<Long, List<CHILD>> childrenMapByParentId = new HashMap<>();
         for( Envelope<CHILDBUILDER> childBuilderEnvelope : childrenBuilders ) {
             Long parentId = childBuilderEnvelope.getParentId();
+            PARENT parent = parentsByIds.get(parentId);
             if( ! childrenMapByParentId.containsKey(parentId)){
                 childrenMapByParentId.put(parentId, new ArrayList<>());
             }
             List<CHILD> childList = childrenMapByParentId.get(parentId);
+            parentSetter.accept(childBuilderEnvelope.getItem(), parent);
             CHILD child = childBuilder().apply(childBuilderEnvelope.getItem());
             childList.add(child);
         }
