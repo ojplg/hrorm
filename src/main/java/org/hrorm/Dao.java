@@ -26,7 +26,7 @@ public interface Dao<ENTITY> extends KeylessDao<ENTITY> {
      */
     List<ENTITY> select(List<Long> ids);
 
-    List<ENTITY> selectNqueries(Where where);
+//    List<ENTITY> selectNqueries(Where where);
 
 
     /**

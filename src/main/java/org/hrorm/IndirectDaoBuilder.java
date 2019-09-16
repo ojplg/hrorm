@@ -28,6 +28,7 @@ public class IndirectDaoBuilder<ENTITY, BUILDER>  implements SchemaDescriptor<EN
     private final ColumnCollection<ENTITY,BUILDER> columnCollection = new ColumnCollection<>();
     private final DaoBuilderHelper<ENTITY, BUILDER> daoBuilderHelper;
     private final List<ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors = new ArrayList<>();
+    private ChildSelectStrategy childSelectStrategy = ChildSelectStrategy.Standard;
 
     /**
      * Create a new <code>IndirectDaoBuilder</code> instance.
@@ -423,5 +424,10 @@ public class IndirectDaoBuilder<ENTITY, BUILDER>  implements SchemaDescriptor<EN
     @Override
     public List<List<String>> uniquenessConstraints() {
         return columnCollection.getUniquenessConstraints();
+    }
+
+    @Override
+    public ChildSelectStrategy childSelectStrategy() {
+        return childSelectStrategy;
     }
 }

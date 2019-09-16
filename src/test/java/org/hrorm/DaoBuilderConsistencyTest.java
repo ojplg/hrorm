@@ -16,7 +16,7 @@ public class DaoBuilderConsistencyTest {
         Class daoBuilderClass = Class.forName("org.hrorm.DaoBuilder");
         Class indirectDaoBuilderClass = Class.forName("org.hrorm.IndirectDaoBuilder");
 
-        testEquivalencyOfFluentMethods(daoBuilderClass, indirectDaoBuilderClass, Collections.emptyList());
+        testEquivalencyOfFluentMethods(daoBuilderClass, indirectDaoBuilderClass, Arrays.asList("withChildSelectStrategy"));
     }
 
     @Test
@@ -25,7 +25,7 @@ public class DaoBuilderConsistencyTest {
         Class keylessDaoBuilderClass = Class.forName("org.hrorm.IndirectKeylessDaoBuilder");
 
         testEquivalencyOfFluentMethods(daoBuilderClass, keylessDaoBuilderClass,
-                Arrays.asList("withPrimaryKey", "withChildren", "withParentColumn", "withUniqueConstraint"));
+                Arrays.asList("withPrimaryKey", "withChildren", "withParentColumn", "withUniqueConstraint", "childSelectStrategy", "withChildSelectStrategy"));
     }
 
     @Test
@@ -33,7 +33,7 @@ public class DaoBuilderConsistencyTest {
         Class daoBuilderClass = Class.forName("org.hrorm.DaoBuilder");
         Class indirectDaoBuilderClass = Class.forName("org.hrorm.IndirectDaoBuilder");
 
-        testEquivalencyOfNonFluentMethods(indirectDaoBuilderClass, daoBuilderClass, Collections.emptyList());
+        testEquivalencyOfNonFluentMethods(indirectDaoBuilderClass, daoBuilderClass, Arrays.asList("childSelectStrategy"));
     }
 
     @Test
@@ -42,7 +42,7 @@ public class DaoBuilderConsistencyTest {
         Class keylessDaoBuilderClass = Class.forName("org.hrorm.IndirectKeylessDaoBuilder");
 
         testEquivalencyOfNonFluentMethods(daoBuilderClass, keylessDaoBuilderClass,
-                Arrays.asList( "buildQueries", "primaryKey", "buildDao", "hasParent", "parentColumn", "childrenDescriptors", "uniquenessConstraints"));
+                Arrays.asList( "buildQueries", "primaryKey", "buildDao", "hasParent", "parentColumn", "childrenDescriptors", "uniquenessConstraints", "childSelectStrategy"));
     }
 
 

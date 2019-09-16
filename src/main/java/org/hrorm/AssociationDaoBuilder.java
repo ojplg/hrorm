@@ -19,6 +19,7 @@ public class AssociationDaoBuilder<LEFT, RIGHT>
 
     private final DaoDescriptor<LEFT, ?> leftDaoDescriptor;
     private final DaoDescriptor<RIGHT, ?> rightDaoDescriptor;
+    private ChildSelectStrategy childSelectStrategy = ChildSelectStrategy.Standard;
 
     private String tableName;
     private String primaryKeyName;
@@ -217,5 +218,10 @@ public class AssociationDaoBuilder<LEFT, RIGHT>
     @Override
     public List<List<String>> uniquenessConstraints() {
         return Collections.singletonList(Arrays.asList(leftColumnName, rightColumnName));
+    }
+
+    @Override
+    public ChildSelectStrategy childSelectStrategy() {
+        return childSelectStrategy;
     }
 }

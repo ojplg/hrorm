@@ -26,12 +26,14 @@ public class RelativeDaoDescriptor<ENTITY, PARENT, ENTITYBUILDER> implements Dao
     private final ColumnCollection<ENTITY, ENTITYBUILDER> columnCollection;
     private final List<ChildrenDescriptor<ENTITY,?, ENTITYBUILDER,?>> childrenDescriptors;
     private final Function<ENTITYBUILDER, ENTITY> buildFunction;
+    private final ChildSelectStrategy childSelectStrategy;
 
     public RelativeDaoDescriptor(DaoDescriptor<ENTITY, ENTITYBUILDER> originalDaoDescriptor, String newPrefix, Prefixer prefixer){
         this.tableName = originalDaoDescriptor.tableName();
         this.supplier = originalDaoDescriptor.supplier();
         this.childrenDescriptors = originalDaoDescriptor.childrenDescriptors();
         this.buildFunction = originalDaoDescriptor.buildFunction();
+        this.childSelectStrategy = originalDaoDescriptor.childSelectStrategy();
 
         List<Column<?, ?, ENTITY, ENTITYBUILDER>> dataColumns = originalDaoDescriptor.dataColumns().stream().map(c -> c.withPrefix(newPrefix, prefixer)).collect(Collectors.toList());
         List<JoinColumn<ENTITY,?,ENTITYBUILDER,?>> joinColumns = resetColumnPrefixes(prefixer, newPrefix, originalDaoDescriptor.joinColumns());
@@ -82,5 +84,10 @@ public class RelativeDaoDescriptor<ENTITY, PARENT, ENTITYBUILDER> implements Dao
     @Override
     public Function<ENTITYBUILDER, ENTITY> buildFunction() {
         return buildFunction;
+    }
+
+    @Override
+    public ChildSelectStrategy childSelectStrategy() {
+        return childSelectStrategy;
     }
 }

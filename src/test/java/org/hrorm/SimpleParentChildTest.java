@@ -225,7 +225,7 @@ public class SimpleParentChildTest {
             parent.setChildren(children);
 
             Connection connection = helper.connect();
-            Dao<SimpleParent> dao = SimpleParentChildDaos.PARENT.buildDao(connection);
+            Dao<SimpleParent> dao = SimpleParentChildDaos.PARENT_IN_CLAUSE_STRATEGY.buildDao(connection);
 
             parentId = dao.insert(parent);
             connection.commit();
@@ -233,9 +233,9 @@ public class SimpleParentChildTest {
         }
         {
             Connection connection = helper.connect();
-            Dao<SimpleParent> dao = SimpleParentChildDaos.PARENT.buildDao(connection);
+            Dao<SimpleParent> dao = SimpleParentChildDaos.PARENT_IN_CLAUSE_STRATEGY.buildDao(connection);
 
-            List<SimpleParent> parents = dao.selectNqueries(where("id", EQUALS, parentId));
+            List<SimpleParent> parents = dao.select(where("id", EQUALS, parentId));
             SimpleParent parent = parents.get(0);
             Assert.assertEquals(parentName, parent.getName());
 
@@ -263,9 +263,9 @@ public class SimpleParentChildTest {
         }
         {
             Connection connection = helper.connect();
-            Dao<SimpleParent> dao = SimpleParentChildDaos.PARENT.buildDao(connection);
+            Dao<SimpleParent> dao = SimpleParentChildDaos.PARENT_IN_CLAUSE_STRATEGY.buildDao(connection);
 
-            List<SimpleParent> parents = dao.selectNqueries(where("id", EQUALS, parentId));
+            List<SimpleParent> parents = dao.select(where("id", EQUALS, parentId));
             SimpleParent parent = parents.get(0);
             Assert.assertEquals(parentName, parent.getName());
 
@@ -345,13 +345,13 @@ public class SimpleParentChildTest {
             parent.setName("testNquerySelectWorksWithZeroChildren");
             List<SimpleChild> children = new ArrayList<>();
             parent.setChildren(children);
-            Dao<SimpleParent> dao = SimpleParentChildDaos.PARENT.buildDao(connection);
+            Dao<SimpleParent> dao = SimpleParentChildDaos.PARENT_IN_CLAUSE_STRATEGY.buildDao(connection);
             dao.insert(parent);
         });
 
         helper.useConnection( connection -> {
-            Dao<SimpleParent> dao = SimpleParentChildDaos.PARENT.buildDao(connection);
-            List<SimpleParent> parents = dao.selectNqueries(where("name", EQUALS, "testNquerySelectWorksWithZeroChildren"));
+            Dao<SimpleParent> dao = SimpleParentChildDaos.PARENT_IN_CLAUSE_STRATEGY.buildDao(connection);
+            List<SimpleParent> parents = dao.select(where("name", EQUALS, "testNquerySelectWorksWithZeroChildren"));
             Assert.assertEquals(1, parents.size());
             List<SimpleChild> children = parents.get(0).getChildren();
             Assert.assertNotNull(children);
@@ -374,14 +374,14 @@ public class SimpleParentChildTest {
                 parent.setChildren(children);
                 List<String> childNames = extractNames(children);
                 childNamesMap.put(parent.getName(), childNames);
-                Dao<SimpleParent> dao = SimpleParentChildDaos.PARENT.buildDao(connection);
+                Dao<SimpleParent> dao = SimpleParentChildDaos.PARENT_IN_CLAUSE_STRATEGY.buildDao(connection);
                 dao.insert(parent);
             }
         });
 
         helper.useConnection( connection -> {
-            Dao<SimpleParent> dao = SimpleParentChildDaos.PARENT.buildDao(connection);
-            List<SimpleParent> parents = dao.selectNqueries(where("name", Operator.LIKE, "Nquery_Problem%"));
+            Dao<SimpleParent> dao = SimpleParentChildDaos.PARENT_IN_CLAUSE_STRATEGY.buildDao(connection);
+            List<SimpleParent> parents = dao.select(where("name", Operator.LIKE, "Nquery_Problem%"));
             Assert.assertEquals(LIMIT, parents.size());
             for(SimpleParent parent : parents){
                 Assert.assertEquals(CHILD_COUNT, parent.getChildren().size());

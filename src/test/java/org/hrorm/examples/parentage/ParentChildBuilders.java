@@ -1,5 +1,6 @@
 package org.hrorm.examples.parentage;
 
+import org.hrorm.ChildSelectStrategy;
 import org.hrorm.DaoBuilder;
 import org.hrorm.examples.EnumeratedColorConverter;
 
@@ -23,5 +24,21 @@ public class ParentChildBuilders {
                     .withPrimaryKey("id", "parent_seq", Parent::getId, Parent::setId)
                     .withStringColumn("name", Parent::getName, Parent::setName)
                     .withChildren(Parent::getChildList, Parent::setChildList, ChildDaoBuilder);
+
+
+    public static DaoBuilder<Child> ChildDaoBuilder_WithInClauseStrategy =
+            new DaoBuilder<>("child_table", Child::new)
+                    .withPrimaryKey("id", "child_seq", Child::getId, Child::setId)
+                    .withLongColumn("number", Child::getNumber, Child::setNumber)
+                    .withParentColumn("parent_table_id", Child::getParent, Child::setParent)
+                    .withChildren(Child::getGrandchildList, Child::setGrandchildList, GrandchildDaoBuilder)
+                    .withChildSelectStrategy(ChildSelectStrategy.InClause);
+
+    public static DaoBuilder<Parent> ParentDaoBuilder_WithInClauseStrategy =
+            new DaoBuilder<>("parent_table", Parent::new)
+                    .withPrimaryKey("id", "parent_seq", Parent::getId, Parent::setId)
+                    .withStringColumn("name", Parent::getName, Parent::setName)
+                    .withChildren(Parent::getChildList, Parent::setChildList, ChildDaoBuilder_WithInClauseStrategy)
+                    .withChildSelectStrategy(ChildSelectStrategy.InClause);
 
 }

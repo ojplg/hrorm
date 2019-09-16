@@ -8,10 +8,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -46,15 +44,15 @@ public class SqlRunner<ENTITY, BUILDER> {
         this.allColumns = daoDescriptor.allColumns();
     }
 
-    public List<BUILDER> select(String sql, Supplier<BUILDER> supplier, List<ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors){
-        return selectByColumns(sql, supplier, ColumnSelection.empty(), childrenDescriptors, null);
+    public List<BUILDER> selectStandard(String sql, Supplier<BUILDER> supplier, List<ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors){
+        return selectByColumnsStandard(sql, supplier, ColumnSelection.empty(), childrenDescriptors, null);
     }
 
-    public List<BUILDER> selectByColumns(String sql,
-                                         Supplier<BUILDER> supplier,
-                                         ColumnSelection<ENTITY,BUILDER> columnSelection,
-                                         List<? extends ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors,
-                                         ENTITY item){
+    public List<BUILDER> selectByColumnsStandard(String sql,
+                                                 Supplier<BUILDER> supplier,
+                                                 ColumnSelection<ENTITY,BUILDER> columnSelection,
+                                                 List<? extends ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors,
+                                                 ENTITY item){
         BiFunction<List<BUILDER>, BUILDER, List<BUILDER>> accumulator =
                 (list, b) -> { list.add(b); return list; };
         StatementPopulator populator = columnSelection.buildPopulator(item);
@@ -69,16 +67,14 @@ public class SqlRunner<ENTITY, BUILDER> {
         );
     }
 
-    public List<Envelope<BUILDER>> selectWhereNQueries(String sql,
-                                     Supplier<BUILDER> supplier,
-                                     List<? extends ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors,
-                                     Where where,
-                                     String parentColumnName) {
+    public List<Envelope<BUILDER>> selectAllWithChildInClause(String sql,
+                                                              Supplier<BUILDER> supplier,
+                                                              List<? extends ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors,
+                                                              String parentColumnName) {
         ResultSet resultSet = null;
         PreparedStatement statement = null;
         try {
             statement = connection.prepareStatement(sql);
-            where.populate(statement);
 
             logger.info(sql);
             resultSet = statement.executeQuery();
@@ -90,8 +86,8 @@ public class SqlRunner<ENTITY, BUILDER> {
                 builders.add(envelope);
             }
 
-            for( ChildrenDescriptor<ENTITY,?, BUILDER,?> descriptor : childrenDescriptors){
-                descriptor.populateChildren(connection, builders);
+            for(ChildrenDescriptor<ENTITY,?, BUILDER,?> descriptor : childrenDescriptors){
+                descriptor.populateChildrenSelectAll(connection, builders);
             }
 
             return builders;
@@ -112,10 +108,62 @@ public class SqlRunner<ENTITY, BUILDER> {
         }
     }
 
-    public List<BUILDER> selectWhere(String sql,
-                                     Supplier<BUILDER> supplier,
-                                     List<? extends ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors,
-                                     Where where){
+    public List<Envelope<BUILDER>> selectByColumnsWithChildInClause(String sql,
+                                                                    Supplier<BUILDER> supplier,
+                                                                    ColumnSelection<ENTITY,BUILDER> columnSelection,
+                                                                    List<? extends ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors,
+                                                                    ENTITY item) {
+        StatementPopulator populator = columnSelection.buildPopulator(item);
+        return selectWithChildInClause(sql, supplier, childrenDescriptors, populator, null);
+    }
+
+    public List<Envelope<BUILDER>> selectWithChildInClause(String sql,
+                                                           Supplier<BUILDER> supplier,
+                                                           List<? extends ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors,
+                                                           StatementPopulator statementPopulator,
+                                                           String parentColumnName) {
+        ResultSet resultSet = null;
+        PreparedStatement statement = null;
+        try {
+            statement = connection.prepareStatement(sql);
+            statementPopulator.populate(statement);
+
+            logger.info(sql);
+            resultSet = statement.executeQuery();
+
+            List<Envelope<BUILDER>> builders = new ArrayList<>();
+
+            while (resultSet.next()) {
+                Envelope<BUILDER> envelope = populate(resultSet, supplier, parentColumnName);
+                builders.add(envelope);
+            }
+
+            for(ChildrenDescriptor<ENTITY,?, BUILDER,?> descriptor : childrenDescriptors){
+                descriptor.populateChildrenSelectInClause(connection, builders);
+            }
+
+            return builders;
+
+        } catch (SQLException ex){
+            throw new HrormException(ex, sql);
+        } finally {
+            try {
+                if (resultSet != null) {
+                    resultSet.close();
+                }
+                if (statement != null) {
+                    statement.close();
+                }
+            } catch (SQLException se){
+                throw new HrormException(se);
+            }
+        }
+    }
+
+    public List<BUILDER> selectWhereStandard(String sql,
+                                             Supplier<BUILDER> supplier,
+                                             List<? extends ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors,
+                                             Where where){
         BiFunction<List<BUILDER>, BUILDER, List<BUILDER>> accumulator =
                 (list, b) -> { list.add(b); return list; };
         return foldingSelect(

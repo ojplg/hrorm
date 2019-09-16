@@ -31,7 +31,7 @@ public class NPlusOneQueriesTest {
         PreparedStatement childStatement = Mockito.mock(PreparedStatement.class);
         ResultSet childResultSet = Mockito.mock(ResultSet.class);
 
-        Dao<SimpleParent> dao = SimpleParentChildDaos.PARENT.buildDao(connection);
+        Dao<SimpleParent> dao = SimpleParentChildDaos.PARENT_IN_CLAUSE_STRATEGY.buildDao(connection);
         Queries parentQueries = dao.queries();
         Where where = where("NAME", LIKE, "%silly%");
 
@@ -51,7 +51,7 @@ public class NPlusOneQueriesTest {
         Mockito.when(parentResultSet.getLong("id")).thenReturn(1L).thenReturn(2L);
         Mockito.when(parentResultSet.getString("name")).thenReturn("one").thenReturn("two");
 
-        List<SimpleParent> parents = dao.selectNqueries(where);
+        List<SimpleParent> parents = dao.select(where);
         Assert.assertNotNull(parents);
         Assert.assertEquals(2, parents.size());
 
@@ -61,5 +61,49 @@ public class NPlusOneQueriesTest {
         Mockito.verify(connection).prepareStatement(selectSql);
         Mockito.verify(connection).prepareStatement(childSelectSql);
     }
+
+    @Test
+    public void testMakesUnqualifiedQueryOfChildTableWhenAppropriate() throws SQLException {
+
+        Connection connection = Mockito.mock(Connection.class);
+        PreparedStatement parentStatement = Mockito.mock(PreparedStatement.class);
+        ResultSet parentResultSet = Mockito.mock(ResultSet.class);
+
+        PreparedStatement childStatement = Mockito.mock(PreparedStatement.class);
+        ResultSet childResultSet = Mockito.mock(ResultSet.class);
+
+        Dao<SimpleParent> dao = SimpleParentChildDaos.PARENT_IN_CLAUSE_STRATEGY.buildDao(connection);
+        Queries parentQueries = dao.queries();
+
+        String selectSql = parentQueries.select();
+
+        Mockito.when(connection.prepareStatement(selectSql)).thenReturn(parentStatement);
+        Mockito.when(parentStatement.executeQuery()).thenReturn(parentResultSet);
+
+        Queries childQueries = SimpleParentChildDaos.CHILD.buildQueries();
+        String childSelectSql = childQueries.select();
+
+        Mockito.when(connection.prepareStatement(childSelectSql)).thenReturn(childStatement);
+        Mockito.when(childStatement.executeQuery()).thenReturn(childResultSet);
+
+        Mockito.when(parentResultSet.next()).thenReturn(true).thenReturn(true).thenReturn(false);
+        Mockito.when(parentResultSet.getLong("id")).thenReturn(1L).thenReturn(2L);
+        Mockito.when(parentResultSet.getString("name")).thenReturn("one").thenReturn("two");
+
+        try {
+            List<SimpleParent> parents = dao.select();
+            Assert.assertNotNull(parents);
+            Assert.assertEquals(2, parents.size());
+        } catch (Exception ex){
+            ex.printStackTrace();
+        }
+
+        InOrder parentResultSetOrder = Mockito.inOrder(parentResultSet);
+        parentResultSetOrder.verify(parentResultSet, Mockito.calls(3)).next();
+
+        Mockito.verify(connection).prepareStatement(selectSql);
+        Mockito.verify(connection).prepareStatement(childSelectSql);
+    }
+
 
 }

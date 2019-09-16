@@ -114,7 +114,7 @@ public class SimpleParentBackReferenceTest {
     public void testNqueryLoadsAndSetsParentOnChild() {
         String parentName = "testNqueryLoadsAndSetsParentOnChild";
         Long parentId = helper.useConnection(connection -> {
-            Dao<SimpleParent> parentDao = SimpleParentChildDaos.PARENT.buildDao(connection);
+            Dao<SimpleParent> parentDao = SimpleParentChildDaos.PARENT_IN_CLAUSE_STRATEGY.buildDao(connection);
 
             SimpleParent simpleParent = new SimpleParent();
             simpleParent.setName(parentName);
@@ -128,8 +128,8 @@ public class SimpleParentBackReferenceTest {
             return simpleParent.getId();
         });
         helper.useConnection(connection -> {
-            Dao<SimpleParent> parentDao = SimpleParentChildDaos.PARENT.buildDao(connection);
-            List<SimpleParent> parents = parentDao.selectNqueries(where("id", EQUALS, parentId));
+            Dao<SimpleParent> parentDao = SimpleParentChildDaos.PARENT_IN_CLAUSE_STRATEGY.buildDao(connection);
+            List<SimpleParent> parents = parentDao.select(where("id", EQUALS, parentId));
             SimpleParent parent = parents.get(0);
 
             AssertHelp.sameContents(

@@ -1,5 +1,6 @@
 package org.hrorm.examples.back_reference_parents;
 
+import org.hrorm.ChildSelectStrategy;
 import org.hrorm.DaoBuilder;
 
 public class SimpleParentChildDaos {
@@ -16,4 +17,10 @@ public class SimpleParentChildDaos {
                     .withStringColumn("name", SimpleParent::getName, SimpleParent::setName)
                     .withChildren(SimpleParent::getChildren, SimpleParent::setChildren, CHILD);
 
+    public static final DaoBuilder<SimpleParent> PARENT_IN_CLAUSE_STRATEGY =
+            new DaoBuilder<>("simple_parent_table", SimpleParent::new)
+                    .withPrimaryKey("id", "simple_child_seq", SimpleParent::getId, SimpleParent::setId)
+                    .withStringColumn("name", SimpleParent::getName, SimpleParent::setName)
+                    .withChildren(SimpleParent::getChildren, SimpleParent::setChildren, CHILD)
+                    .withChildSelectStrategy(ChildSelectStrategy.InClause);
 }

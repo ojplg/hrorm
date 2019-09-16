@@ -24,6 +24,7 @@ public class DaoBuilder<ENTITY> implements SchemaDescriptor<ENTITY, ENTITY> {
     private final ColumnCollection<ENTITY,ENTITY> columnCollection = new ColumnCollection<>();
     private final DaoBuilderHelper<ENTITY, ENTITY> daoBuilderHelper;
     private final List<ChildrenDescriptor<ENTITY,?, ENTITY,?>> childrenDescriptors = new ArrayList<>();
+    private ChildSelectStrategy childSelectStrategy = ChildSelectStrategy.Standard;
 
     /**
      * Create a new DaoBuilder instance.
@@ -418,5 +419,15 @@ public class DaoBuilder<ENTITY> implements SchemaDescriptor<ENTITY, ENTITY> {
     @Override
     public List<List<String>> uniquenessConstraints() {
         return columnCollection.getUniquenessConstraints();
+    }
+
+    @Override
+    public ChildSelectStrategy childSelectStrategy() {
+        return childSelectStrategy;
+    }
+
+    public DaoBuilder<ENTITY> withChildSelectStrategy(ChildSelectStrategy childSelectStrategy){
+        this.childSelectStrategy = childSelectStrategy;
+        return this;
     }
 }

@@ -49,4 +49,5 @@ public interface DaoDescriptor<ENTITY, ENTITYBUILDER> extends KeylessDaoDescript
      */
     List<ChildrenDescriptor<ENTITY, ?, ENTITYBUILDER, ?>> childrenDescriptors();
 
+    ChildSelectStrategy childSelectStrategy();
 }

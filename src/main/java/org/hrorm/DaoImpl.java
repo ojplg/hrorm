@@ -1,7 +1,6 @@
 package org.hrorm;
 
 import java.sql.Connection;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -22,11 +21,13 @@ public class DaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> extends AbstractDao
     private final PrimaryKey<ENTITY, BUILDER> primaryKey;
     private final ParentColumn<ENTITY, PARENT, BUILDER, PARENTBUILDER> parentColumn;
     private final List<ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors;
+    private final ChildSelectStrategy childSelectStrategy;
 
     public DaoImpl(Connection connection,
                    DaoDescriptor<ENTITY, BUILDER> daoDescriptor){
         super(connection, daoDescriptor);
         this.childrenDescriptors = daoDescriptor.childrenDescriptors();
+        this.childSelectStrategy = daoDescriptor.childSelectStrategy();
         if (daoDescriptor.primaryKey() == null) {
             throw new IllegalArgumentException("Must have a Primary Key");
         }
@@ -87,11 +88,6 @@ public class DaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> extends AbstractDao
     }
 
     @Override
-    public List<ENTITY> selectNqueries(Where where){
-        return super.selectNqueries(where);
-    }
-
-    @Override
     public void atomicUpdate(ENTITY item) {
         Transactor transactor = new Transactor(connection);
         transactor.runAndCommit(
@@ -110,6 +106,11 @@ public class DaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> extends AbstractDao
     @Override
     public Queries queries() {
         return this.sqlBuilder;
+    }
+
+    @Override
+    public ChildSelectStrategy childSelectStrategy() {
+        return childSelectStrategy;
     }
 
     private Envelope<ENTITY> newEnvelope(ENTITY item, long id){

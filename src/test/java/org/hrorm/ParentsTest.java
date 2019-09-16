@@ -103,7 +103,7 @@ public class ParentsTest {
     @Test
     public void testDeletesHappenOnUpdateWithNquery() throws SQLException {
         Connection connection = helper.connect();
-        Dao<Parent> parentDao = ParentChildBuilders.ParentDaoBuilder.buildDao(connection);
+        Dao<Parent> parentDao = ParentChildBuilders.ParentDaoBuilder_WithInClauseStrategy.buildDao(connection);
 
         Child child = new Child();
         child.setNumber(123L);
@@ -114,7 +114,7 @@ public class ParentsTest {
 
         long id = parentDao.insert(parent);
 
-        List<Parent> readParents = parentDao.selectNqueries(where("id", EQUALS, id));
+        List<Parent> readParents = parentDao.select(where("id", EQUALS, id));
         Parent readParent = readParents.get(0);
 
         Assert.assertEquals(1, readParent.getChildList().size());
@@ -312,16 +312,16 @@ public class ParentsTest {
             parent.setName("delete orphan grandchildren test");
             parent.setChildList(Arrays.asList(child));
 
-            Dao<Parent> parentDao = ParentChildBuilders.ParentDaoBuilder.buildDao(connection);
+            Dao<Parent> parentDao = ParentChildBuilders.ParentDaoBuilder_WithInClauseStrategy.buildDao(connection);
 
             parentDao.insert(parent);
 
             return parent.getId();
         });
-        helper.useConnection(connection -> {;
-            Dao<Parent> parentDao = ParentChildBuilders.ParentDaoBuilder.buildDao(connection);
+        helper.useConnection(connection -> {
+            Dao<Parent> parentDao = ParentChildBuilders.ParentDaoBuilder_WithInClauseStrategy.buildDao(connection);
 
-            List<Parent> readItems = parentDao.selectNqueries(where("id", EQUALS, parentId));
+            List<Parent> readItems = parentDao.select(where("id", EQUALS, parentId));
             Parent readItem = readItems.get(0);
 
             Assert.assertEquals(1, readItem.getChildList().get(0).getGrandchildList().size());
@@ -637,7 +637,7 @@ public class ParentsTest {
         int childCount = 10;
 
         helper.useConnection(connection -> {
-            Dao<Parent> dao = ParentChildBuilders.ParentDaoBuilder.buildDao(connection);
+            Dao<Parent> dao = ParentChildBuilders.ParentDaoBuilder_WithInClauseStrategy.buildDao(connection);
             for(int i=0; i<insertCount; i++){
                 Parent parent = newParent("nquery_test_" + i, childCount);
                 dao.insert(parent);
@@ -645,8 +645,8 @@ public class ParentsTest {
         });
 
         helper.useConnection(connection -> {
-            Dao<Parent> dao = ParentChildBuilders.ParentDaoBuilder.buildDao(connection);
-            List<Parent> parents = dao.selectNqueries(where("name", LIKE, "nquery_test%"));
+            Dao<Parent> dao = ParentChildBuilders.ParentDaoBuilder_WithInClauseStrategy.buildDao(connection);
+            List<Parent> parents = dao.select(where("name", LIKE, "nquery_test%"));
             Assert.assertEquals(insertCount, parents.size());
             for(Parent parent : parents){
                 List<Child> children = parent.getChildList();
