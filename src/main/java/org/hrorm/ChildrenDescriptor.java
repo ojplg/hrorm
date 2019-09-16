@@ -123,6 +123,9 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
         for( Envelope<PARENTBUILDER> parentBuilderEnvelope : parentBuilders){
             long parentId = parentBuilderEnvelope.getId();
             List<CHILD> children = childrenMapByParentId.get(parentId);
+            if( children == null ){
+                children = new ArrayList<>();
+            }
             setter.accept(parentBuilderEnvelope.getItem(), children);
         }
     }

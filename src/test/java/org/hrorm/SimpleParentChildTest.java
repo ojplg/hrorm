@@ -60,6 +60,11 @@ public class SimpleParentChildTest {
 
 
     @Test
+    public void runOnceWithNqueries() throws SQLException {
+        testInsertUpdateSelectWithNqueries();
+    }
+
+    @Test
     public void runMultipleThreads() throws SQLException {
         int numberThreads = RandomUtils.range(2,10);
         final CountDownLatch latch = new CountDownLatch(numberThreads);
@@ -165,6 +170,7 @@ public class SimpleParentChildTest {
             Assert.assertEquals(parentName, parent.getName());
 
             List<SimpleChild> children = parent.getChildren();
+            Assert.assertNotNull(children);
             List<String> names = extractNames(children);
 
             AssertHelp.sameContents(names, childNames);
@@ -212,7 +218,7 @@ public class SimpleParentChildTest {
             parentName = randomName();
             parent.setName(parentName);
 
-            childNames = RandomUtils.randomNumberOf(0, 20, SimpleParentChildTest::randomName);
+            childNames =  RandomUtils.randomNumberOf(0, 20, SimpleParentChildTest::randomName);
 
             List<SimpleChild> children = newChildren(childNames);
 
@@ -332,6 +338,29 @@ public class SimpleParentChildTest {
 
 
     @Test
+    public void testNquerySelectWorksWithZeroChildren(){
+
+        helper.useConnection(connection -> {
+            SimpleParent parent = new SimpleParent();
+            parent.setName("testNquerySelectWorksWithZeroChildren");
+            List<SimpleChild> children = new ArrayList<>();
+            parent.setChildren(children);
+            Dao<SimpleParent> dao = SimpleParentChildDaos.PARENT.buildDao(connection);
+            dao.insert(parent);
+        });
+
+        helper.useConnection( connection -> {
+            Dao<SimpleParent> dao = SimpleParentChildDaos.PARENT.buildDao(connection);
+            List<SimpleParent> parents = dao.selectNqueries(where("name", EQUALS, "testNquerySelectWorksWithZeroChildren"));
+            Assert.assertEquals(1, parents.size());
+            List<SimpleChild> children = parents.get(0).getChildren();
+            Assert.assertNotNull(children);
+            Assert.assertEquals(0, children.size());
+        });
+    }
+
+
+    @Test
     public void testNqueryProblem(){
         int LIMIT = 10;
         int CHILD_COUNT = 15;
@@ -349,15 +378,6 @@ public class SimpleParentChildTest {
                 dao.insert(parent);
             }
         });
-
-//        helper.useConnection(connection -> {
-//            Dao<SimpleParent> dao = SimpleParentChildDaos.PARENT.buildDao(connection);
-//            List<SimpleParent> parents = dao.select(where("name", Operator.LIKE, "Nquery_Problem%"));
-//            Assert.assertEquals(LIMIT, parents.size());
-//            for(SimpleParent parent : parents){
-//                Assert.assertEquals(CHILD_COUNT, parent.getChildren().size());
-//            }
-//        });
 
         helper.useConnection( connection -> {
             Dao<SimpleParent> dao = SimpleParentChildDaos.PARENT.buildDao(connection);
