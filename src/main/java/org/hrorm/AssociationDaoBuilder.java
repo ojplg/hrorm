@@ -224,4 +224,9 @@ public class AssociationDaoBuilder<LEFT, RIGHT>
     public ChildSelectStrategy childSelectStrategy() {
         return childSelectStrategy;
     }
+
+    @Override
+    public Queries buildQueries() {
+        return new SqlBuilder<>(this);
+    }
 }

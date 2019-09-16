@@ -18,4 +18,6 @@ public interface SchemaDescriptor<ENTITY, BUILDER> extends DaoDescriptor<ENTITY,
      */
     List<List<String>> uniquenessConstraints();
 
+    Queries buildQueries();
+
 }
