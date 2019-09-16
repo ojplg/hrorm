@@ -16,7 +16,6 @@ import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.hrorm.Operator.EQUALS;
 import static org.hrorm.Operator.LIKE;
 import static org.hrorm.Where.where;
 
