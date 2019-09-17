@@ -141,6 +141,8 @@ public abstract class AbstractDaoBuilder<ENTITY, ENTITYBUILDER, B extends Abstra
 
     /**
      * Set the method used for selecting for child elements of the entity.
+     * This allows control over how child records are selected and to avoid
+     * the N+1 query problem.
      *
      * @param childSelectStrategy The strategy to use during selects.
      * @return This instance.
