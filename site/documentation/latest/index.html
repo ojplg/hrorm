@@ -832,9 +832,11 @@
                         with recursively embedded sub-selects.</li>
                 </ul>
 
-                <p>
-                    There is no sure-fire correct answer to this issue.
-                </p>
+                <div class="card fluid warning">
+                    <b>Note.</b>An entity that selected because is connected to another entity by a join relationship will
+                    always use the standard (N+1 queries) to load its children. The ChildSelectStrategy
+                    for those entities will be ignored.
+                </div>
 
             </div>
 
