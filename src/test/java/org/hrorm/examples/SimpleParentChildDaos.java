@@ -22,13 +22,13 @@ public class SimpleParentChildDaos {
                     .withPrimaryKey("id", "simple_child_seq", SimpleParent::getId, SimpleParent::setId)
                     .withStringColumn("name", SimpleParent::getName, SimpleParent::setName)
                     .withChildren(SimpleParent::getChildren, SimpleParent::setChildren, CHILD)
-                    .withChildSelectStrategy(ChildSelectStrategy.InClause);
+                    .withChildSelectStrategy(ChildSelectStrategy.ByKeysInClause);
 
     public static final DaoBuilder<SimpleParent> PARENT_SUBSELECT_STRATEGY =
             new DaoBuilder<>("simple_parent_table", SimpleParent::new)
                     .withPrimaryKey("id", "simple_child_seq", SimpleParent::getId, SimpleParent::setId)
                     .withStringColumn("name", SimpleParent::getName, SimpleParent::setName)
                     .withChildren(SimpleParent::getChildren, SimpleParent::setChildren, CHILD)
-                    .withChildSelectStrategy(ChildSelectStrategy.Subselect);
+                    .withChildSelectStrategy(ChildSelectStrategy.SubSelectInClause);
 
 }

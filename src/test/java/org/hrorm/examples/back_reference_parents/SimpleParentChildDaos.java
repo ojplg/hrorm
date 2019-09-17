@@ -22,5 +22,5 @@ public class SimpleParentChildDaos {
                     .withPrimaryKey("id", "simple_child_seq", SimpleParent::getId, SimpleParent::setId)
                     .withStringColumn("name", SimpleParent::getName, SimpleParent::setName)
                     .withChildren(SimpleParent::getChildren, SimpleParent::setChildren, CHILD)
-                    .withChildSelectStrategy(ChildSelectStrategy.InClause);
+                    .withChildSelectStrategy(ChildSelectStrategy.ByKeysInClause);
 }

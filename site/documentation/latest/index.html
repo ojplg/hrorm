@@ -37,6 +37,7 @@
                 <a href="#parent_child_relations" class="sublink-1">Parent-Child Relations</a>
                 <a href="#sibling_relations" class="sublink-1">Sibling Relations</a>
                 <a href="#association_relations" class="sublink-1">Association Relations</a>
+                <a href="#n_plus_one_queries" class="sublink-1">N+1 Queries</a>
                 <a href="#immutable_models" class="sublink-1">Immutable Models</a>
                 <a href="#keyless_entities" class="sublink-1">Keyless Entities</a>
                 <a href="#constraints" class="sublink-1">Constraints</a>
@@ -613,71 +614,6 @@
 
             </div>
 
-            <a id="association_relations"></a>
-            <div class="card fluid">
-                <h3>Association Relations</h3>
-                <hr>
-
-                <p>
-                    Hrorm supports many-to-many relations through <code>AssociationDao</code>
-                    and <code>AssociationDaoBuilder</code> objects. The object model should be
-                    of two independent entities: neither should contain a reference to the other.
-                </p>
-
-                <p>
-                    As an example, consider the following model of actors and movies.
-                </p>
-
-                <pre>
-    public class Actor {
-        Long id;
-        String name;
-    }
-
-    public class Movie {
-        Long id;
-        String title;
-    }</pre>
-
-                <p>It does not make sense to make either the parent object or to have a single
-                reference between the two classes in either direction. But we do want to create links
-                between any pair of actors and movies. (For the following, we will assume the
-                existence of database structures and <code>DaoBuilder</code> objects for both
-                entities.)</p>
-
-                <p>
-                    The backing table for storing associations should look like this:
-                </p>
-
-                <pre>
-    create table actor_movie_associations (
-        id integer primary key,
-        movie_id integer,
-        actor_id integer
-    );</pre>
-                <p>And there should be a sequence to populate the association IDs.</p>
-
-                <p>To create an <code>AssociationDao</code>, we specify the <code>DaoBuilder</code>
-                (or <code>Dao</code>) objects of the two entities and a few details about the
-                association table. It looks like this:</p>
-
-                <pre>
-    DaoBuilder&lt;Actor&gt; actorDaoBuilder = // reference or creation
-    DaoBuilder&lt;Movie&gt; movieDaoBuilder = // reference or creation
-
-    AssociationDaoBuilder&lt;Actor, Movie&gt; actorMovieAssociationDaoBuilder =
-            new AssociationDaoBuilder&lt;&gt;(actorDaoBuilder, movieDaoBuilder)
-                    .withTableName("actor_movie_associations")
-                    .withSequenceName("actor_movie_association_sequence")
-                    .withPrimaryKeyName("id")
-                    .withLeftColumnName("actor_id")
-                    .withRightColumnName("movie_id");</pre>
-
-                <p>All of the elements shown above must be set to make a valid <code>AssociationDaoBuilder</code>.
-                    To create a <code>AssociationDao</code> from the builder just pass it a <code>Connection</code>.
-                </p>
-            </div>
-
             <a id="sibling_relations"></a>
             <div class="card fluid">
                 <h3>Sibling Relations</h3>
@@ -762,6 +698,146 @@
                     not for making saves or updates. If a sibling object is mutated, it must be saved itself.</p>
 
             </div>
+
+            <a id="association_relations"></a>
+            <div class="card fluid">
+                <h3>Association Relations</h3>
+                <hr>
+
+                <p>
+                    Hrorm supports many-to-many relations through <code>AssociationDao</code>
+                    and <code>AssociationDaoBuilder</code> objects. The object model should be
+                    of two independent entities: neither should contain a reference to the other.
+                </p>
+
+                <p>
+                    As an example, consider the following model of actors and movies.
+                </p>
+
+                <pre>
+    public class Actor {
+        Long id;
+        String name;
+    }
+
+    public class Movie {
+        Long id;
+        String title;
+    }</pre>
+
+                <p>It does not make sense to make either the parent object or to have a single
+                reference between the two classes in either direction. But we do want to create links
+                between any pair of actors and movies. (For the following, we will assume the
+                existence of database structures and <code>DaoBuilder</code> objects for both
+                entities.)</p>
+
+                <p>
+                    The backing table for storing associations should look like this:
+                </p>
+
+                <pre>
+    create table actor_movie_associations (
+        id integer primary key,
+        movie_id integer,
+        actor_id integer
+    );</pre>
+                <p>And there should be a sequence to populate the association IDs.</p>
+
+                <p>To create an <code>AssociationDao</code>, we specify the <code>DaoBuilder</code>
+                (or <code>Dao</code>) objects of the two entities and a few details about the
+                association table. It looks like this:</p>
+
+                <pre>
+    DaoBuilder&lt;Actor&gt; actorDaoBuilder = // reference or creation
+    DaoBuilder&lt;Movie&gt; movieDaoBuilder = // reference or creation
+
+    AssociationDaoBuilder&lt;Actor, Movie&gt; actorMovieAssociationDaoBuilder =
+            new AssociationDaoBuilder&lt;&gt;(actorDaoBuilder, movieDaoBuilder)
+                    .withTableName("actor_movie_associations")
+                    .withSequenceName("actor_movie_association_sequence")
+                    .withPrimaryKeyName("id")
+                    .withLeftColumnName("actor_id")
+                    .withRightColumnName("movie_id");</pre>
+
+                <p>All of the elements shown above must be set to make a valid <code>AssociationDaoBuilder</code>.
+                    To create a <code>AssociationDao</code> from the builder just pass it a <code>Connection</code>.
+                </p>
+            </div>
+
+            <a id="n_plus_one_queries"></a>
+            <div class="card fluid">
+                <h3>N+1 Queries</h3>
+                <hr>
+
+                <p>
+                    When one entity has a parent child relationship with another, there are a number of ways
+                    the child entities can be queried from the database. The most straightforward mechanism
+                    is to query for the desired parent records and form them into a list. For each parent
+                    record, a corresponding query is issued for matching child records which have a reference
+                    back to the parent's primary key.
+                </p>
+
+                <p>
+                    If N parent records are found by the initial query, there will follow N additional queries
+                    for all the needed child records. This is the so-called N+1 query problem.
+                </p>
+
+                <p>
+                    Depending on the circumstances, this can result in poor performance when loading records.
+                    This is also the default behavior of hrorm <code>DAO</code> objects.
+                </p>
+
+                <p>
+                    Hrorm supports two alternate mechanisms for doing child selects. Both are variants of
+                    constructing an in-clause when selecting for child records. Either mechanism can be
+                    chosen by calling the <code>withChildSelectStrategy()</code> method on the
+                    controlling <code>DaoBuilder</code>.
+                </p>
+
+                <h5>By Keys</h5>
+
+                <p>
+                    The by-keys strategy will generate SQL that selects child records matching an in-clause
+                    that contains all the primary keys of the parent records found in the initial query.
+                    The query will look something like this:
+                </p>
+<pre>
+    SELECT * FROM CHILD WHERE PARENT_ID IN ( ?, ?, ?, ... )</pre>
+
+                <p>A few problems may arise from generating queries in this style.</p>
+
+                <ul>
+                    <li>The in-clauses generated may overwhelm the underlying database's query parser.</li>
+                    <li>Hrorm will generate a new prepared statement for each count of records found, which
+                        may cause problems for the database's query optimizer or cache.</li>
+                </ul>
+
+                <h5>Sub-Select</h5>
+
+                <p>Another strategy hrorm supports is to avoid constructing an explicit in-clause of IDs
+                by issuing a sub-select for needed records. With this option, queries will look something
+                like this:</p>
+
+                <pre>
+    SELECT * FROM CHILD WHERE PARENT_ID IN ( SELECT ID FROM PARENT WHERE .... )</pre>
+
+                <p>The sub-select where clause will mirror the original query.</p>
+
+                <p>This method also has potential pitfalls.</p>
+
+                <ul>
+                    <li>The where clause of the initial query will be run twice. It's possible that the
+                    results might be as expensive to compute the second time as the first.</li>
+                    <li>Entities that have children with their own children will issue queries
+                        with recursively embedded sub-selects.</li>
+                </ul>
+
+                <p>
+                    There is no sure-fire correct answer to this issue.
+                </p>
+
+            </div>
+
 
             <div class="card fluid">
 

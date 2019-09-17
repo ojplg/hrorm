@@ -32,14 +32,14 @@ public class ParentChildBuilders {
                     .withLongColumn("number", Child::getNumber, Child::setNumber)
                     .withParentColumn("parent_table_id", Child::getParent, Child::setParent)
                     .withChildren(Child::getGrandchildList, Child::setGrandchildList, GrandchildDaoBuilder)
-                    .withChildSelectStrategy(ChildSelectStrategy.InClause);
+                    .withChildSelectStrategy(ChildSelectStrategy.ByKeysInClause);
 
     public static DaoBuilder<Parent> ParentDaoBuilder_WithInClauseStrategy =
             new DaoBuilder<>("parent_table", Parent::new)
                     .withPrimaryKey("id", "parent_seq", Parent::getId, Parent::setId)
                     .withStringColumn("name", Parent::getName, Parent::setName)
                     .withChildren(Parent::getChildList, Parent::setChildList, ChildDaoBuilder_WithInClauseStrategy)
-                    .withChildSelectStrategy(ChildSelectStrategy.InClause);
+                    .withChildSelectStrategy(ChildSelectStrategy.ByKeysInClause);
 
 
     public static DaoBuilder<Child> ChildDaoBuilder_WithSubselectStrategy =
@@ -48,13 +48,13 @@ public class ParentChildBuilders {
                     .withLongColumn("number", Child::getNumber, Child::setNumber)
                     .withParentColumn("parent_table_id", Child::getParent, Child::setParent)
                     .withChildren(Child::getGrandchildList, Child::setGrandchildList, GrandchildDaoBuilder)
-                    .withChildSelectStrategy(ChildSelectStrategy.Subselect);
+                    .withChildSelectStrategy(ChildSelectStrategy.SubSelectInClause);
 
     public static DaoBuilder<Parent> ParentDaoBuilder_WithSubselectStrategy =
             new DaoBuilder<>("parent_table", Parent::new)
                     .withPrimaryKey("id", "parent_seq", Parent::getId, Parent::setId)
                     .withStringColumn("name", Parent::getName, Parent::setName)
                     .withChildren(Parent::getChildList, Parent::setChildList, ChildDaoBuilder_WithInClauseStrategy)
-                    .withChildSelectStrategy(ChildSelectStrategy.Subselect);
+                    .withChildSelectStrategy(ChildSelectStrategy.SubSelectInClause);
 
 }

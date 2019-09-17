@@ -14,7 +14,7 @@ public enum ChildSelectStrategy {
      *     SELECT * FROM CHILD WHERE PARENT_ID IN ( ?, ?, ?, ... )
      * </code>
      */
-    InClause,
+    ByKeysInClause,
     /**
      * When reading a collection of entity records, for each child table,
      * issue a select statement with an in-clause containing a sub-select
@@ -24,5 +24,5 @@ public enum ChildSelectStrategy {
      *     SELECT * FROM CHILD WHERE PARENT_ID IN (SELECT ID FROM PARENT WHERE ...)
      * </code>
      */
-    Subselect
+    SubSelectInClause
 }

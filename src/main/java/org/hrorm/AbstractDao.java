@@ -109,8 +109,8 @@ public abstract class AbstractDao<ENTITY, BUILDER> implements KeylessDaoDescript
             case Standard:
                 List<BUILDER> bs = sqlRunner.selectStandard(sql, supplier, childrenDescriptors());
                 return mapBuilders(bs);
-            case InClause:
-            case Subselect:
+            case ByKeysInClause:
+            case SubSelectInClause:
                 List<Envelope<BUILDER>> ebs = sqlRunner.selectAllAndSelectAllChildren(sql, supplier, childrenDescriptors(), null);
                 return mapEnvelopedBuilders(ebs);
             default:
@@ -149,7 +149,7 @@ public abstract class AbstractDao<ENTITY, BUILDER> implements KeylessDaoDescript
             case Standard:
                 List<BUILDER> bs = sqlRunner.selectByColumnsStandard(sql, supplier, select(columnNames), childrenDescriptors(), item);
                 return mapBuilders(bs);
-            case InClause:
+            case ByKeysInClause:
                 List<Envelope<BUILDER>> ebs = sqlRunner.selectByColumnsWithChildInClause(sql, supplier, select(columnNames), childrenDescriptors(), item);
                 return mapEnvelopedBuilders(ebs);
             default:
@@ -197,10 +197,10 @@ public abstract class AbstractDao<ENTITY, BUILDER> implements KeylessDaoDescript
             case Standard:
                 List<BUILDER> bs = sqlRunner.selectWhereStandard(sql, supplier, childrenDescriptors(), where);
                 return mapBuilders(bs);
-            case InClause:
+            case ByKeysInClause:
                 List<Envelope<BUILDER>> ebs = sqlRunner.selectWithChildInClause(sql, supplier, childrenDescriptors(), where, null);
                 return mapEnvelopedBuilders(ebs);
-            case Subselect:
+            case SubSelectInClause:
                 String primaryKeySelector = sqlBuilder.selectPrimaryKey(where);
                 List<Envelope<BUILDER>> ebss = sqlRunner.selectWithSubSelect(sql, primaryKeySelector, supplier, childrenDescriptors(), where, null);
                 return mapEnvelopedBuilders(ebss);
