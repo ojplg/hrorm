@@ -139,6 +139,12 @@ public abstract class AbstractDaoBuilder<ENTITY, ENTITYBUILDER, B extends Abstra
         return childSelectStrategy;
     }
 
+    /**
+     * Set the method used for selecting for child elements of the entity.
+     *
+     * @param childSelectStrategy The strategy to use during selects.
+     * @return This instance.
+     */
     public B withChildSelectStrategy(ChildSelectStrategy childSelectStrategy){
         this.childSelectStrategy = childSelectStrategy;
         return (B) this;
