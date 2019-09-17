@@ -631,7 +631,7 @@ public class ParentsTest {
     }
 
     @Test
-    public void testNquerySelects() {
+    public void testInClauseSelects() {
 
         int insertCount = 25;
         int childCount = 10;
@@ -658,6 +658,37 @@ public class ParentsTest {
         });
 
     }
+
+
+    @Test
+    public void testSubselectSelects() {
+
+        int insertCount = 15;
+        int childCount = 10;
+
+        helper.useConnection(connection -> {
+            Dao<Parent> dao = ParentChildBuilders.ParentDaoBuilder_WithSubselectStrategy.buildDao(connection);
+            for(int i=0; i<insertCount; i++){
+                Parent parent = newParent("subselect_nquery_test_" + i, childCount);
+                dao.insert(parent);
+            }
+        });
+
+        helper.useConnection(connection -> {
+            Dao<Parent> dao = ParentChildBuilders.ParentDaoBuilder_WithSubselectStrategy.buildDao(connection);
+            List<Parent> parents = dao.select(where("name", LIKE, "subselect_nquery_test%"));
+            Assert.assertEquals(insertCount, parents.size());
+            for(Parent parent : parents){
+                List<Child> children = parent.getChildList();
+                Assert.assertEquals(childCount, children.size());
+                for(Child child : children){
+                    Assert.assertEquals(2, child.getGrandchildList().size());
+                }
+            }
+        });
+
+    }
+
 
     private Parent newParent(String name, int childCount){
         Parent parent = new Parent();

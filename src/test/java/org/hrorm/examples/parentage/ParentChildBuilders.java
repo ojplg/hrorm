@@ -41,4 +41,20 @@ public class ParentChildBuilders {
                     .withChildren(Parent::getChildList, Parent::setChildList, ChildDaoBuilder_WithInClauseStrategy)
                     .withChildSelectStrategy(ChildSelectStrategy.InClause);
 
+
+    public static DaoBuilder<Child> ChildDaoBuilder_WithSubselectStrategy =
+            new DaoBuilder<>("child_table", Child::new)
+                    .withPrimaryKey("id", "child_seq", Child::getId, Child::setId)
+                    .withLongColumn("number", Child::getNumber, Child::setNumber)
+                    .withParentColumn("parent_table_id", Child::getParent, Child::setParent)
+                    .withChildren(Child::getGrandchildList, Child::setGrandchildList, GrandchildDaoBuilder)
+                    .withChildSelectStrategy(ChildSelectStrategy.Subselect);
+
+    public static DaoBuilder<Parent> ParentDaoBuilder_WithSubselectStrategy =
+            new DaoBuilder<>("parent_table", Parent::new)
+                    .withPrimaryKey("id", "parent_seq", Parent::getId, Parent::setId)
+                    .withStringColumn("name", Parent::getName, Parent::setName)
+                    .withChildren(Parent::getChildList, Parent::setChildList, ChildDaoBuilder_WithInClauseStrategy)
+                    .withChildSelectStrategy(ChildSelectStrategy.Subselect);
+
 }

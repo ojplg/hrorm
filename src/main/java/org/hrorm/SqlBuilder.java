@@ -96,6 +96,21 @@ public class SqlBuilder<ENTITY> implements Queries {
         return buf.toString();
     }
 
+    public String selectPrimaryKey(String subselect){
+        StringBuilder buf = new StringBuilder();
+        buf.append("select ");
+        buf.append(primaryKey.getName());
+        buf.append(" from ");
+        buf.append(table);
+        buf.append(" where ");
+        buf.append(parentColumnName);
+        buf.append(" in (");
+        buf.append(subselect);
+        buf.append(")");
+
+        return buf.toString();
+    }
+
     public String select(Order order){
         return select() + order.render();
     }

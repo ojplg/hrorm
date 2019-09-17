@@ -93,8 +93,6 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
                                                 String primaryKeySelect,
                                                 StatementPopulator statementPopulator){
 
-        // TODO: WHAT ABOUT GRANDCHILDREN???
-
         if( parentBuilders.size() == 0 ){
             return;
         }
@@ -107,11 +105,13 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
 
         Map<Long, PARENT> parentsByIds = generateParentMap(parentBuilders);
 
+        String primaryKeySql = sqlBuilder.selectPrimaryKey(primaryKeySelect);
+
         List<Envelope<CHILDBUILDER>> childBuilders = sqlRunner.selectWithSubSelect(
                 sql,
-                "",
+                primaryKeySql,
                 supplier,
-                Collections.emptyList(),
+                childrenDescriptorsList,
                 statementPopulator,
                 parentChildColumnName());
 
