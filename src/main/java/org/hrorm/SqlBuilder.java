@@ -217,9 +217,9 @@ public class SqlBuilder<ENTITY> implements Queries {
         return buf.toString();
     }
 
-    public String selectByParentSubselect(String subSelect){
+    public String selectByParentSubSelect(String subSelect){
 
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
 
         buf.append(select());
         buf.append(" where a.");
@@ -229,7 +229,6 @@ public class SqlBuilder<ENTITY> implements Queries {
         buf.append(")");
 
         return buf.toString();
-
     }
 
     public String update(){

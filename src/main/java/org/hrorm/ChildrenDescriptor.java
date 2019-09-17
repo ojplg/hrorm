@@ -97,7 +97,7 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
             return;
         }
 
-        String sql = sqlBuilder.selectByParentSubselect(primaryKeySelect);
+        String sql = sqlBuilder.selectByParentSubSelect(primaryKeySelect);
 
         SqlRunner<CHILD,CHILDBUILDER> sqlRunner = new SqlRunner<>(connection, childDaoDescriptor);
         List<ChildrenDescriptor<CHILD,?,CHILDBUILDER, ?>> childrenDescriptorsList = childDaoDescriptor.childrenDescriptors();

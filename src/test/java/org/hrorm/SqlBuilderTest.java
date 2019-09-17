@@ -50,7 +50,7 @@ public class SqlBuilderTest {
 
         SqlBuilder<Child> childSqlBuilder = new SqlBuilder<>(ParentChildBuilders.ChildDaoBuilder);
 
-        String sql = childSqlBuilder.selectByParentSubselect(parentSelect);
+        String sql = childSqlBuilder.selectByParentSubSelect(parentSelect);
 
         SimpleSqlFormatter.assertEqualSql(expected, sql);
     }
