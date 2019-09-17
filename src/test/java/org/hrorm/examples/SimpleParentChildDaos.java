@@ -24,4 +24,11 @@ public class SimpleParentChildDaos {
                     .withChildren(SimpleParent::getChildren, SimpleParent::setChildren, CHILD)
                     .withChildSelectStrategy(ChildSelectStrategy.InClause);
 
+    public static final DaoBuilder<SimpleParent> PARENT_SUBSELECT_STRATEGY =
+            new DaoBuilder<>("simple_parent_table", SimpleParent::new)
+                    .withPrimaryKey("id", "simple_child_seq", SimpleParent::getId, SimpleParent::setId)
+                    .withStringColumn("name", SimpleParent::getName, SimpleParent::setName)
+                    .withChildren(SimpleParent::getChildren, SimpleParent::setChildren, CHILD)
+                    .withChildSelectStrategy(ChildSelectStrategy.Subselect);
+
 }

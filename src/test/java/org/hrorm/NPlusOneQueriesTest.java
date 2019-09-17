@@ -1,12 +1,10 @@
 package org.hrorm;
 
-import org.hrorm.examples.SimpleChild;
 import org.hrorm.examples.SimpleParent;
 import org.hrorm.examples.SimpleParentChildDaos;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.InOrder;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import java.sql.Connection;
@@ -105,5 +103,48 @@ public class NPlusOneQueriesTest {
         Mockito.verify(connection).prepareStatement(childSelectSql);
     }
 
+    @Test
+    public void testSubselectMakesTwoQueries() throws SQLException {
+
+        Connection connection = Mockito.mock(Connection.class);
+        PreparedStatement parentStatement = Mockito.mock(PreparedStatement.class);
+        ResultSet parentResultSet = Mockito.mock(ResultSet.class);
+
+        PreparedStatement childStatement = Mockito.mock(PreparedStatement.class);
+        ResultSet childResultSet = Mockito.mock(ResultSet.class);
+
+        Dao<SimpleParent> dao = SimpleParentChildDaos.PARENT_SUBSELECT_STRATEGY.buildDao(connection);
+        Queries parentQueries = dao.queries();
+        Where where = where("NAME", LIKE, "%silly%");
+
+        String selectSql = parentQueries.select(where);
+
+        Mockito.when(connection.prepareStatement(selectSql)).thenReturn(parentStatement);
+        Mockito.when(parentStatement.executeQuery()).thenReturn(parentResultSet);
+
+        Queries childQueries = SimpleParentChildDaos.CHILD.buildQueries();
+        String childSelectSql = childQueries.select() + " where parent_id in (" + selectSql + ")";
+
+        Mockito.when(connection.prepareStatement(childSelectSql)).thenReturn(childStatement);
+        Mockito.when(childStatement.executeQuery()).thenReturn(childResultSet);
+
+        Mockito.when(parentResultSet.next()).thenReturn(true).thenReturn(true).thenReturn(false);
+        Mockito.when(parentResultSet.getLong("id")).thenReturn(1L).thenReturn(2L);
+        Mockito.when(parentResultSet.getString("name")).thenReturn("one").thenReturn("two");
+
+        try {
+            List<SimpleParent> parents = dao.select(where);
+            Assert.assertNotNull(parents);
+            Assert.assertEquals(2, parents.size());
+        } catch (Exception ex){
+            ex.printStackTrace();
+        }
+        
+        InOrder parentResultSetOrder = Mockito.inOrder(parentResultSet);
+        parentResultSetOrder.verify(parentResultSet, Mockito.calls(3)).next();
+
+        Mockito.verify(connection).prepareStatement(selectSql);
+        Mockito.verify(connection).prepareStatement(childSelectSql);
+    }
 
 }

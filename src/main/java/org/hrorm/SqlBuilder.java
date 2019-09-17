@@ -21,12 +21,14 @@ public class SqlBuilder<ENTITY> implements Queries {
     private final List<? extends Column<?,?,ENTITY,?>> nonJoinColumns;
     private final List<? extends JoinColumn<ENTITY, ?, ?, ?>> joinColumns;
     private final PrimaryKey<ENTITY,?> primaryKey;
+    private final String parentColumnName;
 
     public SqlBuilder(DaoDescriptor<ENTITY,?> daoDescriptor){
         this.primaryKey = daoDescriptor.primaryKey();
         this.table = daoDescriptor.tableName();
         this.nonJoinColumns = daoDescriptor.nonJoinColumns();
         this.joinColumns = daoDescriptor.joinColumns();
+        this.parentColumnName = daoDescriptor.parentColumnName();
     }
 
     public SqlBuilder(KeylessDaoDescriptor<ENTITY,?> daoDescriptor){
@@ -34,6 +36,7 @@ public class SqlBuilder<ENTITY> implements Queries {
         this.nonJoinColumns = daoDescriptor.nonJoinColumns();
         this.joinColumns = daoDescriptor.joinColumns();
         this.primaryKey = null;
+        this.parentColumnName = null;
     }
 
     private String columnsAsString(String prefix, boolean withAliases, List<? extends Column> columns){
@@ -80,6 +83,16 @@ public class SqlBuilder<ENTITY> implements Queries {
             buf.append(joinColumn.getJoinedTablePrimaryKeyName());
         }
 
+        return buf.toString();
+    }
+
+    public String selectPrimaryKey(Where where){
+        StringBuilder buf = new StringBuilder();
+        buf.append("select ");
+        buf.append(primaryKey.getName());
+        buf.append(" from ");
+        buf.append(table);
+        buf.append(where.renderNoPrefix());
         return buf.toString();
     }
 
@@ -170,7 +183,7 @@ public class SqlBuilder<ENTITY> implements Queries {
     }
 
 
-    public String selectChildIds(String parentColumn){
+    public String selectChildIds(){
 
         if( primaryKey == null ){
             throw new HrormException("Cannot find children for an entity with no primary key");
@@ -183,10 +196,25 @@ public class SqlBuilder<ENTITY> implements Queries {
         buf.append(" from ");
         buf.append(table);
         buf.append(" where ");
-        buf.append(parentColumn);
+        buf.append(parentColumnName);
         buf.append(" = ?");
 
         return buf.toString();
+    }
+
+    public String selectByParentSubselect(String subSelect){
+
+        StringBuffer buf = new StringBuffer();
+
+        buf.append(select());
+        buf.append(" where a.");
+        buf.append(parentColumnName);
+        buf.append(" in (");
+        buf.append(subSelect);
+        buf.append(")");
+
+        return buf.toString();
+
     }
 
     public String update(){

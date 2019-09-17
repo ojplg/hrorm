@@ -50,4 +50,11 @@ public interface DaoDescriptor<ENTITY, ENTITYBUILDER> extends KeylessDaoDescript
     List<ChildrenDescriptor<ENTITY, ?, ENTITYBUILDER, ?>> childrenDescriptors();
 
     ChildSelectStrategy childSelectStrategy();
+
+    default String parentColumnName() {
+        if ( hasParent() ){
+            return parentColumn().getName();
+        }
+        return null;
+    }
 }

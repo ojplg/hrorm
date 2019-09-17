@@ -88,6 +88,68 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
         populateChildren(connection, parentBuilders, false);
     }
 
+    public void populateChildrenSelectSubselect(Connection connection,
+                                                List<Envelope<PARENTBUILDER>> parentBuilders,
+                                                String primaryKeySelect,
+                                                StatementPopulator statementPopulator){
+
+        // TODO: WHAT ABOUT GRANDCHILDREN???
+
+        if( parentBuilders.size() == 0 ){
+            return;
+        }
+
+        String sql = sqlBuilder.selectByParentSubselect(primaryKeySelect);
+
+        SqlRunner<CHILD,CHILDBUILDER> sqlRunner = new SqlRunner<>(connection, childDaoDescriptor);
+        List<ChildrenDescriptor<CHILD,?,CHILDBUILDER, ?>> childrenDescriptorsList = childDaoDescriptor.childrenDescriptors();
+        Supplier<CHILDBUILDER> supplier = childDaoDescriptor.supplier();
+
+        Map<Long, PARENT> parentsByIds = generateParentMap(parentBuilders);
+
+        List<Envelope<CHILDBUILDER>> childBuilders = sqlRunner.selectWithSubSelect(
+                sql,
+                "",
+                supplier,
+                Collections.emptyList(),
+                statementPopulator,
+                parentChildColumnName());
+
+        Map<Long, List<CHILD>> childrenMapByParentId = new HashMap<>();
+        for( Envelope<CHILDBUILDER> childBuilderEnvelope : childBuilders ) {
+            CHILDBUILDER childBuilder = childBuilderEnvelope.getItem();
+            CHILD child = childBuilder().apply(childBuilder);
+            Long parentId = childBuilderEnvelope.getParentId();
+            PARENT parent = parentsByIds.get(parentId);
+            if( ! childrenMapByParentId.containsKey(parentId)){
+                childrenMapByParentId.put(parentId, new ArrayList<>());
+            }
+            List<CHILD> childList = childrenMapByParentId.get(parentId);
+            parentSetter.accept(childBuilder, parent);
+            childList.add(child);
+        }
+
+        for( Envelope<PARENTBUILDER> parentBuilderEnvelope : parentBuilders){
+            long parentId = parentBuilderEnvelope.getId();
+            List<CHILD> children = childrenMapByParentId.get(parentId);
+            if( children == null ){
+                children = new ArrayList<>();
+            }
+            setter.accept(parentBuilderEnvelope.getItem(), children);
+        }
+    }
+
+    private Map<Long, PARENT> generateParentMap(List<Envelope<PARENTBUILDER>> parentBuilders){
+        Map<Long, PARENT> parentsByIds = new HashMap<>();
+        for( Envelope<PARENTBUILDER> parentbuilderEnvelope : parentBuilders ) {
+            if (parentbuilderEnvelope.getId() != null) {
+                PARENT parent = parentBuildFunction.apply(parentbuilderEnvelope.getItem());
+                parentsByIds.put(parentbuilderEnvelope.getId(), parent);
+            }
+        }
+        return parentsByIds;
+    }
+
     private void populateChildren(Connection connection, List<Envelope<PARENTBUILDER>> parentBuilders, boolean selectAll){
 
         if( parentBuilders.size() == 0 ){
@@ -111,7 +173,7 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
         List<Envelope<CHILDBUILDER>> childrenBuilders;
         if( selectAll ) {
             String sql = sqlBuilder.select();
-            childrenBuilders = sqlRunner.selectAllWithChildInClause(
+            childrenBuilders = sqlRunner.selectAllAndSelectAllChildren(
                     sql,
                     supplier,
                     childrenDescriptorsList,
@@ -190,7 +252,7 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
     }
 
     private Set<Long> findExistingChildrenIds(Connection connection, Long parentId){
-        String sql = sqlBuilder.selectChildIds(parentChildColumnName());
+        String sql = sqlBuilder.selectChildIds();
         SqlRunner<PARENT,PARENTBUILDER> sqlRunner = new SqlRunner(connection);
         return sqlRunner.runSelectChildIds(sql, parentId);
     }

@@ -7,11 +7,11 @@ public enum ChildSelectStrategy {
      */
     Standard,
     /**
-     * When reading a collection of entity records, for each each child table,
+     * When reading a collection of entity records, for each child table,
      * issue a select statement with an in-clause containing the IDs of the
      * parent records. E.g. generate SQL that looks like
      * <code>
-     *     SELECT * FROM CHILD WHERE PARENT_ID in ( ... )
+     *     SELECT * FROM CHILD WHERE PARENT_ID IN ( ... )
      * </code>
      */
     InClause,

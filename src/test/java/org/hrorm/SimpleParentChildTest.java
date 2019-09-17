@@ -361,7 +361,7 @@ public class SimpleParentChildTest {
 
 
     @Test
-    public void testNqueryProblem(){
+    public void testChildQueryStrategiesEquivalent(){
         int LIMIT = 10;
         int CHILD_COUNT = 15;
         Map<String, List<String>> childNamesMap = new HashMap<>();
@@ -379,8 +379,32 @@ public class SimpleParentChildTest {
             }
         });
 
+//        helper.useConnection( connection -> {
+//            Dao<SimpleParent> dao = SimpleParentChildDaos.PARENT.buildDao(connection);
+//            List<SimpleParent> parents = dao.select(where("name", Operator.LIKE, "Nquery_Problem%"));
+//            Assert.assertEquals(LIMIT, parents.size());
+//            for(SimpleParent parent : parents){
+//                Assert.assertEquals(CHILD_COUNT, parent.getChildren().size());
+//                List<String> childNamesFound = extractNames(parent.getChildren());
+//                List<String> expectedChildNames = childNamesMap.get(parent.getName());
+//                AssertHelp.sameContents(expectedChildNames, childNamesFound);
+//            }
+//        });
+//
+//        helper.useConnection( connection -> {
+//            Dao<SimpleParent> dao = SimpleParentChildDaos.PARENT_IN_CLAUSE_STRATEGY.buildDao(connection);
+//            List<SimpleParent> parents = dao.select(where("name", Operator.LIKE, "Nquery_Problem%"));
+//            Assert.assertEquals(LIMIT, parents.size());
+//            for(SimpleParent parent : parents){
+//                Assert.assertEquals(CHILD_COUNT, parent.getChildren().size());
+//                List<String> childNamesFound = extractNames(parent.getChildren());
+//                List<String> expectedChildNames = childNamesMap.get(parent.getName());
+//                AssertHelp.sameContents(expectedChildNames, childNamesFound);
+//            }
+//        });
+
         helper.useConnection( connection -> {
-            Dao<SimpleParent> dao = SimpleParentChildDaos.PARENT_IN_CLAUSE_STRATEGY.buildDao(connection);
+            Dao<SimpleParent> dao = SimpleParentChildDaos.PARENT_SUBSELECT_STRATEGY.buildDao(connection);
             List<SimpleParent> parents = dao.select(where("name", Operator.LIKE, "Nquery_Problem%"));
             Assert.assertEquals(LIMIT, parents.size());
             for(SimpleParent parent : parents){
@@ -390,7 +414,9 @@ public class SimpleParentChildTest {
                 AssertHelp.sameContents(expectedChildNames, childNamesFound);
             }
         });
+
     }
+
 
     private static String randomName(){
         return RandomUtils.randomAlphabeticString(5,15);
@@ -402,7 +428,7 @@ public class SimpleParentChildTest {
     }
 
     private static List<SimpleChild> newChildren(List<String> names){
-        return names.stream().map(n -> newChild(n)).collect(Collectors.toList());
+        return names.stream().map(SimpleParentChildTest::newChild).collect(Collectors.toList());
     }
 
     private static SimpleChild newChild(String name){
@@ -412,6 +438,6 @@ public class SimpleParentChildTest {
     }
 
     private static List<String> extractNames(List<SimpleChild> children){
-        return children.stream().map(c -> c.getName()).collect(Collectors.toList());
+        return children.stream().map(SimpleChild::getName).collect(Collectors.toList());
     }
 }

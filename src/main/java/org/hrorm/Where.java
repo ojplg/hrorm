@@ -592,6 +592,13 @@ public class Where implements StatementPopulator {
         return " where " + tree.render("a.");
     }
 
+    public String renderNoPrefix(){
+        if ( tree.isEmpty() ){
+            return "";
+        }
+        return " where " + tree.render("");
+    }
+
     @Override
     public void populate(PreparedStatement preparedStatement) throws SQLException {
         int idx = 1;

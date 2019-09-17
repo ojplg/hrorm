@@ -95,33 +95,28 @@ public abstract class AbstractDao<ENTITY, BUILDER> implements KeylessDaoDescript
     @Override
     public List<ENTITY> select() {
         String sql = sqlBuilder.select();
-        switch (childSelectStrategy) {
-            case Standard:
-                List<BUILDER> bs = sqlRunner.selectStandard(sql, supplier, childrenDescriptors());
-                return mapBuilders(bs);
-            case InClause:
-                List<Envelope<BUILDER>> ebs = sqlRunner.selectAllWithChildInClause(sql, supplier, childrenDescriptors(), null);
-                return mapEnvelopedBuilders(ebs);
-            default:
-                throw new HrormException("Unsupported child select strategy " + childSelectStrategy);
-        }
+        return doSelectAll(sql);
     }
 
     @Override
     public List<ENTITY> select(Order order) {
         String sql = sqlBuilder.select(order);
+        return doSelectAll(sql);
+    }
+
+    private List<ENTITY> doSelectAll(String sql){
         switch (childSelectStrategy) {
             case Standard:
                 List<BUILDER> bs = sqlRunner.selectStandard(sql, supplier, childrenDescriptors());
                 return mapBuilders(bs);
             case InClause:
-                List<Envelope<BUILDER>> ebs = sqlRunner.selectAllWithChildInClause(sql, supplier, childrenDescriptors(), null);
+            case Subselect:
+                List<Envelope<BUILDER>> ebs = sqlRunner.selectAllAndSelectAllChildren(sql, supplier, childrenDescriptors(), null);
                 return mapEnvelopedBuilders(ebs);
             default:
                 throw new HrormException("Unsupported child select strategy " + childSelectStrategy);
         }
     }
-
 
     @Override
     public ENTITY selectOne(ENTITY item, String ... columnNames){
@@ -139,22 +134,17 @@ public abstract class AbstractDao<ENTITY, BUILDER> implements KeylessDaoDescript
     public List<ENTITY> select(ENTITY item, String ... columnNames) {
         ColumnSelection columnSelection = select(columnNames);
         String sql = sqlBuilder.selectByColumns(columnSelection);
-        switch (childSelectStrategy) {
-            case Standard:
-                List<BUILDER> bs = sqlRunner.selectByColumnsStandard(sql, supplier, select(columnNames), childrenDescriptors(), item);
-                return mapBuilders(bs);
-            case InClause:
-                List<Envelope<BUILDER>> ebs = sqlRunner.selectByColumnsWithChildInClause(sql, supplier, select(columnNames), childrenDescriptors(), item);
-                return mapEnvelopedBuilders(ebs);
-            default:
-                throw new HrormException("Unsupported child select strategy " + childSelectStrategy);
-        }
+        return doSelectByColumns(item, sql, columnNames);
     }
 
     @Override
     public List<ENTITY> select(ENTITY item, Order order, String... columnNames) {
         ColumnSelection columnSelection = select(columnNames);
         String sql = sqlBuilder.selectByColumns(columnSelection, order);
+        return doSelectByColumns(item, sql, columnNames);
+    }
+
+    private List<ENTITY> doSelectByColumns(ENTITY item, String sql, String ... columnNames){
         switch (childSelectStrategy) {
             case Standard:
                 List<BUILDER> bs = sqlRunner.selectByColumnsStandard(sql, supplier, select(columnNames), childrenDescriptors(), item);
@@ -193,21 +183,16 @@ public abstract class AbstractDao<ENTITY, BUILDER> implements KeylessDaoDescript
     @Override
     public List<ENTITY> select(Where where) {
         String sql = sqlBuilder.select(where);
-        switch (childSelectStrategy) {
-            case Standard:
-                List<BUILDER> bs = sqlRunner.selectWhereStandard(sql, supplier, childrenDescriptors(), where);
-                return mapBuilders(bs);
-            case InClause:
-                List<Envelope<BUILDER>> ebs = sqlRunner.selectWithChildInClause(sql, supplier, childrenDescriptors(), where, null);
-                return mapEnvelopedBuilders(ebs);
-            default:
-                throw new HrormException("Unsupported child select strategy " + childSelectStrategy);
-        }
+        return doSelect(sql, where);
     }
 
     @Override
     public List<ENTITY> select(Where where, Order order) {
         String sql = sqlBuilder.select(where, order);
+        return doSelect(sql, where);
+    }
+
+    private List<ENTITY> doSelect(String sql, Where where){
         switch (childSelectStrategy) {
             case Standard:
                 List<BUILDER> bs = sqlRunner.selectWhereStandard(sql, supplier, childrenDescriptors(), where);
@@ -215,6 +200,10 @@ public abstract class AbstractDao<ENTITY, BUILDER> implements KeylessDaoDescript
             case InClause:
                 List<Envelope<BUILDER>> ebs = sqlRunner.selectWithChildInClause(sql, supplier, childrenDescriptors(), where, null);
                 return mapEnvelopedBuilders(ebs);
+            case Subselect:
+                String primaryKeySelector = sqlBuilder.selectPrimaryKey(where);
+                List<Envelope<BUILDER>> ebss = sqlRunner.selectWithSubSelect(sql, primaryKeySelector, supplier, childrenDescriptors(), where, null);
+                return mapEnvelopedBuilders(ebss);
             default:
                 throw new HrormException("Unsupported child select strategy " + childSelectStrategy);
         }
