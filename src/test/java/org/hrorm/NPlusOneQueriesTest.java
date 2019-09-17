@@ -123,7 +123,7 @@ public class NPlusOneQueriesTest {
         Mockito.when(parentStatement.executeQuery()).thenReturn(parentResultSet);
 
         Queries childQueries = SimpleParentChildDaos.CHILD.buildQueries();
-        String childSelectSql = childQueries.select() + " where parent_id in (" + selectSql + ")";
+        String childSelectSql = childQueries.select() + " where a.parent_id in (select id from simple_parent_table where NAME LIKE ? )";
 
         Mockito.when(connection.prepareStatement(childSelectSql)).thenReturn(childStatement);
         Mockito.when(childStatement.executeQuery()).thenReturn(childResultSet);
@@ -139,7 +139,7 @@ public class NPlusOneQueriesTest {
         } catch (Exception ex){
             ex.printStackTrace();
         }
-        
+
         InOrder parentResultSetOrder = Mockito.inOrder(parentResultSet);
         parentResultSetOrder.verify(parentResultSet, Mockito.calls(3)).next();
 
