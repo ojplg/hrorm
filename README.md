@@ -39,3 +39,4 @@ You can also run the tests against postgres, but it takes a bit of work.
 * Similarly, DaoBuilder objects are always mutable. Perhaps they should lock at Dao creation time?
 * Support different types, e.g. String GUIDs, for primary keys
 * Add methods that allow for updates and deletes based on Where objects
+* Make ChildSelectStrategy work for join relations
