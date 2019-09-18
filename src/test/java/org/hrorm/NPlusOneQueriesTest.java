@@ -46,12 +46,16 @@ public class NPlusOneQueriesTest {
         Mockito.when(childStatement.executeQuery()).thenReturn(childResultSet);
 
         Mockito.when(parentResultSet.next()).thenReturn(true).thenReturn(true).thenReturn(false);
-        Mockito.when(parentResultSet.getLong("id")).thenReturn(1L).thenReturn(2L);
-        Mockito.when(parentResultSet.getString("name")).thenReturn("one").thenReturn("two");
+        Mockito.when(parentResultSet.getLong("aid")).thenReturn(1L).thenReturn(1L).thenReturn(2L).thenReturn(2L);
+        Mockito.when(parentResultSet.getString("aname")).thenReturn("one").thenReturn("two");
 
-        List<SimpleParent> parents = dao.select(where);
-        Assert.assertNotNull(parents);
-        Assert.assertEquals(2, parents.size());
+        try {
+            List<SimpleParent> parents = dao.select(where);
+            Assert.assertNotNull(parents);
+            Assert.assertEquals(2, parents.size());
+        } catch (Exception ex){
+            ex.printStackTrace();
+        }
 
         InOrder parentResultSetOrder = Mockito.inOrder(parentResultSet);
         parentResultSetOrder.verify(parentResultSet, Mockito.calls(3)).next();

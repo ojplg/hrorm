@@ -156,15 +156,7 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
             return;
         }
 
-        List<Long> parentIds = new ArrayList<>();
-        Map<Long, PARENT> parentsByIds = new HashMap<>();
-        for( Envelope<PARENTBUILDER> parentbuilderEnvelope : parentBuilders ) {
-            if (parentbuilderEnvelope.getId() != null) {
-                parentIds.add(parentbuilderEnvelope.getId());
-                PARENT parent = parentBuildFunction.apply(parentbuilderEnvelope.getItem());
-                parentsByIds.put(parentbuilderEnvelope.getId(), parent);
-            }
-        }
+        Map<Long, PARENT> parentsByIds = generateParentMap(parentBuilders);
 
         SqlRunner<CHILD,CHILDBUILDER> sqlRunner = new SqlRunner<>(connection, childDaoDescriptor);
         List<ChildrenDescriptor<CHILD,?,CHILDBUILDER, ?>> childrenDescriptorsList = childDaoDescriptor.childrenDescriptors();
@@ -179,7 +171,7 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
                     childrenDescriptorsList,
                     parentChildColumnName());
         } else {
-            Where where = Where.inLong(parentChildColumnName(), new ArrayList<>(parentIds));
+            Where where = Where.inLong(parentChildColumnName(), new ArrayList<>(parentsByIds.keySet()));
             String sql = sqlBuilder.select(where);
             childrenBuilders = sqlRunner.selectWithChildInClause(
                     sql,
