@@ -122,50 +122,24 @@ public class SqlRunner<ENTITY, BUILDER> {
                                                            List<? extends ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors,
                                                            StatementPopulator statementPopulator,
                                                            String parentColumnName) {
-        ResultSet resultSet = null;
-        PreparedStatement statement = null;
-        try {
-            statement = connection.prepareStatement(sql);
-            statementPopulator.populate(statement);
-
-            logger.info(sql);
-            resultSet = statement.executeQuery();
-
-            List<Envelope<BUILDER>> builders = new ArrayList<>();
-
-            while (resultSet.next()) {
-                Envelope<BUILDER> envelope = populate(resultSet, supplier, parentColumnName);
-                builders.add(envelope);
-            }
-
-            for(ChildrenDescriptor<ENTITY,?, BUILDER,?> descriptor : childrenDescriptors){
-                descriptor.populateChildrenSelectInClause(connection, builders);
-            }
-
-            return builders;
-
-        } catch (SQLException ex){
-            throw new HrormException(ex, sql);
-        } finally {
-            try {
-                if (resultSet != null) {
-                    resultSet.close();
-                }
-                if (statement != null) {
-                    statement.close();
-                }
-            } catch (SQLException se){
-                throw new HrormException(se);
-            }
-        }
+        return doDeepSelect(sql, null, supplier, childrenDescriptors, statementPopulator, parentColumnName);
     }
 
     public List<Envelope<BUILDER>> selectWithSubSelect(String sql,
-                                                         String primaryKeySql,
-                                                         Supplier<BUILDER> supplier,
-                                                         List<? extends ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors,
-                                                         StatementPopulator statementPopulator,
+                                                       String primaryKeySql,
+                                                       Supplier<BUILDER> supplier,
+                                                       List<? extends ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors,
+                                                       StatementPopulator statementPopulator,
                                                        String parentColumnName) {
+        return doDeepSelect(sql, primaryKeySql, supplier, childrenDescriptors, statementPopulator, parentColumnName);
+    }
+
+    private List<Envelope<BUILDER>> doDeepSelect(String sql,
+                                                 String primaryKeySql,
+                                                 Supplier<BUILDER> supplier,
+                                                 List<? extends ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors,
+                                                 StatementPopulator statementPopulator,
+                                                 String parentColumnName) {
         ResultSet resultSet = null;
         PreparedStatement statement = null;
         try {
@@ -183,7 +157,11 @@ public class SqlRunner<ENTITY, BUILDER> {
             }
 
             for(ChildrenDescriptor<ENTITY,?, BUILDER,?> descriptor : childrenDescriptors){
-                descriptor.populateChildrenSelectSubselect(connection, builders, primaryKeySql, statementPopulator);
+                if( primaryKeySql != null ) {
+                    descriptor.populateChildrenSelectSubselect(connection, builders, primaryKeySql, statementPopulator);
+                } else {
+                    descriptor.populateChildrenSelectInClause(connection, builders);
+                }
             }
 
             return builders;
@@ -202,7 +180,6 @@ public class SqlRunner<ENTITY, BUILDER> {
                 throw new HrormException(se);
             }
         }
-
     }
 
     public List<BUILDER> selectWhereStandard(String sql,
