@@ -97,16 +97,14 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
             return;
         }
 
-        String sql = sqlBuilder.selectByParentSubSelect(primaryKeySelect);
+        Map<Long, PARENT> parentsByIds = generateParentMap(parentBuilders);
 
         SqlRunner<CHILD,CHILDBUILDER> sqlRunner = new SqlRunner<>(connection, childDaoDescriptor);
         List<ChildrenDescriptor<CHILD,?,CHILDBUILDER, ?>> childrenDescriptorsList = childDaoDescriptor.childrenDescriptors();
         Supplier<CHILDBUILDER> supplier = childDaoDescriptor.supplier();
 
-        Map<Long, PARENT> parentsByIds = generateParentMap(parentBuilders);
-
         String primaryKeySql = sqlBuilder.selectPrimaryKey(primaryKeySelect);
-
+        String sql = sqlBuilder.selectByParentSubSelect(primaryKeySelect);
         List<Envelope<CHILDBUILDER>> childBuilders = sqlRunner.selectWithSubSelect(
                 sql,
                 primaryKeySql,
@@ -116,6 +114,43 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
                 parentChildColumnName());
 
         Map<Long, List<CHILD>> childrenMapByParentId = buildChildrenMapByParentId(childBuilders, parentsByIds);
+
+        handleParentBuilders(childrenMapByParentId, parentBuilders);
+    }
+
+    private void populateChildren(Connection connection, List<Envelope<PARENTBUILDER>> parentBuilders, boolean selectAll){
+
+        if( parentBuilders.size() == 0 ){
+            return;
+        }
+
+        Map<Long, PARENT> parentsByIds = generateParentMap(parentBuilders);
+
+        SqlRunner<CHILD,CHILDBUILDER> sqlRunner = new SqlRunner<>(connection, childDaoDescriptor);
+        List<ChildrenDescriptor<CHILD,?,CHILDBUILDER, ?>> childrenDescriptorsList = childDaoDescriptor.childrenDescriptors();
+        Supplier<CHILDBUILDER> supplier = childDaoDescriptor.supplier();
+
+        List<Envelope<CHILDBUILDER>> childrenBuilders;
+        if( selectAll ) {
+            String sql = sqlBuilder.select();
+            childrenBuilders = sqlRunner.selectAllAndSelectAllChildren(
+                    sql,
+                    supplier,
+                    childrenDescriptorsList,
+                    parentChildColumnName());
+        } else {
+            Where where = Where.inLong(parentChildColumnName(), new ArrayList<>(parentsByIds.keySet()));
+            String sql = sqlBuilder.select(where);
+            childrenBuilders = sqlRunner.selectWithChildInClause(
+                    sql,
+                    supplier,
+                    childrenDescriptorsList,
+                    where,
+                    parentChildColumnName());
+        }
+
+        Map<Long, List<CHILD>> childrenMapByParentId =
+                buildChildrenMapByParentId(childrenBuilders, parentsByIds);
 
         handleParentBuilders(childrenMapByParentId, parentBuilders);
     }
@@ -157,43 +192,6 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
             }
         }
         return parentsByIds;
-    }
-
-    private void populateChildren(Connection connection, List<Envelope<PARENTBUILDER>> parentBuilders, boolean selectAll){
-
-        if( parentBuilders.size() == 0 ){
-            return;
-        }
-
-        Map<Long, PARENT> parentsByIds = generateParentMap(parentBuilders);
-
-        SqlRunner<CHILD,CHILDBUILDER> sqlRunner = new SqlRunner<>(connection, childDaoDescriptor);
-        List<ChildrenDescriptor<CHILD,?,CHILDBUILDER, ?>> childrenDescriptorsList = childDaoDescriptor.childrenDescriptors();
-        Supplier<CHILDBUILDER> supplier = childDaoDescriptor.supplier();
-
-        List<Envelope<CHILDBUILDER>> childrenBuilders;
-        if( selectAll ) {
-            String sql = sqlBuilder.select();
-            childrenBuilders = sqlRunner.selectAllAndSelectAllChildren(
-                    sql,
-                    supplier,
-                    childrenDescriptorsList,
-                    parentChildColumnName());
-        } else {
-            Where where = Where.inLong(parentChildColumnName(), new ArrayList<>(parentsByIds.keySet()));
-            String sql = sqlBuilder.select(where);
-            childrenBuilders = sqlRunner.selectWithChildInClause(
-                    sql,
-                    supplier,
-                    childrenDescriptorsList,
-                    where,
-                    parentChildColumnName());
-        }
-
-        Map<Long, List<CHILD>> childrenMapByParentId =
-                buildChildrenMapByParentId(childrenBuilders, parentsByIds);
-
-        handleParentBuilders(childrenMapByParentId, parentBuilders);
     }
 
     public void saveChildren(Connection connection, Envelope<PARENT> envelope) {
