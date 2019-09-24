@@ -115,19 +115,7 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
                 statementPopulator,
                 parentChildColumnName());
 
-        Map<Long, List<CHILD>> childrenMapByParentId = new HashMap<>();
-        for( Envelope<CHILDBUILDER> childBuilderEnvelope : childBuilders ) {
-            CHILDBUILDER childBuilder = childBuilderEnvelope.getItem();
-            CHILD child = childBuilder().apply(childBuilder);
-            Long parentId = childBuilderEnvelope.getParentId();
-            PARENT parent = parentsByIds.get(parentId);
-            if( ! childrenMapByParentId.containsKey(parentId)){
-                childrenMapByParentId.put(parentId, new ArrayList<>());
-            }
-            List<CHILD> childList = childrenMapByParentId.get(parentId);
-            parentSetter.accept(childBuilder, parent);
-            childList.add(child);
-        }
+        Map<Long, List<CHILD>> childrenMapByParentId = buildChildrenMapByParentId(childBuilders, parentsByIds);
 
         for( Envelope<PARENTBUILDER> parentBuilderEnvelope : parentBuilders){
             long parentId = parentBuilderEnvelope.getId();
@@ -137,6 +125,23 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
             }
             setter.accept(parentBuilderEnvelope.getItem(), children);
         }
+    }
+
+    private Map<Long, List<CHILD>> buildChildrenMapByParentId(List<Envelope<CHILDBUILDER>> childBuilders, Map<Long, PARENT> parentsByIds){
+        Map<Long, List<CHILD>> childrenMapByParentId = new HashMap<>();
+        for( Envelope<CHILDBUILDER> childBuilderEnvelope : childBuilders ) {
+            CHILDBUILDER childBuilder = childBuilderEnvelope.getItem();
+            CHILD child = childBuilder().apply(childBuilder);
+            Long parentId = childBuilderEnvelope.getParentId();
+            PARENT parent = parentsByIds.get(parentId);
+            if (!childrenMapByParentId.containsKey(parentId)) {
+                childrenMapByParentId.put(parentId, new ArrayList<>());
+            }
+            List<CHILD> childList = childrenMapByParentId.get(parentId);
+            parentSetter.accept(childBuilder, parent);
+            childList.add(child);
+        }
+        return childrenMapByParentId;
     }
 
     private Map<Long, PARENT> generateParentMap(List<Envelope<PARENTBUILDER>> parentBuilders){
@@ -181,18 +186,9 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
                     parentChildColumnName());
         }
 
-        Map<Long, List<CHILD>> childrenMapByParentId = new HashMap<>();
-        for( Envelope<CHILDBUILDER> childBuilderEnvelope : childrenBuilders ) {
-            Long parentId = childBuilderEnvelope.getParentId();
-            PARENT parent = parentsByIds.get(parentId);
-            if( ! childrenMapByParentId.containsKey(parentId)){
-                childrenMapByParentId.put(parentId, new ArrayList<>());
-            }
-            List<CHILD> childList = childrenMapByParentId.get(parentId);
-            parentSetter.accept(childBuilderEnvelope.getItem(), parent);
-            CHILD child = childBuilder().apply(childBuilderEnvelope.getItem());
-            childList.add(child);
-        }
+        Map<Long, List<CHILD>> childrenMapByParentId =
+                buildChildrenMapByParentId(childrenBuilders, parentsByIds);
+                new HashMap<>();
 
         for( Envelope<PARENTBUILDER> parentBuilderEnvelope : parentBuilders){
             long parentId = parentBuilderEnvelope.getId();
