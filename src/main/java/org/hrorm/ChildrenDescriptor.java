@@ -117,6 +117,10 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
 
         Map<Long, List<CHILD>> childrenMapByParentId = buildChildrenMapByParentId(childBuilders, parentsByIds);
 
+        handleParentBuilders(childrenMapByParentId, parentBuilders);
+    }
+
+    private void handleParentBuilders(Map<Long, List<CHILD>> childrenMapByParentId, List<Envelope<PARENTBUILDER>> parentBuilders){
         for( Envelope<PARENTBUILDER> parentBuilderEnvelope : parentBuilders){
             long parentId = parentBuilderEnvelope.getId();
             List<CHILD> children = childrenMapByParentId.get(parentId);
@@ -188,16 +192,8 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
 
         Map<Long, List<CHILD>> childrenMapByParentId =
                 buildChildrenMapByParentId(childrenBuilders, parentsByIds);
-                new HashMap<>();
 
-        for( Envelope<PARENTBUILDER> parentBuilderEnvelope : parentBuilders){
-            long parentId = parentBuilderEnvelope.getId();
-            List<CHILD> children = childrenMapByParentId.get(parentId);
-            if( children == null ){
-                children = new ArrayList<>();
-            }
-            setter.accept(parentBuilderEnvelope.getItem(), children);
-        }
+        handleParentBuilders(childrenMapByParentId, parentBuilders);
     }
 
     public void saveChildren(Connection connection, Envelope<PARENT> envelope) {
