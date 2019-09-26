@@ -103,15 +103,15 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
         List<ChildrenDescriptor<CHILD,?,CHILDBUILDER, ?>> childrenDescriptorsList = childDaoDescriptor.childrenDescriptors();
         Supplier<CHILDBUILDER> supplier = childDaoDescriptor.supplier();
 
-        String primaryKeySql = sqlBuilder.selectPrimaryKey(primaryKeySelect);
-        String sql = sqlBuilder.selectByParentSubSelect(primaryKeySelect);
-        List<Envelope<CHILDBUILDER>> childBuilders = sqlRunner.selectWithSubSelect(
-                sql,
-                primaryKeySql,
+        ChildrenBuilderSelectCommand<CHILD,CHILDBUILDER> childrenBuilderSelectCommand =
+                ChildrenBuilderSelectCommand.forSubSelect(primaryKeySelect, statementPopulator);
+
+        List<Envelope<CHILDBUILDER>> childBuilders = childrenBuilderSelectCommand.select(
+                sqlBuilder,
                 supplier,
-                childrenDescriptorsList,
-                statementPopulator,
-                parentChildColumnName());
+                sqlRunner,
+                parentChildColumnName(),
+                childrenDescriptorsList);
 
         Map<Long, List<CHILD>> childrenMapByParentId = buildChildrenMapByParentId(childBuilders, parentsByIds);
 
@@ -130,24 +130,19 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
         List<ChildrenDescriptor<CHILD,?,CHILDBUILDER, ?>> childrenDescriptorsList = childDaoDescriptor.childrenDescriptors();
         Supplier<CHILDBUILDER> supplier = childDaoDescriptor.supplier();
 
-        List<Envelope<CHILDBUILDER>> childrenBuilders;
-        if( selectAll ) {
-            String sql = sqlBuilder.select();
-            childrenBuilders = sqlRunner.selectAllAndSelectAllChildren(
-                    sql,
-                    supplier,
-                    childrenDescriptorsList,
-                    parentChildColumnName());
+        ChildrenBuilderSelectCommand<CHILD,CHILDBUILDER> childrenBuilderSelectCommand;
+        if( selectAll ){
+            childrenBuilderSelectCommand = ChildrenBuilderSelectCommand.forSelectAll();
         } else {
-            Where where = Where.inLong(parentChildColumnName(), new ArrayList<>(parentsByIds.keySet()));
-            String sql = sqlBuilder.select(where);
-            childrenBuilders = sqlRunner.selectWithChildInClause(
-                    sql,
-                    supplier,
-                    childrenDescriptorsList,
-                    where,
-                    parentChildColumnName());
+            childrenBuilderSelectCommand = ChildrenBuilderSelectCommand.forSelectByIds(parentsByIds.keySet());
         }
+
+        List<Envelope<CHILDBUILDER>> childrenBuilders = childrenBuilderSelectCommand.select(
+                sqlBuilder,
+                supplier,
+                sqlRunner,
+                parentChildColumnName(),
+                childrenDescriptorsList);
 
         Map<Long, List<CHILD>> childrenMapByParentId =
                 buildChildrenMapByParentId(childrenBuilders, parentsByIds);
