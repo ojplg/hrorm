@@ -10,6 +10,7 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 /**
  * Complete definition of how a child entity is related to its parent entity.
@@ -81,45 +82,30 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
     }
 
     public void populateChildrenSelectAll(Connection connection, List<Envelope<PARENTBUILDER>> parentBuilders){
-        populateChildren(connection, parentBuilders, true);
+        ChildrenBuilderSelectCommand<CHILD,CHILDBUILDER> childrenBuilderSelectCommand =
+                ChildrenBuilderSelectCommand.forSelectAll();
+        populateChildren(connection, parentBuilders, childrenBuilderSelectCommand);
     }
 
     public void populateChildrenSelectInClause(Connection connection, List<Envelope<PARENTBUILDER>> parentBuilders){
-        populateChildren(connection, parentBuilders, false);
+        List<Long> parentIds = parentBuilders.stream().map(Envelope::getId).collect(Collectors.toList());
+        ChildrenBuilderSelectCommand<CHILD,CHILDBUILDER> childrenBuilderSelectCommand =
+                ChildrenBuilderSelectCommand.forSelectByIds(parentIds);
+        populateChildren(connection, parentBuilders, childrenBuilderSelectCommand);
     }
 
     public void populateChildrenSelectSubselect(Connection connection,
                                                 List<Envelope<PARENTBUILDER>> parentBuilders,
                                                 String primaryKeySelect,
                                                 StatementPopulator statementPopulator){
-
-        if( parentBuilders.size() == 0 ){
-            return;
-        }
-
-        Map<Long, PARENT> parentsByIds = generateParentMap(parentBuilders);
-
-        SqlRunner<CHILD,CHILDBUILDER> sqlRunner = new SqlRunner<>(connection, childDaoDescriptor);
-        List<ChildrenDescriptor<CHILD,?,CHILDBUILDER, ?>> childrenDescriptorsList = childDaoDescriptor.childrenDescriptors();
-        Supplier<CHILDBUILDER> supplier = childDaoDescriptor.supplier();
-
         ChildrenBuilderSelectCommand<CHILD,CHILDBUILDER> childrenBuilderSelectCommand =
                 ChildrenBuilderSelectCommand.forSubSelect(primaryKeySelect, statementPopulator);
-
-        List<Envelope<CHILDBUILDER>> childBuilders = childrenBuilderSelectCommand.select(
-                sqlBuilder,
-                supplier,
-                sqlRunner,
-                parentChildColumnName(),
-                childrenDescriptorsList);
-
-        Map<Long, List<CHILD>> childrenMapByParentId = buildChildrenMapByParentId(childBuilders, parentsByIds);
-
-        handleParentBuilders(childrenMapByParentId, parentBuilders);
+        populateChildren(connection, parentBuilders, childrenBuilderSelectCommand);
     }
 
-    private void populateChildren(Connection connection, List<Envelope<PARENTBUILDER>> parentBuilders, boolean selectAll){
-
+    private void populateChildren(Connection connection,
+                                  List<Envelope<PARENTBUILDER>> parentBuilders,
+                                  ChildrenBuilderSelectCommand<CHILD, CHILDBUILDER> childrenBuilderSelectCommand){
         if( parentBuilders.size() == 0 ){
             return;
         }
@@ -129,13 +115,6 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
         SqlRunner<CHILD,CHILDBUILDER> sqlRunner = new SqlRunner<>(connection, childDaoDescriptor);
         List<ChildrenDescriptor<CHILD,?,CHILDBUILDER, ?>> childrenDescriptorsList = childDaoDescriptor.childrenDescriptors();
         Supplier<CHILDBUILDER> supplier = childDaoDescriptor.supplier();
-
-        ChildrenBuilderSelectCommand<CHILD,CHILDBUILDER> childrenBuilderSelectCommand;
-        if( selectAll ){
-            childrenBuilderSelectCommand = ChildrenBuilderSelectCommand.forSelectAll();
-        } else {
-            childrenBuilderSelectCommand = ChildrenBuilderSelectCommand.forSelectByIds(parentsByIds.keySet());
-        }
 
         List<Envelope<CHILDBUILDER>> childrenBuilders = childrenBuilderSelectCommand.select(
                 sqlBuilder,
