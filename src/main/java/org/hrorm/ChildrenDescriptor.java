@@ -86,26 +86,10 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
                 ChildrenBuilderSelectCommand.forSelectAll();
         populateChildren(connection, parentBuilders, childrenBuilderSelectCommand);
     }
-
-    public void populateChildrenSelectInClause(Connection connection, List<Envelope<PARENTBUILDER>> parentBuilders){
-        List<Long> parentIds = parentBuilders.stream().map(Envelope::getId).collect(Collectors.toList());
-        ChildrenBuilderSelectCommand<CHILD,CHILDBUILDER> childrenBuilderSelectCommand =
-                ChildrenBuilderSelectCommand.forSelectByIds(parentIds);
-        populateChildren(connection, parentBuilders, childrenBuilderSelectCommand);
-    }
-
-    public void populateChildrenSelectSubselect(Connection connection,
-                                                List<Envelope<PARENTBUILDER>> parentBuilders,
-                                                String primaryKeySelect,
-                                                StatementPopulator statementPopulator){
-        ChildrenBuilderSelectCommand<CHILD,CHILDBUILDER> childrenBuilderSelectCommand =
-                ChildrenBuilderSelectCommand.forSubSelect(primaryKeySelect, statementPopulator);
-        populateChildren(connection, parentBuilders, childrenBuilderSelectCommand);
-    }
-
-    private void populateChildren(Connection connection,
+    
+    public void populateChildren(Connection connection,
                                   List<Envelope<PARENTBUILDER>> parentBuilders,
-                                  ChildrenBuilderSelectCommand<CHILD, CHILDBUILDER> childrenBuilderSelectCommand){
+                                  ChildrenBuilderSelectCommand childrenBuilderSelectCommand){
         if( parentBuilders.size() == 0 ){
             return;
         }

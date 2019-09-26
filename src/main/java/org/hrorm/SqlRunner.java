@@ -15,6 +15,7 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  * This class does the heavy lifting of creating <code>Statement</code>s,
@@ -157,11 +158,16 @@ public class SqlRunner<ENTITY, BUILDER> {
             }
 
             for(ChildrenDescriptor<ENTITY,?, BUILDER,?> descriptor : childrenDescriptors){
+                ChildrenBuilderSelectCommand<?,?> childrenBuilderSelectCommand;
                 if( primaryKeySql != null ) {
-                    descriptor.populateChildrenSelectSubselect(connection, builders, primaryKeySql, statementPopulator);
+                    childrenBuilderSelectCommand =
+                            ChildrenBuilderSelectCommand.forSubSelect(primaryKeySql, statementPopulator);
                 } else {
-                    descriptor.populateChildrenSelectInClause(connection, builders);
+                    List<Long> parentIds = builders.stream().map(Envelope::getId).collect(Collectors.toList());
+                    childrenBuilderSelectCommand =
+                            ChildrenBuilderSelectCommand.forSelectByIds(parentIds);
                 }
+                descriptor.populateChildren(connection, builders, childrenBuilderSelectCommand);
             }
 
             return builders;
