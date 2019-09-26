@@ -81,12 +81,6 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
         setter.accept(parentBuilder, children);
     }
 
-    public void populateChildrenSelectAll(Connection connection, List<Envelope<PARENTBUILDER>> parentBuilders){
-        ChildrenBuilderSelectCommand<CHILD,CHILDBUILDER> childrenBuilderSelectCommand =
-                ChildrenBuilderSelectCommand.forSelectAll();
-        populateChildren(connection, parentBuilders, childrenBuilderSelectCommand);
-    }
-    
     public void populateChildren(Connection connection,
                                   List<Envelope<PARENTBUILDER>> parentBuilders,
                                   ChildrenBuilderSelectCommand childrenBuilderSelectCommand){

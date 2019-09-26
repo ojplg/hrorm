@@ -88,7 +88,9 @@ public class SqlRunner<ENTITY, BUILDER> {
             }
 
             for(ChildrenDescriptor<ENTITY,?, BUILDER,?> descriptor : childrenDescriptors){
-                descriptor.populateChildrenSelectAll(connection, builders);
+                ChildrenBuilderSelectCommand childrenBuilderSelectCommand =
+                        ChildrenBuilderSelectCommand.forSelectAll();
+                descriptor.populateChildren(connection, builders, childrenBuilderSelectCommand);
             }
 
             return builders;
