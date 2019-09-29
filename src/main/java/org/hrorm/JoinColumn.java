@@ -1,5 +1,6 @@
 package org.hrorm;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -89,6 +90,8 @@ public class JoinColumn<ENTITY, JOINED, ENTITYBUILDER, JOINEDBUILDER> implements
         return PopulateResult.fromJoinColumn(
                 connection -> {
                     for(ChildrenDescriptor<JOINED,?, JOINEDBUILDER,?> childrenDescriptor : daoDescriptor.childrenDescriptors()){
+                        // FIXME: this needs to be a call to something else
+                        /// needs to use the ChildSelectStrategy or the ChildrenBuilderSelectCommand or something
                         childrenDescriptor.populateChildren(connection, joinedBuilder);
                     }
                 }
