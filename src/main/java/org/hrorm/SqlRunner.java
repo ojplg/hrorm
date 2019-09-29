@@ -190,6 +190,16 @@ public class SqlRunner<ENTITY, BUILDER> {
         }
     }
 
+
+
+    public List<Envelope<BUILDER>> selectWhereStandardEnveloped(String sql,
+                                                                Supplier<BUILDER> supplier,
+                                                                List<? extends ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors,
+                                                                Where where) {
+        throw new UnsupportedOperationException();
+    }
+
+
     public List<BUILDER> selectWhereStandard(String sql,
                                              Supplier<BUILDER> supplier,
                                              List<? extends ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors,
