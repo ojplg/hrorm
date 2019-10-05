@@ -87,6 +87,8 @@ public class JoinColumn<ENTITY, JOINED, ENTITYBUILDER, JOINEDBUILDER> implements
 
         JOINED joinedItem = joinBuilder.apply(joinedBuilder);
         setter.accept(builder, joinedItem);
+        // need to return a joined item within an envelope inside the result
+
         return PopulateResult.fromJoinColumn(
                 connection -> {
                     for(ChildrenDescriptor<JOINED,?, JOINEDBUILDER,?> childrenDescriptor : daoDescriptor.childrenDescriptors()){

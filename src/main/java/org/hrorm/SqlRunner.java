@@ -490,6 +490,10 @@ public class SqlRunner<ENTITY, BUILDER> {
 
         for (Column<?, ?, ENTITY, BUILDER> column: allColumns) {
             PopulateResult populateResult = column.populate(item, resultSet);
+            // instead of this, detect if this is a join column and extract
+            // joined item, including ID
+            // collect all joined items, but keep separated by column or type
+
             populateResult.populateChildren(connection);
             if( column.getName().equalsIgnoreCase(parentColumName)){
                 parentId  = resultSet.getLong(column.getPrefix() + column.getName());

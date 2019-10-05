@@ -6,6 +6,7 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -137,8 +138,9 @@ public abstract class AbstractHelper implements Helper {
     @Override
     public void advanceSequences() {
         Random random = new Random();
+        Connection connection = null;
         try {
-            Connection connection = connect();
+            connection = connect();
             for(String sequenceName : sequenceNames){
                 int count = random.nextInt(100) + 1;
                 for( int idx=0; idx<count; idx++) {
@@ -148,9 +150,16 @@ public abstract class AbstractHelper implements Helper {
                 }
             }
             connection.commit();
-            connection.close();
         } catch (Exception ex){
             throw new RuntimeException(ex);
+        } finally {
+            try {
+                if( connection != null ) {
+                    connection.close();
+                }
+            } catch (SQLException ex){
+                throw new RuntimeException(ex);
+            }
         }
     }
 
