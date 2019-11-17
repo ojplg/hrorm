@@ -1,7 +1,5 @@
 package org.hrorm;
 
-import com.sun.scenario.effect.impl.prism.ps.PPSBlend_ADDPeer;
-
 import java.sql.Connection;
 import java.util.function.Consumer;
 
@@ -23,7 +21,7 @@ public class PopulateResult {
 
     private final String code;
     private final Consumer<Connection> connectionUser;
-    private final Object joinedItem;
+    private final Envelope<Object> joinedItem;
 
     private PopulateResult(String code){
         this.code = code;
@@ -37,7 +35,7 @@ public class PopulateResult {
         this.joinedItem = null;
     }
 
-    private PopulateResult(Object object){
+    private PopulateResult(Envelope<Object> object){
         this.code = JoinedItemResult;
         this.connectionUser = con -> {};
         this.joinedItem = object;
@@ -47,7 +45,7 @@ public class PopulateResult {
         return new PopulateResult(connectionUser);
     }
 
-    public static PopulateResult fromJoinColumn(Object item){
+    public static PopulateResult fromJoinColumn(Envelope<Object> item){
         return new PopulateResult(item);
     }
 
@@ -57,6 +55,10 @@ public class PopulateResult {
 
     public boolean isJoinedItemResult(){
         return code.equals(JoinedItemResult);
+    }
+
+    public Envelope<Object> getJoinedItem(){
+        return joinedItem;
     }
 
     @Override

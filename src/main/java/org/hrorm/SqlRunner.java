@@ -488,13 +488,22 @@ public class SqlRunner<ENTITY, BUILDER> {
         Long parentId = null;
         Long itemId = null;
 
+        JoinedChildrenInfo joinedChildrenInfo = new JoinedChildrenInfo();
+
         for (Column<?, ?, ENTITY, BUILDER> column: allColumns) {
             PopulateResult populateResult = column.populate(item, resultSet);
             // instead of this, detect if this is a join column and extract
             // joined item, including ID
             // collect all joined items, but keep separated by column or type
 
-            populateResult.populateChildren(connection);
+            if ( populateResult.isJoinedItemResult() ){
+                JoinColumn joinColumn = (JoinColumn) column;
+                Envelope<Object> envelope = populateResult.getJoinedItem();
+
+                joinedChildrenInfo.addChildEntityInfo(envelope, joinColumn);
+            } else {
+                populateResult.populateChildren(connection);
+            }
             if( column.getName().equalsIgnoreCase(parentColumName)){
                 parentId  = resultSet.getLong(column.getPrefix() + column.getName());
             }
