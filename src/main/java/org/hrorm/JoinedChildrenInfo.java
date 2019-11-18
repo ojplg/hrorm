@@ -1,9 +1,11 @@
 package org.hrorm;
 
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class JoinedChildrenInfo {
 
@@ -18,6 +20,23 @@ public class JoinedChildrenInfo {
         EntityRecord record = records.get(columnName);
         record.addRecord(joinedObject);
     }
+
+    public void populateChildren(Connection connection, List builders){
+
+        for (EntityRecord entityRecord: records.values()) {
+            List<Long> parentIds = entityRecord.entityIds();
+            ChildrenBuilderSelectCommand childrenBuilderSelectCommand =
+                    ChildrenBuilderSelectCommand.forSelectByIds(parentIds);
+
+            DaoDescriptor daoDescriptor = entityRecord.getDaoDescriptor();
+            List<ChildrenDescriptor> childrenDescriptors = daoDescriptor.childrenDescriptors();
+            for( ChildrenDescriptor childrenDescriptor : childrenDescriptors ) {
+                childrenDescriptor.populateChildren(connection, builders, childrenBuilderSelectCommand);
+            }
+        }
+    }
+
+
 
     private static class EntityRecord {
 
@@ -35,6 +54,14 @@ public class JoinedChildrenInfo {
 
         public String getColumnName(){
             return joinColumn.getName();
+        }
+
+        public List<Long> entityIds(){
+            return records.stream().map(Envelope::getId).collect(Collectors.toList());
+        }
+
+        public DaoDescriptor getDaoDescriptor(){
+            return joinColumn.getJoinedDaoDescriptor();
         }
     }
 }

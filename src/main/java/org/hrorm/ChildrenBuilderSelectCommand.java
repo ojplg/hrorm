@@ -79,24 +79,7 @@ public class ChildrenBuilderSelectCommand<CHILD,CHILDBUILDER> {
                 throw new HrormException("Unrecognized selection type " + selectionType);
         }
     }
-
-    private List<Envelope<CHILDBUILDER>> doSelectOne(
-            SqlBuilder<CHILD> sqlBuilder,
-            Supplier<CHILDBUILDER> supplier,
-            SqlRunner<CHILD, CHILDBUILDER> sqlRunner,
-            String parentChildColumnName,
-            List<ChildrenDescriptor<CHILD,?,CHILDBUILDER, ?>> childrenDescriptorsList){
-        Long parentId = parentIds.iterator().next();
-        Where where = new Where(parentChildColumnName, Operator.EQUALS, parentId);
-        String sql = sqlBuilder.select(where);
-        return sqlRunner.selectWhereStandardEnveloped(
-                sql,
-                supplier,
-                childrenDescriptorsList,
-                where);
-
-    }
-
+    
     private List<Envelope<CHILDBUILDER>> doSelectWithSubSelect(
             SqlBuilder<CHILD> sqlBuilder,
             Supplier<CHILDBUILDER> supplier,

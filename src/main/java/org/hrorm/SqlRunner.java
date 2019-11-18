@@ -72,31 +72,59 @@ public class SqlRunner<ENTITY, BUILDER> {
                                                                  Supplier<BUILDER> supplier,
                                                                  List<? extends ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors,
                                                                  String parentColumnName) {
+
+        SelectionInstruction selectionInstruction = new SelectionInstruction(
+                sql, null, ChildSelectStrategy.Standard, parentColumnName
+        );
+
+        return doSelection(selectionInstruction, supplier, childrenDescriptors, new StatementPopulator.Empty());
+
+    }
+
+    private List<Envelope<BUILDER>> doSelection(SelectionInstruction selectionInstruction,
+                                                Supplier<BUILDER> supplier,
+                                                 List<? extends ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors,
+                                                 StatementPopulator statementPopulator) {
+
+
+
+
         ResultSet resultSet = null;
         PreparedStatement statement = null;
         try {
-            statement = connection.prepareStatement(sql);
+            statement = connection.prepareStatement(selectionInstruction.getSelectSql());
+            statementPopulator.populate(statement);
 
-            logger.info(sql);
+            logger.info(selectionInstruction.getSelectSql());
             resultSet = statement.executeQuery();
 
             List<Envelope<BUILDER>> builders = new ArrayList<>();
 
             while (resultSet.next()) {
-                Envelope<BUILDER> envelope = populate(resultSet, supplier, parentColumnName);
-                builders.add(envelope);
+                Envelope<BUILDER >builder = populate(resultSet, supplier, selectionInstruction.getParentColumnName());
+                builders.add(builder);
             }
 
             for(ChildrenDescriptor<ENTITY,?, BUILDER,?> descriptor : childrenDescriptors){
-                ChildrenBuilderSelectCommand childrenBuilderSelectCommand =
-                        ChildrenBuilderSelectCommand.forSelectAll();
+                ChildrenBuilderSelectCommand<?,?> childrenBuilderSelectCommand;
+                if( selectionInstruction.getChildSelectStrategy().equals(ChildSelectStrategy.SubSelectInClause) ) {
+                    childrenBuilderSelectCommand =
+                            ChildrenBuilderSelectCommand.forSubSelect(selectionInstruction.getPrimaryKeySql(), statementPopulator);
+                } else if ( selectionInstruction.getChildSelectStrategy().equals(ChildSelectStrategy.ByKeysInClause) ) {
+                    List<Long> parentIds = builders.stream().map(Envelope::getId).collect(Collectors.toList());
+                    childrenBuilderSelectCommand =
+                            ChildrenBuilderSelectCommand.forSelectByIds(parentIds);
+                } else {
+                    childrenBuilderSelectCommand =
+                            ChildrenBuilderSelectCommand.forSelectAll();
+                }
                 descriptor.populateChildren(connection, builders, childrenBuilderSelectCommand);
             }
 
             return builders;
 
         } catch (SQLException ex){
-            throw new HrormException(ex, sql);
+            throw new HrormException(ex, selectionInstruction.getSelectSql());
         } finally {
             try {
                 if (resultSet != null) {
@@ -110,6 +138,22 @@ public class SqlRunner<ENTITY, BUILDER> {
             }
         }
     }
+
+
+        private List<Envelope<BUILDER>> doDeepSelect(String sql,
+                                                 String primaryKeySql,
+                                                 Supplier<BUILDER> supplier,
+                                                 List<? extends ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors,
+                                                 StatementPopulator statementPopulator,
+                                                 String parentColumnName) {
+        ChildSelectStrategy childSelectStrategy = primaryKeySql == null ? ChildSelectStrategy.ByKeysInClause : ChildSelectStrategy.SubSelectInClause;
+        SelectionInstruction selectionInstruction = new SelectionInstruction(
+                sql, primaryKeySql, childSelectStrategy, parentColumnName
+        );
+
+        return doSelection(selectionInstruction, supplier, childrenDescriptors, statementPopulator);
+    }
+
 
     public List<Envelope<BUILDER>> selectByColumnsWithChildInClause(String sql,
                                                                     Supplier<BUILDER> supplier,
@@ -136,69 +180,6 @@ public class SqlRunner<ENTITY, BUILDER> {
                                                        String parentColumnName) {
         return doDeepSelect(sql, primaryKeySql, supplier, childrenDescriptors, statementPopulator, parentColumnName);
     }
-
-    private List<Envelope<BUILDER>> doDeepSelect(String sql,
-                                                 String primaryKeySql,
-                                                 Supplier<BUILDER> supplier,
-                                                 List<? extends ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors,
-                                                 StatementPopulator statementPopulator,
-                                                 String parentColumnName) {
-        ResultSet resultSet = null;
-        PreparedStatement statement = null;
-        try {
-            statement = connection.prepareStatement(sql);
-            statementPopulator.populate(statement);
-
-            logger.info(sql);
-            resultSet = statement.executeQuery();
-
-            List<Envelope<BUILDER>> builders = new ArrayList<>();
-
-            while (resultSet.next()) {
-                Envelope<BUILDER >builder = populate(resultSet, supplier, parentColumnName);
-                builders.add(builder);
-            }
-
-            for(ChildrenDescriptor<ENTITY,?, BUILDER,?> descriptor : childrenDescriptors){
-                ChildrenBuilderSelectCommand<?,?> childrenBuilderSelectCommand;
-                if( primaryKeySql != null ) {
-                    childrenBuilderSelectCommand =
-                            ChildrenBuilderSelectCommand.forSubSelect(primaryKeySql, statementPopulator);
-                } else {
-                    List<Long> parentIds = builders.stream().map(Envelope::getId).collect(Collectors.toList());
-                    childrenBuilderSelectCommand =
-                            ChildrenBuilderSelectCommand.forSelectByIds(parentIds);
-                }
-                descriptor.populateChildren(connection, builders, childrenBuilderSelectCommand);
-            }
-
-            return builders;
-
-        } catch (SQLException ex){
-            throw new HrormException(ex, sql);
-        } finally {
-            try {
-                if (resultSet != null) {
-                    resultSet.close();
-                }
-                if (statement != null) {
-                    statement.close();
-                }
-            } catch (SQLException se){
-                throw new HrormException(se);
-            }
-        }
-    }
-
-
-
-    public List<Envelope<BUILDER>> selectWhereStandardEnveloped(String sql,
-                                                                Supplier<BUILDER> supplier,
-                                                                List<? extends ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors,
-                                                                Where where) {
-        throw new UnsupportedOperationException();
-    }
-
 
     public List<BUILDER> selectWhereStandard(String sql,
                                              Supplier<BUILDER> supplier,

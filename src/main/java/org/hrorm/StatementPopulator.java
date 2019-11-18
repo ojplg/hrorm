@@ -12,4 +12,12 @@ import java.sql.SQLException;
  */
 public interface StatementPopulator {
     void populate(PreparedStatement preparedStatement) throws SQLException;
+
+    public class Empty implements StatementPopulator {
+        @Override
+        public void populate(PreparedStatement preparedStatement) throws SQLException {
+
+        }
+    }
+
 }
