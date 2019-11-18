@@ -74,7 +74,7 @@ public class SqlRunner<ENTITY, BUILDER> {
                                                                  String parentColumnName) {
 
         SelectionInstruction selectionInstruction = new SelectionInstruction(
-                sql, null, ChildSelectStrategy.Standard, parentColumnName
+                sql, null, ChildSelectStrategy.SubSelectInClause, parentColumnName, true
         );
 
         return doSelection(selectionInstruction, supplier, childrenDescriptors, new StatementPopulator.Empty());
@@ -101,24 +101,25 @@ public class SqlRunner<ENTITY, BUILDER> {
             List<Envelope<BUILDER>> builders = new ArrayList<>();
 
             while (resultSet.next()) {
-                Envelope<BUILDER >builder = populate(resultSet, supplier, selectionInstruction.getParentColumnName());
+                Envelope<BUILDER> builder = populate(resultSet, supplier, selectionInstruction.getParentColumnName());
                 builders.add(builder);
             }
 
-            for(ChildrenDescriptor<ENTITY,?, BUILDER,?> descriptor : childrenDescriptors){
-                ChildrenBuilderSelectCommand<?,?> childrenBuilderSelectCommand;
-                if( selectionInstruction.getChildSelectStrategy().equals(ChildSelectStrategy.SubSelectInClause) ) {
-                    childrenBuilderSelectCommand =
-                            ChildrenBuilderSelectCommand.forSubSelect(selectionInstruction.getPrimaryKeySql(), statementPopulator);
-                } else if ( selectionInstruction.getChildSelectStrategy().equals(ChildSelectStrategy.ByKeysInClause) ) {
-                    List<Long> parentIds = builders.stream().map(Envelope::getId).collect(Collectors.toList());
-                    childrenBuilderSelectCommand =
-                            ChildrenBuilderSelectCommand.forSelectByIds(parentIds);
-                } else {
-                    childrenBuilderSelectCommand =
-                            ChildrenBuilderSelectCommand.forSelectAll();
+            if ( selectionInstruction.isBulkChildSelectStrategy()) {
+                for (ChildrenDescriptor<ENTITY, ?, BUILDER, ?> descriptor : childrenDescriptors) {
+                    ChildrenBuilderSelectCommand<?, ?> childrenBuilderSelectCommand;
+                    if( selectionInstruction.isSelectAll()) {
+                        childrenBuilderSelectCommand = ChildrenBuilderSelectCommand.forSelectAll();
+                    } else if (selectionInstruction.getChildSelectStrategy().equals(ChildSelectStrategy.SubSelectInClause)) {
+                        childrenBuilderSelectCommand =
+                                ChildrenBuilderSelectCommand.forSubSelect(selectionInstruction.getPrimaryKeySql(), statementPopulator);
+                    } else {
+                        List<Long> parentIds = builders.stream().map(Envelope::getId).collect(Collectors.toList());
+                        childrenBuilderSelectCommand =
+                                ChildrenBuilderSelectCommand.forSelectByIds(parentIds);
+                    }
+                    descriptor.populateChildren(connection, builders, childrenBuilderSelectCommand);
                 }
-                descriptor.populateChildren(connection, builders, childrenBuilderSelectCommand);
             }
 
             return builders;
@@ -148,7 +149,7 @@ public class SqlRunner<ENTITY, BUILDER> {
                                                  String parentColumnName) {
         ChildSelectStrategy childSelectStrategy = primaryKeySql == null ? ChildSelectStrategy.ByKeysInClause : ChildSelectStrategy.SubSelectInClause;
         SelectionInstruction selectionInstruction = new SelectionInstruction(
-                sql, primaryKeySql, childSelectStrategy, parentColumnName
+                sql, primaryKeySql, childSelectStrategy, parentColumnName, false
         );
 
         return doSelection(selectionInstruction, supplier, childrenDescriptors, statementPopulator);

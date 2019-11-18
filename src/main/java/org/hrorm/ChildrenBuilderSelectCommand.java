@@ -79,7 +79,7 @@ public class ChildrenBuilderSelectCommand<CHILD,CHILDBUILDER> {
                 throw new HrormException("Unrecognized selection type " + selectionType);
         }
     }
-    
+
     private List<Envelope<CHILDBUILDER>> doSelectWithSubSelect(
             SqlBuilder<CHILD> sqlBuilder,
             Supplier<CHILDBUILDER> supplier,
