@@ -23,17 +23,18 @@ public class JoinedChildrenInfo {
         System.out.println(" THIS " + this.toString());
     }
 
-    public void populateChildren(Connection connection, List builders){
+    public void populateChildren(Connection connection){
 
         for (EntityRecord entityRecord: records.values()) {
             List<Long> parentIds = entityRecord.entityIds();
+//            List<Object> builders = entityRecord.builders();
             ChildrenBuilderSelectCommand childrenBuilderSelectCommand =
                     ChildrenBuilderSelectCommand.forSelectByIds(parentIds);
 
             DaoDescriptor daoDescriptor = entityRecord.getDaoDescriptor();
             List<ChildrenDescriptor> childrenDescriptors = daoDescriptor.childrenDescriptors();
             for( ChildrenDescriptor childrenDescriptor : childrenDescriptors ) {
-                childrenDescriptor.populateChildren(connection, builders, childrenBuilderSelectCommand);
+                childrenDescriptor.populateChildren(connection, entityRecord.records, childrenBuilderSelectCommand);
             }
         }
     }
@@ -60,6 +61,10 @@ public class JoinedChildrenInfo {
 
         public List<Long> entityIds(){
             return records.stream().map(Envelope::getId).collect(Collectors.toList());
+        }
+
+        public List<Object> builders(){
+            return records.stream().map(Envelope::getItem).collect(Collectors.toList());
         }
 
         public DaoDescriptor getDaoDescriptor(){

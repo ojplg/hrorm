@@ -127,7 +127,7 @@ public class SqlRunner<ENTITY, BUILDER> {
 
             logger.info("JOINED TWO " + joinedChildrenInfo);
 
-            joinedChildrenInfo.populateChildren(connection, builders);
+            joinedChildrenInfo.populateChildren(connection);
 
             return builders;
 
