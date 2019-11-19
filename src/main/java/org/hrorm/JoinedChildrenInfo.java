@@ -19,15 +19,12 @@ public class JoinedChildrenInfo {
         }
         EntityRecord record = records.get(columnName);
         record.addRecord(joinedObject);
-
-        System.out.println(" THIS " + this.toString());
     }
 
     public void populateChildren(Connection connection){
 
         for (EntityRecord entityRecord: records.values()) {
             List<Long> parentIds = entityRecord.entityIds();
-//            List<Object> builders = entityRecord.builders();
             ChildrenBuilderSelectCommand childrenBuilderSelectCommand =
                     ChildrenBuilderSelectCommand.forSelectByIds(parentIds);
 
@@ -61,10 +58,6 @@ public class JoinedChildrenInfo {
 
         public List<Long> entityIds(){
             return records.stream().map(Envelope::getId).collect(Collectors.toList());
-        }
-
-        public List<Object> builders(){
-            return records.stream().map(Envelope::getItem).collect(Collectors.toList());
         }
 
         public DaoDescriptor getDaoDescriptor(){

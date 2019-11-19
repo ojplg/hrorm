@@ -96,13 +96,9 @@ public class JoinColumn<ENTITY, JOINED, ENTITYBUILDER, JOINEDBUILDER> implements
 
         JOINED joinedItem = joinBuilder.apply(joinedBuilder);
         setter.accept(builder, joinedItem);
-        // need to return a joined item within an envelope inside the result
-
-        System.out.println(" STRATEGY " + joinedDaoDescriptor.childSelectStrategy());
 
         if (ChildSelectStrategy.ByKeysInClause.equals(joinedDaoDescriptor.childSelectStrategy())){
             long primaryKey = joinedDaoDescriptor.primaryKey().getKey(joinedItem).longValue();
-            System.out.println("KEY " + primaryKey);
             Envelope<Object> envelope = new Envelope<Object>(joinedItem, primaryKey);
             return PopulateResult.fromJoinColumn(envelope);
         }
@@ -110,8 +106,6 @@ public class JoinColumn<ENTITY, JOINED, ENTITYBUILDER, JOINEDBUILDER> implements
         return PopulateResult.fromJoinColumn(
                 connection -> {
                     for(ChildrenDescriptor<JOINED,?, JOINEDBUILDER,?> childrenDescriptor : joinedDaoDescriptor.childrenDescriptors()){
-                        // FIXME: this needs to be a call to something else
-                        /// needs to use the ChildSelectStrategy or the ChildrenBuilderSelectCommand or something
                         childrenDescriptor.populateChildren(connection, joinedBuilder);
                     }
                 }
