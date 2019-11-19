@@ -100,10 +100,13 @@ public class SqlRunner<ENTITY, BUILDER> {
 
             List<Envelope<BUILDER>> builders = new ArrayList<>();
 
+            JoinedChildrenInfo joinedChildrenInfo = new JoinedChildrenInfo();
+
             while (resultSet.next()) {
-                Envelope<BUILDER> builder = populate(resultSet, supplier, selectionInstruction.getParentColumnName());
+                Envelope<BUILDER> builder = populate(resultSet, supplier, selectionInstruction.getParentColumnName(), joinedChildrenInfo);
                 builders.add(builder);
             }
+            logger.info("JOINED ONE " + joinedChildrenInfo);
 
             if ( selectionInstruction.isBulkChildSelectStrategy()) {
                 for (ChildrenDescriptor<ENTITY, ?, BUILDER, ?> descriptor : childrenDescriptors) {
@@ -121,6 +124,10 @@ public class SqlRunner<ENTITY, BUILDER> {
                     descriptor.populateChildren(connection, builders, childrenBuilderSelectCommand);
                 }
             }
+
+            logger.info("JOINED TWO " + joinedChildrenInfo);
+
+            joinedChildrenInfo.populateChildren(connection, builders);
 
             return builders;
 
@@ -141,7 +148,7 @@ public class SqlRunner<ENTITY, BUILDER> {
     }
 
 
-        private List<Envelope<BUILDER>> doDeepSelect(String sql,
+    private List<Envelope<BUILDER>> doDeepSelect(String sql,
                                                  String primaryKeySql,
                                                  Supplier<BUILDER> supplier,
                                                  List<? extends ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors,
@@ -464,13 +471,12 @@ public class SqlRunner<ENTITY, BUILDER> {
         return item;
     }
 
-    private Envelope<BUILDER> populate(ResultSet resultSet, Supplier<BUILDER> supplier, String parentColumName)
+    private Envelope<BUILDER> populate(ResultSet resultSet, Supplier<BUILDER> supplier, String parentColumName, JoinedChildrenInfo joinedChildrenInfo)
             throws SQLException {
         BUILDER item = supplier.get();
         Long parentId = null;
         Long itemId = null;
 
-        JoinedChildrenInfo joinedChildrenInfo = new JoinedChildrenInfo();
 
         for (Column<?, ?, ENTITY, BUILDER> column: allColumns) {
             PopulateResult populateResult = column.populate(item, resultSet);
@@ -481,6 +487,8 @@ public class SqlRunner<ENTITY, BUILDER> {
             if ( populateResult.isJoinedItemResult() ){
                 JoinColumn joinColumn = (JoinColumn) column;
                 Envelope<Object> envelope = populateResult.getJoinedItem();
+
+                logger.info("adding envelope " + envelope);
 
                 joinedChildrenInfo.addChildEntityInfo(envelope, joinColumn);
             } else {

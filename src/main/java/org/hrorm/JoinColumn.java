@@ -98,9 +98,11 @@ public class JoinColumn<ENTITY, JOINED, ENTITYBUILDER, JOINEDBUILDER> implements
         setter.accept(builder, joinedItem);
         // need to return a joined item within an envelope inside the result
 
+        System.out.println(" STRATEGY " + joinedDaoDescriptor.childSelectStrategy());
 
         if (ChildSelectStrategy.ByKeysInClause.equals(joinedDaoDescriptor.childSelectStrategy())){
             long primaryKey = joinedDaoDescriptor.primaryKey().getKey(joinedItem).longValue();
+            System.out.println("KEY " + primaryKey);
             Envelope<Object> envelope = new Envelope<Object>(joinedItem, primaryKey);
             return PopulateResult.fromJoinColumn(envelope);
         }

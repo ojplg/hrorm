@@ -19,6 +19,8 @@ public class JoinedChildrenInfo {
         }
         EntityRecord record = records.get(columnName);
         record.addRecord(joinedObject);
+
+        System.out.println(" THIS " + this.toString());
     }
 
     public void populateChildren(Connection connection, List builders){
@@ -63,5 +65,18 @@ public class JoinedChildrenInfo {
         public DaoDescriptor getDaoDescriptor(){
             return joinColumn.getJoinedDaoDescriptor();
         }
+
+        @Override
+        public String toString() {
+            return "EntityRecord{" +
+                    "records=" + records +
+                    ", joinColumn=" + joinColumn +
+                    '}';
+        }
+    }
+
+    @Override
+    public String toString(){
+        return records.toString();
     }
 }
