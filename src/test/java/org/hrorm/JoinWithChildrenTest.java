@@ -5,14 +5,21 @@ import org.hrorm.database.HelperFactory;
 import org.hrorm.examples.join_with_children.Pea;
 import org.hrorm.examples.join_with_children.Pod;
 import org.hrorm.examples.join_with_children.Stem;
+import org.hrorm.util.AssertHelp;
+import org.hrorm.util.ListUtil;
+import org.hrorm.util.RandomUtils;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.sql.Connection;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class JoinWithChildrenTest {
 
@@ -203,7 +210,6 @@ public class JoinWithChildrenTest {
             Assert.assertEquals("pod1", stem1.getPod().getMark());
             Assert.assertEquals(2, stem1.getPod().getPeas().size());
 
-
             Stem stem2 = stems.stream().filter(s -> s.getTag().equals("stem2")).findFirst().get();
 
             Assert.assertEquals("stem2", stem2.getTag());
@@ -214,5 +220,86 @@ public class JoinWithChildrenTest {
 
     }
 
+    @Test
+    public void testRandomPeaInserts(){
+        List<Stem> stems = RandomUtils.randomNumberOf(5, 10, JoinWithChildrenTest::createRandomStemInstance);
+        List<Long> stemIds = new ArrayList<>();
+        for(Stem stem : stems){
+            stemIds.add(insertStem(stem));
+        }
+
+        helper.useConnection(con -> {
+
+            // FIXME: Why must both of these be set to ByKeysInClause?
+
+            DaoBuilder<Pod> podDaoBuilder = basePodDaoBuilder();
+            podDaoBuilder.withChildSelectStrategy(ChildSelectStrategy.ByKeysInClause);
+            DaoBuilder<Stem> stemDaoBuilder = baseStemDaoBuilder(podDaoBuilder);
+            stemDaoBuilder.withChildSelectStrategy(ChildSelectStrategy.ByKeysInClause);
+
+            Dao<Stem> stemDao = stemDaoBuilder.buildDao(con);
+
+            List<Stem> dbStems = stemDao.select(stemIds);
+
+            Assert.assertEquals(stems.size(), dbStems.size());
+
+            Map<String, String> expectedPodMarks = extractPodMarks(stems);
+            Map<String, List<String>> expectedPeaFlags = extractPeaFlags(stems);
+
+            for(Stem stem : dbStems){
+                Assert.assertEquals(stem.getPodMark(), expectedPodMarks.get(stem.getTag()));
+                AssertHelp.sameContents(expectedPeaFlags.get(stem.getTag()), stem.getPeaFlags());
+            }
+
+        });
+
+
+    }
+
+    private static Map<String, String> extractPodMarks(List<Stem> stems){
+        Map<String,String> podMarks = new HashMap<>();
+        for(Stem stem : stems){
+            podMarks.put(stem.getTag(), stem.getPodMark());
+        }
+        return podMarks;
+    }
+
+    private static Map<String, List<String>> extractPeaFlags(List<Stem> stems){
+        Map<String,List<String>> peaFlags = new HashMap<>();
+        for(Stem stem : stems){
+            peaFlags.put(stem.getTag(), stem.getPeaFlags());
+        }
+        return peaFlags;
+    }
+
+
+    private static Long insertStem(Stem stem){
+        return helper.useConnection(con -> {
+            Dao<Pod> podDao = basePodDaoBuilder().buildDao(con);
+            Dao<Stem> stemDao = baseStemDaoBuilder(basePodDaoBuilder()).buildDao(con);
+            podDao.insert(stem.getPod());
+            return stemDao.insert(stem);
+        });
+    }
+
+    private static Stem createRandomStemInstance(){
+        int numberPeas = RandomUtils.range(5,10);
+        List<Pea> peas = new ArrayList<>();
+        for(int i=0; i<numberPeas; i++ ){
+            String flag = RandomUtils.randomAlphabeticString(5,10);
+            Pea pea = new Pea();
+            pea.setFlag(flag);
+            peas.add(pea);
+        }
+        Pod pod = new Pod();
+        String mark = RandomUtils.randomAlphabeticString(5,10);
+        pod.setMark(mark);
+        pod.setPeas(peas);
+        String tag = RandomUtils.randomAlphabeticString(5,10);
+        Stem stem = new Stem();
+        stem.setTag(tag);
+        stem.setPod(pod);
+        return stem;
+    }
 
 }
