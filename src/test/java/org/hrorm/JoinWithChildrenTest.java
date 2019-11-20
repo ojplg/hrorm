@@ -196,7 +196,6 @@ public class JoinWithChildrenTest {
             List<Stem> stems = dao.select(ids);
 
             Assert.assertEquals(2, stems.size());
-            System.out.println("Found");
 
             Stem stem1 = stems.stream().filter(s -> s.getTag().equals("stem1")).findFirst().get();
 
