@@ -111,9 +111,7 @@ public abstract class AbstractDao<ENTITY, BUILDER> implements KeylessDaoDescript
                 return mapBuilders(bs);
             case ByKeysInClause:
             case SubSelectInClause:
-                SelectionInstruction selectionInstruction = new SelectionInstruction(
-                        sql, null, ChildSelectStrategy.SubSelectInClause, null, true
-                );
+                SelectionInstruction selectionInstruction = SelectionInstruction.forSelectAll(sql, childSelectStrategy);
                 List<Envelope<BUILDER>> ebs = sqlRunner.doSelection(selectionInstruction,  supplier, childrenDescriptors(), new StatementPopulator.Empty());
                 return mapEnvelopedBuilders(ebs);
             default:

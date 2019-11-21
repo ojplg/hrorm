@@ -1,5 +1,15 @@
 package org.hrorm;
 
+
+// TODO: Rename?
+
+/**
+ * A description of how a selection is supposed to be done.
+ *
+ * <p>
+ *
+ * Most users of hrorm will have no need to directly use this.
+ */
 public class SelectionInstruction {
 
     private final String selectSql;
@@ -9,6 +19,11 @@ public class SelectionInstruction {
     private final boolean selectAll;
 
     // TODO: Create a public static factory methods to make this cleaner
+
+    public static SelectionInstruction forSelectAll(String sql, ChildSelectStrategy childSelectStrategy){
+        // TODO: This should be a null select strategy
+        return new SelectionInstruction(sql, null, childSelectStrategy, null, true);
+    }
 
 
     public SelectionInstruction(String selectSql, String primaryKeySql, ChildSelectStrategy childSelectStrategy, String parentColumnName, boolean selectAll) {

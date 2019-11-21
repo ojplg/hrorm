@@ -67,7 +67,7 @@ public class SqlRunner<ENTITY, BUILDER> {
                 accumulator
         );
     }
-    
+
     public List<Envelope<BUILDER>> doSelection(SelectionInstruction selectionInstruction,
                                                Supplier<BUILDER> supplier,
                                                List<? extends ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors,
@@ -90,7 +90,6 @@ public class SqlRunner<ENTITY, BUILDER> {
                 Envelope<BUILDER> builder = populate(resultSet, supplier, selectionInstruction.getParentColumnName(), joinedChildrenInfo);
                 builders.add(builder);
             }
-            logger.info("JOINED ONE " + joinedChildrenInfo);
 
             if ( selectionInstruction.isBulkChildSelectStrategy()) {
                 for (ChildrenDescriptor<ENTITY, ?, BUILDER, ?> descriptor : childrenDescriptors) {
@@ -108,8 +107,6 @@ public class SqlRunner<ENTITY, BUILDER> {
                     descriptor.populateChildren(connection, builders, childrenBuilderSelectCommand);
                 }
             }
-
-            logger.info("JOINED TWO " + joinedChildrenInfo);
 
             joinedChildrenInfo.populateChildren(connection);
 

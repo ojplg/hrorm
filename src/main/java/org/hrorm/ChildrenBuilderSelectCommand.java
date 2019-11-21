@@ -98,9 +98,8 @@ public class ChildrenBuilderSelectCommand<CHILD,CHILDBUILDER> {
             String parentChildColumnName,
             List<ChildrenDescriptor<CHILD,?,CHILDBUILDER, ?>> childrenDescriptorsList){
         String sql = sqlBuilder.select();
-        SelectionInstruction selectionInstruction = new SelectionInstruction(
-                sql, null, ChildSelectStrategy.SubSelectInClause, parentChildColumnName, true
-        );
+        SelectionInstruction selectionInstruction = SelectionInstruction.forSelectAll(
+                sql, ChildSelectStrategy.SubSelectInClause);
         return sqlRunner.doSelection(selectionInstruction,  supplier, childrenDescriptorsList, new StatementPopulator.Empty());
     }
 
