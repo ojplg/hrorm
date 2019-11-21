@@ -98,11 +98,10 @@ public class ChildrenBuilderSelectCommand<CHILD,CHILDBUILDER> {
             String parentChildColumnName,
             List<ChildrenDescriptor<CHILD,?,CHILDBUILDER, ?>> childrenDescriptorsList){
         String sql = sqlBuilder.select();
-        return sqlRunner.selectAllAndSelectAllChildren(
-                sql,
-                supplier,
-                childrenDescriptorsList,
-                parentChildColumnName);
+        SelectionInstruction selectionInstruction = new SelectionInstruction(
+                sql, null, ChildSelectStrategy.SubSelectInClause, parentChildColumnName, true
+        );
+        return sqlRunner.doSelection(selectionInstruction,  supplier, childrenDescriptorsList, new StatementPopulator.Empty());
     }
 
     private List<Envelope<CHILDBUILDER>> doSelectByIds(

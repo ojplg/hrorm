@@ -111,9 +111,10 @@ public abstract class AbstractDao<ENTITY, BUILDER> implements KeylessDaoDescript
                 return mapBuilders(bs);
             case ByKeysInClause:
             case SubSelectInClause:
-
-
-                List<Envelope<BUILDER>> ebs = sqlRunner.selectAllAndSelectAllChildren(sql, supplier, childrenDescriptors(), null);
+                SelectionInstruction selectionInstruction = new SelectionInstruction(
+                        sql, null, ChildSelectStrategy.SubSelectInClause, null, true
+                );
+                List<Envelope<BUILDER>> ebs = sqlRunner.doSelection(selectionInstruction,  supplier, childrenDescriptors(), new StatementPopulator.Empty());
                 return mapEnvelopedBuilders(ebs);
             default:
                 throw new HrormException("Unsupported child select strategy " + childSelectStrategy);

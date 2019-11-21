@@ -67,20 +67,7 @@ public class SqlRunner<ENTITY, BUILDER> {
                 accumulator
         );
     }
-
-    public List<Envelope<BUILDER>> selectAllAndSelectAllChildren(String sql,
-                                                                 Supplier<BUILDER> supplier,
-                                                                 List<? extends ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors,
-                                                                 String parentColumnName) {
-
-        SelectionInstruction selectionInstruction = new SelectionInstruction(
-                sql, null, ChildSelectStrategy.SubSelectInClause, parentColumnName, true
-        );
-
-        return doSelection(selectionInstruction, supplier, childrenDescriptors, new StatementPopulator.Empty());
-
-    }
-
+    
     public List<Envelope<BUILDER>> doSelection(SelectionInstruction selectionInstruction,
                                                Supplier<BUILDER> supplier,
                                                List<? extends ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors,
