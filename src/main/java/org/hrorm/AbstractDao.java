@@ -111,6 +111,8 @@ public abstract class AbstractDao<ENTITY, BUILDER> implements KeylessDaoDescript
                 return mapBuilders(bs);
             case ByKeysInClause:
             case SubSelectInClause:
+
+
                 List<Envelope<BUILDER>> ebs = sqlRunner.selectAllAndSelectAllChildren(sql, supplier, childrenDescriptors(), null);
                 return mapEnvelopedBuilders(ebs);
             default:
@@ -150,7 +152,12 @@ public abstract class AbstractDao<ENTITY, BUILDER> implements KeylessDaoDescript
                 List<BUILDER> bs = sqlRunner.selectByColumnsStandard(sql, supplier, select(columnNames), childrenDescriptors(), item);
                 return mapBuilders(bs);
             case ByKeysInClause:
-                List<Envelope<BUILDER>> ebs = sqlRunner.selectByColumnsWithChildInClause(sql, supplier, select(columnNames), childrenDescriptors(), item);
+                ColumnSelection columnSelection = select(columnNames);
+                StatementPopulator populator = columnSelection.buildPopulator(item);
+                SelectionInstruction selectionInstruction = new SelectionInstruction(
+                        sql, null, ChildSelectStrategy.ByKeysInClause, null, false
+                );
+                List<Envelope<BUILDER>> ebs = sqlRunner.doSelection(selectionInstruction, supplier, childrenDescriptors(), populator);
                 return mapEnvelopedBuilders(ebs);
             default:
                 throw new HrormException("Unsupported child select strategy " + childSelectStrategy);
@@ -198,11 +205,15 @@ public abstract class AbstractDao<ENTITY, BUILDER> implements KeylessDaoDescript
                 List<BUILDER> bs = sqlRunner.selectWhereStandard(sql, supplier, childrenDescriptors(), where);
                 return mapBuilders(bs);
             case ByKeysInClause:
-                List<Envelope<BUILDER>> ebs = sqlRunner.selectWithChildInClause(sql, supplier, childrenDescriptors(), where, null);
+                SelectionInstruction selectionInstruction = new SelectionInstruction(
+                        sql, null, childSelectStrategy, null, false);
+                List<Envelope<BUILDER>> ebs = sqlRunner.doSelection(selectionInstruction, supplier, childrenDescriptors(), where);
                 return mapEnvelopedBuilders(ebs);
             case SubSelectInClause:
                 String primaryKeySelector = sqlBuilder.selectPrimaryKey(where);
-                List<Envelope<BUILDER>> ebss = sqlRunner.selectWithSubSelect(sql, primaryKeySelector, supplier, childrenDescriptors(), where, null);
+                SelectionInstruction selectionInstructionSub = new SelectionInstruction(
+                        sql, primaryKeySelector, childSelectStrategy, null, false);
+                List<Envelope<BUILDER>> ebss = sqlRunner.doSelection(selectionInstructionSub, supplier, childrenDescriptors(), where);
                 return mapEnvelopedBuilders(ebss);
             default:
                 throw new HrormException("Unsupported child select strategy " + childSelectStrategy);

@@ -12,7 +12,7 @@ public class ChildrenBuilderSelectCommand<CHILD,CHILDBUILDER> {
         SelectOne,
         SelectAll,
         SelectByIds,
-        SubSelect;
+        SubSelect
     }
 
     private final String primaryKeySelect;
@@ -41,15 +41,6 @@ public class ChildrenBuilderSelectCommand<CHILD,CHILDBUILDER> {
                 null,
                 Collections.emptyList(),
                 SelectionType.SelectAll);
-    }
-
-    public static ChildrenBuilderSelectCommand forSelectByOneParentId(Long parentId){
-        return new ChildrenBuilderSelectCommand(
-                null,
-                null,
-                Collections.singletonList(parentId),
-                SelectionType.SelectOne
-        );
     }
 
     private ChildrenBuilderSelectCommand(String primaryKeySelect,
@@ -88,14 +79,16 @@ public class ChildrenBuilderSelectCommand<CHILD,CHILDBUILDER> {
             List<ChildrenDescriptor<CHILD,?,CHILDBUILDER, ?>> childrenDescriptorsList){
         String primaryKeySql = sqlBuilder.selectPrimaryKey(primaryKeySelect);
         String sql = sqlBuilder.selectByParentSubSelect(primaryKeySelect);
-        return sqlRunner.selectWithSubSelect(
-                sql,
-                primaryKeySql,
+
+        SelectionInstruction selectionInstruction = new SelectionInstruction(
+                sql, primaryKeySql, ChildSelectStrategy.ByKeysInClause, parentChildColumnName, false
+        );
+
+        return sqlRunner.doSelection(
+                selectionInstruction,
                 supplier,
                 childrenDescriptorsList,
-                statementPopulator,
-                parentChildColumnName);
-
+                statementPopulator);
     }
 
     private List<Envelope<CHILDBUILDER>> doSelectAll(
@@ -120,11 +113,8 @@ public class ChildrenBuilderSelectCommand<CHILD,CHILDBUILDER> {
             List<ChildrenDescriptor<CHILD,?,CHILDBUILDER, ?>> childrenDescriptorsList){
         Where where = Where.inLong(parentChildColumnName, new ArrayList<>(parentIds));
         String sql = sqlBuilder.select(where);
-        return sqlRunner.selectWithChildInClause(
-                sql,
-                supplier,
-                childrenDescriptorsList,
-                where,
-                parentChildColumnName);
+        SelectionInstruction selectionInstruction = new SelectionInstruction(
+                sql, null, ChildSelectStrategy.ByKeysInClause, parentChildColumnName, false);
+        return sqlRunner.doSelection(selectionInstruction, supplier, childrenDescriptorsList, where);
     }
 }

@@ -81,13 +81,10 @@ public class SqlRunner<ENTITY, BUILDER> {
 
     }
 
-    private List<Envelope<BUILDER>> doSelection(SelectionInstruction selectionInstruction,
-                                                Supplier<BUILDER> supplier,
-                                                 List<? extends ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors,
-                                                 StatementPopulator statementPopulator) {
-
-
-
+    public List<Envelope<BUILDER>> doSelection(SelectionInstruction selectionInstruction,
+                                               Supplier<BUILDER> supplier,
+                                               List<? extends ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors,
+                                               StatementPopulator statementPopulator) {
 
         ResultSet resultSet = null;
         PreparedStatement statement = null;
@@ -145,48 +142,6 @@ public class SqlRunner<ENTITY, BUILDER> {
                 throw new HrormException(se);
             }
         }
-    }
-
-
-    private List<Envelope<BUILDER>> doDeepSelect(String sql,
-                                                 String primaryKeySql,
-                                                 Supplier<BUILDER> supplier,
-                                                 List<? extends ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors,
-                                                 StatementPopulator statementPopulator,
-                                                 String parentColumnName) {
-        ChildSelectStrategy childSelectStrategy = primaryKeySql == null ? ChildSelectStrategy.ByKeysInClause : ChildSelectStrategy.SubSelectInClause;
-        SelectionInstruction selectionInstruction = new SelectionInstruction(
-                sql, primaryKeySql, childSelectStrategy, parentColumnName, false
-        );
-
-        return doSelection(selectionInstruction, supplier, childrenDescriptors, statementPopulator);
-    }
-
-
-    public List<Envelope<BUILDER>> selectByColumnsWithChildInClause(String sql,
-                                                                    Supplier<BUILDER> supplier,
-                                                                    ColumnSelection<ENTITY,BUILDER> columnSelection,
-                                                                    List<? extends ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors,
-                                                                    ENTITY item) {
-        StatementPopulator populator = columnSelection.buildPopulator(item);
-        return selectWithChildInClause(sql, supplier, childrenDescriptors, populator, null);
-    }
-
-    public List<Envelope<BUILDER>> selectWithChildInClause(String sql,
-                                                           Supplier<BUILDER> supplier,
-                                                           List<? extends ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors,
-                                                           StatementPopulator statementPopulator,
-                                                           String parentColumnName) {
-        return doDeepSelect(sql, null, supplier, childrenDescriptors, statementPopulator, parentColumnName);
-    }
-
-    public List<Envelope<BUILDER>> selectWithSubSelect(String sql,
-                                                       String primaryKeySql,
-                                                       Supplier<BUILDER> supplier,
-                                                       List<? extends ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors,
-                                                       StatementPopulator statementPopulator,
-                                                       String parentColumnName) {
-        return doDeepSelect(sql, primaryKeySql, supplier, childrenDescriptors, statementPopulator, parentColumnName);
     }
 
     public List<BUILDER> selectWhereStandard(String sql,

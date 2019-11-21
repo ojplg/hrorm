@@ -221,7 +221,7 @@ public class JoinWithChildrenTest {
     }
 
     @Test
-    public void testRandomPeaInserts(){
+    public void testRandomPeaInsertsSelectingByKeys(){
         List<Stem> stems = RandomUtils.randomNumberOf(5, 10, JoinWithChildrenTest::createRandomStemInstance);
         List<Long> stemIds = new ArrayList<>();
         for(Stem stem : stems){
@@ -252,9 +252,37 @@ public class JoinWithChildrenTest {
             }
 
         });
-
-
     }
+
+    @Test
+    public void testRandomPeaInsertsSelectingBySubselect(){
+        List<Stem> stems = RandomUtils.randomNumberOf(5, 10, JoinWithChildrenTest::createRandomStemInstance);
+        List<Long> stemIds = new ArrayList<>();
+        for(Stem stem : stems){
+            stemIds.add(insertStem(stem));
+        }
+
+        helper.useConnection(con -> {
+            DaoBuilder<Pod> podDaoBuilder = basePodDaoBuilder();
+            podDaoBuilder.withChildSelectStrategy(ChildSelectStrategy.SubSelectInClause);
+            DaoBuilder<Stem> stemDaoBuilder = baseStemDaoBuilder(podDaoBuilder);
+            stemDaoBuilder.withChildSelectStrategy(ChildSelectStrategy.SubSelectInClause);
+
+            Dao<Stem> stemDao = stemDaoBuilder.buildDao(con);
+            List<Stem> dbStems = stemDao.select(stemIds);
+
+            Assert.assertEquals(stems.size(), dbStems.size());
+
+            Map<String, String> expectedPodMarks = extractPodMarks(stems);
+            Map<String, List<String>> expectedPeaFlags = extractPeaFlags(stems);
+
+            for(Stem stem : dbStems){
+                Assert.assertEquals(stem.getPodMark(), expectedPodMarks.get(stem.getTag()));
+                AssertHelp.sameContents(expectedPeaFlags.get(stem.getTag()), stem.getPeaFlags());
+            }
+        });
+    }
+
 
     private static Map<String, String> extractPodMarks(List<Stem> stems){
         Map<String,String> podMarks = new HashMap<>();

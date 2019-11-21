@@ -8,6 +8,9 @@ public class SelectionInstruction {
     private final String parentColumnName;
     private final boolean selectAll;
 
+    // TODO: Create a public static factory methods to make this cleaner
+
+
     public SelectionInstruction(String selectSql, String primaryKeySql, ChildSelectStrategy childSelectStrategy, String parentColumnName, boolean selectAll) {
         this.selectSql = selectSql;
         this.primaryKeySql = primaryKeySql;

@@ -7,7 +7,29 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+
+/**
+ * This class holds cached joined objects temporarily while their children
+ * are queried.
+ *
+ * <p>
+ *
+ * Most users of hrorm will have no need to directly use this.
+ */
 public class JoinedChildrenInfo {
+
+    /*
+        TODO:
+
+        * Subselect clause should work
+        * Write javadocs
+        * Write documentation
+        * Figure out compatibility problems with ChildSelectStrategy differences between Dao Builders
+        * Rename this class
+        * Clean up mutliplexing de-multiplexing through DaoImpl and SqlRunner
+
+     */
+
 
     private final Map<String, EntityRecord> records = new HashMap<>();
 
