@@ -30,8 +30,13 @@ public class JoinedChildrenInfo {
 
      */
 
-
+    private final ChildSelectStrategy childSelectStrategy;
     private final Map<String, EntityRecord> records = new HashMap<>();
+
+
+    public JoinedChildrenInfo(ChildSelectStrategy childSelectStrategy){
+        this.childSelectStrategy = childSelectStrategy;
+    }
 
     public void addChildEntityInfo(Envelope<Object> joinedObject, JoinColumn joinColumn){
         String columnName = joinColumn.getName();
@@ -45,10 +50,22 @@ public class JoinedChildrenInfo {
 
     public void populateChildren(Connection connection){
 
+        System.out.println(" HEREEREEEEEEEEEEEEEEEE " + childSelectStrategy + " COUNT     " + records.size());
+
         for (EntityRecord entityRecord: records.values()) {
             List<Long> parentIds = entityRecord.entityIds();
-            ChildrenBuilderSelectCommand childrenBuilderSelectCommand =
-                    ChildrenBuilderSelectCommand.forSelectByIds(parentIds);
+
+            ChildrenBuilderSelectCommand childrenBuilderSelectCommand;
+
+            // TODO: Select all should be done here if necessary
+            if( ChildSelectStrategy.ByKeysInClause.equals(childSelectStrategy )) {
+                childrenBuilderSelectCommand = ChildrenBuilderSelectCommand.forSelectByIds(parentIds);
+            } else if ( ChildSelectStrategy.SubSelectInClause.equals(childSelectStrategy)){
+                //childrenBuilderSelectCommand = ChildrenBuilderSelectCommand.forSubSelect()
+                throw new UnsupportedOperationException();
+            } else {
+                throw new UnsupportedOperationException();
+            }
 
             DaoDescriptor daoDescriptor = entityRecord.getDaoDescriptor();
             List<ChildrenDescriptor> childrenDescriptors = daoDescriptor.childrenDescriptors();

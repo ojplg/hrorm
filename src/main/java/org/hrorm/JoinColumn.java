@@ -97,7 +97,8 @@ public class JoinColumn<ENTITY, JOINED, ENTITYBUILDER, JOINEDBUILDER> implements
         JOINED joinedItem = joinBuilder.apply(joinedBuilder);
         setter.accept(builder, joinedItem);
 
-        if (ChildSelectStrategy.ByKeysInClause.equals(joinedDaoDescriptor.childSelectStrategy())){
+        if (ChildSelectStrategy.ByKeysInClause.equals(joinedDaoDescriptor.childSelectStrategy())
+                || ChildSelectStrategy.SubSelectInClause.equals(joinedDaoDescriptor.childSelectStrategy())){
             long primaryKey = joinedDaoDescriptor.primaryKey().getKey(joinedItem).longValue();
             Envelope<Object> envelope = new Envelope<Object>(joinedItem, primaryKey);
             return PopulateResult.fromJoinColumn(envelope);
