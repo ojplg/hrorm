@@ -153,9 +153,8 @@ public abstract class AbstractDao<ENTITY, BUILDER> implements KeylessDaoDescript
             case ByKeysInClause:
                 ColumnSelection columnSelection = select(columnNames);
                 StatementPopulator populator = columnSelection.buildPopulator(item);
-                SelectionInstruction selectionInstruction = new SelectionInstruction(
-                        sql, null, ChildSelectStrategy.ByKeysInClause, null, false
-                );
+                SelectionInstruction selectionInstruction = SelectionInstruction.simpleInstruction(
+                        sql, ChildSelectStrategy.ByKeysInClause);
                 List<Envelope<BUILDER>> ebs = sqlRunner.doSelection(selectionInstruction, supplier, childrenDescriptors(), populator);
                 return mapEnvelopedBuilders(ebs);
             default:
@@ -204,14 +203,13 @@ public abstract class AbstractDao<ENTITY, BUILDER> implements KeylessDaoDescript
                 List<BUILDER> bs = sqlRunner.selectWhereStandard(sql, supplier, childrenDescriptors(), where);
                 return mapBuilders(bs);
             case ByKeysInClause:
-                SelectionInstruction selectionInstruction = new SelectionInstruction(
-                        sql, null, childSelectStrategy, null, false);
+                SelectionInstruction selectionInstruction =  SelectionInstruction.simpleInstruction(sql, childSelectStrategy);
                 List<Envelope<BUILDER>> ebs = sqlRunner.doSelection(selectionInstruction, supplier, childrenDescriptors(), where);
                 return mapEnvelopedBuilders(ebs);
             case SubSelectInClause:
                 String primaryKeySelector = sqlBuilder.selectPrimaryKey(where);
-                SelectionInstruction selectionInstructionSub = new SelectionInstruction(
-                        sql, primaryKeySelector, childSelectStrategy, null, false);
+                SelectionInstruction selectionInstructionSub = SelectionInstruction.withPrimaryKeySql(
+                        sql, primaryKeySelector, childSelectStrategy);
                 List<Envelope<BUILDER>> ebss = sqlRunner.doSelection(selectionInstructionSub, supplier, childrenDescriptors(), where);
                 return mapEnvelopedBuilders(ebss);
             default:

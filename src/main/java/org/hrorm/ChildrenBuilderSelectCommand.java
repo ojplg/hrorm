@@ -80,8 +80,8 @@ public class ChildrenBuilderSelectCommand<CHILD,CHILDBUILDER> {
         String primaryKeySql = sqlBuilder.selectPrimaryKey(primaryKeySelect);
         String sql = sqlBuilder.selectByParentSubSelect(primaryKeySelect);
 
-        SelectionInstruction selectionInstruction = new SelectionInstruction(
-                sql, primaryKeySql, ChildSelectStrategy.ByKeysInClause, parentChildColumnName, false
+        SelectionInstruction selectionInstruction = SelectionInstruction.withPrimaryKeySqlAndParentColumnName(
+                sql, primaryKeySql, parentChildColumnName, ChildSelectStrategy.ByKeysInClause
         );
 
         return sqlRunner.doSelection(
@@ -111,8 +111,8 @@ public class ChildrenBuilderSelectCommand<CHILD,CHILDBUILDER> {
             List<ChildrenDescriptor<CHILD,?,CHILDBUILDER, ?>> childrenDescriptorsList){
         Where where = Where.inLong(parentChildColumnName, new ArrayList<>(parentIds));
         String sql = sqlBuilder.select(where);
-        SelectionInstruction selectionInstruction = new SelectionInstruction(
-                sql, null, ChildSelectStrategy.ByKeysInClause, parentChildColumnName, false);
+        SelectionInstruction selectionInstruction = SelectionInstruction.withParentColumnName(
+                sql, parentChildColumnName, ChildSelectStrategy.ByKeysInClause);
         return sqlRunner.doSelection(selectionInstruction, supplier, childrenDescriptorsList, where);
     }
 }
