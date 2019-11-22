@@ -49,13 +49,9 @@ public class NPlusOneQueriesTest {
         Mockito.when(parentResultSet.getLong("aid")).thenReturn(1L).thenReturn(1L).thenReturn(2L).thenReturn(2L);
         Mockito.when(parentResultSet.getString("aname")).thenReturn("one").thenReturn("two");
 
-        try {
-            List<SimpleParent> parents = dao.select(where);
-            Assert.assertNotNull(parents);
-            Assert.assertEquals(2, parents.size());
-        } catch (Exception ex){
-            ex.printStackTrace();
-        }
+        List<SimpleParent> parents = dao.select(where);
+        Assert.assertNotNull(parents);
+        Assert.assertEquals(2, parents.size());
 
         InOrder parentResultSetOrder = Mockito.inOrder(parentResultSet);
         parentResultSetOrder.verify(parentResultSet, Mockito.calls(3)).next();
@@ -92,13 +88,9 @@ public class NPlusOneQueriesTest {
         Mockito.when(parentResultSet.getLong("id")).thenReturn(1L).thenReturn(2L);
         Mockito.when(parentResultSet.getString("name")).thenReturn("one").thenReturn("two");
 
-        try {
-            List<SimpleParent> parents = dao.select();
-            Assert.assertNotNull(parents);
-            Assert.assertEquals(2, parents.size());
-        } catch (Exception ex){
-            ex.printStackTrace();
-        }
+        List<SimpleParent> parents = dao.select();
+        Assert.assertNotNull(parents);
+        Assert.assertEquals(2, parents.size());
 
         InOrder parentResultSetOrder = Mockito.inOrder(parentResultSet);
         parentResultSetOrder.verify(parentResultSet, Mockito.calls(3)).next();
@@ -136,13 +128,9 @@ public class NPlusOneQueriesTest {
         Mockito.when(parentResultSet.getLong("id")).thenReturn(1L).thenReturn(2L);
         Mockito.when(parentResultSet.getString("name")).thenReturn("one").thenReturn("two");
 
-        try {
-            List<SimpleParent> parents = dao.select(where);
-            Assert.assertNotNull(parents);
-            Assert.assertEquals(2, parents.size());
-        } catch (Exception ex){
-            ex.printStackTrace();
-        }
+        List<SimpleParent> parents = dao.select(where);
+        Assert.assertNotNull(parents);
+        Assert.assertEquals(2, parents.size());
 
         InOrder parentResultSetOrder = Mockito.inOrder(parentResultSet);
         parentResultSetOrder.verify(parentResultSet, Mockito.calls(3)).next();

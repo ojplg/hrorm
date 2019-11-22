@@ -59,7 +59,6 @@ public class JoinedChildrenInfo {
     }
 
 
-
     private static class EntityRecord {
 
         private final List<Envelope<Object>> records = new ArrayList<>();
