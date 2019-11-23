@@ -1,10 +1,9 @@
 package org.hrorm;
 
-
-// TODO: Rename?
-
 /**
- * A description of how a selection is supposed to be done.
+ * A container for some of the details of how a deferred selection
+ * is supposed to work. This is used for certain {@link }ChildSelectStrategy}
+ * variants.
  *
  * <p>
  *
@@ -18,10 +17,10 @@ public class SelectionInstruction {
     private final String parentColumnName;
     private final boolean selectAll;
 
-    // TODO: These names could be better
+    // MAYBE: These names could be better
 
     public static SelectionInstruction forSelectAll(String sql, ChildSelectStrategy childSelectStrategy){
-        // TODO: This should be a null select strategy
+        // MAYBE: This should be a null select strategy
         return new SelectionInstruction(sql, null, childSelectStrategy, null, true);
     }
 
