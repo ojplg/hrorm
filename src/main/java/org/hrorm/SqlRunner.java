@@ -90,10 +90,10 @@ public class SqlRunner<ENTITY, BUILDER> {
 
             List<Envelope<BUILDER>> builders = new ArrayList<>();
 
-            JoinedChildrenInfo joinedChildrenInfo = new JoinedChildrenInfo(keylessDaoDescriptor, selectionInstruction);
+            JoinedChildrenSelector joinedChildrenSelector = new JoinedChildrenSelector(keylessDaoDescriptor, selectionInstruction);
 
             while (resultSet.next()) {
-                Envelope<BUILDER> builder = populate(resultSet, supplier, selectionInstruction.getParentColumnName(), joinedChildrenInfo);
+                Envelope<BUILDER> builder = populate(resultSet, supplier, selectionInstruction.getParentColumnName(), joinedChildrenSelector);
                 builders.add(builder);
             }
 
@@ -114,7 +114,7 @@ public class SqlRunner<ENTITY, BUILDER> {
                 }
             }
 
-            joinedChildrenInfo.populateChildren(connection, statementPopulator);
+            joinedChildrenSelector.populateChildren(connection, statementPopulator);
 
             return builders;
 
@@ -416,7 +416,7 @@ public class SqlRunner<ENTITY, BUILDER> {
         return item;
     }
 
-    private Envelope<BUILDER> populate(ResultSet resultSet, Supplier<BUILDER> supplier, String parentColumName, JoinedChildrenInfo joinedChildrenInfo)
+    private Envelope<BUILDER> populate(ResultSet resultSet, Supplier<BUILDER> supplier, String parentColumName, JoinedChildrenSelector joinedChildrenSelector)
             throws SQLException {
         BUILDER item = supplier.get();
         Long parentId = null;
@@ -427,7 +427,7 @@ public class SqlRunner<ENTITY, BUILDER> {
 
             if ( populateResult.isJoinedItemResult() ){
                 Envelope<Object> envelope = populateResult.getJoinedItem();
-                joinedChildrenInfo.addChildEntityInfo(column.getName(),envelope);
+                joinedChildrenSelector.addChildEntityInfo(column.getName(),envelope);
             } else {
                 populateResult.populateChildren(connection);
             }

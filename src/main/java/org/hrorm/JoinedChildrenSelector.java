@@ -17,17 +17,14 @@ import java.util.stream.Collectors;
  *
  * Most users of hrorm will have no need to directly use this.
  */
-public class JoinedChildrenInfo<ENTITY, BUILDER> {
+public class JoinedChildrenSelector<ENTITY, BUILDER> {
 
     /*
         TODO:
 
-        * Subselect clause should work
         * Write javadocs
         * Write documentation
         * Figure out compatibility problems with ChildSelectStrategy differences between Dao Builders
-        * Rename this class
-        * Clean up mutliplexing de-multiplexing through DaoImpl and SqlRunner
 
      */
 
@@ -36,7 +33,7 @@ public class JoinedChildrenInfo<ENTITY, BUILDER> {
     private final Map<String, List<Envelope<?>>> recordMap = new HashMap<>();
     private final KeylessDaoDescriptor<ENTITY, BUILDER> keylessDaoDescriptor;
 
-    public JoinedChildrenInfo(KeylessDaoDescriptor<ENTITY, BUILDER> keylessDaoDescriptor, SelectionInstruction selectionInstruction){
+    public JoinedChildrenSelector(KeylessDaoDescriptor<ENTITY, BUILDER> keylessDaoDescriptor, SelectionInstruction selectionInstruction){
         this.selectionInstruction = selectionInstruction;
         this.keylessDaoDescriptor = keylessDaoDescriptor;
         Map<String, JoinColumn<ENTITY,?,BUILDER,?>> tmp = new HashMap<>();
