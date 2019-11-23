@@ -6,7 +6,6 @@ import org.hrorm.examples.join_with_children.Pea;
 import org.hrorm.examples.join_with_children.Pod;
 import org.hrorm.examples.join_with_children.Stem;
 import org.hrorm.util.AssertHelp;
-import org.hrorm.util.ListUtil;
 import org.hrorm.util.RandomUtils;
 import org.hrorm.util.SimpleSqlFormatter;
 import org.junit.After;
@@ -15,7 +14,6 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -50,28 +48,28 @@ public class JoinWithChildrenTest {
     }
 
     private static DaoBuilder<Pea> basePeaDaoBuilder(){
-        return new DaoBuilder<Pea>("pea", Pea::new)
+        return new DaoBuilder<>("pea", Pea::new)
                 .withPrimaryKey("id", "pea_seq", Pea::getId, Pea::setId)
                 .withStringColumn("flag", Pea::getFlag, Pea::setFlag)
                 .withParentColumn("pod_id");
     }
 
     private static DaoBuilder<Pod> basePodDaoBuilder(){
-        return new DaoBuilder<Pod>("pod", Pod::new)
+        return new DaoBuilder<>("pod", Pod::new)
                 .withPrimaryKey("id", "pod_seq", Pod::getId, Pod::setId)
                 .withStringColumn("mark", Pod::getMark, Pod::setMark)
                 .withChildren(Pod::getPeas, Pod::setPeas, basePeaDaoBuilder());
     }
 
     private static DaoBuilder<Stem> baseStemDaoBuilder(DaoBuilder<Pod> podDaoBuilder){
-        return new DaoBuilder<Stem>("stem", Stem::new)
+        return new DaoBuilder<>("stem", Stem::new)
                 .withPrimaryKey("id", "stem_seq", Stem::getId, Stem::setId)
                 .withStringColumn("tag", Stem::getTag, Stem::setTag)
                 .withJoinColumn("pod_id", Stem::getPod, Stem::setPod, podDaoBuilder);
     }
 
     @Test
-    public void createAndSelect(){
+    public void createAndSelectWithoutStrategy(){
 
         Long idOne = helper.useConnection(con -> {
             Pea p1 = new Pea();
@@ -145,7 +143,7 @@ public class JoinWithChildrenTest {
 
 
     @Test
-    public void createAndSelectWithoutNplusOneQueries(){
+    public void createAndSelectWithByKeysClause(){
 
         DaoBuilder<Pod> podDaoBuilder = basePodDaoBuilder();
         podDaoBuilder.withChildSelectStrategy(ChildSelectStrategy.ByKeysInClause);

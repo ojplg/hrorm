@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-
 /**
  * This class holds cached joined objects temporarily while their children
  * are queried.
@@ -22,7 +21,6 @@ public class JoinedChildrenSelector<ENTITY, BUILDER> {
     /*
         TODO:
 
-        * Write javadocs
         * Write documentation
         * Figure out compatibility problems with ChildSelectStrategy differences between Dao Builders
 

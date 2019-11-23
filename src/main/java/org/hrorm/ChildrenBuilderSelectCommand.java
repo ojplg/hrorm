@@ -92,7 +92,7 @@ public class ChildrenBuilderSelectCommand<CHILD,CHILDBUILDER> {
         String sql = sqlBuilder.selectByParentSubSelect(primaryKeySelect);
 
         SelectionInstruction selectionInstruction = SelectionInstruction.withPrimaryKeySqlAndParentColumnName(
-                sql, primaryKeySql, parentChildColumnName, ChildSelectStrategy.ByKeysInClause
+                sql, primaryKeySql, parentChildColumnName, ChildSelectStrategy.SubSelectInClause
         );
 
         return sqlRunner.doSelection(
