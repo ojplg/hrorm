@@ -67,7 +67,7 @@ public class JoinedChildrenSelector<ENTITY, BUILDER> {
 
             ChildrenBuilderSelectCommand childrenBuilderSelectCommand;
 
-            // TODO: Select all should be done here if necessary
+            // MAYBE: Select all should be done here if necessary
 
             if( ChildSelectStrategy.ByKeysInClause.equals(childSelectStrategy )) {
                 List<Long> parentIds = asParentIds(envelopes);
@@ -79,7 +79,7 @@ public class JoinedChildrenSelector<ENTITY, BUILDER> {
                 childrenBuilderSelectCommand = ChildrenBuilderSelectCommand.forSubSelect(
                         primaryKeySql, statementPopulator);
             } else {
-                throw new UnsupportedOperationException();
+                throw new HrormException("Unsupported strategy " + childSelectStrategy);
             }
 
             List<ChildrenDescriptor> childrenDescriptors = joinedDaoDescriptor.childrenDescriptors();
