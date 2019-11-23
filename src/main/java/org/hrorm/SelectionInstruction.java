@@ -19,8 +19,8 @@ public class SelectionInstruction {
 
     // MAYBE: These names could be better
 
-    public static SelectionInstruction forSelectAll(String sql){
-        return new SelectionInstruction(sql, null, null, null, true);
+    public static SelectionInstruction forSelectAll(String sql, String parentColumnName){
+        return new SelectionInstruction(sql, null, null, parentColumnName, true);
     }
 
     public static SelectionInstruction simpleInstruction(String sql, ChildSelectStrategy childSelectStrategy){

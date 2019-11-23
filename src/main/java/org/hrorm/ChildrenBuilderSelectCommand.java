@@ -61,7 +61,7 @@ public class ChildrenBuilderSelectCommand<CHILD,CHILDBUILDER> {
             List<ChildrenDescriptor<CHILD,?,CHILDBUILDER, ?>> childrenDescriptorsList) {
         switch (selectionType){
             case SelectAll:
-                return doSelectAll(sqlBuilder, supplier, sqlRunner, childrenDescriptorsList);
+                return doSelectAll(sqlBuilder, supplier, sqlRunner, parentChildColumnName, childrenDescriptorsList);
             case SelectByIds:
                 return doSelectByIds(sqlBuilder, supplier, sqlRunner, parentChildColumnName, childrenDescriptorsList);
             case SubSelect:
@@ -95,9 +95,10 @@ public class ChildrenBuilderSelectCommand<CHILD,CHILDBUILDER> {
             SqlBuilder<CHILD> sqlBuilder,
             Supplier<CHILDBUILDER> supplier,
             SqlRunner<CHILD, CHILDBUILDER> sqlRunner,
+            String parentColumnName,
             List<ChildrenDescriptor<CHILD,?,CHILDBUILDER, ?>> childrenDescriptorsList){
         String sql = sqlBuilder.select();
-        SelectionInstruction selectionInstruction = SelectionInstruction.forSelectAll(sql);
+        SelectionInstruction selectionInstruction = SelectionInstruction.forSelectAll(sql, parentColumnName);
         return sqlRunner.doSelection(selectionInstruction,  supplier, childrenDescriptorsList, new StatementPopulator.Empty());
     }
 
