@@ -256,6 +256,39 @@ public class JoinWithChildrenTest {
         });
     }
 
+
+    @Test
+    public void testRandomPeaInsertsSelectingByKeys_SelectAllWorks(){
+        List<Stem> stems = RandomUtils.randomNumberOf(5, 10, JoinWithChildrenTest::createRandomStemInstance);
+        for(Stem stem : stems){
+            insertStem(stem);
+        }
+
+        helper.useConnection(con -> {
+
+            DaoBuilder<Pod> podDaoBuilder = basePodDaoBuilder();
+            podDaoBuilder.withChildSelectStrategy(ChildSelectStrategy.ByKeysInClause);
+            DaoBuilder<Stem> stemDaoBuilder = baseStemDaoBuilder(podDaoBuilder);
+            stemDaoBuilder.withChildSelectStrategy(ChildSelectStrategy.ByKeysInClause);
+
+            Dao<Stem> stemDao = stemDaoBuilder.buildDao(con);
+
+            List<Stem> dbStems = stemDao.select();
+
+            Assert.assertEquals(stems.size(), dbStems.size());
+
+            Map<String, String> expectedPodMarks = extractPodMarks(stems);
+            Map<String, List<String>> expectedPeaFlags = extractPeaFlags(stems);
+
+            for(Stem stem : dbStems){
+                Assert.assertEquals(stem.getPodMark(), expectedPodMarks.get(stem.getTag()));
+                AssertHelp.sameContents(expectedPeaFlags.get(stem.getTag()), stem.getPeaFlags());
+            }
+
+        });
+    }
+
+
     @Test
     public void testBuildSqlForJoinedChildren(){
         SqlBuilder<Stem> sqlBuilder = new SqlBuilder<>(baseStemDaoBuilder(basePodDaoBuilder()));

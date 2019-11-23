@@ -19,9 +19,8 @@ public class SelectionInstruction {
 
     // MAYBE: These names could be better
 
-    public static SelectionInstruction forSelectAll(String sql, ChildSelectStrategy childSelectStrategy){
-        // MAYBE: This should be a null select strategy
-        return new SelectionInstruction(sql, null, childSelectStrategy, null, true);
+    public static SelectionInstruction forSelectAll(String sql){
+        return new SelectionInstruction(sql, null, null, null, true);
     }
 
     public static SelectionInstruction simpleInstruction(String sql, ChildSelectStrategy childSelectStrategy){
@@ -65,7 +64,8 @@ public class SelectionInstruction {
     }
 
     public boolean isBulkChildSelectStrategy(){
-        return childSelectStrategy.equals(ChildSelectStrategy.SubSelectInClause) ||
+        return selectAll ||
+                childSelectStrategy.equals(ChildSelectStrategy.SubSelectInClause) ||
                 childSelectStrategy.equals(ChildSelectStrategy.ByKeysInClause);
     }
 

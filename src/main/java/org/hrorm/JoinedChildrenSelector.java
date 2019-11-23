@@ -69,7 +69,13 @@ public class JoinedChildrenSelector<ENTITY, BUILDER> {
 
             // MAYBE: Select all should be done here if necessary
 
-            if( ChildSelectStrategy.ByKeysInClause.equals(childSelectStrategy )) {
+            /*
+            if ( selectionInstruction.isSelectAll() ){
+                childrenBuilderSelectCommand = ChildrenBuilderSelectCommand.forSelectAll();
+            }
+            else */
+
+                if ( ChildSelectStrategy.ByKeysInClause.equals(childSelectStrategy )) {
                 List<Long> parentIds = asParentIds(envelopes);
                 childrenBuilderSelectCommand = ChildrenBuilderSelectCommand.forSelectByIds(parentIds);
             } else if ( ChildSelectStrategy.SubSelectInClause.equals(childSelectStrategy)){
