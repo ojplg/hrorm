@@ -34,15 +34,21 @@ public class SqlRunner<ENTITY, BUILDER> {
 
     private final Connection connection;
     private final List<Column<?, ?,ENTITY, BUILDER>> allColumns;
+    private final List<JoinColumn<ENTITY,?,BUILDER,?>> joinColumns;
+    private final KeylessDaoDescriptor<ENTITY, BUILDER> keylessDaoDescriptor;
 
     public SqlRunner(Connection connection){
         this.connection = connection;
         this.allColumns = Collections.emptyList();
+        this.joinColumns = Collections.emptyList();
+        this.keylessDaoDescriptor = null;
     }
 
     public SqlRunner(Connection connection, KeylessDaoDescriptor<ENTITY, BUILDER> daoDescriptor) {
         this.connection = connection;
         this.allColumns = daoDescriptor.allColumns();
+        this.joinColumns = daoDescriptor.joinColumns();
+        this.keylessDaoDescriptor = daoDescriptor;
     }
 
     public List<BUILDER> selectStandard(String sql, Supplier<BUILDER> supplier, List<ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors){
@@ -84,7 +90,7 @@ public class SqlRunner<ENTITY, BUILDER> {
 
             List<Envelope<BUILDER>> builders = new ArrayList<>();
 
-            JoinedChildrenInfo joinedChildrenInfo = new JoinedChildrenInfo(selectionInstruction.getChildSelectStrategy());
+            JoinedChildrenInfo joinedChildrenInfo = new JoinedChildrenInfo(keylessDaoDescriptor, selectionInstruction);
 
             while (resultSet.next()) {
                 Envelope<BUILDER> builder = populate(resultSet, supplier, selectionInstruction.getParentColumnName(), joinedChildrenInfo);
@@ -108,7 +114,7 @@ public class SqlRunner<ENTITY, BUILDER> {
                 }
             }
 
-            joinedChildrenInfo.populateChildren(connection);
+            joinedChildrenInfo.populateChildren(connection, statementPopulator);
 
             return builders;
 
@@ -420,9 +426,8 @@ public class SqlRunner<ENTITY, BUILDER> {
             PopulateResult populateResult = column.populate(item, resultSet);
 
             if ( populateResult.isJoinedItemResult() ){
-                JoinColumn joinColumn = (JoinColumn) column;
                 Envelope<Object> envelope = populateResult.getJoinedItem();
-                joinedChildrenInfo.addChildEntityInfo(envelope, joinColumn);
+                joinedChildrenInfo.addChildEntityInfo(column.getName(),envelope);
             } else {
                 populateResult.populateChildren(connection);
             }

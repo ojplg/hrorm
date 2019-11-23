@@ -207,7 +207,6 @@ public abstract class AbstractDao<ENTITY, BUILDER> implements KeylessDaoDescript
                 List<Envelope<BUILDER>> ebs = sqlRunner.doSelection(selectionInstruction, supplier, childrenDescriptors(), where);
                 return mapEnvelopedBuilders(ebs);
             case SubSelectInClause:
-                System.out.println("DONNEEEEEEEEEEEEEEEEEEEE");
                 String primaryKeySelector = sqlBuilder.selectPrimaryKey(where);
                 SelectionInstruction selectionInstructionSub = SelectionInstruction.withPrimaryKeySql(
                         sql, primaryKeySelector, childSelectStrategy);

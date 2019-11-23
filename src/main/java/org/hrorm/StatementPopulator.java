@@ -13,6 +13,8 @@ import java.sql.SQLException;
 public interface StatementPopulator {
     void populate(PreparedStatement preparedStatement) throws SQLException;
 
+    default String render() { return ""; }
+
     public class Empty implements StatementPopulator {
         @Override
         public void populate(PreparedStatement preparedStatement) throws SQLException {

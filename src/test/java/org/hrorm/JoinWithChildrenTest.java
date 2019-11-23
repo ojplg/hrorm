@@ -8,6 +8,7 @@ import org.hrorm.examples.join_with_children.Stem;
 import org.hrorm.util.AssertHelp;
 import org.hrorm.util.ListUtil;
 import org.hrorm.util.RandomUtils;
+import org.hrorm.util.SimpleSqlFormatter;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -20,6 +21,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static org.hrorm.Operator.EQUALS;
 
 public class JoinWithChildrenTest {
 
@@ -215,7 +218,6 @@ public class JoinWithChildrenTest {
             Assert.assertEquals("stem2", stem2.getTag());
             Assert.assertEquals("pod2", stem2.getPod().getMark());
             Assert.assertEquals(2, stem2.getPod().getPeas().size());
-
         });
 
     }
@@ -252,6 +254,16 @@ public class JoinWithChildrenTest {
             }
 
         });
+    }
+
+    @Test
+    public void testBuildSqlForJoinedChildren(){
+        SqlBuilder<Stem> sqlBuilder = new SqlBuilder<>(baseStemDaoBuilder(basePodDaoBuilder()));
+
+        String selectPodPrimaryKeySql = sqlBuilder.selectPrimaryKeyOfJoinedColumn(new Where("tag", EQUALS, "smurf"), "pod_id");
+        String expectedSql = "select b.id from stem a left join pod b on a.pod_id = b.id where a.tag = ?";
+
+        SimpleSqlFormatter.assertEqualSql(expectedSql, selectPodPrimaryKeySql);
     }
 
     @Test

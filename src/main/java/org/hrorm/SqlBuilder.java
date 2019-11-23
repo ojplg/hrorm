@@ -69,19 +69,27 @@ public class SqlBuilder<ENTITY> implements Queries {
         buf.append(" a");
         List<JoinColumn> flattenedJoinColumns = flattenedJoinColumns();
         for(JoinColumn joinColumn : flattenedJoinColumns) {
-            buf.append(" LEFT JOIN ");
-            buf.append(joinColumn.getTable());
-            buf.append(" ");
-            buf.append(joinColumn.getPrefix());
-            buf.append(" ON ");
-            buf.append(joinColumn.getJoinedTablePrefix());
-            buf.append(".");
-            buf.append(joinColumn.getName());
-            buf.append("=");
-            buf.append(joinColumn.getPrefix());
-            buf.append(".");
-            buf.append(joinColumn.getJoinedTablePrimaryKeyName());
+            buf.append(joinInstruction(joinColumn));
         }
+
+        return buf.toString();
+    }
+
+    private String joinInstruction(JoinColumn joinColumn){
+        StringBuilder buf = new StringBuilder();
+
+        buf.append(" LEFT JOIN ");
+        buf.append(joinColumn.getTable());
+        buf.append(" ");
+        buf.append(joinColumn.getPrefix());
+        buf.append(" ON ");
+        buf.append(joinColumn.getJoinedTablePrefix());
+        buf.append(".");
+        buf.append(joinColumn.getName());
+        buf.append("=");
+        buf.append(joinColumn.getPrefix());
+        buf.append(".");
+        buf.append(joinColumn.getJoinedTablePrimaryKeyName());
 
         return buf.toString();
     }
@@ -107,6 +115,38 @@ public class SqlBuilder<ENTITY> implements Queries {
         buf.append(" in (");
         buf.append(subselect);
         buf.append(")");
+
+        return buf.toString();
+    }
+
+    private JoinColumn findJoinColumn(String columnName){
+        for (JoinColumn joinColumn : joinColumns){
+            if (columnName.equals(joinColumn.getName())){
+                return joinColumn;
+            }
+        }
+        return null;
+    }
+
+    public String selectPrimaryKeyOfJoinedColumn(StatementPopulator statementPopulator, String joinedColumnName){
+        JoinColumn joinColumn = findJoinColumn(joinedColumnName);
+        if( joinColumn == null ){
+            throw new HrormException("No join column named " + joinedColumnName + " found on dao builder for " + table);
+        }
+
+        DaoDescriptor daoDescriptor = joinColumn.getJoinedDaoDescriptor();
+
+        StringBuilder buf = new StringBuilder();
+
+        buf.append("select ");
+        buf.append(daoDescriptor.primaryKey().getPrefix());
+        buf.append(".");
+        buf.append(daoDescriptor.primaryKey().getName());
+        buf.append(" from ");
+        buf.append( table );
+        buf.append(" a ");
+        buf.append(joinInstruction(joinColumn));
+        buf.append(statementPopulator.render());
 
         return buf.toString();
     }

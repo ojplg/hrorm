@@ -134,6 +134,9 @@ public class GenericColumn<TYPE> {
      * @param sqlType The kind of this column type, as defined in <code>java.sql.Types</code>
      */
     public GenericColumn(PreparedStatementSetter<TYPE> preparedStatementSetter, ResultSetReader<TYPE> resultReader, int sqlType){
+        if( preparedStatementSetter == null ){
+            throw new NullPointerException();
+        }
         this.sqlType = sqlType;
         this.preparedStatementSetter = preparedStatementSetter;
         this.resultReader = resultReader;
@@ -151,6 +154,9 @@ public class GenericColumn<TYPE> {
      *                    if you wish to generate your schema using a {@link Schema} object.
      */
     public GenericColumn(PreparedStatementSetter<TYPE> preparedStatementSetter, ResultSetReader<TYPE> resultReader, int sqlType, String sqlTypeName){
+        if( preparedStatementSetter == null ){
+            throw new NullPointerException();
+        }
         this.sqlType = sqlType;
         this.preparedStatementSetter = preparedStatementSetter;
         this.resultReader = resultReader;
@@ -170,6 +176,10 @@ public class GenericColumn<TYPE> {
      *                       that this column can support.
      */
     public GenericColumn(PreparedStatementSetter<TYPE> preparedStatementSetter, ResultSetReader<TYPE> resultReader, int sqlType, String sqlTypeName, Set<Integer> supportedTypes){
+        if( preparedStatementSetter == null ){
+            throw new NullPointerException();
+        }
+
         this.sqlType = sqlType;
         this.preparedStatementSetter = preparedStatementSetter;
         this.resultReader = resultReader;
