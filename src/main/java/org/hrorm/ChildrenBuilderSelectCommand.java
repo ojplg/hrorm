@@ -6,6 +6,17 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Supplier;
 
+/**
+ * Does a selection of children in the case of a
+ * deferred <code>ChildSelectionStrategy</code>.
+ *
+ * <p>
+ *     Most users of hrorm will have no need to directly use this.
+ * </p>
+ *
+ * @param <CHILD> The child type.
+ * @param <CHILDBUILDER> The builder of the child type.
+ */
 public class ChildrenBuilderSelectCommand<CHILD,CHILDBUILDER> {
 
     private enum SelectionType {
