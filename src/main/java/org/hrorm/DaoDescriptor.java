@@ -1,6 +1,7 @@
 package org.hrorm;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Implementers of this interface completely describe all the information
@@ -56,5 +57,27 @@ public interface DaoDescriptor<ENTITY, ENTITYBUILDER> extends KeylessDaoDescript
             return parentColumn().getName();
         }
         return null;
+    }
+
+    default void validateConsistencyOfJoinedSelectStrategies(){
+        ChildSelectStrategy myChildSelectStrategy = childSelectStrategy();
+
+        boolean failed = false;
+        StringBuilder buf = new StringBuilder();
+
+        Map<String, ChildSelectStrategy> childStrategies = joinedSelectStrategies();
+        for(String tableName : childStrategies.keySet()){
+            ChildSelectStrategy joinedStrategy = childStrategies.get(tableName);
+            if( ! myChildSelectStrategy.equals(joinedStrategy) ){
+                failed = true;
+                buf.append("[Table " + tableName + " has strategy " + joinedStrategy + "]");
+            }
+        }
+
+        if( failed ){
+            throw new HrormException(
+                    "Cannot construct a DAO with incompatible child selection strategies. This DAO has strategy " +
+                            myChildSelectStrategy + " but is joined with: " + buf.toString());
+        }
     }
 }

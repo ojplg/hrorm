@@ -14,7 +14,9 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.mockito.Mockito;
 
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -148,7 +150,7 @@ public class JoinWithChildrenTest {
             stem.setTag("stem1");
             stem.setPod(pod);
 
-            Dao<Stem> dao = DaoBuilders.baseStemDaoBuilder(podDaoBuilder).buildDao(con);
+            Dao<Stem> dao = stemDaoBuilder.buildDao(con);
 
             return dao.insert(stem);
         });
@@ -173,7 +175,7 @@ public class JoinWithChildrenTest {
             stem.setTag("stem2");
             stem.setPod(pod);
 
-            Dao<Stem> dao = DaoBuilders.baseStemDaoBuilder(podDaoBuilder).buildDao(con);
+            Dao<Stem> dao = stemDaoBuilder.buildDao(con);
 
             return dao.insert(stem);
         });
@@ -285,6 +287,7 @@ public class JoinWithChildrenTest {
 
         helper.useConnection(con -> {
             DaoBuilder<Pod> podDaoBuilder = DaoBuilders.basePodDaoBuilder();
+            podDaoBuilder.withChildSelectStrategy(ChildSelectStrategy.SubSelectInClause);
             DaoBuilder<Stem> stemDaoBuilder = DaoBuilders.baseStemDaoBuilder(podDaoBuilder);
             stemDaoBuilder.withChildSelectStrategy(ChildSelectStrategy.SubSelectInClause);
 
@@ -303,6 +306,21 @@ public class JoinWithChildrenTest {
         });
     }
 
+    @Test
+    public void disallowIncompatibleChildSelectStrategies(){
+
+        Connection connection = Mockito.mock(Connection.class);
+
+        try {
+            DaoBuilder<Pod> podDaoBuilder = DaoBuilders.basePodDaoBuilder();
+            podDaoBuilder.withChildSelectStrategy(ChildSelectStrategy.SubSelectInClause);
+            DaoBuilder<Stem> stemDaoBuilder = DaoBuilders.baseStemDaoBuilder(podDaoBuilder);
+
+            stemDaoBuilder.buildDao(connection);
+            Assert.fail("Should not allow mixed child select strategies");
+        } catch (HrormException expected){
+        }
+    }
 
     private static Map<String, String> extractPodMarks(List<Stem> stems){
         Map<String,String> podMarks = new HashMap<>();
@@ -319,7 +337,6 @@ public class JoinWithChildrenTest {
         }
         return peaFlags;
     }
-
 
     private static Long insertStem(Stem stem){
         return helper.useConnection(con -> {

@@ -1,6 +1,7 @@
 package org.hrorm;
 
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -84,4 +85,15 @@ public interface KeylessDaoDescriptor<ENTITY, ENTITYBUILDER> {
     default List<JoinColumn<ENTITY, ?, ENTITYBUILDER, ?>> joinColumns(){
         return getColumnCollection().getJoinColumns();
     }
+
+    /**
+     * The child select strategies used by any joined <code>DAO</code>
+     * objects, keyed by their table names.
+     *
+     * @return the map.
+     */
+    default Map<String, ChildSelectStrategy> joinedSelectStrategies(){
+        return getColumnCollection().joinedSelectStrategies();
+    }
+
 }

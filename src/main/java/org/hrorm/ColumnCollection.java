@@ -2,7 +2,9 @@ package org.hrorm;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -153,5 +155,19 @@ public class ColumnCollection<ENTITY,BUILDER> {
             }
         }
         throw new HrormException("No column named " + name);
+    }
+
+    // MAYBE:  Perhaps this should recurse? Things get complicated in that case.
+    public Map<String, ChildSelectStrategy> joinedSelectStrategies(){
+        Map<String, ChildSelectStrategy> map = new HashMap<>();
+
+        for(JoinColumn<ENTITY, ?, BUILDER, ?> joinColumn : joinColumns){
+            DaoDescriptor<ENTITY, BUILDER> joinedDescriptor = joinColumn.getJoinedDaoDescriptor();
+            String tableName = joinedDescriptor.tableName();
+            ChildSelectStrategy childSelectStrategy = joinedDescriptor.childSelectStrategy();
+            map.put(tableName, childSelectStrategy);
+        }
+
+        return map;
     }
 }

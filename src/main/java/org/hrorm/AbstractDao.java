@@ -58,6 +58,8 @@ public abstract class AbstractDao<ENTITY, BUILDER> implements KeylessDaoDescript
         this.childSelectStrategy = daoDescriptor.childSelectStrategy();
         this.sqlBuilder = new SqlBuilder<>(daoDescriptor);
         this.sqlRunner = new SqlRunner<>(connection, daoDescriptor);
+
+        daoDescriptor.validateConsistencyOfJoinedSelectStrategies();
     }
 
     protected abstract List<ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors();
