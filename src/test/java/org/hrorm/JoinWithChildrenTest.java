@@ -146,7 +146,6 @@ public class JoinWithChildrenTest {
     public void createAndSelectWithByKeysClause(){
 
         DaoBuilder<Pod> podDaoBuilder = basePodDaoBuilder();
-        podDaoBuilder.withChildSelectStrategy(ChildSelectStrategy.ByKeysInClause);
         DaoBuilder<Stem> stemDaoBuilder = baseStemDaoBuilder(podDaoBuilder);
         stemDaoBuilder.withChildSelectStrategy(ChildSelectStrategy.ByKeysInClause);
 
@@ -230,10 +229,7 @@ public class JoinWithChildrenTest {
 
         helper.useConnection(con -> {
 
-            // FIXME: Why must both of these be set to ByKeysInClause?
-
             DaoBuilder<Pod> podDaoBuilder = basePodDaoBuilder();
-            podDaoBuilder.withChildSelectStrategy(ChildSelectStrategy.ByKeysInClause);
             DaoBuilder<Stem> stemDaoBuilder = baseStemDaoBuilder(podDaoBuilder);
             stemDaoBuilder.withChildSelectStrategy(ChildSelectStrategy.ByKeysInClause);
 
@@ -265,7 +261,6 @@ public class JoinWithChildrenTest {
         helper.useConnection(con -> {
 
             DaoBuilder<Pod> podDaoBuilder = basePodDaoBuilder();
-            podDaoBuilder.withChildSelectStrategy(ChildSelectStrategy.ByKeysInClause);
             DaoBuilder<Stem> stemDaoBuilder = baseStemDaoBuilder(podDaoBuilder);
             stemDaoBuilder.withChildSelectStrategy(ChildSelectStrategy.ByKeysInClause);
 
@@ -307,7 +302,6 @@ public class JoinWithChildrenTest {
 
         helper.useConnection(con -> {
             DaoBuilder<Pod> podDaoBuilder = basePodDaoBuilder();
-            podDaoBuilder.withChildSelectStrategy(ChildSelectStrategy.SubSelectInClause);
             DaoBuilder<Stem> stemDaoBuilder = baseStemDaoBuilder(podDaoBuilder);
             stemDaoBuilder.withChildSelectStrategy(ChildSelectStrategy.SubSelectInClause);
 
