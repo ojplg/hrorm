@@ -18,14 +18,6 @@ import java.util.stream.Collectors;
  */
 public class JoinedChildrenSelector<ENTITY, BUILDER> {
 
-    /*
-        TODO:
-
-        * Write documentation
-        * Figure out compatibility problems with ChildSelectStrategy differences between Dao Builders
-
-     */
-
     private final Map<String,JoinColumn<ENTITY,?,BUILDER,?>> joinColumnMap;
     private final SelectionInstruction selectionInstruction;
     private final Map<String, List<Envelope<?>>> recordMap = new HashMap<>();

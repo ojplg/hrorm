@@ -2,6 +2,9 @@ package org.hrorm;
 
 import org.hrorm.examples.SimpleParent;
 import org.hrorm.examples.SimpleParentChildDaos;
+import org.hrorm.examples.join_with_children.DaoBuilders;
+import org.hrorm.examples.join_with_children.Pod;
+import org.hrorm.examples.join_with_children.Stem;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.InOrder;
@@ -16,6 +19,7 @@ import java.util.List;
 
 import static org.hrorm.Operator.LIKE;
 import static org.hrorm.Where.where;
+import static org.mockito.internal.verification.VerificationModeFactory.times;
 
 public class NPlusOneQueriesTest {
 
@@ -110,9 +114,9 @@ public class NPlusOneQueriesTest {
         ResultSet childResultSet = Mockito.mock(ResultSet.class);
 
         Dao<SimpleParent> dao = SimpleParentChildDaos.PARENT_SUBSELECT_STRATEGY.buildDao(connection);
+
         Queries parentQueries = dao.queries();
         Where where = where("NAME", LIKE, "%silly%");
-
         String selectSql = parentQueries.select(where);
 
         Mockito.when(connection.prepareStatement(selectSql)).thenReturn(parentStatement);
@@ -137,6 +141,51 @@ public class NPlusOneQueriesTest {
 
         Mockito.verify(connection).prepareStatement(selectSql);
         Mockito.verify(connection).prepareStatement(childSelectSql);
+    }
+
+    @Test
+    public void testMakesTwoQueriesForChildrenOfJoinedEntity() throws SQLException {
+        Connection connection = Mockito.mock(Connection.class);
+        PreparedStatement stemStatement = Mockito.mock(PreparedStatement.class);
+        ResultSet stemResultSet = Mockito.mock(ResultSet.class);
+
+        PreparedStatement peaStatement = Mockito.mock(PreparedStatement.class);
+        ResultSet peaResultSet = Mockito.mock(ResultSet.class);
+
+        DaoBuilder<Pod> podDaoBuilder = DaoBuilders.basePodDaoBuilder();
+        podDaoBuilder.withChildSelectStrategy(ChildSelectStrategy.ByKeysInClause);
+        DaoBuilder<Stem> stemDaoBuilder = DaoBuilders.baseStemDaoBuilder(podDaoBuilder);
+        stemDaoBuilder.withChildSelectStrategy(ChildSelectStrategy.ByKeysInClause);
+
+        Dao<Stem> stemDao = stemDaoBuilder.buildDao(connection);
+
+        String stemSelect = "select a.id as aid, a.tag as atag, b.id as bid, b.mark as bmark from stem a LEFT JOIN pod b ON a.pod_id=b.id where a.tag LIKE ? ";
+        String peaSelect = "select a.id as aid, a.pod_id as apod_id, a.flag as aflag from pea a where a.pod_id IN ( ?, ? ) ";
+
+        Mockito.when(connection.prepareStatement(stemSelect)).thenReturn(stemStatement);
+        Mockito.when(stemStatement.executeQuery()).thenReturn(stemResultSet);
+
+        Mockito.when(stemResultSet.next()).thenReturn(true).thenReturn(true).thenReturn(false);
+        Mockito.when(stemResultSet.getLong("aid")).thenReturn(1L).thenReturn(2L);
+        Mockito.when(stemResultSet.getLong("bid")).thenReturn(11L).thenReturn(12L);
+        Mockito.when(stemResultSet.getString("atag")).thenReturn("one").thenReturn("two");
+        Mockito.when(stemResultSet.getString("bmark")).thenReturn("eleven").thenReturn("twelve");
+
+        Mockito.when(connection.prepareStatement(peaSelect)).thenReturn(peaStatement);
+        Mockito.when(peaStatement.executeQuery()).thenReturn(peaResultSet);
+
+        Where where = where("tag", LIKE, "%silly%");
+        List<Stem> parents = stemDao.select(where);
+        Assert.assertEquals(2, parents.size());
+
+        // MAYBE: Investigate why this is 4. Should be 2.
+        Mockito.verify(stemResultSet, times(4)).getLong("aid");
+        Mockito.verify(stemResultSet, times(2)).getLong("bid");
+        Mockito.verify(stemResultSet, times(2)).getString("atag");
+        Mockito.verify(stemResultSet, times(2)).getString("bmark");
+
+        Mockito.verify(connection).prepareStatement(stemSelect);
+        Mockito.verify(connection).prepareStatement(peaSelect);
     }
 
 }

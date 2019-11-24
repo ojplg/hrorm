@@ -90,13 +90,15 @@ public class JoinColumn<ENTITY, JOINED, ENTITYBUILDER, JOINEDBUILDER> implements
             }
         }
         for(JoinColumn<JOINED,?, JOINEDBUILDER,?> joinColumn : joinedDaoDescriptor.joinColumns()){
-            // isn't the result of this significant? why is it ignored?
+            // MAYBE: isn't the result of this significant? why is it ignored?
             joinColumn.populate(joinedBuilder, resultSet);
         }
 
         JOINED joinedItem = joinBuilder.apply(joinedBuilder);
         setter.accept(builder, joinedItem);
 
+        // MAYBE: This inherits the ChildSelectStrategy of the Dao of the joined
+        // entity. It should probably follow the entity's ChildSelectStrategy.
         if (ChildSelectStrategy.ByKeysInClause.equals(joinedDaoDescriptor.childSelectStrategy())
                 || ChildSelectStrategy.SubSelectInClause.equals(joinedDaoDescriptor.childSelectStrategy())){
             long primaryKey = joinedDaoDescriptor.primaryKey().getKey(joinedItem).longValue();

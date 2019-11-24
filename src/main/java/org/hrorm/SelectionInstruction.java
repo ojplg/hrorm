@@ -72,6 +72,17 @@ public class SelectionInstruction {
     public boolean isSelectAll() {
         return selectAll;
     }
+
+    @Override
+    public String toString() {
+        return "SelectionInstruction{" +
+                "selectSql='" + selectSql + '\'' +
+                ", primaryKeySql='" + primaryKeySql + '\'' +
+                ", childSelectStrategy=" + childSelectStrategy +
+                ", parentColumnName='" + parentColumnName + '\'' +
+                ", selectAll=" + selectAll +
+                '}';
+    }
 }
 
 

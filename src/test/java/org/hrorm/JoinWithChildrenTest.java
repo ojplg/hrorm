@@ -2,6 +2,7 @@ package org.hrorm;
 
 import org.hrorm.database.Helper;
 import org.hrorm.database.HelperFactory;
+import org.hrorm.examples.join_with_children.DaoBuilders;
 import org.hrorm.examples.join_with_children.Pea;
 import org.hrorm.examples.join_with_children.Pod;
 import org.hrorm.examples.join_with_children.Stem;
@@ -29,9 +30,9 @@ public class JoinWithChildrenTest {
     @BeforeClass
     public static void setUpDb(){
         Schema schema = new Schema(
-              basePeaDaoBuilder(),
-              baseStemDaoBuilder(basePodDaoBuilder()),
-              basePodDaoBuilder());
+                DaoBuilders.basePeaDaoBuilder(),
+                DaoBuilders.baseStemDaoBuilder(DaoBuilders.basePodDaoBuilder()),
+                DaoBuilders.basePodDaoBuilder());
 
         String sql = schema.sql();
         helper.initializeSchemaFromSql(sql);
@@ -45,27 +46,6 @@ public class JoinWithChildrenTest {
     @After
     public void clearTable(){
         helper.clearTables();
-    }
-
-    private static DaoBuilder<Pea> basePeaDaoBuilder(){
-        return new DaoBuilder<>("pea", Pea::new)
-                .withPrimaryKey("id", "pea_seq", Pea::getId, Pea::setId)
-                .withStringColumn("flag", Pea::getFlag, Pea::setFlag)
-                .withParentColumn("pod_id");
-    }
-
-    private static DaoBuilder<Pod> basePodDaoBuilder(){
-        return new DaoBuilder<>("pod", Pod::new)
-                .withPrimaryKey("id", "pod_seq", Pod::getId, Pod::setId)
-                .withStringColumn("mark", Pod::getMark, Pod::setMark)
-                .withChildren(Pod::getPeas, Pod::setPeas, basePeaDaoBuilder());
-    }
-
-    private static DaoBuilder<Stem> baseStemDaoBuilder(DaoBuilder<Pod> podDaoBuilder){
-        return new DaoBuilder<>("stem", Stem::new)
-                .withPrimaryKey("id", "stem_seq", Stem::getId, Stem::setId)
-                .withStringColumn("tag", Stem::getTag, Stem::setTag)
-                .withJoinColumn("pod_id", Stem::getPod, Stem::setPod, podDaoBuilder);
     }
 
     @Test
@@ -82,14 +62,14 @@ public class JoinWithChildrenTest {
             pod.setMark("pod1");
             pod.setPeas(ps);
 
-            Dao<Pod> podDao = basePodDaoBuilder().buildDao(con);
+            Dao<Pod> podDao = DaoBuilders.basePodDaoBuilder().buildDao(con);
             podDao.insert(pod);
 
             Stem stem = new Stem();
             stem.setTag("stem1");
             stem.setPod(pod);
 
-            Dao<Stem> dao = baseStemDaoBuilder(basePodDaoBuilder()).buildDao(con);
+            Dao<Stem> dao = DaoBuilders.baseStemDaoBuilder(DaoBuilders.basePodDaoBuilder()).buildDao(con);
 
             return dao.insert(stem);
         });
@@ -107,20 +87,20 @@ public class JoinWithChildrenTest {
             pod.setMark("pod2");
             pod.setPeas(ps);
 
-            Dao<Pod> podDao = basePodDaoBuilder().buildDao(con);
+            Dao<Pod> podDao = DaoBuilders.basePodDaoBuilder().buildDao(con);
             podDao.insert(pod);
 
             Stem stem = new Stem();
             stem.setTag("stem2");
             stem.setPod(pod);
 
-            Dao<Stem> dao = baseStemDaoBuilder(basePodDaoBuilder()).buildDao(con);
+            Dao<Stem> dao = DaoBuilders.baseStemDaoBuilder(DaoBuilders.basePodDaoBuilder()).buildDao(con);
 
             return dao.insert(stem);
         });
 
         helper.useConnection(con -> {
-            Dao<Stem> dao = baseStemDaoBuilder(basePodDaoBuilder()).buildDao(con);
+            Dao<Stem> dao = DaoBuilders.baseStemDaoBuilder(DaoBuilders.basePodDaoBuilder()).buildDao(con);
             List<Long> ids = Arrays.asList(idOne, idTwo);
             List<Stem> stems = dao.select(ids);
 
@@ -145,8 +125,9 @@ public class JoinWithChildrenTest {
     @Test
     public void createAndSelectWithByKeysClause(){
 
-        DaoBuilder<Pod> podDaoBuilder = basePodDaoBuilder();
-        DaoBuilder<Stem> stemDaoBuilder = baseStemDaoBuilder(podDaoBuilder);
+        DaoBuilder<Pod> podDaoBuilder = DaoBuilders.basePodDaoBuilder();
+        podDaoBuilder.withChildSelectStrategy(ChildSelectStrategy.ByKeysInClause);
+        DaoBuilder<Stem> stemDaoBuilder = DaoBuilders.baseStemDaoBuilder(podDaoBuilder);
         stemDaoBuilder.withChildSelectStrategy(ChildSelectStrategy.ByKeysInClause);
 
         Long idOne = helper.useConnection(con -> {
@@ -167,7 +148,7 @@ public class JoinWithChildrenTest {
             stem.setTag("stem1");
             stem.setPod(pod);
 
-            Dao<Stem> dao = baseStemDaoBuilder(podDaoBuilder).buildDao(con);
+            Dao<Stem> dao = DaoBuilders.baseStemDaoBuilder(podDaoBuilder).buildDao(con);
 
             return dao.insert(stem);
         });
@@ -192,7 +173,7 @@ public class JoinWithChildrenTest {
             stem.setTag("stem2");
             stem.setPod(pod);
 
-            Dao<Stem> dao = baseStemDaoBuilder(podDaoBuilder).buildDao(con);
+            Dao<Stem> dao = DaoBuilders.baseStemDaoBuilder(podDaoBuilder).buildDao(con);
 
             return dao.insert(stem);
         });
@@ -229,8 +210,9 @@ public class JoinWithChildrenTest {
 
         helper.useConnection(con -> {
 
-            DaoBuilder<Pod> podDaoBuilder = basePodDaoBuilder();
-            DaoBuilder<Stem> stemDaoBuilder = baseStemDaoBuilder(podDaoBuilder);
+            DaoBuilder<Pod> podDaoBuilder = DaoBuilders.basePodDaoBuilder();
+            podDaoBuilder.withChildSelectStrategy(ChildSelectStrategy.ByKeysInClause);
+            DaoBuilder<Stem> stemDaoBuilder = DaoBuilders.baseStemDaoBuilder(podDaoBuilder);
             stemDaoBuilder.withChildSelectStrategy(ChildSelectStrategy.ByKeysInClause);
 
             Dao<Stem> stemDao = stemDaoBuilder.buildDao(con);
@@ -260,8 +242,9 @@ public class JoinWithChildrenTest {
 
         helper.useConnection(con -> {
 
-            DaoBuilder<Pod> podDaoBuilder = basePodDaoBuilder();
-            DaoBuilder<Stem> stemDaoBuilder = baseStemDaoBuilder(podDaoBuilder);
+            DaoBuilder<Pod> podDaoBuilder = DaoBuilders.basePodDaoBuilder();
+            podDaoBuilder.withChildSelectStrategy(ChildSelectStrategy.ByKeysInClause);
+            DaoBuilder<Stem> stemDaoBuilder = DaoBuilders.baseStemDaoBuilder(podDaoBuilder);
             stemDaoBuilder.withChildSelectStrategy(ChildSelectStrategy.ByKeysInClause);
 
             Dao<Stem> stemDao = stemDaoBuilder.buildDao(con);
@@ -284,7 +267,7 @@ public class JoinWithChildrenTest {
 
     @Test
     public void testBuildSqlForJoinedChildren(){
-        SqlBuilder<Stem> sqlBuilder = new SqlBuilder<>(baseStemDaoBuilder(basePodDaoBuilder()));
+        SqlBuilder<Stem> sqlBuilder = new SqlBuilder<>(DaoBuilders.baseStemDaoBuilder(DaoBuilders.basePodDaoBuilder()));
 
         String selectPodPrimaryKeySql = sqlBuilder.selectPrimaryKeyOfJoinedColumn(new Where("tag", EQUALS, "smurf"), "pod_id");
         String expectedSql = "select b.id from stem a left join pod b on a.pod_id = b.id where a.tag = ?";
@@ -301,8 +284,8 @@ public class JoinWithChildrenTest {
         }
 
         helper.useConnection(con -> {
-            DaoBuilder<Pod> podDaoBuilder = basePodDaoBuilder();
-            DaoBuilder<Stem> stemDaoBuilder = baseStemDaoBuilder(podDaoBuilder);
+            DaoBuilder<Pod> podDaoBuilder = DaoBuilders.basePodDaoBuilder();
+            DaoBuilder<Stem> stemDaoBuilder = DaoBuilders.baseStemDaoBuilder(podDaoBuilder);
             stemDaoBuilder.withChildSelectStrategy(ChildSelectStrategy.SubSelectInClause);
 
             Dao<Stem> stemDao = stemDaoBuilder.buildDao(con);
@@ -340,8 +323,8 @@ public class JoinWithChildrenTest {
 
     private static Long insertStem(Stem stem){
         return helper.useConnection(con -> {
-            Dao<Pod> podDao = basePodDaoBuilder().buildDao(con);
-            Dao<Stem> stemDao = baseStemDaoBuilder(basePodDaoBuilder()).buildDao(con);
+            Dao<Pod> podDao = DaoBuilders.basePodDaoBuilder().buildDao(con);
+            Dao<Stem> stemDao = DaoBuilders.baseStemDaoBuilder(DaoBuilders.basePodDaoBuilder()).buildDao(con);
             podDao.insert(stem.getPod());
             return stemDao.insert(stem);
         });
