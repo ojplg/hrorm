@@ -832,10 +832,17 @@
                         with recursively embedded sub-selects.</li>
                 </ul>
 
+                <h5>Joined Entities</h5>
+
+                <p>
+                    Joined entities must all share the same child select strategy as the DAO being
+                    built. Attempting to build a DAO with heterogeneous strategies will cause an
+                    exception to be thrown.
+                </p>
+
                 <div class="card fluid warning">
-                    <b>Note.</b>An entity that selected because is connected to another entity by a join relationship will
-                    always use the standard (N+1 queries) to load its children. The ChildSelectStrategy
-                    for those entities will be ignored.
+                    <b>Note.</b> Indirect DAO builders for immutable entities do not currently
+                    support the deferred, bulk selection strategies described here.
                 </div>
 
             </div>
