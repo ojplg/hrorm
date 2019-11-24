@@ -6,6 +6,13 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+/**
+ * A base class for the various Dao building classes.
+ *
+ * @param <ENTITY> The entity being persisted.
+ * @param <ENTITYBUILDER> The builder class of the entity.
+ * @param <B> The type of the concrete class extending this.
+ */
 public abstract class AbstractDaoBuilder<ENTITY, ENTITYBUILDER, B extends AbstractDaoBuilder<?,?,?>>
         extends AbstractKeylessDaoBuilder<ENTITY, ENTITYBUILDER, B>
         implements DaoDescriptor<ENTITY,ENTITYBUILDER>, SchemaDescriptor<ENTITY, ENTITYBUILDER> {
