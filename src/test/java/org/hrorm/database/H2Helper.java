@@ -17,6 +17,7 @@ public class H2Helper extends AbstractHelper {
 
     public H2Helper(String schemaName){
         super(schemaName);
+        cleanUpFiles();
     }
 
     @Override
@@ -47,6 +48,13 @@ public class H2Helper extends AbstractHelper {
         } catch (Exception ex) {
             deferred = ex;
         }
+        cleanUpFiles();
+        if ( deferred != null ){
+            throw new RuntimeException(deferred);
+        }
+    }
+
+    private void cleanUpFiles(){
         try {
             Path path = Paths.get("./target/db/" + schemaName + ".mv.db");
             Files.deleteIfExists(path);
@@ -54,9 +62,6 @@ public class H2Helper extends AbstractHelper {
             Files.deleteIfExists(path);
         } catch (Exception ex){
             throw new RuntimeException(ex);
-        }
-        if ( deferred != null ){
-            throw new RuntimeException(deferred);
         }
     }
 
