@@ -25,5 +25,11 @@ public class DaoBuilders {
                 .withJoinColumn("pod_id", Stem::getPod, Stem::setPod, podDaoBuilder);
     }
 
+    public static DaoBuilder<Root> baseRootDaoBuilder(DaoBuilder<Stem> stemDaoBuilder){
+        return new DaoBuilder<>("root", Root::new)
+                .withPrimaryKey("id", "root_seq", Root::getId, Root::setId)
+                .withLongColumn("number", Root::getNumber, Root::setNumber)
+                .withJoinColumn("stem_id", Root::getStem, Root::setStem, stemDaoBuilder);
+    }
 
 }

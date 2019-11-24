@@ -21,7 +21,7 @@ public class PopulateResult {
 
     private final String code;
     private final Consumer<Connection> connectionUser;
-    private final Envelope<Object> joinedItem;
+    private final Envelope<?> joinedItem;
 
     private PopulateResult(String code){
         this.code = code;
@@ -35,7 +35,7 @@ public class PopulateResult {
         this.joinedItem = null;
     }
 
-    private PopulateResult(Envelope<Object> object){
+    private PopulateResult(Envelope<?> object){
         this.code = JoinedItemResult;
         this.connectionUser = con -> {};
         this.joinedItem = object;
@@ -45,7 +45,7 @@ public class PopulateResult {
         return new PopulateResult(connectionUser);
     }
 
-    public static PopulateResult fromJoinColumn(Envelope<Object> item){
+    public static PopulateResult fromJoinColumn(Envelope<?> item){
         return new PopulateResult(item);
     }
 
@@ -57,7 +57,7 @@ public class PopulateResult {
         return code.equals(JoinedItemResult);
     }
 
-    public Envelope<Object> getJoinedItem(){
+    public Envelope<?> getJoinedItem(){
         return joinedItem;
     }
 

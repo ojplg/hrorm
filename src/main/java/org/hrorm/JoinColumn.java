@@ -4,10 +4,14 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
+import java.util.logging.Level;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
 
 /**
  * Represents a column that links to a foreign key of some
@@ -23,6 +27,9 @@ import java.util.function.Function;
  * @param <JOINEDBUILDER> the class that can construct instances of the joined entity
  */
 public class JoinColumn<ENTITY, JOINED, ENTITYBUILDER, JOINEDBUILDER> implements Column<Long, Long, ENTITY, ENTITYBUILDER> {
+
+    private static final Logger logger = Logger.getLogger("org.hrorm");
+    private static final Level logLevel = Level.INFO;
 
     private final String name;
     private final String prefix;
@@ -82,6 +89,9 @@ public class JoinColumn<ENTITY, JOINED, ENTITYBUILDER, JOINEDBUILDER> implements
 
     @Override
     public PopulateResult populate(ENTITYBUILDER builder, ResultSet resultSet) throws SQLException {
+
+        logger.log(logLevel, "populating on join column for " + joinedDaoDescriptor.tableName());
+
         JOINEDBUILDER joinedBuilder = joinedDaoDescriptor.supplier().get();
         for (Column<?, ?, JOINED, JOINEDBUILDER> column: joinedDaoDescriptor.nonJoinColumns()) {
             PopulateResult result = column.populate(joinedBuilder, resultSet);
@@ -89,9 +99,11 @@ public class JoinColumn<ENTITY, JOINED, ENTITYBUILDER, JOINEDBUILDER> implements
                 return PopulateResult.Ignore;
             }
         }
+
+        List<PopulateResult> subResults = new ArrayList<>();
         for(JoinColumn<JOINED,?, JOINEDBUILDER,?> joinColumn : joinedDaoDescriptor.joinColumns()){
-            // MAYBE: isn't the result of this significant? why is it ignored?
-            joinColumn.populate(joinedBuilder, resultSet);
+            PopulateResult subResult = joinColumn.populate(joinedBuilder, resultSet);
+            subResults.add(subResult);
         }
 
         JOINED joinedItem = joinBuilder.apply(joinedBuilder);
@@ -102,13 +114,24 @@ public class JoinColumn<ENTITY, JOINED, ENTITYBUILDER, JOINEDBUILDER> implements
         if (ChildSelectStrategy.ByKeysInClause.equals(joinedDaoDescriptor.childSelectStrategy())
                 || ChildSelectStrategy.SubSelectInClause.equals(joinedDaoDescriptor.childSelectStrategy())){
             long primaryKey = joinedDaoDescriptor.primaryKey().getKey(joinedItem).longValue();
-            Envelope<Object> envelope = new Envelope<Object>(joinedItem, primaryKey);
+            Envelope<JOINED> envelope = new Envelope<>(joinedItem, primaryKey);
             return PopulateResult.fromJoinColumn(envelope);
         }
 
+        logger.log(logLevel, "Populating children of " +
+                joinedDaoDescriptor.tableName() +
+                " has " + joinedDaoDescriptor.childrenDescriptors().size() + " child entity types");
         return PopulateResult.fromJoinColumn(
                 connection -> {
+
+                    logger.log(logLevel,"HERE!! " + joinedDaoDescriptor.tableName());
+
+                    for(PopulateResult subResult : subResults){
+                        subResult.populateChildren(connection);
+                    }
+
                     for(ChildrenDescriptor<JOINED,?, JOINEDBUILDER,?> childrenDescriptor : joinedDaoDescriptor.childrenDescriptors()){
+                        logger.log(logLevel,"populating!!");
                         childrenDescriptor.populateChildren(connection, joinedBuilder);
                     }
                 }

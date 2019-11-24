@@ -79,6 +79,8 @@ public class SqlRunner<ENTITY, BUILDER> {
                                                List<? extends ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors,
                                                StatementPopulator statementPopulator) {
 
+
+
         ResultSet resultSet = null;
         PreparedStatement statement = null;
         try {
@@ -426,7 +428,7 @@ public class SqlRunner<ENTITY, BUILDER> {
             PopulateResult populateResult = column.populate(item, resultSet);
 
             if ( populateResult.isJoinedItemResult() ){
-                Envelope<Object> envelope = populateResult.getJoinedItem();
+                Envelope<?> envelope = populateResult.getJoinedItem();
                 joinedChildrenSelector.addChildEntityInfo(column.getName(),envelope);
             } else {
                 populateResult.populateChildren(connection);
