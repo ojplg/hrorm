@@ -40,4 +40,5 @@ You can also run the tests against postgres, but it takes a bit of work.
 * Support different types, e.g. String GUIDs, for primary keys
 * Add methods that allow for updates and deletes based on Where objects
 * Make ChildSelectStrategy for immutable models
-* Check ChildSelectStrategy for join of joins and other complicated models
+* Check ChildSelectStrategy works for complicated structures
+* Check that join-of-join child selection works for subselects with strange primary key column names
