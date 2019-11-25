@@ -315,15 +315,57 @@ public class JoinWithChildrenTest {
     }
 
     @Test
-    public void testJoinOfJoinStillWorks(){
+    public void testJoinOfJoin_StandardWorks() {
         List<Stem> stems = RandomUtils.randomNumberOf(1, 2, JoinWithChildrenTest::createRandomStemInstance);
-        for(Stem stem : stems){
+        for (Stem stem : stems) {
             insertStem(stem);
         }
         helper.useConnection(con -> {
             Dao<Root> rootDao = DaoBuilders.baseRootDaoBuilder(DaoBuilders.baseStemDaoBuilder(DaoBuilders.basePodDaoBuilder())).buildDao(con);
             long counter = 1;
-            for(Stem stem : stems) {
+            for (Stem stem : stems) {
+                Root root = new Root();
+                root.setNumber(counter++);
+                root.setStem(stem);
+                rootDao.insert(root);
+            }
+        });
+        helper.useConnection(con -> {
+            ChildSelectStrategy childSelectStrategy = ChildSelectStrategy.Standard;
+            DaoBuilder<Pod> podDaoBuilder = DaoBuilders.basePodDaoBuilder();
+            podDaoBuilder.withChildSelectStrategy(childSelectStrategy);
+            DaoBuilder<Stem> stemDaoBuilder = DaoBuilders.baseStemDaoBuilder(podDaoBuilder);
+            stemDaoBuilder.withChildSelectStrategy(childSelectStrategy);
+            DaoBuilder<Root> rootDaoBuilder = DaoBuilders.baseRootDaoBuilder(stemDaoBuilder);
+            rootDaoBuilder.withChildSelectStrategy(childSelectStrategy);
+
+            Dao<Root> rootDao = rootDaoBuilder.buildDao(con);
+            List<Root> dbRoots = rootDao.select();
+
+            Assert.assertEquals("failed to read stems", stems.size(), dbRoots.size());
+
+            List<Stem> dbStems = dbRoots.stream().map(Root::getStem).collect(Collectors.toList());
+
+            Map<String, String> expectedPodMarks = extractPodMarks(stems);
+            Map<String, List<String>> expectedPeaFlags = extractPeaFlags(stems);
+
+            for (Stem stem : dbStems) {
+                Assert.assertEquals("failed to load pod", stem.getPodMark(), expectedPodMarks.get(stem.getTag()));
+                AssertHelp.sameContents(expectedPeaFlags.get(stem.getTag()), stem.getPeaFlags());
+            }
+        });
+    }
+
+    @Test
+    public void testJoinOfJoin_ByKeysWorks() {
+        List<Stem> stems = RandomUtils.randomNumberOf(1, 2, JoinWithChildrenTest::createRandomStemInstance);
+        for (Stem stem : stems) {
+            insertStem(stem);
+        }
+        helper.useConnection(con -> {
+            Dao<Root> rootDao = DaoBuilders.baseRootDaoBuilder(DaoBuilders.baseStemDaoBuilder(DaoBuilders.basePodDaoBuilder())).buildDao(con);
+            long counter = 1;
+            for (Stem stem : stems) {
                 Root root = new Root();
                 root.setNumber(counter++);
                 root.setStem(stem);
@@ -349,7 +391,49 @@ public class JoinWithChildrenTest {
             Map<String, String> expectedPodMarks = extractPodMarks(stems);
             Map<String, List<String>> expectedPeaFlags = extractPeaFlags(stems);
 
-            for(Stem stem : dbStems){
+            for (Stem stem : dbStems) {
+                Assert.assertEquals("failed to load pod", stem.getPodMark(), expectedPodMarks.get(stem.getTag()));
+                AssertHelp.sameContents(expectedPeaFlags.get(stem.getTag()), stem.getPeaFlags());
+            }
+        });
+    }
+
+    @Test
+    public void testJoinOfJoin_SubselectWorks() {
+        List<Stem> stems = RandomUtils.randomNumberOf(1, 2, JoinWithChildrenTest::createRandomStemInstance);
+        for (Stem stem : stems) {
+            insertStem(stem);
+        }
+        helper.useConnection(con -> {
+            Dao<Root> rootDao = DaoBuilders.baseRootDaoBuilder(DaoBuilders.baseStemDaoBuilder(DaoBuilders.basePodDaoBuilder())).buildDao(con);
+            long counter = 1;
+            for (Stem stem : stems) {
+                Root root = new Root();
+                root.setNumber(counter++);
+                root.setStem(stem);
+                rootDao.insert(root);
+            }
+        });
+        helper.useConnection(con -> {
+            ChildSelectStrategy childSelectStrategy = ChildSelectStrategy.SubSelectInClause;
+            DaoBuilder<Pod> podDaoBuilder = DaoBuilders.basePodDaoBuilder();
+            podDaoBuilder.withChildSelectStrategy(childSelectStrategy);
+            DaoBuilder<Stem> stemDaoBuilder = DaoBuilders.baseStemDaoBuilder(podDaoBuilder);
+            stemDaoBuilder.withChildSelectStrategy(childSelectStrategy);
+            DaoBuilder<Root> rootDaoBuilder = DaoBuilders.baseRootDaoBuilder(stemDaoBuilder);
+            rootDaoBuilder.withChildSelectStrategy(childSelectStrategy);
+
+            Dao<Root> rootDao = rootDaoBuilder.buildDao(con);
+            List<Root> dbRoots = rootDao.select();
+
+            Assert.assertEquals("failed to read stems", stems.size(), dbRoots.size());
+
+            List<Stem> dbStems = dbRoots.stream().map(Root::getStem).collect(Collectors.toList());
+
+            Map<String, String> expectedPodMarks = extractPodMarks(stems);
+            Map<String, List<String>> expectedPeaFlags = extractPeaFlags(stems);
+
+            for (Stem stem : dbStems) {
                 Assert.assertEquals("failed to load pod", stem.getPodMark(), expectedPodMarks.get(stem.getTag()));
                 AssertHelp.sameContents(expectedPeaFlags.get(stem.getTag()), stem.getPeaFlags());
             }
