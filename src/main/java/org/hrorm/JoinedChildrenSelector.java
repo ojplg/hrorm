@@ -22,13 +22,18 @@ public class JoinedChildrenSelector<ENTITY, BUILDER> {
     private final SelectionInstruction selectionInstruction;
     private final Map<String, List<Envelope<?>>> recordMap = new HashMap<>();
     private final KeylessDaoDescriptor<ENTITY, BUILDER> keylessDaoDescriptor;
+    // MAYBE: Oh god, this is hideous
+    private final Map<String, Map<String, List<PopulateResult>>> subResultsMap = new HashMap<>();
 
     public JoinedChildrenSelector(KeylessDaoDescriptor<ENTITY, BUILDER> keylessDaoDescriptor, SelectionInstruction selectionInstruction){
         this.selectionInstruction = selectionInstruction;
         this.keylessDaoDescriptor = keylessDaoDescriptor;
         Map<String, JoinColumn<ENTITY,?,BUILDER,?>> tmp = new HashMap<>();
         for(JoinColumn<ENTITY,?,BUILDER,?> jc : keylessDaoDescriptor.joinColumns()){
-            tmp.put(jc.getName(), jc);
+            String columnName = jc.getName();
+            tmp.put(columnName, jc);
+            recordMap.put(columnName, new ArrayList<>());
+            subResultsMap.put(columnName, new HashMap<>());
         }
         this.joinColumnMap = Collections.unmodifiableMap(tmp);
     }
@@ -38,12 +43,18 @@ public class JoinedChildrenSelector<ENTITY, BUILDER> {
             throw new HrormException("Problem. This column name is unrecognized: "  + columnName);
         }
 
-
-        if ( ! recordMap.containsKey(columnName) ){
-            recordMap.put(columnName, new ArrayList<>());
-        }
         List<Envelope<?>> records = recordMap.get(columnName);
         records.add(joinedObject);
+
+        Map<String, List<PopulateResult>> columnnSpecificResultsMap = subResultsMap.get(columnName);
+
+        for( String name : columnnSpecificResultsMap.keySet()){
+            if (!columnnSpecificResultsMap.containsKey(name)){
+                columnnSpecificResultsMap.put(name, new ArrayList<>());
+            }
+            List<PopulateResult> list = columnnSpecificResultsMap.get(name);
+            list.add(subResults.get(name));
+        }
     }
 
     public void populateChildren(Connection connection, StatementPopulator statementPopulator){
@@ -76,6 +87,9 @@ public class JoinedChildrenSelector<ENTITY, BUILDER> {
             for( ChildrenDescriptor childrenDescriptor : childrenDescriptors ) {
                 childrenDescriptor.populateChildren(connection, envelopes, childrenBuilderSelectCommand);
             }
+
+            // TODO: Do something with the joined results: subResultsMap
+
         }
     }
 
