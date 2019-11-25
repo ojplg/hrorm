@@ -316,7 +316,7 @@ public class JoinWithChildrenTest {
 
     @Test
     public void testJoinOfJoin_StandardWorks() {
-        List<Stem> stems = RandomUtils.randomNumberOf(1, 2, JoinWithChildrenTest::createRandomStemInstance);
+        List<Stem> stems = RandomUtils.randomNumberOf(5, 10, JoinWithChildrenTest::createRandomStemInstance);
         for (Stem stem : stems) {
             insertStem(stem);
         }
@@ -358,7 +358,7 @@ public class JoinWithChildrenTest {
 
     @Test
     public void testJoinOfJoin_ByKeysWorks() {
-        List<Stem> stems = RandomUtils.randomNumberOf(1, 2, JoinWithChildrenTest::createRandomStemInstance);
+        List<Stem> stems = RandomUtils.randomNumberOf(5, 10, JoinWithChildrenTest::createRandomStemInstance);
         for (Stem stem : stems) {
             insertStem(stem);
         }
@@ -400,7 +400,7 @@ public class JoinWithChildrenTest {
 
     @Test
     public void testJoinOfJoin_SubselectWorks() {
-        List<Stem> stems = RandomUtils.randomNumberOf(1, 2, JoinWithChildrenTest::createRandomStemInstance);
+        List<Stem> stems = RandomUtils.randomNumberOf(5, 10, JoinWithChildrenTest::createRandomStemInstance);
         for (Stem stem : stems) {
             insertStem(stem);
         }

@@ -31,7 +31,7 @@ import java.util.logging.Logger;
 public class JoinColumn<ENTITY, JOINED, ENTITYBUILDER, JOINEDBUILDER> implements Column<Long, Long, ENTITY, ENTITYBUILDER> {
 
     private static final Logger logger = Logger.getLogger("org.hrorm");
-    private static final Level logLevel = Level.INFO;
+    private static final Level logLevel = Level.FINEST;
 
     private final String name;
     private final String prefix;
