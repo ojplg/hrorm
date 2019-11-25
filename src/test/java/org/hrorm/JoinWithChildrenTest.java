@@ -331,7 +331,7 @@ public class JoinWithChildrenTest {
             }
         });
         helper.useConnection(con -> {
-            ChildSelectStrategy childSelectStrategy = ChildSelectStrategy.Standard;
+            ChildSelectStrategy childSelectStrategy = ChildSelectStrategy.ByKeysInClause;
             DaoBuilder<Pod> podDaoBuilder = DaoBuilders.basePodDaoBuilder();
             podDaoBuilder.withChildSelectStrategy(childSelectStrategy);
             DaoBuilder<Stem> stemDaoBuilder = DaoBuilders.baseStemDaoBuilder(podDaoBuilder);

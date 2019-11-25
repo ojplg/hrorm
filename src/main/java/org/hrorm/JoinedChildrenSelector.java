@@ -22,7 +22,6 @@ public class JoinedChildrenSelector<ENTITY, BUILDER> {
     private final SelectionInstruction selectionInstruction;
     private final Map<String, List<Envelope<?>>> recordMap = new HashMap<>();
     private final KeylessDaoDescriptor<ENTITY, BUILDER> keylessDaoDescriptor;
-    // MAYBE: Oh god, this is hideous
     private final Map<String, JoinedChildrenSelector> subResultsMap = new HashMap<>();
 
     public JoinedChildrenSelector(KeylessDaoDescriptor<ENTITY, BUILDER> keylessDaoDescriptor, SelectionInstruction selectionInstruction){
@@ -63,6 +62,11 @@ public class JoinedChildrenSelector<ENTITY, BUILDER> {
         ChildSelectStrategy childSelectStrategy = selectionInstruction.getChildSelectStrategy();
 
         for (String columnName : recordMap.keySet()) {
+
+            JoinedChildrenSelector subSelector = subResultsMap.get(columnName);
+            subSelector.populateChildren(connection, statementPopulator);
+
+
             List<Envelope<?>> envelopes = recordMap.get(columnName);
 
             DaoDescriptor joinedDaoDescriptor = matchingDaoDescriptor(columnName);
@@ -88,9 +92,6 @@ public class JoinedChildrenSelector<ENTITY, BUILDER> {
             for( ChildrenDescriptor childrenDescriptor : childrenDescriptors ) {
                 childrenDescriptor.populateChildren(connection, envelopes, childrenBuilderSelectCommand);
             }
-
-            // TODO: Do something with the joined results: subResultsMap
-
         }
     }
 
