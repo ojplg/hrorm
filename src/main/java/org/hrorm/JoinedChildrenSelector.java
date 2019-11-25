@@ -23,7 +23,7 @@ public class JoinedChildrenSelector<ENTITY, BUILDER> {
     private final Map<String, List<Envelope<?>>> recordMap = new HashMap<>();
     private final KeylessDaoDescriptor<ENTITY, BUILDER> keylessDaoDescriptor;
     // MAYBE: Oh god, this is hideous
-    private final Map<String, Map<String, List<PopulateResult>>> subResultsMap = new HashMap<>();
+    private final Map<String, JoinedChildrenSelector> subResultsMap = new HashMap<>();
 
     public JoinedChildrenSelector(KeylessDaoDescriptor<ENTITY, BUILDER> keylessDaoDescriptor, SelectionInstruction selectionInstruction){
         this.selectionInstruction = selectionInstruction;
@@ -33,7 +33,10 @@ public class JoinedChildrenSelector<ENTITY, BUILDER> {
             String columnName = jc.getName();
             tmp.put(columnName, jc);
             recordMap.put(columnName, new ArrayList<>());
-            subResultsMap.put(columnName, new HashMap<>());
+
+            KeylessDaoDescriptor joinedDaoDescriptor = jc.getJoinedDaoDescriptor();
+            JoinedChildrenSelector joinedChildrenSelector = new JoinedChildrenSelector(joinedDaoDescriptor, selectionInstruction);
+            subResultsMap.put(columnName, joinedChildrenSelector);
         }
         this.joinColumnMap = Collections.unmodifiableMap(tmp);
     }
@@ -46,14 +49,12 @@ public class JoinedChildrenSelector<ENTITY, BUILDER> {
         List<Envelope<?>> records = recordMap.get(columnName);
         records.add(joinedObject);
 
-        Map<String, List<PopulateResult>> columnnSpecificResultsMap = subResultsMap.get(columnName);
+        JoinedChildrenSelector subSelector = subResultsMap.get(columnName);
 
-        for( String name : columnnSpecificResultsMap.keySet()){
-            if (!columnnSpecificResultsMap.containsKey(name)){
-                columnnSpecificResultsMap.put(name, new ArrayList<>());
-            }
-            List<PopulateResult> list = columnnSpecificResultsMap.get(name);
-            list.add(subResults.get(name));
+        for( String name : subResults.keySet()){
+            PopulateResult populateResult = subResults.get(name);
+            Envelope envelope = populateResult.getJoinedItem();
+            subSelector.addChildEntityInfo(name, envelope, populateResult.getSubResults());
         }
     }
 
