@@ -5,7 +5,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -100,22 +102,21 @@ public class JoinColumn<ENTITY, JOINED, ENTITYBUILDER, JOINEDBUILDER> implements
             }
         }
 
-        List<PopulateResult> subResults = new ArrayList<>();
+        Map<String,PopulateResult> subResults = new HashMap<>();
         for(JoinColumn<JOINED,?, JOINEDBUILDER,?> joinColumn : joinedDaoDescriptor.joinColumns()){
             PopulateResult subResult = joinColumn.populate(joinedBuilder, resultSet);
-            subResults.add(subResult);
+            String subResultColumnName = joinColumn.name;
+            subResults.put(subResultColumnName, subResult);
         }
 
         JOINED joinedItem = joinBuilder.apply(joinedBuilder);
         setter.accept(builder, joinedItem);
 
-        // MAYBE: This inherits the ChildSelectStrategy of the Dao of the joined
-        // entity. It should probably follow the entity's ChildSelectStrategy.
         if (ChildSelectStrategy.ByKeysInClause.equals(joinedDaoDescriptor.childSelectStrategy())
                 || ChildSelectStrategy.SubSelectInClause.equals(joinedDaoDescriptor.childSelectStrategy())){
             long primaryKey = joinedDaoDescriptor.primaryKey().getKey(joinedItem).longValue();
             Envelope<JOINED> envelope = new Envelope<>(joinedItem, primaryKey);
-            return PopulateResult.fromJoinColumn(envelope);
+            return PopulateResult.fromJoinColumn(envelope, subResults);
         }
 
         logger.log(logLevel, "Populating children of " +
@@ -126,7 +127,7 @@ public class JoinColumn<ENTITY, JOINED, ENTITYBUILDER, JOINEDBUILDER> implements
 
                     logger.log(logLevel,"HERE!! " + joinedDaoDescriptor.tableName());
 
-                    for(PopulateResult subResult : subResults){
+                    for(PopulateResult subResult : subResults.values()){
                         subResult.populateChildren(connection);
                     }
 

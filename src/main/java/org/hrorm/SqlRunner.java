@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -429,7 +430,8 @@ public class SqlRunner<ENTITY, BUILDER> {
 
             if ( populateResult.isJoinedItemResult() ){
                 Envelope<?> envelope = populateResult.getJoinedItem();
-                joinedChildrenSelector.addChildEntityInfo(column.getName(),envelope);
+                Map<String,PopulateResult> subResults = populateResult.getSubResults();
+                joinedChildrenSelector.addChildEntityInfo(column.getName(),envelope, subResults);
             } else {
                 populateResult.populateChildren(connection);
             }

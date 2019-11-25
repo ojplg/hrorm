@@ -33,7 +33,7 @@ public class JoinedChildrenSelector<ENTITY, BUILDER> {
         this.joinColumnMap = Collections.unmodifiableMap(tmp);
     }
 
-    public void addChildEntityInfo(String columnName, Envelope<?> joinedObject){
+    public void addChildEntityInfo(String columnName, Envelope<?> joinedObject, Map<String,PopulateResult> subResults){
         if( ! joinColumnMap.containsKey(columnName)){
             throw new HrormException("Problem. This column name is unrecognized: "  + columnName);
         }
