@@ -76,8 +76,9 @@ public interface DaoDescriptor<ENTITY, ENTITYBUILDER> extends KeylessDaoDescript
 
         if( failed ){
             throw new HrormException(
-                    "Cannot construct a DAO with incompatible child selection strategies. This DAO has strategy " +
-                            myChildSelectStrategy + " but is joined with: " + buf.toString());
+                    "Cannot construct a DAO with incompatible child selection strategies. This DAO ("
+                            + tableName() + ") has strategy "
+                            + myChildSelectStrategy + " but is joined with: " + buf.toString());
         }
     }
 }

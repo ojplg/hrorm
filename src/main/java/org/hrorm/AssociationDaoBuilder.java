@@ -79,7 +79,8 @@ public class AssociationDaoBuilder<LEFT, RIGHT>
                 new DaoBuilder<Association<LEFT, RIGHT>>(tableName, Association::new)
                         .withPrimaryKey(primaryKeyName, sequenceName, Association::getId, Association::setId)
                         .withJoinColumn(leftColumnName, Association::getLeft, Association::setLeft, leftDaoDescriptor).notNull()
-                        .withJoinColumn(rightColumnName, Association::getRight, Association::setRight, rightDaoDescriptor).notNull();
+                        .withJoinColumn(rightColumnName, Association::getRight, Association::setRight, rightDaoDescriptor).notNull()
+                        .withChildSelectStrategy(childSelectStrategy);
     }
 
     /**
@@ -137,6 +138,11 @@ public class AssociationDaoBuilder<LEFT, RIGHT>
      */
     public AssociationDaoBuilder<LEFT, RIGHT> withRightColumnName(String rightColumnName) {
         this.rightColumnName = rightColumnName;
+        return this;
+    }
+
+    public AssociationDaoBuilder<LEFT, RIGHT> withChildSelectStrategy(ChildSelectStrategy childSelectStrategy){
+        this.childSelectStrategy = childSelectStrategy;
         return this;
     }
 
