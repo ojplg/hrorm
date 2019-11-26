@@ -2,7 +2,6 @@ package org.hrorm;
 
 import java.sql.Connection;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
@@ -21,6 +20,8 @@ public class PopulateResult {
     public static final PopulateResult NoPrimaryKey = new PopulateResult("No Primary Key");
     public static final PopulateResult Ignore = new PopulateResult("Ignore");
     public static final PopulateResult ParentColumn = new PopulateResult("Parent Column");
+
+    // MAYBE: This outgrew the enumeration deal it used to be ... needs polymorphism
 
     private final String code;
     private final Consumer<Connection> connectionUser;

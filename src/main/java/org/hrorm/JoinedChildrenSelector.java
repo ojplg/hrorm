@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
  */
 public class JoinedChildrenSelector<ENTITY, BUILDER> {
 
+    // MAYBE: All these maps .... ugly
     private final Map<String,JoinColumn<ENTITY,?,BUILDER,?>> joinColumnMap;
     private final SelectionInstruction selectionInstruction;
     private final Map<String, List<Envelope<?>>> recordMap = new HashMap<>();

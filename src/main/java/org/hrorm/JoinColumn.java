@@ -4,7 +4,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,7 +11,6 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.logging.Level;
-import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
 /**
@@ -92,7 +90,7 @@ public class JoinColumn<ENTITY, JOINED, ENTITYBUILDER, JOINEDBUILDER> implements
     @Override
     public PopulateResult populate(ENTITYBUILDER builder, ResultSet resultSet) throws SQLException {
 
-        logger.log(logLevel, "populating on join column for " + joinedDaoDescriptor.tableName());
+        // MAYBE: This is too complicated. Too many exit points. Not enough polymorphism in return types.
 
         JOINEDBUILDER joinedBuilder = joinedDaoDescriptor.supplier().get();
         for (Column<?, ?, JOINED, JOINEDBUILDER> column: joinedDaoDescriptor.nonJoinColumns()) {
@@ -119,20 +117,14 @@ public class JoinColumn<ENTITY, JOINED, ENTITYBUILDER, JOINEDBUILDER> implements
             return PopulateResult.fromJoinColumn(envelope, subResults);
         }
 
-        logger.log(logLevel, "Populating children of " +
-                joinedDaoDescriptor.tableName() +
-                " has " + joinedDaoDescriptor.childrenDescriptors().size() + " child entity types");
         return PopulateResult.fromJoinColumn(
                 connection -> {
-
-                    logger.log(logLevel,"HERE!! " + joinedDaoDescriptor.tableName());
 
                     for(PopulateResult subResult : subResults.values()){
                         subResult.populateChildren(connection);
                     }
 
                     for(ChildrenDescriptor<JOINED,?, JOINEDBUILDER,?> childrenDescriptor : joinedDaoDescriptor.childrenDescriptors()){
-                        logger.log(logLevel,"populating!!");
                         childrenDescriptor.populateChildren(connection, joinedBuilder);
                     }
                 }

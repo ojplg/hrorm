@@ -100,6 +100,8 @@ public class SqlRunner<ENTITY, BUILDER> {
                 builders.add(builder);
             }
 
+            // MAYBE: this is confusing. Why no polymorphism?
+
             if ( selectionInstruction.isBulkChildSelectStrategy()) {
                 for (ChildrenDescriptor<ENTITY, ?, BUILDER, ?> descriptor : childrenDescriptors) {
                     ChildrenBuilderSelectCommand<?, ?> childrenBuilderSelectCommand;
@@ -116,6 +118,8 @@ public class SqlRunner<ENTITY, BUILDER> {
                     descriptor.populateChildren(connection, builders, childrenBuilderSelectCommand);
                 }
             }
+
+            // MAYBE: why does this need to be here? what's going on? didn't population happen already?
 
             joinedChildrenSelector.populateChildren(connection, statementPopulator);
 
@@ -424,6 +428,8 @@ public class SqlRunner<ENTITY, BUILDER> {
         BUILDER item = supplier.get();
         Long parentId = null;
         Long itemId = null;
+
+        // MAYBE: Too complicated. The join columns should just be handled separetely from the data columns.
 
         for (Column<?, ?, ENTITY, BUILDER> column: allColumns) {
             PopulateResult populateResult = column.populate(item, resultSet);
