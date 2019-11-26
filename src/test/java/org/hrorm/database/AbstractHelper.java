@@ -1,10 +1,15 @@
 package org.hrorm.database;
 
 import org.hrorm.Transactor;
+import org.hrorm.util.RandomUtils;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -40,6 +45,17 @@ public abstract class AbstractHelper implements Helper {
     }
 
     private final Transactor transactor = new Transactor(this::connect);
+//    private String temporaryFileCopy(String fileName){
+//        try {
+//            Path pathIn = Paths.get("./schemas/" + fileName + ".sql");
+//            String newFileName = fileName + "_" + RandomUtils.randomAlphabeticString(5,6);
+//            Path pathOut = Paths.get("./target/db/" + fileName + ".sql");
+//            Files.copy(pathIn,pathOut);
+//            return newFileName;
+//        } catch (IOException ex){
+//            throw new RuntimeException(ex);
+//        }
+//    }
 
     @Override
     public String readSchema() {

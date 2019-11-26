@@ -1,10 +1,14 @@
 package org.hrorm.database;
 
+import org.hrorm.util.RandomUtils;
+
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.regex.Pattern;
 
@@ -15,8 +19,17 @@ public class H2Helper extends AbstractHelper {
 
     public static final String H2ConnectionUrlPrefix = "jdbc:h2:./target/db/";
 
+
+    /*
+     * Creating and deleting the same schema many times seemed to be
+     * causing h2 intermittent problems. Giving it a unique name
+     * each time to prevent confusion.
+     */
+    private final String schemaExtension;
+
     public H2Helper(String schemaName){
         super(schemaName);
+        schemaExtension = RandomUtils.randomAlphabeticString(5,6);
         cleanUpFiles();
     }
 
@@ -24,7 +37,7 @@ public class H2Helper extends AbstractHelper {
     public Connection connect() {
         try {
             Class.forName("org.h2.Driver");
-            String url = H2ConnectionUrlPrefix + schemaName;
+            String url = H2ConnectionUrlPrefix + extendedSchemaName();
             return DriverManager.getConnection(url);
         } catch (Exception ex){
             throw new RuntimeException(ex);
@@ -33,7 +46,6 @@ public class H2Helper extends AbstractHelper {
 
     @Override
     public void dropSchema(){
-        Exception deferred = null;
         try {
             Connection connection = connect();
             Statement statement = connection.createStatement();
@@ -45,24 +57,26 @@ public class H2Helper extends AbstractHelper {
             }
             connection.commit();
             connection.close();
-        } catch (Exception ex) {
-            deferred = ex;
-        }
-        cleanUpFiles();
-        if ( deferred != null ){
-            throw new RuntimeException(deferred);
+        } catch (SQLException ex){
+            throw new RuntimeException(ex);
+        } finally {
+            cleanUpFiles();
         }
     }
 
     private void cleanUpFiles(){
         try {
-            Path path = Paths.get("./target/db/" + schemaName + ".mv.db");
+            Path path = Paths.get("./target/db/" + extendedSchemaName() + ".mv.db");
             Files.deleteIfExists(path);
-            path = Paths.get("./target/db/" + schemaName + ".trace.db");
+            path = Paths.get("./target/db/" + extendedSchemaName() + ".trace.db");
             Files.deleteIfExists(path);
         } catch (Exception ex){
             throw new RuntimeException(ex);
         }
+    }
+
+    private String extendedSchemaName(){
+        return schemaName + "_" + schemaExtension;
     }
 
     @Override
