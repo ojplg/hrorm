@@ -22,7 +22,7 @@ public class OrderTest {
 
     static { TestLogConfig.load(); }
 
-    private static Helper helper = HelperFactory.forSchema("columns");
+    private static Helper helper = HelperFactory.forSchema("columns_two");
 
     @BeforeClass
     public static void setUpDb(){
