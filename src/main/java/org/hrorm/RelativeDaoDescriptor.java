@@ -42,7 +42,7 @@ public class RelativeDaoDescriptor<ENTITY, PARENT, ENTITYBUILDER> implements Dao
         if( originalDaoDescriptor.hasParent()) {
             parentColumn = (ParentColumn<ENTITY, PARENT, ENTITYBUILDER, ?>) originalDaoDescriptor.parentColumn().withPrefix(newPrefix, prefixer);
         }
-        this.columnCollection = new ColumnCollection<ENTITY, ENTITYBUILDER>(primaryKey, parentColumn, dataColumns, joinColumns);
+        this.columnCollection = new ColumnCollection<>(primaryKey, parentColumn, dataColumns, joinColumns);
     }
 
     private List<JoinColumn<ENTITY,?, ENTITYBUILDER,?>> resetColumnPrefixes(Prefixer prefixer,

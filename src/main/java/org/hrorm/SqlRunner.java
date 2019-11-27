@@ -79,9 +79,6 @@ public class SqlRunner<ENTITY, BUILDER> {
                                                Supplier<BUILDER> supplier,
                                                List<? extends ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors,
                                                StatementPopulator statementPopulator) {
-
-
-
         ResultSet resultSet = null;
         PreparedStatement statement = null;
         try {

@@ -67,7 +67,6 @@ public class JoinedChildrenSelector<ENTITY, BUILDER> {
             JoinedChildrenSelector subSelector = subResultsMap.get(columnName);
             subSelector.populateChildren(connection, statementPopulator);
 
-
             List<Envelope<?>> envelopes = recordMap.get(columnName);
 
             DaoDescriptor joinedDaoDescriptor = matchingDaoDescriptor(columnName);
