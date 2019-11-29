@@ -73,6 +73,7 @@ public class JoinedChildrenSelector<ENTITY, BUILDER> {
 
             ChildrenBuilderSelectCommand childrenBuilderSelectCommand;
 
+            // MAYBE: this looks the same as what happens in SQLBuilder.doSelection. Remove the duplication?
             if ( selectionInstruction.isSelectAll() ){
                 childrenBuilderSelectCommand = ChildrenBuilderSelectCommand.forSelectAll();
             } else if ( ChildSelectStrategy.ByKeysInClause.equals(childSelectStrategy )) {

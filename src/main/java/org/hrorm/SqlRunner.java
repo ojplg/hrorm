@@ -79,6 +79,11 @@ public class SqlRunner<ENTITY, BUILDER> {
                                                Supplier<BUILDER> supplier,
                                                List<? extends ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors,
                                                StatementPopulator statementPopulator) {
+
+        if( ! selectionInstruction.isBulkChildSelectStrategy() ){
+            throw new HrormException("BUG. Called doSelection with a standard select strategy. This is a bug in hrorm.");
+        }
+
         ResultSet resultSet = null;
         PreparedStatement statement = null;
         try {
@@ -92,33 +97,33 @@ public class SqlRunner<ENTITY, BUILDER> {
 
             JoinedChildrenSelector joinedChildrenSelector = new JoinedChildrenSelector(keylessDaoDescriptor, selectionInstruction);
 
+            // Step 1: Run the select on the entity itself, with all it's joins, and make a list of builders
             while (resultSet.next()) {
                 Envelope<BUILDER> builder = populate(resultSet, supplier, selectionInstruction.getParentColumnName(), joinedChildrenSelector);
                 builders.add(builder);
             }
 
-            // MAYBE: this is confusing. Why no polymorphism?
+            // Step 2: do the population for joined objects.
+            joinedChildrenSelector.populateChildren(connection, statementPopulator);
 
-            if ( selectionInstruction.isBulkChildSelectStrategy()) {
-                for (ChildrenDescriptor<ENTITY, ?, BUILDER, ?> descriptor : childrenDescriptors) {
-                    ChildrenBuilderSelectCommand<?, ?> childrenBuilderSelectCommand;
-                    if( selectionInstruction.isSelectAll()) {
-                        childrenBuilderSelectCommand = ChildrenBuilderSelectCommand.forSelectAll();
-                    } else if (selectionInstruction.getChildSelectStrategy().equals(ChildSelectStrategy.SubSelectInClause)) {
-                        childrenBuilderSelectCommand =
-                                ChildrenBuilderSelectCommand.forSubSelect(selectionInstruction.getPrimaryKeySql(), statementPopulator);
-                    } else {
-                        List<Long> parentIds = builders.stream().map(Envelope::getId).collect(Collectors.toList());
-                        childrenBuilderSelectCommand =
-                                ChildrenBuilderSelectCommand.forSelectByIds(parentIds);
-                    }
-                    descriptor.populateChildren(connection, builders, childrenBuilderSelectCommand);
+            // Step 3: For the children of this entity, recursively do the necessary selections.
+            // Maybe this can be moved? it's not really sql running?
+            for (ChildrenDescriptor<ENTITY, ?, BUILDER, ?> descriptor : childrenDescriptors) {
+                // MAYBE: this is confusing. Why no polymorphism?
+                ChildrenBuilderSelectCommand<?, ?> childrenBuilderSelectCommand;
+                if( selectionInstruction.isSelectAll()) {
+                    childrenBuilderSelectCommand = ChildrenBuilderSelectCommand.forSelectAll();
+                } else if (selectionInstruction.getChildSelectStrategy().equals(ChildSelectStrategy.SubSelectInClause)) {
+                    childrenBuilderSelectCommand =
+                            ChildrenBuilderSelectCommand.forSubSelect(selectionInstruction.getPrimaryKeySql(), statementPopulator);
+                } else {
+                    List<Long> parentIds = builders.stream().map(Envelope::getId).collect(Collectors.toList());
+                    childrenBuilderSelectCommand =
+                            ChildrenBuilderSelectCommand.forSelectByIds(parentIds);
                 }
+                descriptor.populateChildren(connection, builders, childrenBuilderSelectCommand);
             }
 
-            // MAYBE: why does this need to be here? what's going on? didn't population happen already?
-
-            joinedChildrenSelector.populateChildren(connection, statementPopulator);
 
             return builders;
 
