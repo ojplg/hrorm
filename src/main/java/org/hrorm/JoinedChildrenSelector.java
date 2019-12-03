@@ -6,6 +6,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 /**
@@ -17,6 +19,8 @@ import java.util.stream.Collectors;
  * Most users of hrorm will have no need to directly use this.
  */
 public class JoinedChildrenSelector<ENTITY, BUILDER> {
+
+    private static final Logger logger = Logger.getLogger("org.hrorm");
 
     // MAYBE: All these maps .... ugly
     private final Map<String,JoinColumn<ENTITY,?,BUILDER,?>> joinColumnMap;
@@ -60,9 +64,9 @@ public class JoinedChildrenSelector<ENTITY, BUILDER> {
 
     public void populateChildren(Connection connection, StatementPopulator statementPopulator){
 
-        ChildSelectStrategy childSelectStrategy = selectionInstruction.getChildSelectStrategy();
-
         for (String columnName : recordMap.keySet()) {
+
+            logger.info("Doing something for " + columnName + " with  " + selectionInstruction);
 
             JoinedChildrenSelector subSelector = subResultsMap.get(columnName);
             subSelector.populateChildren(connection, statementPopulator);
@@ -71,27 +75,23 @@ public class JoinedChildrenSelector<ENTITY, BUILDER> {
 
             DaoDescriptor joinedDaoDescriptor = matchingDaoDescriptor(columnName);
 
-            ChildrenBuilderSelectCommand childrenBuilderSelectCommand;
-
-            // MAYBE: this looks the same as what happens in SQLBuilder.doSelection. Remove the duplication?
-            if ( selectionInstruction.isSelectAll() ){
-                childrenBuilderSelectCommand = ChildrenBuilderSelectCommand.forSelectAll();
-            } else if ( ChildSelectStrategy.ByKeysInClause.equals(childSelectStrategy )) {
-                List<Long> parentIds = asParentIds(envelopes);
-                childrenBuilderSelectCommand = ChildrenBuilderSelectCommand.forSelectByIds(parentIds);
-            } else if ( ChildSelectStrategy.SubSelectInClause.equals(childSelectStrategy)){
+            Supplier<List<Long>> parentIdsSupplier = () ->  asParentIds(envelopes);
+            Supplier<String> primaryKeySqlSupplier = () -> {
                 SqlBuilder sqlBuilder = new SqlBuilder(keylessDaoDescriptor);
                 String primaryKeySql = sqlBuilder.selectPrimaryKeyOfJoinedColumn(statementPopulator, columnName);
+                return primaryKeySql;
+            };
 
-                childrenBuilderSelectCommand = ChildrenBuilderSelectCommand.forSubSelect(
-                        primaryKeySql, statementPopulator);
-            } else {
-                throw new HrormException("Unsupported strategy " + childSelectStrategy);
-            }
+            ChildrenSelector<?,?> childrenSelector = ChildrenSelector.Factory.create(
+                    selectionInstruction.getChildSelectStrategy(),
+                    selectionInstruction.isSelectAll(),
+                    parentIdsSupplier,
+                    primaryKeySqlSupplier,
+                    statementPopulator);
 
             List<ChildrenDescriptor> childrenDescriptors = joinedDaoDescriptor.childrenDescriptors();
             for( ChildrenDescriptor childrenDescriptor : childrenDescriptors ) {
-                childrenDescriptor.populateChildren(connection, envelopes, childrenBuilderSelectCommand);
+                childrenDescriptor.populateChildren(connection, envelopes, childrenSelector);
             }
         }
     }

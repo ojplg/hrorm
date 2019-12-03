@@ -108,20 +108,18 @@ public class SqlRunner<ENTITY, BUILDER> {
 
             // Step 3: For the children of this entity, recursively do the necessary selections.
             // Maybe this can be moved? it's not really sql running?
+
+
+
             for (ChildrenDescriptor<ENTITY, ?, BUILDER, ?> descriptor : childrenDescriptors) {
-                // MAYBE: this is confusing. Why no polymorphism?
-                ChildrenBuilderSelectCommand<?, ?> childrenBuilderSelectCommand;
-                if( selectionInstruction.isSelectAll()) {
-                    childrenBuilderSelectCommand = ChildrenBuilderSelectCommand.forSelectAll();
-                } else if (selectionInstruction.getChildSelectStrategy().equals(ChildSelectStrategy.SubSelectInClause)) {
-                    childrenBuilderSelectCommand =
-                            ChildrenBuilderSelectCommand.forSubSelect(selectionInstruction.getPrimaryKeySql(), statementPopulator);
-                } else {
-                    List<Long> parentIds = builders.stream().map(Envelope::getId).collect(Collectors.toList());
-                    childrenBuilderSelectCommand =
-                            ChildrenBuilderSelectCommand.forSelectByIds(parentIds);
-                }
-                descriptor.populateChildren(connection, builders, childrenBuilderSelectCommand);
+                ChildrenSelector childrenSelector = ChildrenSelector.Factory.create(
+                        selectionInstruction.getChildSelectStrategy(),
+                        selectionInstruction.isSelectAll(),
+                        () -> builders.stream().map(Envelope::getId).collect(Collectors.toList()),
+                        () -> selectionInstruction.getPrimaryKeySql(),
+                        statementPopulator);
+
+                descriptor.populateChildren(connection, builders, childrenSelector);
             }
 
 

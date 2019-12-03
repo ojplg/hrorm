@@ -82,7 +82,7 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
 
     public void populateChildren(Connection connection,
                                   List<Envelope<PARENTBUILDER>> parentBuilders,
-                                  ChildrenBuilderSelectCommand childrenBuilderSelectCommand){
+                                  ChildrenSelector<CHILD, CHILDBUILDER> childrenSelector){
         if( parentBuilders.size() == 0 ){
             return;
         }
@@ -93,7 +93,7 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
         List<ChildrenDescriptor<CHILD,?,CHILDBUILDER, ?>> childrenDescriptorsList = childDaoDescriptor.childrenDescriptors();
         Supplier<CHILDBUILDER> supplier = childDaoDescriptor.supplier();
 
-        List<Envelope<CHILDBUILDER>> childrenBuilders = childrenBuilderSelectCommand.select(
+        List<Envelope<CHILDBUILDER>> childrenBuilders = childrenSelector.select(
                 sqlBuilder,
                 supplier,
                 sqlRunner,
