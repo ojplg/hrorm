@@ -24,13 +24,15 @@ public class JoinedChildrenSelector<ENTITY, BUILDER> {
 
     // MAYBE: All these maps .... ugly
     private final Map<String,JoinColumn<ENTITY,?,BUILDER,?>> joinColumnMap;
-    private final SelectionInstruction selectionInstruction;
+    private final ChildSelectStrategy childSelectStrategy;
+    private final boolean selectAll;
     private final Map<String, List<Envelope<?>>> recordMap = new HashMap<>();
     private final KeylessDaoDescriptor<ENTITY, BUILDER> keylessDaoDescriptor;
     private final Map<String, JoinedChildrenSelector> subResultsMap = new HashMap<>();
 
-    public JoinedChildrenSelector(KeylessDaoDescriptor<ENTITY, BUILDER> keylessDaoDescriptor, SelectionInstruction selectionInstruction){
-        this.selectionInstruction = selectionInstruction;
+    public JoinedChildrenSelector(KeylessDaoDescriptor<ENTITY, BUILDER> keylessDaoDescriptor, ChildSelectStrategy childSelectStrategy, boolean selectAll){
+        this.childSelectStrategy = childSelectStrategy;
+        this.selectAll = selectAll;
         this.keylessDaoDescriptor = keylessDaoDescriptor;
         Map<String, JoinColumn<ENTITY,?,BUILDER,?>> tmp = new HashMap<>();
         for(JoinColumn<ENTITY,?,BUILDER,?> jc : keylessDaoDescriptor.joinColumns()){
@@ -39,7 +41,7 @@ public class JoinedChildrenSelector<ENTITY, BUILDER> {
             recordMap.put(columnName, new ArrayList<>());
 
             KeylessDaoDescriptor joinedDaoDescriptor = jc.getJoinedDaoDescriptor();
-            JoinedChildrenSelector joinedChildrenSelector = new JoinedChildrenSelector(joinedDaoDescriptor, selectionInstruction);
+            JoinedChildrenSelector joinedChildrenSelector = new JoinedChildrenSelector(joinedDaoDescriptor, childSelectStrategy, selectAll);
             subResultsMap.put(columnName, joinedChildrenSelector);
         }
         this.joinColumnMap = Collections.unmodifiableMap(tmp);
@@ -66,7 +68,7 @@ public class JoinedChildrenSelector<ENTITY, BUILDER> {
 
         for (String columnName : recordMap.keySet()) {
 
-            logger.info("Doing something for " + columnName + " with  " + selectionInstruction);
+            logger.info("Doing something for " + columnName );
 
             JoinedChildrenSelector subSelector = subResultsMap.get(columnName);
             subSelector.populateChildren(connection, statementPopulator);
@@ -83,8 +85,8 @@ public class JoinedChildrenSelector<ENTITY, BUILDER> {
             };
 
             ChildrenSelector<?,?> childrenSelector = ChildrenSelector.Factory.create(
-                    selectionInstruction.getChildSelectStrategy(),
-                    selectionInstruction.isSelectAll(),
+                    childSelectStrategy,
+                    selectAll,
                     parentIdsSupplier,
                     primaryKeySqlSupplier,
                     statementPopulator);

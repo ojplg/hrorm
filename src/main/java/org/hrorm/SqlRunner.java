@@ -95,7 +95,7 @@ public class SqlRunner<ENTITY, BUILDER> {
 
             List<Envelope<BUILDER>> builders = new ArrayList<>();
 
-            JoinedChildrenSelector joinedChildrenSelector = new JoinedChildrenSelector(keylessDaoDescriptor, selectionInstruction);
+            JoinedChildrenSelector joinedChildrenSelector = new JoinedChildrenSelector(keylessDaoDescriptor, selectionInstruction.getChildSelectStrategy(), selectionInstruction.isSelectAll());
 
             // Step 1: Run the select on the entity itself, with all it's joins, and make a list of builders
             while (resultSet.next()) {
