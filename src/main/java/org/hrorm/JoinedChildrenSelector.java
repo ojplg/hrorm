@@ -68,8 +68,6 @@ public class JoinedChildrenSelector<ENTITY, BUILDER> {
 
         for (String columnName : recordMap.keySet()) {
 
-            logger.info("Doing something for " + columnName );
-
             JoinedChildrenSelector subSelector = subResultsMap.get(columnName);
             subSelector.populateChildren(connection, statementPopulator);
 

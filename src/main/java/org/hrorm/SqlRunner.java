@@ -108,20 +108,16 @@ public class SqlRunner<ENTITY, BUILDER> {
 
             // Step 3: For the children of this entity, recursively do the necessary selections.
             // Maybe this can be moved? it's not really sql running?
-
-
+            ChildrenSelector childrenSelector = ChildrenSelector.Factory.create(
+                    selectionInstruction.getChildSelectStrategy(),
+                    selectionInstruction.isSelectAll(),
+                    () -> builders.stream().map(Envelope::getId).collect(Collectors.toList()),
+                    () -> selectionInstruction.getPrimaryKeySql(),
+                    statementPopulator);
 
             for (ChildrenDescriptor<ENTITY, ?, BUILDER, ?> descriptor : childrenDescriptors) {
-                ChildrenSelector childrenSelector = ChildrenSelector.Factory.create(
-                        selectionInstruction.getChildSelectStrategy(),
-                        selectionInstruction.isSelectAll(),
-                        () -> builders.stream().map(Envelope::getId).collect(Collectors.toList()),
-                        () -> selectionInstruction.getPrimaryKeySql(),
-                        statementPopulator);
-
                 descriptor.populateChildren(connection, builders, childrenSelector);
             }
-
 
             return builders;
 
