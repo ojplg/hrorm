@@ -127,7 +127,7 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
     private Map<Long, List<CHILD>> buildChildrenMapByParentId(List<Envelope<CHILDBUILDER>> childBuilders, List<Envelope<PARENTBUILDER>> parentBuilders){
 
         Map<Long, PARENT> parentsByIds = generateParentMap(parentBuilders);
-        
+
         Map<Long, List<CHILD>> childrenMapByParentId = new HashMap<>();
         for( Envelope<CHILDBUILDER> childBuilderEnvelope : childBuilders ) {
             CHILDBUILDER childBuilder = childBuilderEnvelope.getItem();
