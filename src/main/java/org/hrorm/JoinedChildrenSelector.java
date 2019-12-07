@@ -91,16 +91,11 @@ public class JoinedChildrenSelector<ENTITY, BUILDER> {
     }
 
     public void populateChildren(Connection connection, StatementPopulator statementPopulator){
-
         for ( Map.Entry<String, ChildRecordsHolder<ENTITY, BUILDER>> holderEntry : joinedRecordsMap.entrySet()){
             ChildRecordsHolder holder = holderEntry.getValue();
             holder.populateChildren(connection, statementPopulator);
             Supplier<List<Long>> parentIdsSupplier = holder::getParentIds;
-            Supplier<String> primaryKeySqlSupplier = () -> {
-                SqlBuilder sqlBuilder = new SqlBuilder(keylessDaoDescriptor);
-                String primaryKeySql = sqlBuilder.selectPrimaryKeyOfJoinedColumn(statementPopulator, holderEntry.getKey());
-                return primaryKeySql;
-            };
+            Supplier<String> primaryKeySqlSupplier = () -> createPrimaryKeySql(statementPopulator, holderEntry.getKey());
 
             ChildrenSelector<?,?> childrenSelector = ChildrenSelector.Factory.create(
                     childSelectStrategy,
@@ -111,5 +106,11 @@ public class JoinedChildrenSelector<ENTITY, BUILDER> {
 
             holder.populateChildrenDescriptors(connection, childrenSelector);
         }
+    }
+
+    private String createPrimaryKeySql(StatementPopulator statementPopulator, String columnName){
+        SqlBuilder sqlBuilder = new SqlBuilder(keylessDaoDescriptor);
+        String primaryKeySql = sqlBuilder.selectPrimaryKeyOfJoinedColumn(statementPopulator, columnName);
+        return primaryKeySql;
     }
 }
