@@ -48,25 +48,29 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
         this.parentPrimaryKey = parentPrimaryKey;
     }
 
+    /**
+     * This method will search for and build the children of the passed parent builder,
+     * setting them onto the parent builder.
+     */
     public void populateChildren(Connection connection, PARENTBUILDER parentBuilder){
 
+        // generate sql for the selection of children
         PARENT parent = parentBuildFunction.apply(parentBuilder);
         long parentId = parentPrimaryKey.getKey(parent);
-
         Where where = new Where(parentChildColumnName(), Operator.EQUALS, parentId);
-
         String sql = sqlBuilder.select(where);
+
+        // Run the SQL, passing in children of this child
         SqlRunner<CHILD,CHILDBUILDER> sqlRunner = new SqlRunner<>(connection, childDaoDescriptor);
         List<ChildrenDescriptor<CHILD,?,CHILDBUILDER, ?>> childrenDescriptorsList = childDaoDescriptor.childrenDescriptors();
-
         Supplier<CHILDBUILDER> supplier = childDaoDescriptor.supplier();
-
         List<CHILDBUILDER> childrenBuilders = sqlRunner.selectWhereStandard(
                 sql,
                 supplier,
                 childrenDescriptorsList,
                 where);
 
+        // build the child objects
         List<CHILD> children = new ArrayList<>();
         for( CHILDBUILDER childrenBuilder : childrenBuilders ){
             for( ChildrenDescriptor<CHILD,?,CHILDBUILDER,?> grandChildDescriptor : grandChildrenDescriptors() ){
@@ -77,22 +81,28 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
             children.add(c);
         }
 
+        // set them onto the parent
         setter.accept(parentBuilder, children);
     }
 
+    /**
+     * Bulk populator of children for a collection of parents. Since there are several
+     * ways to select all the children of all the parents, a child selector is
+     * required.
+     */
     public void populateChildren(Connection connection,
                                   List<Envelope<PARENTBUILDER>> parentBuilders,
                                   ChildrenSelector<CHILD, CHILDBUILDER> childrenSelector){
+        // This check is important, it avoids unnecessary SQL from being run.
+        // Or worse, malformed SQL that performs a select in on an empty set
         if( parentBuilders.size() == 0 ){
             return;
         }
 
-        Map<Long, PARENT> parentsByIds = generateParentMap(parentBuilders);
-
+        // Run the SQL and get the children builder objects
         SqlRunner<CHILD,CHILDBUILDER> sqlRunner = new SqlRunner<>(connection, childDaoDescriptor);
         List<ChildrenDescriptor<CHILD,?,CHILDBUILDER, ?>> childrenDescriptorsList = childDaoDescriptor.childrenDescriptors();
         Supplier<CHILDBUILDER> supplier = childDaoDescriptor.supplier();
-
         List<Envelope<CHILDBUILDER>> childrenBuilders = childrenSelector.select(
                 sqlBuilder,
                 supplier,
@@ -100,13 +110,10 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
                 parentChildColumnName(),
                 childrenDescriptorsList);
 
+        // partition the children by their parent IDs and populate them onto the
+        // the parent builders
         Map<Long, List<CHILD>> childrenMapByParentId =
-                buildChildrenMapByParentId(childrenBuilders, parentsByIds);
-
-        handleParentBuilders(childrenMapByParentId, parentBuilders);
-    }
-
-    private void handleParentBuilders(Map<Long, List<CHILD>> childrenMapByParentId, List<Envelope<PARENTBUILDER>> parentBuilders){
+                buildChildrenMapByParentId(childrenBuilders, parentBuilders);
         for( Envelope<PARENTBUILDER> parentBuilderEnvelope : parentBuilders){
             long parentId = parentBuilderEnvelope.getId();
             List<CHILD> children = childrenMapByParentId.get(parentId);
@@ -117,7 +124,10 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
         }
     }
 
-    private Map<Long, List<CHILD>> buildChildrenMapByParentId(List<Envelope<CHILDBUILDER>> childBuilders, Map<Long, PARENT> parentsByIds){
+    private Map<Long, List<CHILD>> buildChildrenMapByParentId(List<Envelope<CHILDBUILDER>> childBuilders, List<Envelope<PARENTBUILDER>> parentBuilders){
+
+        Map<Long, PARENT> parentsByIds = generateParentMap(parentBuilders);
+        
         Map<Long, List<CHILD>> childrenMapByParentId = new HashMap<>();
         for( Envelope<CHILDBUILDER> childBuilderEnvelope : childBuilders ) {
             CHILDBUILDER childBuilder = childBuilderEnvelope.getItem();
