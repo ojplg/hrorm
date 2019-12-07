@@ -62,13 +62,13 @@ public class JoinedChildrenSelector<ENTITY, BUILDER> {
 
     private final ChildSelectStrategy childSelectStrategy;
     private final boolean selectAll;
-    private final KeylessDaoDescriptor<ENTITY, BUILDER> keylessDaoDescriptor;
+    private final SqlBuilder<ENTITY> sqlBuilder;
     private final Map<String, ChildRecordsHolder<ENTITY, BUILDER>> joinedRecordsMap = new HashMap<>();
 
     public JoinedChildrenSelector(KeylessDaoDescriptor<ENTITY, BUILDER> keylessDaoDescriptor, ChildSelectStrategy childSelectStrategy, boolean selectAll){
         this.childSelectStrategy = childSelectStrategy;
         this.selectAll = selectAll;
-        this.keylessDaoDescriptor = keylessDaoDescriptor;
+        this.sqlBuilder = new SqlBuilder<>(keylessDaoDescriptor);
         for(JoinColumn<ENTITY,?,BUILDER,?> jc : keylessDaoDescriptor.joinColumns()){
             String columnName = jc.getName();
             KeylessDaoDescriptor joinedDaoDescriptor = jc.getJoinedDaoDescriptor();
@@ -95,7 +95,7 @@ public class JoinedChildrenSelector<ENTITY, BUILDER> {
             ChildRecordsHolder holder = holderEntry.getValue();
             holder.populateChildren(connection, statementPopulator);
             Supplier<List<Long>> parentIdsSupplier = holder::getParentIds;
-            Supplier<String> primaryKeySqlSupplier = () -> createPrimaryKeySql(statementPopulator, holderEntry.getKey());
+            Supplier<String> primaryKeySqlSupplier = () -> sqlBuilder.selectPrimaryKeyOfJoinedColumn(statementPopulator, holderEntry.getKey());
 
             ChildrenSelector<?,?> childrenSelector = ChildrenSelector.Factory.create(
                     childSelectStrategy,
@@ -106,11 +106,5 @@ public class JoinedChildrenSelector<ENTITY, BUILDER> {
 
             holder.populateChildrenDescriptors(connection, childrenSelector);
         }
-    }
-
-    private String createPrimaryKeySql(StatementPopulator statementPopulator, String columnName){
-        SqlBuilder sqlBuilder = new SqlBuilder(keylessDaoDescriptor);
-        String primaryKeySql = sqlBuilder.selectPrimaryKeyOfJoinedColumn(statementPopulator, columnName);
-        return primaryKeySql;
     }
 }
