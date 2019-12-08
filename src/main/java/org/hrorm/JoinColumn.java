@@ -112,7 +112,7 @@ public class JoinColumn<ENTITY, JOINED, ENTITYBUILDER, JOINEDBUILDER> implements
 
         if (ChildSelectStrategy.ByKeysInClause.equals(joinedDaoDescriptor.childSelectStrategy())
                 || ChildSelectStrategy.SubSelectInClause.equals(joinedDaoDescriptor.childSelectStrategy())){
-            long primaryKey = joinedDaoDescriptor.primaryKey().getKey(joinedItem).longValue();
+            long primaryKey = joinedDaoDescriptor.primaryKey().getKeyPrimitive(joinedItem);
             Envelope<JOINED> envelope = new Envelope<>(joinedItem, primaryKey);
             return PopulateResult.fromJoinColumn(envelope, subResults);
         }

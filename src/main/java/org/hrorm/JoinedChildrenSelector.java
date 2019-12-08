@@ -24,12 +24,12 @@ public class JoinedChildrenSelector<ENTITY, BUILDER> {
 
     private static final Logger logger = Logger.getLogger("org.hrorm");
 
-    private static class JoinedRecordsHolder<ENTITY, BUILDER> {
-        private final JoinColumn<ENTITY, ?, BUILDER, ?> joinColumn;
+    private static class JoinedRecordsHolder<ENTITY, BUILDER, JOINED> {
+        private final JoinColumn<ENTITY, JOINED, BUILDER, ?> joinColumn;
         private final JoinedChildrenSelector<ENTITY, BUILDER> selector;
-        private final List<Envelope<?>> joinedRecords = new ArrayList<>();
+        private final List<Envelope<JOINED>> joinedRecords = new ArrayList<>();
 
-        JoinedRecordsHolder(JoinColumn<ENTITY, ?, BUILDER, ?> joinColumn, JoinedChildrenSelector<ENTITY, BUILDER> selector){
+        JoinedRecordsHolder(JoinColumn<ENTITY, JOINED, BUILDER, ?> joinColumn, JoinedChildrenSelector<ENTITY, BUILDER> selector){
             this.joinColumn = joinColumn;
             this.selector = selector;
         }
@@ -37,7 +37,7 @@ public class JoinedChildrenSelector<ENTITY, BUILDER> {
         /**
          * Adds a record to the cache, and records of any successive joins.
          */
-        void addRecord(Envelope<?> joinedObject, Map<String,PopulateResult> subResults){
+        void addRecord(Envelope<JOINED> joinedObject, Map<String,PopulateResult> subResults){
             this.joinedRecords.add(joinedObject);
             for( String name : subResults.keySet()){
                 PopulateResult populateResult = subResults.get(name);
@@ -69,7 +69,7 @@ public class JoinedChildrenSelector<ENTITY, BUILDER> {
     private final ChildSelectStrategy childSelectStrategy;
     private final boolean selectAll;
     private final SqlBuilder<ENTITY> sqlBuilder;
-    private final Map<String, JoinedRecordsHolder<ENTITY, BUILDER>> joinedRecordsMap = new HashMap<>();
+    private final Map<String, JoinedRecordsHolder<ENTITY, BUILDER, ?>> joinedRecordsMap = new HashMap<>();
 
     public JoinedChildrenSelector(KeylessDaoDescriptor<ENTITY, BUILDER> keylessDaoDescriptor, ChildSelectStrategy childSelectStrategy, boolean selectAll){
         this.childSelectStrategy = childSelectStrategy;
@@ -79,24 +79,25 @@ public class JoinedChildrenSelector<ENTITY, BUILDER> {
             String columnName = jc.getName();
             KeylessDaoDescriptor joinedDaoDescriptor = jc.getJoinedDaoDescriptor();
             JoinedChildrenSelector joinedChildrenSelector = new JoinedChildrenSelector(joinedDaoDescriptor, childSelectStrategy, selectAll);
-            JoinedRecordsHolder<ENTITY, BUILDER> holder = new JoinedRecordsHolder<>(
+            JoinedRecordsHolder<ENTITY, BUILDER, ?> holder = new JoinedRecordsHolder<>(
                     jc, joinedChildrenSelector
             );
             this.joinedRecordsMap.put(columnName, holder);
         }
     }
 
-    public void addJoinedInstanceAndItsJoins(String columnName, Envelope<?> joinedObject, Map<String,PopulateResult> subResults){
+    public <JOINED> void addJoinedInstanceAndItsJoins(String columnName, Envelope<JOINED> joinedObject, Map<String,PopulateResult> subResults){
         if( ! joinedRecordsMap.containsKey(columnName)){
             throw new HrormException("Problem. This column name is unrecognized: "  + columnName);
         }
 
-        JoinedRecordsHolder<ENTITY, BUILDER> joinedRecordsHolder = joinedRecordsMap.get(columnName);
+        JoinedRecordsHolder<ENTITY, BUILDER, JOINED> joinedRecordsHolder =
+                (JoinedRecordsHolder<ENTITY, BUILDER, JOINED>) joinedRecordsMap.get(columnName);
         joinedRecordsHolder.addRecord(joinedObject, subResults);
     }
 
     public void populateChildren(Connection connection, StatementPopulator statementPopulator){
-        for ( Map.Entry<String, JoinedRecordsHolder<ENTITY, BUILDER>> holderEntry : joinedRecordsMap.entrySet()){
+        for ( Map.Entry<String, JoinedRecordsHolder<ENTITY, BUILDER, ?>> holderEntry : joinedRecordsMap.entrySet()){
             JoinedRecordsHolder holder = holderEntry.getValue();
             holder.populateChildren(connection, statementPopulator);
             Supplier<List<Long>> parentIdsSupplier = holder::getParentIds;
