@@ -103,8 +103,7 @@ public class JoinColumn<ENTITY, JOINED, ENTITYBUILDER, JOINEDBUILDER> implements
         Map<String,PopulateResult> subResults = new HashMap<>();
         for(JoinColumn<JOINED,?, JOINEDBUILDER,?> joinColumn : joinedDaoDescriptor.joinColumns()){
             PopulateResult subResult = joinColumn.populate(joinedBuilder, resultSet);
-            String subResultColumnName = joinColumn.name;
-            subResults.put(subResultColumnName, subResult);
+            subResults.put(joinColumn.getName(), subResult);
         }
 
         JOINED joinedItem = joinBuilder.apply(joinedBuilder);
