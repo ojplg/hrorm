@@ -3,6 +3,17 @@ package org.hrorm;
 import java.util.List;
 import java.util.function.Supplier;
 
+/**
+ * Describes a generic way for selecting children that can be applied for
+ * several child selection strategies.
+ *
+ * <br/>
+ *
+ * Most users of hrorm will have no need to directly use this.
+ *
+ * @param <CHILD> The entity type being selected.
+ * @param <CHILDBUILDER> The builder type for the entity.
+ */
 public interface ChildrenSelector<CHILD, CHILDBUILDER> {
 
     List<Envelope<CHILDBUILDER>> select(
