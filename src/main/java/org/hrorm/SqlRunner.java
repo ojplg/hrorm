@@ -97,7 +97,7 @@ public class SqlRunner<ENTITY, BUILDER> {
 
             JoinedChildrenSelector joinedChildrenSelector = new JoinedChildrenSelector(keylessDaoDescriptor, selectionInstruction.getChildSelectStrategy(), selectionInstruction.isSelectAll());
 
-            // Step 1: Run the select on the entity itself, with all it's joins, and make a list of builders
+            // Step 1: Run the select on the entity itself, with all its joins, and make a list of builders
             while (resultSet.next()) {
                 Envelope<BUILDER> builder = populate(resultSet, supplier, selectionInstruction.getParentColumnName(), joinedChildrenSelector);
                 builders.add(builder);
@@ -425,7 +425,7 @@ public class SqlRunner<ENTITY, BUILDER> {
         Long parentId = null;
         Long itemId = null;
 
-        // MAYBE: Too complicated. The join columns should just be handled separetely from the data columns.
+        // MAYBE: Too complicated. The join columns should just be handled separately from the data columns.
 
         for (Column<?, ?, ENTITY, BUILDER> column: allColumns) {
             PopulateResult populateResult = column.populate(item, resultSet);
@@ -433,7 +433,7 @@ public class SqlRunner<ENTITY, BUILDER> {
             if ( populateResult.isJoinedItemResult() ){
                 Envelope<?> envelope = populateResult.getJoinedItem();
                 Map<String,PopulateResult> subResults = populateResult.getSubResults();
-                joinedChildrenSelector.addChildEntityInfo(column.getName(),envelope, subResults);
+                joinedChildrenSelector.addJoinedInstanceAndItsJoins(column.getName(),envelope, subResults);
             } else {
                 populateResult.populateChildren(connection);
             }

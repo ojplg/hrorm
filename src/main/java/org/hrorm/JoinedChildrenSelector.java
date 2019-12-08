@@ -10,8 +10,11 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 /**
- * This class holds cached joined objects temporarily while their children
- * are queried.
+ * This class holds cached joined objects temporarily until their children
+ * are queried. It is needed in the case of a joined entity having been
+ * selected using a non-standard ChildSelectStrategy.
+ * There are further layers of complication because an entity can
+ * have multiple children and its own joins.
  *
  * <p>
  *
@@ -21,22 +24,25 @@ public class JoinedChildrenSelector<ENTITY, BUILDER> {
 
     private static final Logger logger = Logger.getLogger("org.hrorm");
 
-    private static class ChildRecordsHolder<ENTITY, BUILDER> {
+    private static class JoinedRecordsHolder<ENTITY, BUILDER> {
         private final JoinColumn<ENTITY, ?, BUILDER, ?> joinColumn;
         private final JoinedChildrenSelector<ENTITY, BUILDER> selector;
         private final List<Envelope<?>> joinedRecords = new ArrayList<>();
 
-        ChildRecordsHolder(JoinColumn<ENTITY, ?, BUILDER, ?> joinColumn, JoinedChildrenSelector<ENTITY, BUILDER> selector){
+        JoinedRecordsHolder(JoinColumn<ENTITY, ?, BUILDER, ?> joinColumn, JoinedChildrenSelector<ENTITY, BUILDER> selector){
             this.joinColumn = joinColumn;
             this.selector = selector;
         }
 
-        void addChildRecord(Envelope<?> joinedObject, Map<String,PopulateResult> subResults){
+        /**
+         * Adds a record to the cache, and records of any successive joins.
+         */
+        void addRecord(Envelope<?> joinedObject, Map<String,PopulateResult> subResults){
             this.joinedRecords.add(joinedObject);
             for( String name : subResults.keySet()){
                 PopulateResult populateResult = subResults.get(name);
                 Envelope envelope = populateResult.getJoinedItem();
-                selector.addChildEntityInfo(name, envelope, populateResult.getSubResults());
+                selector.addJoinedInstanceAndItsJoins(name, envelope, populateResult.getSubResults());
             }
         }
 
@@ -63,7 +69,7 @@ public class JoinedChildrenSelector<ENTITY, BUILDER> {
     private final ChildSelectStrategy childSelectStrategy;
     private final boolean selectAll;
     private final SqlBuilder<ENTITY> sqlBuilder;
-    private final Map<String, ChildRecordsHolder<ENTITY, BUILDER>> joinedRecordsMap = new HashMap<>();
+    private final Map<String, JoinedRecordsHolder<ENTITY, BUILDER>> joinedRecordsMap = new HashMap<>();
 
     public JoinedChildrenSelector(KeylessDaoDescriptor<ENTITY, BUILDER> keylessDaoDescriptor, ChildSelectStrategy childSelectStrategy, boolean selectAll){
         this.childSelectStrategy = childSelectStrategy;
@@ -73,26 +79,25 @@ public class JoinedChildrenSelector<ENTITY, BUILDER> {
             String columnName = jc.getName();
             KeylessDaoDescriptor joinedDaoDescriptor = jc.getJoinedDaoDescriptor();
             JoinedChildrenSelector joinedChildrenSelector = new JoinedChildrenSelector(joinedDaoDescriptor, childSelectStrategy, selectAll);
-            ChildRecordsHolder<ENTITY, BUILDER> holder = new ChildRecordsHolder<>(
+            JoinedRecordsHolder<ENTITY, BUILDER> holder = new JoinedRecordsHolder<>(
                     jc, joinedChildrenSelector
             );
             this.joinedRecordsMap.put(columnName, holder);
         }
     }
 
-    public void addChildEntityInfo(String columnName, Envelope<?> joinedObject, Map<String,PopulateResult> subResults){
+    public void addJoinedInstanceAndItsJoins(String columnName, Envelope<?> joinedObject, Map<String,PopulateResult> subResults){
         if( ! joinedRecordsMap.containsKey(columnName)){
             throw new HrormException("Problem. This column name is unrecognized: "  + columnName);
         }
 
-        // FIXME: case issue?
-        ChildRecordsHolder<ENTITY, BUILDER> childRecordsHolder = joinedRecordsMap.get(columnName);
-        childRecordsHolder.addChildRecord(joinedObject, subResults);
+        JoinedRecordsHolder<ENTITY, BUILDER> joinedRecordsHolder = joinedRecordsMap.get(columnName);
+        joinedRecordsHolder.addRecord(joinedObject, subResults);
     }
 
     public void populateChildren(Connection connection, StatementPopulator statementPopulator){
-        for ( Map.Entry<String, ChildRecordsHolder<ENTITY, BUILDER>> holderEntry : joinedRecordsMap.entrySet()){
-            ChildRecordsHolder holder = holderEntry.getValue();
+        for ( Map.Entry<String, JoinedRecordsHolder<ENTITY, BUILDER>> holderEntry : joinedRecordsMap.entrySet()){
+            JoinedRecordsHolder holder = holderEntry.getValue();
             holder.populateChildren(connection, statementPopulator);
             Supplier<List<Long>> parentIdsSupplier = holder::getParentIds;
             Supplier<String> primaryKeySqlSupplier = () -> sqlBuilder.selectPrimaryKeyOfJoinedColumn(statementPopulator, holderEntry.getKey());

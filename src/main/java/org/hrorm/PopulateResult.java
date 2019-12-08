@@ -53,6 +53,7 @@ public class PopulateResult {
         return new PopulateResult(connectionUser);
     }
 
+    // THIS is the JOINed type.
     public static PopulateResult fromJoinColumn(Envelope<?> item, Map<String, PopulateResult> subResults){
         return new PopulateResult(item, subResults);
     }
