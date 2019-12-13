@@ -50,8 +50,8 @@ public class IndirectDaoBuilder<ENTITY, BUILDER>
         return this;
     }
 
-    @Override
-    public IndirectDaoBuilder<ENTITY, BUILDER> withChildSelectStrategy(ChildSelectStrategy childSelectStrategy){
-        throw new HrormException("Only direct DAO builders support non-standard child select strategies.");
-    }
+//    @Override
+//    public IndirectDaoBuilder<ENTITY, BUILDER> withChildSelectStrategy(ChildSelectStrategy childSelectStrategy){
+//        throw new HrormException("Only direct DAO builders support non-standard child select strategies.");
+//    }
 }
