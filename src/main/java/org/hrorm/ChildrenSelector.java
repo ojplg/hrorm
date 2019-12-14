@@ -7,7 +7,7 @@ import java.util.function.Supplier;
  * Describes a generic way for selecting children that can be applied for
  * several child selection strategies.
  *
- * <br/>
+ * <br>
  *
  * Most users of hrorm will have no need to directly use this.
  *

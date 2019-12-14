@@ -14,7 +14,7 @@ import java.util.function.Supplier;
 /**
  * Complete definition of how a child entity is related to its parent entity.
  *
- * <p>
+ * <br>
  *
  * Most users of hrorm will have no need to directly use this.
  */
@@ -48,7 +48,7 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
         this.parentPrimaryKey = parentPrimaryKey;
     }
 
-    /**
+    /*
      * This method will search for and build the children of the passed parent builder,
      * setting them onto the parent builder.
      */
@@ -85,7 +85,7 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
         setter.accept(parentBuilder, children);
     }
 
-    /**
+    /*
      * Bulk populator of children for a collection of parents. Since there are several
      * ways to select all the children of all the parents, a child selector is
      * required.
