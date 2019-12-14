@@ -98,7 +98,7 @@ public class ImmutableJoinChildrenTest {
 
             Assert.assertEquals(roomName, room.getName());
             Assert.assertEquals(area, room.getCageArea());
-            //AssertHelp.sameContents(parrotNames, room.getParrotNames());
+            AssertHelp.sameContents(parrotNames, room.getParrotNames());
         });
 
     }

@@ -92,7 +92,7 @@ public class JoinColumn<ENTITY, JOINED, ENTITYBUILDER, JOINEDBUILDER> implements
 
         // MAYBE: This is too complicated. Too many exit points. Not enough polymorphism in return types.
 
-        JOINEDBUILDER joinedBuilder = joinedDaoDescriptor.supplier().get();
+        final JOINEDBUILDER joinedBuilder = joinedDaoDescriptor.supplier().get();
         for (Column<?, ?, JOINED, JOINEDBUILDER> column: joinedDaoDescriptor.nonJoinColumns()) {
             PopulateResult result = column.populate(joinedBuilder, resultSet);
             if ( result == PopulateResult.NoPrimaryKey ){
@@ -106,11 +106,10 @@ public class JoinColumn<ENTITY, JOINED, ENTITYBUILDER, JOINEDBUILDER> implements
             subResults.put(joinColumn.getName(), subResult);
         }
 
-        JOINED joinedItem = joinBuilder.apply(joinedBuilder);
-        setter.accept(builder, joinedItem);
-
         if (ChildSelectStrategy.ByKeysInClause.equals(joinedDaoDescriptor.childSelectStrategy())
                 || ChildSelectStrategy.SubSelectInClause.equals(joinedDaoDescriptor.childSelectStrategy())){
+            JOINED joinedItem = joinBuilder.apply(joinedBuilder);
+            setter.accept(builder, joinedItem);
             long primaryKey = joinedDaoDescriptor.primaryKey().getKeyPrimitive(joinedItem);
             Envelope<JOINED> envelope = new Envelope<>(joinedItem, primaryKey);
             return PopulateResult.fromJoinColumn(envelope, subResults);
@@ -118,7 +117,6 @@ public class JoinColumn<ENTITY, JOINED, ENTITYBUILDER, JOINEDBUILDER> implements
 
         return PopulateResult.fromJoinColumn(
                 connection -> {
-
                     for(PopulateResult subResult : subResults.values()){
                         subResult.populateChildren(connection);
                     }
@@ -126,6 +124,9 @@ public class JoinColumn<ENTITY, JOINED, ENTITYBUILDER, JOINEDBUILDER> implements
                     for(ChildrenDescriptor<JOINED,?, JOINEDBUILDER,?> childrenDescriptor : joinedDaoDescriptor.childrenDescriptors()){
                         childrenDescriptor.populateChildren(connection, joinedBuilder);
                     }
+
+                    JOINED joinedItem = joinBuilder.apply(joinedBuilder);
+                    setter.accept(builder, joinedItem);
                 }
         );
     }
