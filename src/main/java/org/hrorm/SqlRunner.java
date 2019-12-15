@@ -431,9 +431,7 @@ public class SqlRunner<ENTITY, BUILDER> {
             PopulateResult populateResult = column.populate(item, resultSet);
 
             if ( populateResult.isJoinedItemResult() ){
-                Envelope<?> envelope = populateResult.getJoinedBuilder();
-                Map<String,PopulateResult> subResults = populateResult.getSubResults();
-                joinedChildrenSelector.addJoinedInstanceAndItsJoins(column.getName(),envelope, subResults);
+                joinedChildrenSelector.addJoinedInstanceAndItsJoins(column.getName(),populateResult.getReadResult());
             } else {
                 populateResult.populateChildren(connection);
             }

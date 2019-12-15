@@ -37,12 +37,13 @@ public class JoinedChildrenSelector<ENTITY, BUILDER> {
         /**
          * Adds a record to the cache, and records of any successive joins.
          */
-        void addRecord(Envelope<JOINEDBUILDER> joinedObject, Map<String,PopulateResult> subResults){
-            this.joinedRecords.add(joinedObject);
-            for( String name : subResults.keySet()){
-                PopulateResult populateResult = subResults.get(name);
-                Envelope envelope = populateResult.getJoinedBuilder();
-                selector.addJoinedInstanceAndItsJoins(name, envelope, populateResult.getSubResults());
+        void addRecord(ReadResult<JOINEDBUILDER> readResult){
+            this.joinedRecords.add(readResult.getJoinedBuilder());
+            for( Map.Entry<String, PopulateResult> entry : readResult.getSubResults().entrySet()){
+                PopulateResult populateResult = entry.getValue();
+                if( populateResult.isJoinedItemResult()) {
+                    selector.addJoinedInstanceAndItsJoins(entry.getKey(), populateResult.getReadResult());
+                }
             }
         }
 
@@ -87,14 +88,14 @@ public class JoinedChildrenSelector<ENTITY, BUILDER> {
         }
     }
 
-    public <JOINED, JOINEDBUILDER> void addJoinedInstanceAndItsJoins(String columnName, Envelope<JOINEDBUILDER> joinedObject, Map<String,PopulateResult> subResults){
+    public <JOINED, JOINEDBUILDER> void addJoinedInstanceAndItsJoins(String columnName, ReadResult<JOINEDBUILDER> readResult){
         if( ! joinedRecordsMap.containsKey(columnName)){
             throw new HrormException("Problem. This column name is unrecognized: "  + columnName);
         }
 
         JoinedRecordsHolder<ENTITY, BUILDER, JOINED, JOINEDBUILDER> joinedRecordsHolder =
                 (JoinedRecordsHolder<ENTITY, BUILDER, JOINED, JOINEDBUILDER>) joinedRecordsMap.get(columnName);
-        joinedRecordsHolder.addRecord(joinedObject, subResults);
+        joinedRecordsHolder.addRecord(readResult);
     }
 
     public void populateChildren(Connection connection, StatementPopulator statementPopulator){

@@ -1,7 +1,6 @@
 package org.hrorm;
 
 import java.sql.Connection;
-import java.util.Collections;
 import java.util.Map;
 import java.util.function.Consumer;
 
@@ -18,6 +17,23 @@ public interface PopulateResult {
         PrimaryKey,NullPrimaryKey,Ignore,ParentColumn,JoinColumn,JoinColumnDeferred
     }
 
+    PopulateResult PrimaryKey = new Regular(Type.PrimaryKey);
+    PopulateResult NullPrimaryKey = new Regular(Type.NullPrimaryKey);
+    PopulateResult Ignore = new Regular(Type.Ignore);
+    PopulateResult ParentColumn = new Regular(Type.ParentColumn);
+
+    Type getType();
+
+    default void populateChildren(Connection connection){}
+
+    default boolean isJoinedItemResult(){
+        return getType().equals(Type.JoinColumnDeferred);
+    }
+
+    default <BUILDER> ReadResult<BUILDER> getReadResult(){
+        return ReadResult.EMPTY;
+    }
+
     class Regular implements PopulateResult {
         private final Type type;
 
@@ -30,12 +46,7 @@ public interface PopulateResult {
         }
     }
 
-    PopulateResult PrimaryKey = new Regular(Type.PrimaryKey);
-    PopulateResult NullPrimaryKey = new Regular(Type.NullPrimaryKey);
-    PopulateResult Ignore = new Regular(Type.Ignore);
-    PopulateResult ParentColumn = new Regular(Type.ParentColumn);
-
-    public class ImmediateJoin implements PopulateResult {
+    class ImmediateJoin implements PopulateResult {
 
         private final Consumer<Connection> connectionUser;
 
@@ -53,39 +64,20 @@ public interface PopulateResult {
 
     class JoinedResult<BUILDER> implements PopulateResult {
 
-        private final Envelope<BUILDER> joinedBuilder;
-        private final Map<String,PopulateResult> subResults;
+        private final ReadResult<BUILDER> readResult;
 
-        public JoinedResult(Envelope<BUILDER> joinedBuilder, Map<String,PopulateResult> subResults){
-            this.joinedBuilder = joinedBuilder;
-            this.subResults = subResults;
+        public JoinedResult(Envelope<BUILDER> builder, Map<String, PopulateResult> subResults){
+            this.readResult = new ReadResult<>(builder, subResults);
         }
+
+//        public JoinedResult(ReadResult<BUILDER> readResult){
+//            this.readResult = readResult;
+//        }
 
         public Type getType() { return Type.JoinColumnDeferred; }
 
-        public Envelope<BUILDER> getJoinedBuilder(){
-            return joinedBuilder;
+        public ReadResult<BUILDER> getReadResult(){
+            return readResult;
         }
-
-        public Map<String,PopulateResult> getSubResults(){
-            return subResults;
-        }
-    }
-
-    Type getType();
-
-    default void populateChildren(Connection connection){};
-
-    default boolean isJoinedItemResult(){
-        return /* getType().equals(Type.JoinColumn)
-                || */ getType().equals(Type.JoinColumnDeferred);
-    }
-
-    default <BUILDER> Envelope<BUILDER> getJoinedBuilder(){
-        return Envelope.EMPTY;
-    }
-
-    default Map<String,PopulateResult> getSubResults() {
-        return Collections.emptyMap();
     }
 }
