@@ -95,7 +95,7 @@ public class JoinColumn<ENTITY, JOINED, ENTITYBUILDER, JOINEDBUILDER> implements
         final JOINEDBUILDER joinedBuilder = joinedDaoDescriptor.supplier().get();
         for (Column<?, ?, JOINED, JOINEDBUILDER> column: joinedDaoDescriptor.nonJoinColumns()) {
             PopulateResult result = column.populate(joinedBuilder, resultSet);
-            if ( result == PopulateResult.NoPrimaryKey ){
+            if ( result == PopulateResult.NullPrimaryKey ){
                 return PopulateResult.Ignore;
             }
         }
@@ -108,14 +108,15 @@ public class JoinColumn<ENTITY, JOINED, ENTITYBUILDER, JOINEDBUILDER> implements
 
         if (ChildSelectStrategy.ByKeysInClause.equals(joinedDaoDescriptor.childSelectStrategy())
                 || ChildSelectStrategy.SubSelectInClause.equals(joinedDaoDescriptor.childSelectStrategy())){
+            logger.warning("Building with  " + joinedBuilder);
             JOINED joinedItem = joinBuilder.apply(joinedBuilder);
-            setter.accept(builder, joinedItem);
             long primaryKey = joinedDaoDescriptor.primaryKey().getKeyPrimitive(joinedItem);
-            Envelope<JOINED> envelope = new Envelope<>(joinedItem, primaryKey);
-            return PopulateResult.fromJoinColumn(envelope, subResults);
+            Envelope<JOINEDBUILDER> envelope = new Envelope<>(joinedBuilder, primaryKey);
+            setter.accept(builder, joinedItem);
+            return new PopulateResult.JoinedResult<>(envelope, subResults);
         }
 
-        return PopulateResult.fromJoinColumn(
+        return new PopulateResult.ImmediateJoin(
                 connection -> {
                     for(PopulateResult subResult : subResults.values()){
                         subResult.populateChildren(connection);

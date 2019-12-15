@@ -73,7 +73,7 @@ public class DirectPrimaryKey<ENTITY> implements PrimaryKey<ENTITY, ENTITY> {
         long value = resultSet.getLong(prefix  + name);
         setter.accept(constructor, value);
         if (value == 0){
-            return PopulateResult.NoPrimaryKey;
+            return PopulateResult.NullPrimaryKey;
         }
         return PopulateResult.PrimaryKey;
 

@@ -75,7 +75,7 @@ public class IndirectPrimaryKey<ENTITY, BUILDER> implements PrimaryKey<ENTITY, B
         long value = resultSet.getLong(prefix  + name);
         setter.accept(constructor, value);
         if ( value == 0 ){
-            return PopulateResult.NoPrimaryKey;
+            return PopulateResult.NullPrimaryKey;
         }
         return PopulateResult.PrimaryKey;
 

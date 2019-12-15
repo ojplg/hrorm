@@ -323,7 +323,7 @@ public class SqlRunner<ENTITY, BUILDER> {
                 preparedStatement.setLong(idx, envelope.getId());
             }
 
-            logger.info(sql);
+            //logger.info(sql);
             preparedStatement.execute();
 
         } catch (SQLException se){
@@ -431,7 +431,7 @@ public class SqlRunner<ENTITY, BUILDER> {
             PopulateResult populateResult = column.populate(item, resultSet);
 
             if ( populateResult.isJoinedItemResult() ){
-                Envelope<?> envelope = populateResult.getJoinedItem();
+                Envelope<?> envelope = populateResult.getJoinedBuilder();
                 Map<String,PopulateResult> subResults = populateResult.getSubResults();
                 joinedChildrenSelector.addJoinedInstanceAndItsJoins(column.getName(),envelope, subResults);
             } else {

@@ -5,6 +5,7 @@ import lombok.Data;
 import org.hrorm.util.ListUtil;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -22,6 +23,9 @@ public class Cage {
     }
 
     public List<String> getParrotNames(){
+        if ( parrots == null ){
+            return new ArrayList<>();
+        }
         return ListUtil.map(parrots, Parrot::getName);
     }
 

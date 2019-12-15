@@ -10,6 +10,7 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.logging.Logger;
 
 /**
  * Complete definition of how a child entity is related to its parent entity.
@@ -19,6 +20,8 @@ import java.util.function.Supplier;
  * Most users of hrorm will have no need to directly use this.
  */
 public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
+
+    private static final Logger logger = Logger.getLogger("org.hrorm");
 
     private final Function<PARENT, List<CHILD>> getter;
     private final BiConsumer<PARENTBUILDER, List<CHILD>> setter;
@@ -83,6 +86,8 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
 
         // set them onto the parent
         setter.accept(parentBuilder, children);
+
+        logger.warning("and set " + children.size());
     }
 
     /*
@@ -93,11 +98,15 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
     public void populateChildren(Connection connection,
                                   List<Envelope<PARENTBUILDER>> parentBuilders,
                                   ChildrenSelector<CHILD, CHILDBUILDER> childrenSelector){
+
+        logger.warning("populatechildren for " + parentBuilders.size());
+
         // This check is important, it avoids unnecessary SQL from being run.
         // Or worse, malformed SQL that performs a select in on an empty set
         if( parentBuilders.size() == 0 ){
             return;
         }
+
 
         // Run the SQL and get the children builder objects
         SqlRunner<CHILD,CHILDBUILDER> sqlRunner = new SqlRunner<>(connection, childDaoDescriptor);
@@ -120,6 +129,9 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
             if( children == null ){
                 children = new ArrayList<>();
             }
+
+            logger.warning("FOUND CHILDREN about to set " + children.size());
+
             setter.accept(parentBuilderEnvelope.getItem(), children);
         }
     }

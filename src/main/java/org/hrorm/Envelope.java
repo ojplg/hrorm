@@ -16,6 +16,8 @@ public class Envelope<T> {
     private final Long id;
     private final Long parentId;
 
+    public static final Envelope EMPTY = new Envelope(new Object(), null,null);
+
     public Envelope(T item, Long id, Long parentId){
         if( item == null ){
             throw new HrormException("Cannot persist a null item");

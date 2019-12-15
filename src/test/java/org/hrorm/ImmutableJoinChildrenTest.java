@@ -8,6 +8,7 @@ import org.hrorm.examples.immutables.zoo.Room;
 import org.hrorm.examples.immutables.zoo.ZooBuilders;
 import org.hrorm.util.AssertHelp;
 import org.hrorm.util.RandomUtils;
+import org.hrorm.util.TestLogConfig;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -18,10 +19,14 @@ import java.util.List;
 
 public class ImmutableJoinChildrenTest {
 
+
+
     private static Helper HELPER = HelperFactory.forSchema("zoo");
 
     @BeforeClass
     public static void setUpDb(){
+
+        TestLogConfig.load();
 
         IndirectDaoBuilder<Parrot, Parrot.ParrotBuilder> parrotDaoBuilder =
                 ZooBuilders.newParrotBuilder(ChildSelectStrategy.Standard);
@@ -106,6 +111,16 @@ public class ImmutableJoinChildrenTest {
     @Test
     public void testStandardStrategyOneInstance(){
         insertAndSelectOne(ChildSelectStrategy.Standard);
+    }
+
+    @Test
+    public void testByKeysStrategyOneInstance(){
+        insertAndSelectOne(ChildSelectStrategy.ByKeysInClause);
+    }
+
+    @Test
+    public void testSubselectStrategyOneInstance(){
+        insertAndSelectOne(ChildSelectStrategy.SubSelectInClause);
     }
 
 }
