@@ -66,13 +66,11 @@ public interface PopulateResult {
 
         private final ReadResult<BUILDER> readResult;
 
-        public JoinedResult(Envelope<BUILDER> builder, Map<String, PopulateResult> subResults){
-            this.readResult = new ReadResult<>(builder, subResults);
+        public JoinedResult(Envelope<BUILDER> builder,
+                            Map<String, PopulateResult> subResults,
+                            Runnable completer){
+            this.readResult = new ReadResult<>(builder, subResults, completer);
         }
-
-//        public JoinedResult(ReadResult<BUILDER> readResult){
-//            this.readResult = readResult;
-//        }
 
         public Type getType() { return Type.JoinColumnDeferred; }
 

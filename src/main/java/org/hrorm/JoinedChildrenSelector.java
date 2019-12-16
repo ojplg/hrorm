@@ -27,7 +27,7 @@ public class JoinedChildrenSelector<ENTITY, BUILDER> {
     private static class JoinedRecordsHolder<ENTITY, BUILDER, JOINED, JOINEDBUILDER> {
         private final JoinColumn<ENTITY, JOINED, BUILDER, JOINEDBUILDER> joinColumn;
         private final JoinedChildrenSelector<ENTITY, BUILDER> selector;
-        private final List<Envelope<JOINEDBUILDER>> joinedRecords = new ArrayList<>();
+        private final List<ReadResult<JOINEDBUILDER>> joinedRecords = new ArrayList<>();
 
         JoinedRecordsHolder(JoinColumn<ENTITY, JOINED, BUILDER, JOINEDBUILDER> joinColumn, JoinedChildrenSelector<ENTITY, BUILDER> selector){
             this.joinColumn = joinColumn;
@@ -38,7 +38,7 @@ public class JoinedChildrenSelector<ENTITY, BUILDER> {
          * Adds a record to the cache, and records of any successive joins.
          */
         void addRecord(ReadResult<JOINEDBUILDER> readResult){
-            this.joinedRecords.add(readResult.getJoinedBuilder());
+            this.joinedRecords.add(readResult);
             for( Map.Entry<String, PopulateResult> entry : readResult.getSubResults().entrySet()){
                 PopulateResult populateResult = entry.getValue();
                 if( populateResult.isJoinedItemResult()) {
@@ -55,12 +55,15 @@ public class JoinedChildrenSelector<ENTITY, BUILDER> {
             logger.warning("doing the population");
             List<ChildrenDescriptor> childrenDescriptors = joinColumn.getJoinedDaoDescriptor().childrenDescriptors();
             for( ChildrenDescriptor childrenDescriptor : childrenDescriptors ) {
-                childrenDescriptor.populateChildren(connection, joinedRecords, childrenSelector);
+                List<Envelope<JOINEDBUILDER>> builders =
+                        joinedRecords.stream().map(ReadResult::getJoinedBuilder).collect(Collectors.toList());
+                childrenDescriptor.populateChildren(connection, builders, childrenSelector);
             }
+            joinedRecords.forEach(ReadResult::complete);
         }
 
         List<Long> getParentIds(){
-            return joinedRecords.stream().map(Envelope::getId).collect(Collectors.toList());
+            return joinedRecords.stream().map(ReadResult::getId).collect(Collectors.toList());
         }
 
         List<ChildrenDescriptor> getChildrenDescriptors(){

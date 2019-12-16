@@ -89,6 +89,8 @@ public class ImmutableJoinChildrenTest {
             return roomDao.insert(room);
         });
 
+        System.out.println("STARTING TEST");
+
         HELPER.useConnection(connection -> {
             IndirectDaoBuilder<Parrot, Parrot.ParrotBuilder> parrotDaoBuilder =
                     ZooBuilders.newParrotBuilder(childSelectStrategy);

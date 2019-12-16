@@ -113,7 +113,9 @@ public class JoinColumn<ENTITY, JOINED, ENTITYBUILDER, JOINEDBUILDER> implements
             long primaryKey = joinedDaoDescriptor.primaryKey().getKeyPrimitive(joinedItem);
             Envelope<JOINEDBUILDER> envelope = new Envelope<>(joinedBuilder, primaryKey);
             setter.accept(builder, joinedItem);
-            return new PopulateResult.JoinedResult<>(envelope, subResults);
+            return new PopulateResult.JoinedResult<>(envelope, subResults
+                , () -> { setter.accept(builder, joinedItem); logger.warning("DOING IT" + joinedItem); }
+            );
         }
 
         return new PopulateResult.ImmediateJoin(
