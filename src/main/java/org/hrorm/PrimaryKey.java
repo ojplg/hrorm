@@ -20,6 +20,13 @@ public interface PrimaryKey<ENTITY, BUILDER> extends Column<Long, Long, ENTITY, 
      */
     void optimisticSetKey(ENTITY item, Long id);
 
+
+    /**
+     * Reads the value of the primary key from the passed entity object.
+     *
+     * @param item The object whose primary key is to be read.
+     * @return The primary key, or null.
+     */
     Long getKey(ENTITY item);
 
     /**
@@ -28,5 +35,16 @@ public interface PrimaryKey<ENTITY, BUILDER> extends Column<Long, Long, ENTITY, 
      * @return the sequence name
      */
     String getSequenceName();
+
+    /**
+     * Reads the value of the primary key from the passed entity object.
+     * Will throw a NullPointerException if the key has not been set.
+     *
+     * @param item The object whose primary key is to be read.
+     * @return The primary key.
+     */
+    default long getKeyPrimitive(ENTITY item) {
+        return getKey(item).longValue();
+    }
 
 }

@@ -13,9 +13,9 @@ import java.util.function.Supplier;
  *
  * @param <ENTITY> The entity being persisted.
  * @param <ENTITYBUILDER> The builder class of the entity.
- * @param <B> The type of the concrete class extending this.
+ * @param <BUILDER> The type of the concrete class extending this.
  */
-public abstract class AbstractKeylessDaoBuilder<ENTITY, ENTITYBUILDER, B extends AbstractKeylessDaoBuilder<?,?,?>>
+public abstract class AbstractKeylessDaoBuilder<ENTITY, ENTITYBUILDER, BUILDER extends AbstractKeylessDaoBuilder<ENTITY, ENTITYBUILDER, BUILDER>>
     implements KeylessDaoDescriptor<ENTITY, ENTITYBUILDER> {
 
     protected final ColumnCollection<ENTITY,ENTITYBUILDER> columnCollection = new ColumnCollection<>();
@@ -46,12 +46,12 @@ public abstract class AbstractKeylessDaoBuilder<ENTITY, ENTITYBUILDER, B extends
         return daoBuilderHelper.getBuildFunction();
     }
 
-    public B withStringColumn(String columnName,
-                              Function<ENTITY, String> getter,
-                              BiConsumer<ENTITYBUILDER, String> setter){
+    public BUILDER withStringColumn(String columnName,
+                                    Function<ENTITY, String> getter,
+                                    BiConsumer<ENTITYBUILDER, String> setter){
         Column<?,?,ENTITY, ENTITYBUILDER> column = DataColumnFactory.stringColumn(columnName, daoBuilderHelper.getPrefix(), getter, setter, true);
         columnCollection.addDataColumn(column);
-        return (B) this;
+        return (BUILDER) this;
     }
 
     /**
@@ -62,12 +62,12 @@ public abstract class AbstractKeylessDaoBuilder<ENTITY, ENTITYBUILDER, B extends
      * @param setter The function on <code>ENTITY</code> that consumes the data element.
      * @return This instance.
      */
-    public B withLongColumn(String columnName,
-                            Function<ENTITY, Long> getter,
-                            BiConsumer<ENTITYBUILDER, Long> setter){
+    public BUILDER withLongColumn(String columnName,
+                                  Function<ENTITY, Long> getter,
+                                  BiConsumer<ENTITYBUILDER, Long> setter){
         Column<?,?,ENTITY, ENTITYBUILDER> column = DataColumnFactory.longColumn(columnName, daoBuilderHelper.getPrefix(), getter, setter, true);
         columnCollection.addDataColumn(column);
-        return (B) this;
+        return (BUILDER) this;
     }
 
     /**
@@ -78,12 +78,12 @@ public abstract class AbstractKeylessDaoBuilder<ENTITY, ENTITYBUILDER, B extends
      * @param setter The function on <code>ENTITY</code> that consumes the data element.
      * @return This instance.
      */
-    public B withBigDecimalColumn(String columnName,
-                                  Function<ENTITY, BigDecimal> getter,
-                                  BiConsumer<ENTITYBUILDER, BigDecimal> setter){
+    public BUILDER withBigDecimalColumn(String columnName,
+                                        Function<ENTITY, BigDecimal> getter,
+                                        BiConsumer<ENTITYBUILDER, BigDecimal> setter){
         Column<?,?,ENTITY, ENTITYBUILDER> column = DataColumnFactory.bigDecimalColumn(columnName, daoBuilderHelper.getPrefix(), getter, setter, true);
         columnCollection.addDataColumn(column);
-        return (B) this;
+        return (BUILDER) this;
     }
 
     /**
@@ -98,13 +98,13 @@ public abstract class AbstractKeylessDaoBuilder<ENTITY, ENTITYBUILDER, B extends
      * @param <E> The type being converted for persistence.
      * @return This instance.
      */
-    public <E> B withConvertingStringColumn(String columnName,
-                                            Function<ENTITY, E> getter,
-                                            BiConsumer<ENTITYBUILDER, E> setter,
-                                            Converter<E, String> converter){
+    public <E> BUILDER withConvertingStringColumn(String columnName,
+                                                  Function<ENTITY, E> getter,
+                                                  BiConsumer<ENTITYBUILDER, E> setter,
+                                                  Converter<E, String> converter){
         Column<?,?,ENTITY, ENTITYBUILDER> column = DataColumnFactory.stringConverterColumn(columnName, daoBuilderHelper.getPrefix(), getter, setter, converter, true);
         columnCollection.addDataColumn(column);
-        return (B) this;
+        return (BUILDER) this;
     }
 
     /**
@@ -115,12 +115,12 @@ public abstract class AbstractKeylessDaoBuilder<ENTITY, ENTITYBUILDER, B extends
      * @param setter The function on <code>ENTITY</code> that consumes the data element.
      * @return This instance.
      */
-    public B withInstantColumn(String columnName,
-                               Function<ENTITY, Instant> getter,
-                               BiConsumer<ENTITYBUILDER, Instant> setter){
+    public BUILDER withInstantColumn(String columnName,
+                                     Function<ENTITY, Instant> getter,
+                                     BiConsumer<ENTITYBUILDER, Instant> setter){
         Column<?,?,ENTITY, ENTITYBUILDER> column = DataColumnFactory.instantColumn(columnName, daoBuilderHelper.getPrefix(), getter, setter, true);
         columnCollection.addDataColumn(column);
-        return (B) this;
+        return (BUILDER) this;
     }
 
     /**
@@ -132,12 +132,12 @@ public abstract class AbstractKeylessDaoBuilder<ENTITY, ENTITYBUILDER, B extends
      * @param setter The function on <code>ENTITY</code> that consumes the data element.
      * @return This instance.
      */
-    public B withBooleanColumn(String columnName,
-                               Function<ENTITY, Boolean> getter,
-                               BiConsumer<ENTITYBUILDER, Boolean> setter){
+    public BUILDER withBooleanColumn(String columnName,
+                                     Function<ENTITY, Boolean> getter,
+                                     BiConsumer<ENTITYBUILDER, Boolean> setter){
         Column<?,?,ENTITY, ENTITYBUILDER> column = DataColumnFactory.booleanColumn(columnName, daoBuilderHelper.getPrefix(), getter, setter, true);
         columnCollection.addDataColumn(column);
-        return (B) this;
+        return (BUILDER) this;
     }
 
     /**
@@ -151,12 +151,12 @@ public abstract class AbstractKeylessDaoBuilder<ENTITY, ENTITYBUILDER, B extends
      * @param setter The function on <code>ENTITY</code> that consumes the data element.
      * @return This instance.
      */
-    public B withStringBooleanColumn(String columnName,
-                                     Function<ENTITY, Boolean> getter,
-                                     BiConsumer<ENTITYBUILDER, Boolean> setter){
+    public BUILDER withStringBooleanColumn(String columnName,
+                                           Function<ENTITY, Boolean> getter,
+                                           BiConsumer<ENTITYBUILDER, Boolean> setter){
         Column<?,?,ENTITY, ENTITYBUILDER> column = DataColumnFactory.textBackedBooleanColumn(columnName, daoBuilderHelper.getPrefix(), getter, setter, true);
         columnCollection.addDataColumn(column);
-        return (B) this;
+        return (BUILDER) this;
     }
 
     /**
@@ -169,12 +169,12 @@ public abstract class AbstractKeylessDaoBuilder<ENTITY, ENTITYBUILDER, B extends
      * @param setter The function on <code>ENTITY</code> that consumes the data element.
      * @return This instance.
      */
-    public B withIntegerBooleanColumn(String columnName,
-                                      Function<ENTITY, Boolean> getter,
-                                      BiConsumer<ENTITYBUILDER, Boolean> setter){
+    public BUILDER withIntegerBooleanColumn(String columnName,
+                                            Function<ENTITY, Boolean> getter,
+                                            BiConsumer<ENTITYBUILDER, Boolean> setter){
         Column<?,?,ENTITY, ENTITYBUILDER> column = DataColumnFactory.longBackedBooleanColumn(columnName, daoBuilderHelper.getPrefix(), getter, setter,true);
         columnCollection.addDataColumn(column);
-        return (B) this;
+        return (BUILDER) this;
     }
 
     /**
@@ -200,11 +200,11 @@ public abstract class AbstractKeylessDaoBuilder<ENTITY, ENTITYBUILDER, B extends
      * @param <U> The type of the data element.
      * @return This instance.
      */
-    public <U> B withJoinColumn(
+    public <U> BUILDER withJoinColumn(
             String columnName, Function<ENTITY, U> getter, BiConsumer<ENTITYBUILDER,U> setter, DaoDescriptor<U,?> daoDescriptor){
         JoinColumn<ENTITY,U, ENTITYBUILDER,?> joinColumn = new JoinColumn<>(columnName, daoBuilderHelper.getPrefix(), daoBuilderHelper.getPrefixer(), getter, setter, daoDescriptor, true);
         columnCollection.addJoinColumn(joinColumn);
-        return (B) this;
+        return (BUILDER) this;
     }
 
     /**
@@ -213,9 +213,9 @@ public abstract class AbstractKeylessDaoBuilder<ENTITY, ENTITYBUILDER, B extends
      *
      * @return This instance.
      */
-    public B notNull(){
+    public BUILDER notNull(){
         columnCollection.setLastColumnAddedNotNull();
-        return (B) this;
+        return (BUILDER) this;
     }
 
     /**
@@ -228,9 +228,9 @@ public abstract class AbstractKeylessDaoBuilder<ENTITY, ENTITYBUILDER, B extends
      * @param sqlTypeName The name of the column in SQL.
      * @return This instance.
      */
-    public B setSqlTypeName(String sqlTypeName){
+    public BUILDER setSqlTypeName(String sqlTypeName){
         columnCollection.setLastColumnSqlTypeName(sqlTypeName);
-        return (B) this;
+        return (BUILDER) this;
     }
 
     /**
@@ -249,13 +249,13 @@ public abstract class AbstractKeylessDaoBuilder<ENTITY, ENTITYBUILDER, B extends
      * @param <T> The type of the data element on the entity.
      * @return This instance.
      */
-    public <T> B withGenericColumn(String columnName,
-                                   Function<ENTITY, T> getter,
-                                   BiConsumer<ENTITYBUILDER, T> setter,
-                                   GenericColumn<T> genericColumn){
+    public <T> BUILDER withGenericColumn(String columnName,
+                                         Function<ENTITY, T> getter,
+                                         BiConsumer<ENTITYBUILDER, T> setter,
+                                         GenericColumn<T> genericColumn){
         Column<?,?,ENTITY, ENTITYBUILDER> column = DataColumnFactory.genericColumn(columnName, daoBuilderHelper.getPrefix(), getter, setter, genericColumn, true);
         columnCollection.addDataColumn(column);
-        return (B) this;
+        return (BUILDER) this;
     }
 
     /**
@@ -276,14 +276,14 @@ public abstract class AbstractKeylessDaoBuilder<ENTITY, ENTITYBUILDER, B extends
      * @param <U> The type of the data element as it exists on the entity object.
      * @return This instance.
      */
-    public <T,U> B withConvertedGenericColumn(String columnName,
-                                              Function<ENTITY, U> getter,
-                                              BiConsumer<ENTITYBUILDER, U> setter,
-                                              GenericColumn<T> genericColumn,
-                                              Converter<U,T> converter){
+    public <T,U> BUILDER withConvertedGenericColumn(String columnName,
+                                                    Function<ENTITY, U> getter,
+                                                    BiConsumer<ENTITYBUILDER, U> setter,
+                                                    GenericColumn<T> genericColumn,
+                                                    Converter<U,T> converter){
         Column<?,?,ENTITY, ENTITYBUILDER> column = DataColumnFactory.convertedGenericColumn(columnName, daoBuilderHelper.getPrefix(), getter, setter, genericColumn, converter, true);
         columnCollection.addDataColumn(column);
-        return (B) this;
+        return (BUILDER) this;
     }
 
     /**
@@ -294,9 +294,9 @@ public abstract class AbstractKeylessDaoBuilder<ENTITY, ENTITYBUILDER, B extends
      * @param columnNames the names of the columns that are to be unique
      * @return This instance.
      */
-    public B withUniqueConstraint(String ... columnNames){
+    public BUILDER withUniqueConstraint(String ... columnNames){
         columnCollection.addUniquenConstraint(columnNames);
-        return (B) this;
+        return (BUILDER) this;
     }
 
 }

@@ -95,9 +95,9 @@ public class SqlRunner<ENTITY, BUILDER> {
 
             List<Envelope<BUILDER>> builders = new ArrayList<>();
 
-            JoinedChildrenSelector joinedChildrenSelector = new JoinedChildrenSelector(keylessDaoDescriptor, selectionInstruction);
+            JoinedChildrenSelector joinedChildrenSelector = new JoinedChildrenSelector(keylessDaoDescriptor, selectionInstruction.getChildSelectStrategy(), selectionInstruction.isSelectAll());
 
-            // Step 1: Run the select on the entity itself, with all it's joins, and make a list of builders
+            // Step 1: Run the select on the entity itself, with all its joins, and make a list of builders
             while (resultSet.next()) {
                 Envelope<BUILDER> builder = populate(resultSet, supplier, selectionInstruction.getParentColumnName(), joinedChildrenSelector);
                 builders.add(builder);
@@ -108,22 +108,16 @@ public class SqlRunner<ENTITY, BUILDER> {
 
             // Step 3: For the children of this entity, recursively do the necessary selections.
             // Maybe this can be moved? it's not really sql running?
-            for (ChildrenDescriptor<ENTITY, ?, BUILDER, ?> descriptor : childrenDescriptors) {
-                // MAYBE: this is confusing. Why no polymorphism?
-                ChildrenBuilderSelectCommand<?, ?> childrenBuilderSelectCommand;
-                if( selectionInstruction.isSelectAll()) {
-                    childrenBuilderSelectCommand = ChildrenBuilderSelectCommand.forSelectAll();
-                } else if (selectionInstruction.getChildSelectStrategy().equals(ChildSelectStrategy.SubSelectInClause)) {
-                    childrenBuilderSelectCommand =
-                            ChildrenBuilderSelectCommand.forSubSelect(selectionInstruction.getPrimaryKeySql(), statementPopulator);
-                } else {
-                    List<Long> parentIds = builders.stream().map(Envelope::getId).collect(Collectors.toList());
-                    childrenBuilderSelectCommand =
-                            ChildrenBuilderSelectCommand.forSelectByIds(parentIds);
-                }
-                descriptor.populateChildren(connection, builders, childrenBuilderSelectCommand);
-            }
+            ChildrenSelector childrenSelector = ChildrenSelector.Factory.create(
+                    selectionInstruction.getChildSelectStrategy(),
+                    selectionInstruction.isSelectAll(),
+                    () -> builders.stream().map(Envelope::getId).collect(Collectors.toList()),
+                    () -> selectionInstruction.getPrimaryKeySql(),
+                    statementPopulator);
 
+            for (ChildrenDescriptor<ENTITY, ?, BUILDER, ?> descriptor : childrenDescriptors) {
+                descriptor.populateChildren(connection, builders, childrenSelector);
+            }
 
             return builders;
 
@@ -431,7 +425,7 @@ public class SqlRunner<ENTITY, BUILDER> {
         Long parentId = null;
         Long itemId = null;
 
-        // MAYBE: Too complicated. The join columns should just be handled separetely from the data columns.
+        // MAYBE: Too complicated. The join columns should just be handled separately from the data columns.
 
         for (Column<?, ?, ENTITY, BUILDER> column: allColumns) {
             PopulateResult populateResult = column.populate(item, resultSet);
@@ -439,7 +433,7 @@ public class SqlRunner<ENTITY, BUILDER> {
             if ( populateResult.isJoinedItemResult() ){
                 Envelope<?> envelope = populateResult.getJoinedItem();
                 Map<String,PopulateResult> subResults = populateResult.getSubResults();
-                joinedChildrenSelector.addChildEntityInfo(column.getName(),envelope, subResults);
+                joinedChildrenSelector.addJoinedInstanceAndItsJoins(column.getName(),envelope, subResults);
             } else {
                 populateResult.populateChildren(connection);
             }

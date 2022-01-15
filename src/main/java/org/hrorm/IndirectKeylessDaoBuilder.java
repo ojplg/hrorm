@@ -18,14 +18,14 @@ import java.util.function.Supplier;
  * </p>
  *
  * @param <ENTITY> The class that the <code>KeylessDao</code> will support.
- * @param <BUILDER> The class that builds the <code>ENTITY</code> type.
+ * @param <ENTITYBUILDER> The class that builds the <code>ENTITY</code> type.
  */
-public class IndirectKeylessDaoBuilder<ENTITY, BUILDER>
-        extends AbstractKeylessDaoBuilder<ENTITY, BUILDER, IndirectKeylessDaoBuilder<ENTITY, BUILDER>>
-        implements KeylessDaoDescriptor<ENTITY, BUILDER> {
+public class IndirectKeylessDaoBuilder<ENTITY, ENTITYBUILDER>
+        extends AbstractKeylessDaoBuilder<ENTITY, ENTITYBUILDER, IndirectKeylessDaoBuilder<ENTITY, ENTITYBUILDER>>
+        implements KeylessDaoDescriptor<ENTITY, ENTITYBUILDER> {
 
 
-    public IndirectKeylessDaoBuilder(String table, Supplier<BUILDER> supplier, Function<BUILDER, ENTITY> buildFunction) {
+    public IndirectKeylessDaoBuilder(String table, Supplier<ENTITYBUILDER> supplier, Function<ENTITYBUILDER, ENTITY> buildFunction) {
         super(table, supplier, buildFunction);
     }
 

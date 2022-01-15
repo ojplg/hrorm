@@ -5,7 +5,7 @@
   <groupId>org.hrorm</groupId>
   <artifactId>hrorm</artifactId>
   <packaging>jar</packaging>
-  <version>0.15.0</version>
+  <version>0.15.1</version>
   <name>hrorm</name>
   <url>http://hrorm.org</url>
   <description>Hrorm is a simple, declarative ORM library.</description>
@@ -130,13 +130,13 @@
     <dependency>
       <groupId>com.h2database</groupId>
       <artifactId>h2</artifactId>
-      <version>1.4.197</version>
+      <version>2.0.206</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>4.12</version>
+      <version>4.13.1</version>
       <scope>test</scope>
     </dependency>
     <dependency>

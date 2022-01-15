@@ -11,10 +11,10 @@ import java.util.function.Supplier;
  *
  * @param <ENTITY> The entity being persisted.
  * @param <ENTITYBUILDER> The builder class of the entity.
- * @param <B> The type of the concrete class extending this.
+ * @param <BUILDER> The type of the concrete class extending this.
  */
-public abstract class AbstractDaoBuilder<ENTITY, ENTITYBUILDER, B extends AbstractDaoBuilder<?,?,?>>
-        extends AbstractKeylessDaoBuilder<ENTITY, ENTITYBUILDER, B>
+public abstract class AbstractDaoBuilder<ENTITY, ENTITYBUILDER, BUILDER extends AbstractDaoBuilder<ENTITY, ENTITYBUILDER, BUILDER>>
+        extends AbstractKeylessDaoBuilder<ENTITY, ENTITYBUILDER, BUILDER>
         implements DaoDescriptor<ENTITY,ENTITYBUILDER>, SchemaDescriptor<ENTITY, ENTITYBUILDER> {
 
     private ChildSelectStrategy childSelectStrategy = ChildSelectStrategy.Standard;
@@ -56,9 +56,9 @@ public abstract class AbstractDaoBuilder<ENTITY, ENTITYBUILDER, B extends Abstra
      * @param <CHILDBUILDER> The type of the builder of child data elements
      * @return This instance.
      */
-    public <CHILD,CHILDBUILDER> B withChildren(Function<ENTITY, List<CHILD>> getter,
-                                                                                 BiConsumer<ENTITYBUILDER, List<CHILD>> setter,
-                                                                                 DaoDescriptor<CHILD,CHILDBUILDER> childDaoDescriptor){
+    public <CHILD,CHILDBUILDER> BUILDER withChildren(Function<ENTITY, List<CHILD>> getter,
+                                                     BiConsumer<ENTITYBUILDER, List<CHILD>> setter,
+                                                     DaoDescriptor<CHILD,CHILDBUILDER> childDaoDescriptor){
         if( ! childDaoDescriptor.hasParent() ){
             throw new HrormException("Children must have a parent column");
         }
@@ -67,7 +67,7 @@ public abstract class AbstractDaoBuilder<ENTITY, ENTITYBUILDER, B extends Abstra
                 = new ChildrenDescriptor<>(getter, setter, childDaoDescriptor, primaryKey(), daoBuilderHelper.getBuildFunction());
 
         childrenDescriptors.add(childrenDescriptor);
-        return (B) this;
+        return (BUILDER) this;
     }
 
     /**
@@ -79,10 +79,10 @@ public abstract class AbstractDaoBuilder<ENTITY, ENTITYBUILDER, B extends Abstra
      * @param <P> The type of the parent object.
      * @return This instance.
      */
-    public <P> B withParentColumn(String columnName, Function<ENTITY,P> getter, BiConsumer<ENTITYBUILDER,P> setter){
+    public <P> BUILDER withParentColumn(String columnName, Function<ENTITY,P> getter, BiConsumer<ENTITYBUILDER,P> setter){
         ParentColumnImpl<ENTITY,P, ENTITYBUILDER,?> column = new ParentColumnImpl<>(columnName, daoBuilderHelper.getPrefix(), getter, setter);
         columnCollection.setParentColumn(column);
-        return (B) this;
+        return (BUILDER) this;
     }
 
     /**
@@ -91,10 +91,10 @@ public abstract class AbstractDaoBuilder<ENTITY, ENTITYBUILDER, B extends Abstra
      * @param columnName The name of the column that holds the foreign key reference.
      * @return This instance.
      */
-    public B withParentColumn(String columnName) {
+    public BUILDER withParentColumn(String columnName) {
         NoBackReferenceParentColumn<ENTITY, ?, ENTITYBUILDER, ?> column = new NoBackReferenceParentColumn<>(columnName, daoBuilderHelper.getPrefix());
         columnCollection.setParentColumn(column);
-        return (B) this;
+        return (BUILDER) this;
     }
 
     /**
@@ -103,9 +103,9 @@ public abstract class AbstractDaoBuilder<ENTITY, ENTITYBUILDER, B extends Abstra
      *
      * @return This instance.
      */
-    public B notNull(){
+    public BUILDER notNull(){
         columnCollection.setLastColumnAddedNotNull();
-        return (B) this;
+        return (BUILDER) this;
     }
 
     /**
@@ -118,9 +118,9 @@ public abstract class AbstractDaoBuilder<ENTITY, ENTITYBUILDER, B extends Abstra
      * @param sqlTypeName The name of the column in SQL.
      * @return This instance.
      */
-    public B setSqlTypeName(String sqlTypeName){
+    public BUILDER setSqlTypeName(String sqlTypeName){
         columnCollection.setLastColumnSqlTypeName(sqlTypeName);
-        return (B) this;
+        return (BUILDER) this;
     }
 
     /**
@@ -131,9 +131,9 @@ public abstract class AbstractDaoBuilder<ENTITY, ENTITYBUILDER, B extends Abstra
      * @param columnNames the names of the columns that are to be unique
      * @return This instance.
      */
-    public B withUniqueConstraint(String ... columnNames){
+    public BUILDER withUniqueConstraint(String ... columnNames){
         columnCollection.addUniquenConstraint(columnNames);
-        return (B) this;
+        return (BUILDER) this;
     }
 
     @Override
@@ -154,9 +154,9 @@ public abstract class AbstractDaoBuilder<ENTITY, ENTITYBUILDER, B extends Abstra
      * @param childSelectStrategy The strategy to use during selects.
      * @return This instance.
      */
-    public B withChildSelectStrategy(ChildSelectStrategy childSelectStrategy){
+    public BUILDER withChildSelectStrategy(ChildSelectStrategy childSelectStrategy){
         this.childSelectStrategy = childSelectStrategy;
-        return (B) this;
+        return (BUILDER) this;
     }
 
     @Override

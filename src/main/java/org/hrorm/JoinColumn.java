@@ -92,7 +92,7 @@ public class JoinColumn<ENTITY, JOINED, ENTITYBUILDER, JOINEDBUILDER> implements
 
         // MAYBE: This is too complicated. Too many exit points. Not enough polymorphism in return types.
 
-        JOINEDBUILDER joinedBuilder = joinedDaoDescriptor.supplier().get();
+        final JOINEDBUILDER joinedBuilder = joinedDaoDescriptor.supplier().get();
         for (Column<?, ?, JOINED, JOINEDBUILDER> column: joinedDaoDescriptor.nonJoinColumns()) {
             PopulateResult result = column.populate(joinedBuilder, resultSet);
             if ( result == PopulateResult.NoPrimaryKey ){
@@ -103,23 +103,20 @@ public class JoinColumn<ENTITY, JOINED, ENTITYBUILDER, JOINEDBUILDER> implements
         Map<String,PopulateResult> subResults = new HashMap<>();
         for(JoinColumn<JOINED,?, JOINEDBUILDER,?> joinColumn : joinedDaoDescriptor.joinColumns()){
             PopulateResult subResult = joinColumn.populate(joinedBuilder, resultSet);
-            String subResultColumnName = joinColumn.name;
-            subResults.put(subResultColumnName, subResult);
+            subResults.put(joinColumn.getName(), subResult);
         }
-
-        JOINED joinedItem = joinBuilder.apply(joinedBuilder);
-        setter.accept(builder, joinedItem);
 
         if (ChildSelectStrategy.ByKeysInClause.equals(joinedDaoDescriptor.childSelectStrategy())
                 || ChildSelectStrategy.SubSelectInClause.equals(joinedDaoDescriptor.childSelectStrategy())){
-            long primaryKey = joinedDaoDescriptor.primaryKey().getKey(joinedItem).longValue();
+            JOINED joinedItem = joinBuilder.apply(joinedBuilder);
+            setter.accept(builder, joinedItem);
+            long primaryKey = joinedDaoDescriptor.primaryKey().getKeyPrimitive(joinedItem);
             Envelope<JOINED> envelope = new Envelope<>(joinedItem, primaryKey);
             return PopulateResult.fromJoinColumn(envelope, subResults);
         }
 
         return PopulateResult.fromJoinColumn(
                 connection -> {
-
                     for(PopulateResult subResult : subResults.values()){
                         subResult.populateChildren(connection);
                     }
@@ -127,6 +124,9 @@ public class JoinColumn<ENTITY, JOINED, ENTITYBUILDER, JOINEDBUILDER> implements
                     for(ChildrenDescriptor<JOINED,?, JOINEDBUILDER,?> childrenDescriptor : joinedDaoDescriptor.childrenDescriptors()){
                         childrenDescriptor.populateChildren(connection, joinedBuilder);
                     }
+
+                    JOINED joinedItem = joinBuilder.apply(joinedBuilder);
+                    setter.accept(builder, joinedItem);
                 }
         );
     }

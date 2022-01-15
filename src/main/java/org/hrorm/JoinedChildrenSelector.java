@@ -2,15 +2,19 @@ package org.hrorm;
 
 import java.sql.Connection;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 /**
- * This class holds cached joined objects temporarily while their children
- * are queried.
+ * This class holds cached joined objects temporarily until their children
+ * are queried. It is needed in the case of a joined entity having been
+ * selected using a non-standard ChildSelectStrategy.
+ * There are further layers of complication because an entity can
+ * have multiple children and its own joins.
  *
  * <p>
  *
@@ -18,95 +22,95 @@ import java.util.stream.Collectors;
  */
 public class JoinedChildrenSelector<ENTITY, BUILDER> {
 
-    // MAYBE: All these maps .... ugly
-    private final Map<String,JoinColumn<ENTITY,?,BUILDER,?>> joinColumnMap;
-    private final SelectionInstruction selectionInstruction;
-    private final Map<String, List<Envelope<?>>> recordMap = new HashMap<>();
-    private final KeylessDaoDescriptor<ENTITY, BUILDER> keylessDaoDescriptor;
-    private final Map<String, JoinedChildrenSelector> subResultsMap = new HashMap<>();
+    private static final Logger logger = Logger.getLogger("org.hrorm");
 
-    public JoinedChildrenSelector(KeylessDaoDescriptor<ENTITY, BUILDER> keylessDaoDescriptor, SelectionInstruction selectionInstruction){
-        this.selectionInstruction = selectionInstruction;
-        this.keylessDaoDescriptor = keylessDaoDescriptor;
-        Map<String, JoinColumn<ENTITY,?,BUILDER,?>> tmp = new HashMap<>();
-        for(JoinColumn<ENTITY,?,BUILDER,?> jc : keylessDaoDescriptor.joinColumns()){
-            String columnName = jc.getName();
-            tmp.put(columnName, jc);
-            recordMap.put(columnName, new ArrayList<>());
+    private static class JoinedRecordsHolder<ENTITY, BUILDER, JOINED> {
+        private final JoinColumn<ENTITY, JOINED, BUILDER, ?> joinColumn;
+        private final JoinedChildrenSelector<ENTITY, BUILDER> selector;
+        private final List<Envelope<JOINED>> joinedRecords = new ArrayList<>();
 
-            KeylessDaoDescriptor joinedDaoDescriptor = jc.getJoinedDaoDescriptor();
-            JoinedChildrenSelector joinedChildrenSelector = new JoinedChildrenSelector(joinedDaoDescriptor, selectionInstruction);
-            subResultsMap.put(columnName, joinedChildrenSelector);
+        JoinedRecordsHolder(JoinColumn<ENTITY, JOINED, BUILDER, ?> joinColumn, JoinedChildrenSelector<ENTITY, BUILDER> selector){
+            this.joinColumn = joinColumn;
+            this.selector = selector;
         }
-        this.joinColumnMap = Collections.unmodifiableMap(tmp);
+
+        /**
+         * Adds a record to the cache, and records of any successive joins.
+         */
+        void addRecord(Envelope<JOINED> joinedObject, Map<String,PopulateResult> subResults){
+            this.joinedRecords.add(joinedObject);
+            for( String name : subResults.keySet()){
+                PopulateResult populateResult = subResults.get(name);
+                Envelope envelope = populateResult.getJoinedItem();
+                selector.addJoinedInstanceAndItsJoins(name, envelope, populateResult.getSubResults());
+            }
+        }
+
+        void populateChildren(Connection connection, StatementPopulator statementPopulator){
+            this.selector.populateChildren(connection, statementPopulator);
+        }
+
+        void populateChildrenDescriptors(Connection connection, ChildrenSelector childrenSelector){
+            List<ChildrenDescriptor> childrenDescriptors = joinColumn.getJoinedDaoDescriptor().childrenDescriptors();
+            for( ChildrenDescriptor childrenDescriptor : childrenDescriptors ) {
+                childrenDescriptor.populateChildren(connection, joinedRecords, childrenSelector);
+            }
+        }
+
+        List<Long> getParentIds(){
+            return joinedRecords.stream().map(Envelope::getId).collect(Collectors.toList());
+        }
+
+        List<ChildrenDescriptor> getChildrenDescriptors(){
+            return joinColumn.getJoinedDaoDescriptor().childrenDescriptors();
+        }
     }
 
-    public void addChildEntityInfo(String columnName, Envelope<?> joinedObject, Map<String,PopulateResult> subResults){
-        if( ! joinColumnMap.containsKey(columnName)){
+    private final ChildSelectStrategy childSelectStrategy;
+    private final boolean selectAll;
+    private final SqlBuilder<ENTITY> sqlBuilder;
+    private final Map<String, JoinedRecordsHolder<ENTITY, BUILDER, ?>> joinedRecordsMap = new HashMap<>();
+
+    public JoinedChildrenSelector(KeylessDaoDescriptor<ENTITY, BUILDER> keylessDaoDescriptor, ChildSelectStrategy childSelectStrategy, boolean selectAll){
+        this.childSelectStrategy = childSelectStrategy;
+        this.selectAll = selectAll;
+        this.sqlBuilder = new SqlBuilder<>(keylessDaoDescriptor);
+        for(JoinColumn<ENTITY,?,BUILDER,?> jc : keylessDaoDescriptor.joinColumns()){
+            String columnName = jc.getName();
+            KeylessDaoDescriptor joinedDaoDescriptor = jc.getJoinedDaoDescriptor();
+            JoinedChildrenSelector joinedChildrenSelector = new JoinedChildrenSelector(joinedDaoDescriptor, childSelectStrategy, selectAll);
+            JoinedRecordsHolder<ENTITY, BUILDER, ?> holder = new JoinedRecordsHolder<>(
+                    jc, joinedChildrenSelector
+            );
+            this.joinedRecordsMap.put(columnName, holder);
+        }
+    }
+
+    public <JOINED> void addJoinedInstanceAndItsJoins(String columnName, Envelope<JOINED> joinedObject, Map<String,PopulateResult> subResults){
+        if( ! joinedRecordsMap.containsKey(columnName)){
             throw new HrormException("Problem. This column name is unrecognized: "  + columnName);
         }
 
-        List<Envelope<?>> records = recordMap.get(columnName);
-        records.add(joinedObject);
-
-        JoinedChildrenSelector subSelector = subResultsMap.get(columnName);
-
-        for( String name : subResults.keySet()){
-            PopulateResult populateResult = subResults.get(name);
-            Envelope envelope = populateResult.getJoinedItem();
-            subSelector.addChildEntityInfo(name, envelope, populateResult.getSubResults());
-        }
+        JoinedRecordsHolder<ENTITY, BUILDER, JOINED> joinedRecordsHolder =
+                (JoinedRecordsHolder<ENTITY, BUILDER, JOINED>) joinedRecordsMap.get(columnName);
+        joinedRecordsHolder.addRecord(joinedObject, subResults);
     }
 
     public void populateChildren(Connection connection, StatementPopulator statementPopulator){
+        for ( Map.Entry<String, JoinedRecordsHolder<ENTITY, BUILDER, ?>> holderEntry : joinedRecordsMap.entrySet()){
+            JoinedRecordsHolder holder = holderEntry.getValue();
+            holder.populateChildren(connection, statementPopulator);
+            Supplier<List<Long>> parentIdsSupplier = holder::getParentIds;
+            Supplier<String> primaryKeySqlSupplier = () -> sqlBuilder.selectPrimaryKeyOfJoinedColumn(statementPopulator, holderEntry.getKey());
 
-        ChildSelectStrategy childSelectStrategy = selectionInstruction.getChildSelectStrategy();
+            ChildrenSelector<?,?> childrenSelector = ChildrenSelector.Factory.create(
+                    childSelectStrategy,
+                    selectAll,
+                    parentIdsSupplier,
+                    primaryKeySqlSupplier,
+                    statementPopulator);
 
-        for (String columnName : recordMap.keySet()) {
-
-            JoinedChildrenSelector subSelector = subResultsMap.get(columnName);
-            subSelector.populateChildren(connection, statementPopulator);
-
-            List<Envelope<?>> envelopes = recordMap.get(columnName);
-
-            DaoDescriptor joinedDaoDescriptor = matchingDaoDescriptor(columnName);
-
-            ChildrenBuilderSelectCommand childrenBuilderSelectCommand;
-
-            // MAYBE: this looks the same as what happens in SQLBuilder.doSelection. Remove the duplication?
-            if ( selectionInstruction.isSelectAll() ){
-                childrenBuilderSelectCommand = ChildrenBuilderSelectCommand.forSelectAll();
-            } else if ( ChildSelectStrategy.ByKeysInClause.equals(childSelectStrategy )) {
-                List<Long> parentIds = asParentIds(envelopes);
-                childrenBuilderSelectCommand = ChildrenBuilderSelectCommand.forSelectByIds(parentIds);
-            } else if ( ChildSelectStrategy.SubSelectInClause.equals(childSelectStrategy)){
-                SqlBuilder sqlBuilder = new SqlBuilder(keylessDaoDescriptor);
-                String primaryKeySql = sqlBuilder.selectPrimaryKeyOfJoinedColumn(statementPopulator, columnName);
-
-                childrenBuilderSelectCommand = ChildrenBuilderSelectCommand.forSubSelect(
-                        primaryKeySql, statementPopulator);
-            } else {
-                throw new HrormException("Unsupported strategy " + childSelectStrategy);
-            }
-
-            List<ChildrenDescriptor> childrenDescriptors = joinedDaoDescriptor.childrenDescriptors();
-            for( ChildrenDescriptor childrenDescriptor : childrenDescriptors ) {
-                childrenDescriptor.populateChildren(connection, envelopes, childrenBuilderSelectCommand);
-            }
+            holder.populateChildrenDescriptors(connection, childrenSelector);
         }
-    }
-
-    private List<Long> asParentIds(List<Envelope<?>> envelopes){
-        return envelopes.stream().map(Envelope::getId).collect(Collectors.toList());
-    }
-
-    private DaoDescriptor<?,?> matchingDaoDescriptor(String columnName){
-        JoinColumn<ENTITY, ?, BUILDER, ?> column = joinColumnMap.get(columnName);
-        return column.getJoinedDaoDescriptor();
-    }
-
-    @Override
-    public String toString(){
-        return recordMap.toString();
     }
 }

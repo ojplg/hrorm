@@ -49,9 +49,4 @@ public class IndirectDaoBuilder<ENTITY, BUILDER>
         columnCollection.setPrimaryKey(key);
         return this;
     }
-
-    @Override
-    public IndirectDaoBuilder<ENTITY, BUILDER> withChildSelectStrategy(ChildSelectStrategy childSelectStrategy){
-        throw new HrormException("Only direct DAO builders support non-standard child select strategies.");
-    }
 }

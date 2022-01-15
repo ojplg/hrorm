@@ -42,6 +42,10 @@ public class RandomUtils {
                 .collect(Collectors.toList());
     }
 
+    public static List<String> aFewRandomStrings(){
+        return randomNumberOf(5,10, () -> randomAlphabeticString(5,10));
+    }
+
     /**
      * Picks a random element out of a list.
      * @param list The Dataset to selectOne from.
