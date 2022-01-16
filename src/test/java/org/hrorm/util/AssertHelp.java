@@ -2,6 +2,7 @@ package org.hrorm.util;
 
 import org.junit.Assert;
 
+import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
@@ -43,6 +44,12 @@ public class AssertHelp {
 
         if (difference.toMillis() > 1) {
             Assert.fail("Time mismatched. Expected " + expected + " . Found: " + found + ".");
+        }
+    }
+
+    public static final void sameBigDecimal(BigDecimal expected, BigDecimal found){
+        if( expected.compareTo(found) != 0 ){
+            Assert.assertEquals(expected, found);
         }
     }
 }

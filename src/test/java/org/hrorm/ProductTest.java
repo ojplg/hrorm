@@ -4,6 +4,7 @@ import org.hrorm.database.Helper;
 import org.hrorm.database.HelperFactory;
 import org.hrorm.examples.Product;
 import org.hrorm.examples.ProductCategory;
+import org.hrorm.util.AssertHelp;
 import org.hrorm.util.TestLogConfig;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -225,8 +226,8 @@ public class ProductTest {
                     new Where("discontinued", Operator.EQUALS, false));
             connection.close();
         }
-        Assert.assertEquals(functionTotal, foldingTotal);
-        Assert.assertEquals(new BigDecimal("100000"), foldingTotal);
+        AssertHelp.sameBigDecimal(functionTotal, foldingTotal);
+        AssertHelp.sameBigDecimal(new BigDecimal("100000"), foldingTotal);
     }
 
     @Test
