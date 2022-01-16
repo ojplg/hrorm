@@ -49,6 +49,9 @@ public class H2Helper extends AbstractHelper {
         try {
             Connection connection = connect();
             Statement statement = connection.createStatement();
+            for (Constraint constraint : constraintNames){
+                statement.execute("alter table " + constraint.getTableName() + " drop " + constraint.getConstraintName());
+            }
             for (String sequence : sequenceNames) {
                 statement.execute("drop sequence " + sequence);
             }

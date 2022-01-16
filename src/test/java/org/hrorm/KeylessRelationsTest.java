@@ -24,9 +24,9 @@ public class KeylessRelationsTest {
     @BeforeClass
     public static void setUpDb(){
         helper.initializeSchemaFromSql(DaoBuilders.SCHEMA.sql());
-//        System.out.println("SET UP SEQUENCES " + helper.sequenceNames());
-//        System.out.println("SET UP TABLES " + helper.tableNames());
-//        System.out.println("SET UP CONSTRAINTS " + helper.constraints());
+        //System.out.println("SET UP SEQUENCES " + helper.sequenceNames());
+        //System.out.println("SET UP TABLES " + helper.tableNames());
+        //System.out.println("SET UP CONSTRAINTS " + helper.constraints());
     }
 
     @AfterClass
