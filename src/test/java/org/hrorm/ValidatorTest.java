@@ -38,7 +38,7 @@ public class ValidatorTest {
                 .withPrimaryKey("id", "columns_seq", Columns::getId, Columns::setId)
                 .withStringColumn("string_column", Columns::getStringThing, Columns::setStringThing)
                 .withLongColumn("integer_column", Columns::getIntegerThing, Columns::setIntegerThing)
-                .withBigDecimalColumn("decimal_column", Columns::getDecimalThing, Columns::setDecimalThing)
+                .withBigDecimalColumn("fractional_column", Columns::getDecimalThing, Columns::setDecimalThing)
                 .withBooleanColumn("boolean_column", Columns::getBooleanThing, Columns::setBooleanThing)
                 .withInstantColumn("timestamp_column", Columns::getTimeStampThing, Columns::setTimeStampThing)
                 .withConvertingStringColumn("color_column", Columns::getColorThing, Columns::setColorThing, new EnumeratedColorConverter());
@@ -55,7 +55,7 @@ public class ValidatorTest {
                 .withPrimaryKey("id", "wrong_name", Columns::getId, Columns::setId)
                 .withStringColumn("string_column", Columns::getStringThing, Columns::setStringThing)
                 .withLongColumn("integer_column", Columns::getIntegerThing, Columns::setIntegerThing)
-                .withBigDecimalColumn("decimal_column", Columns::getDecimalThing, Columns::setDecimalThing)
+                .withBigDecimalColumn("fractional_column", Columns::getDecimalThing, Columns::setDecimalThing)
                 .withBooleanColumn("boolean_column", Columns::getBooleanThing, Columns::setBooleanThing)
                 .withInstantColumn("timestamp_column", Columns::getTimeStampThing, Columns::setTimeStampThing)
                 .withConvertingStringColumn("color_column", Columns::getColorThing, Columns::setColorThing, new EnumeratedColorConverter());
@@ -79,7 +79,7 @@ public class ValidatorTest {
                 .withPrimaryKey("id", "columns_seq", Columns::getId, Columns::setId)
                 .withStringColumn("string_column", Columns::getStringThing, Columns::setStringThing)
                 .withLongColumn("integer_column", Columns::getIntegerThing, Columns::setIntegerThing)
-                .withBigDecimalColumn("decimal_column", Columns::getDecimalThing, Columns::setDecimalThing)
+                .withBigDecimalColumn("fractional_column", Columns::getDecimalThing, Columns::setDecimalThing)
                 .withBooleanColumn("boolean_column", Columns::getBooleanThing, Columns::setBooleanThing)
                 .withInstantColumn("timestamp_column", Columns::getTimeStampThing, Columns::setTimeStampThing)
                 .withConvertingStringColumn("color_column", Columns::getColorThing, Columns::setColorThing, new EnumeratedColorConverter());
@@ -101,7 +101,7 @@ public class ValidatorTest {
                 .withPrimaryKey("pk", "seq", Columns::getId, Columns::setId)
                 .withStringColumn("string_column", Columns::getStringThing, Columns::setStringThing)
                 .withLongColumn("integer_column", Columns::getIntegerThing, Columns::setIntegerThing)
-                .withBigDecimalColumn("decimal_column", Columns::getDecimalThing, Columns::setDecimalThing)
+                .withBigDecimalColumn("fractional_column", Columns::getDecimalThing, Columns::setDecimalThing)
                 .withBooleanColumn("boolean_column", Columns::getBooleanThing, Columns::setBooleanThing)
                 .withInstantColumn("timestamp_column", Columns::getTimeStampThing, Columns::setTimeStampThing)
                 .withConvertingStringColumn("color_column", Columns::getColorThing, Columns::setColorThing, new EnumeratedColorConverter());
@@ -124,7 +124,7 @@ public class ValidatorTest {
                 .withPrimaryKey("bad_id_name", "columns_seq", Columns::getId, Columns::setId)
                 .withStringColumn("string_column", Columns::getStringThing, Columns::setStringThing)
                 .withLongColumn("integer_column", Columns::getIntegerThing, Columns::setIntegerThing)
-                .withBigDecimalColumn("decimal_column", Columns::getDecimalThing, Columns::setDecimalThing)
+                .withBigDecimalColumn("fractional_column", Columns::getDecimalThing, Columns::setDecimalThing)
                 .withBooleanColumn("boolean_column", Columns::getBooleanThing, Columns::setBooleanThing)
                 .withInstantColumn("timestamp_column", Columns::getTimeStampThing, Columns::setTimeStampThing)
                 .withConvertingStringColumn("color_column", Columns::getColorThing, Columns::setColorThing, new EnumeratedColorConverter());
@@ -149,7 +149,7 @@ public class ValidatorTest {
                 .withPrimaryKey("id", "columns_seq", Columns::getId, Columns::setId)
                 .withStringColumn("string_column", Columns::getStringThing, Columns::setStringThing)
                 .withLongColumn("bad_column_name", Columns::getIntegerThing, Columns::setIntegerThing)
-                .withBigDecimalColumn("decimal_column", Columns::getDecimalThing, Columns::setDecimalThing)
+                .withBigDecimalColumn("fractional_column", Columns::getDecimalThing, Columns::setDecimalThing)
                 .withBooleanColumn("boolean_column", Columns::getBooleanThing, Columns::setBooleanThing)
                 .withInstantColumn("timestamp_column", Columns::getTimeStampThing, Columns::setTimeStampThing)
                 .withConvertingStringColumn("color_column", Columns::getColorThing, Columns::setColorThing, new EnumeratedColorConverter());
@@ -173,7 +173,7 @@ public class ValidatorTest {
                 .withPrimaryKey("id", "columns_seq", Columns::getId, Columns::setId)
                 .withStringColumn("string_column", Columns::getStringThing, Columns::setStringThing)
                 .withStringColumn("integer_column", c -> "", (c,s) -> {})
-                .withBigDecimalColumn("decimal_column", Columns::getDecimalThing, Columns::setDecimalThing)
+                .withBigDecimalColumn("fractional_column", Columns::getDecimalThing, Columns::setDecimalThing)
                 .withBooleanColumn("boolean_column", Columns::getBooleanThing, Columns::setBooleanThing)
                 .withInstantColumn("timestamp_column", Columns::getTimeStampThing, Columns::setTimeStampThing)
                 .withConvertingStringColumn("color_column", Columns::getColorThing, Columns::setColorThing, new EnumeratedColorConverter());
@@ -197,7 +197,7 @@ public class ValidatorTest {
                 .withPrimaryKey("id", "Wrong_Name", Columns::getId, Columns::setId)
                 .withStringColumn("bad_name", Columns::getStringThing, Columns::setStringThing)
                 .withLongColumn("integer_column", Columns::getIntegerThing, Columns::setIntegerThing)
-                .withStringColumn("decimal_column", Columns::getStringThing, Columns::setStringThing)
+                .withStringColumn("fractional_column", Columns::getStringThing, Columns::setStringThing)
                 .withBooleanColumn("boolean_column", Columns::getBooleanThing, Columns::setBooleanThing)
                 .withInstantColumn("timestamp_column", Columns::getTimeStampThing, Columns::setTimeStampThing)
                 .withConvertingStringColumn("Other_bad_name", Columns::getColorThing, Columns::setColorThing, new EnumeratedColorConverter());

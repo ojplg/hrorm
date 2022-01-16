@@ -32,7 +32,7 @@ public class SchemaTest {
                 "  id integer PRIMARY KEY,\n" +
                 "  string_column text,\n" +
                 "  integer_column integer,\n" +
-                "  decimal_column decimal,\n" +
+                "  fractional_column decimal,\n" +
                 "  boolean_column boolean,\n" +
                 "  timestamp_column timestamp,\n" +
                 "  color_column text\n" +

@@ -284,7 +284,7 @@ public class ColumnsTest {
             columns.setDecimalThing(new BigDecimal(123.4));
             columns.setIntegerThing(1234L);
 
-            Columns readFromDb = dao.selectOne(columns, "decimal_column", "integer_column");
+            Columns readFromDb = dao.selectOne(columns, "fractional_column", "integer_column");
             Assert.assertEquals(itemId, (long) readFromDb.getId());
 
             connection.commit();
@@ -297,7 +297,7 @@ public class ColumnsTest {
             columns.setDecimalThing(new BigDecimal(123.4));
             columns.setIntegerThing(1234L);
 
-            Columns readFromDb = dao.selectOne(columns, "DECIMAL_COLUMN", "INTEGER_COLUMN");
+            Columns readFromDb = dao.selectOne(columns, "FRACTIONAL_COLUMN", "INTEGER_COLUMN");
             Assert.assertEquals(itemId, (long) readFromDb.getId());
 
             connection.close();
@@ -309,7 +309,7 @@ public class ColumnsTest {
             columns.setDecimalThing(new BigDecimal(123.4));
             columns.setIntegerThing(1234L);
 
-            Columns readFromDb = dao.selectOne(columns, "DECIMal_colUMN", "InTEGeR_COlUmn");
+            Columns readFromDb = dao.selectOne(columns, "FRACTIONal_colUMN", "InTEGeR_COlUmn");
             Assert.assertEquals(itemId, (long) readFromDb.getId());
 
             connection.close();

@@ -254,7 +254,7 @@ public class ComparatorSelectTest {
             Dao<Columns> dao = daoBuilder().buildDao(connection);
 
             List<Columns> found = dao.select(
-                    where("decimal_column", LESS_THAN, new BigDecimal("5.03"))
+                    where("fractional_column", LESS_THAN, new BigDecimal("5.03"))
             );
             Assert.assertEquals(1, found.size());
             Assert.assertEquals(id, found.get(0).getId());
@@ -290,7 +290,7 @@ public class ComparatorSelectTest {
             Dao<Columns> dao = daoBuilder().buildDao(connection);
 
             List<Columns> found = dao.select(
-                    where("decimal_column", LESS_THAN, new BigDecimal("3.12"))
+                    where("fractional_column", LESS_THAN, new BigDecimal("3.12"))
             );
             Assert.assertEquals(0, found.size());
 
@@ -326,7 +326,7 @@ public class ComparatorSelectTest {
 
             List<Columns> found = dao.select(
                     where("integer_column", LESS_THAN, 1234L)
-                      .and("decimal_column", GREATER_THAN, new BigDecimal("3.12"))
+                      .and("fractional_column", GREATER_THAN, new BigDecimal("3.12"))
                       .and("string_column", LIKE, "%And%")
             );
             Assert.assertEquals(1, found.size());
@@ -364,7 +364,7 @@ public class ComparatorSelectTest {
             // change string value
             List<Columns> found = dao.select(
                     where("integer_column", LESS_THAN, 1234L)
-                            .and("decimal_column", GREATER_THAN, new BigDecimal("3.12"))
+                            .and("fractional_column", GREATER_THAN, new BigDecimal("3.12"))
                             .and("string_column", LIKE, "%BADSTRING%")
             );
             Assert.assertEquals(0, found.size());
@@ -377,7 +377,7 @@ public class ComparatorSelectTest {
             // change decimal value
             List<Columns> found = dao.select(
                     where("integer_column", LESS_THAN, 1234L)
-                            .and("decimal_column", GREATER_THAN, new BigDecimal("13.12"))
+                            .and("fractional_column", GREATER_THAN, new BigDecimal("13.12"))
                             .and("string_column", LIKE, "%And%")
             );
             Assert.assertEquals(0, found.size());
@@ -391,7 +391,7 @@ public class ComparatorSelectTest {
             // change long value
             List<Columns> found = dao.select(
                     where("integer_column", LESS_THAN, 4L)
-                            .and("decimal_column", GREATER_THAN, new BigDecimal("3.12"))
+                            .and("fractional_column", GREATER_THAN, new BigDecimal("3.12"))
                             .and("string_column", LIKE, "%And%")
             );
             Assert.assertEquals(0, found.size());
@@ -497,8 +497,8 @@ public class ComparatorSelectTest {
         {
             Connection connection = helper.connect();
             Dao<Columns> dao = daoBuilder().buildDao(connection);
-            List<Columns> filtered = dao.select(where("decimal_column", Operator.GREATER_THAN, new BigDecimal("5"))
-                                                    .and("decimal_column", Operator.LESS_THAN, new BigDecimal("18")));
+            List<Columns> filtered = dao.select(where("fractional_column", Operator.GREATER_THAN, new BigDecimal("5"))
+                                                    .and("fractional_column", Operator.LESS_THAN, new BigDecimal("18")));
             Assert.assertEquals(12, filtered.size());
 
             connection.close();
@@ -534,8 +534,8 @@ public class ComparatorSelectTest {
             Connection connection = helper.connect();
             Dao<Columns> dao = daoBuilder().buildDao(connection);
 
-            List<Columns> filtered = dao.select(where("decimal_column", Operator.GREATER_THAN_OR_EQUALS, new BigDecimal("5.123"))
-                    .and("decimal_column", Operator.LESS_THAN_OR_EQUALS, new BigDecimal("7.123")));
+            List<Columns> filtered = dao.select(where("fractional_column", Operator.GREATER_THAN_OR_EQUALS, new BigDecimal("5.123"))
+                    .and("fractional_column", Operator.LESS_THAN_OR_EQUALS, new BigDecimal("7.123")));
             Assert.assertEquals(3, filtered.size());
 
             connection.close();
@@ -646,7 +646,7 @@ public class ComparatorSelectTest {
                             .and("integer_column", Operator.LESS_THAN, 84L)
                             .and(
                                     where("string_column", Operator.LIKE, "%THREE%")
-                                    .or("decimal_column", Operator.EQUALS, new BigDecimal("5.0"))
+                                    .or("fractional_column", Operator.EQUALS, new BigDecimal("5.0"))
                             ));
 
             List<Long> expectedIntegers = Arrays.asList(69L, 70L, 72L, 75L, 78L, 80L, 81L);
@@ -990,7 +990,7 @@ public class ComparatorSelectTest {
             Dao<Columns> dao = daoBuilder().buildDao(connection);
 
             List<BigDecimal> toFind = Arrays.asList(new BigDecimal("5.123"), new BigDecimal("6.123"), new BigDecimal("2.123"));
-            List<Columns> columns = dao.select(Where.inBigDecimal("decimal_column", toFind));
+            List<Columns> columns = dao.select(Where.inBigDecimal("fractional_column", toFind));
             List<BigDecimal> found = columns.stream().map(Columns::getDecimalThing).collect(Collectors.toList());
             AssertHelp.sameContents(toFind, found);
         });
@@ -1094,7 +1094,7 @@ public class ComparatorSelectTest {
             List<Columns> columns = dao.select(
                     Where.inInstant("timestamp_column", dates)
                     .and(notInLong("integer_column", longs))
-                    .and(inBigDecimal("decimal_column", decimals))
+                    .and(inBigDecimal("fractional_column", decimals))
                     .and(notInString("string_column", strings)));
             List<Long> found = columns.stream().map(Columns::getIntegerThing).collect(Collectors.toList());
             AssertHelp.sameContents(Arrays.asList(3L,4L), found);
@@ -1138,7 +1138,7 @@ public class ComparatorSelectTest {
             List<Columns> columns = dao.select(
                     Where.notInInstant("timestamp_column", dates)
                             .and(notInLong("integer_column", longs))
-                            .and(notInBigDecimal("decimal_column", decimals))
+                            .and(notInBigDecimal("fractional_column", decimals))
                             .and(notInString("string_column", strings)));
             List<Long> found = columns.stream().map(Columns::getIntegerThing).collect(Collectors.toList());
             Assert.assertEquals(0, found.size());
@@ -1178,7 +1178,7 @@ public class ComparatorSelectTest {
             List<Columns> columns = dao.select(
                     where("timestamp_column",GREATER_THAN, lowestDate)
                             .and(notInLong("integer_column", longs))
-                            .and(isNull("decimal_column")));
+                            .and(isNull("fractional_column")));
 
             Assert.assertEquals(1, columns.size());
             Columns item = columns.get(0);

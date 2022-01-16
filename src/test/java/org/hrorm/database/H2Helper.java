@@ -79,16 +79,23 @@ public class H2Helper extends AbstractHelper {
         return schemaName + "_" + schemaExtension;
     }
 
+    public static String substituteDecFloatForDecimal(String line){
+        return line.replaceAll("decimal", "decfloat");
+    }
+
     @Override
     public String filterSql(String sql) {
         StringBuffer buf = new StringBuffer();
         for(String line : sql.split("\n")){
             // H2 does not support uniqueness constraints
+            // and requires type decfloat to correctly support fractional values
             if( ! unqiueConstraintMatcher.matcher(line).matches() ) {
+                line = substituteDecFloatForDecimal(line);
                 buf.append(line);
                 buf.append("\n");
             }
         }
+
         return buf.toString();
     }
 

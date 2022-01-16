@@ -43,7 +43,7 @@ public class MischiefTest {
                 "(",
                 "string_column,",
                 "integer_column,",
-                "decimal_column,",
+                "fractional_column,",
                 "boolean_column,",
                 "timestamp_column",
                 ")",

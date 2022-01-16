@@ -122,7 +122,7 @@ public class KeylessTest {
         // We should do a sampleTest on every field type, so delegate this to a specialized method.
         KeylessDao<Keyless> dao = Keyless.DAO_BUILDER.buildDao(connection);
         sampleTest(dao, Keyless::getStringColumn, "string_column");
-        sampleTest(dao, Keyless::getDecimalColumn, "decimal_column");
+        sampleTest(dao, Keyless::getDecimalColumn, "fractional_column");
         sampleTest(dao, Keyless::getIntegerColumn, "integer_column");
         sampleTest(dao, Keyless::getBooleanColumn, "boolean_column");
         sampleTest(dao, Keyless::getTimeStampColumn, "timestamp_column");
@@ -195,23 +195,23 @@ public class KeylessTest {
 
         predicateTest(
                 equalTo(template, Keyless::getDecimalColumn),
-                where("decimal_column", EQUALS, template.getDecimalColumn()));
+                where("fractional_column", EQUALS, template.getDecimalColumn()));
 
         predicateTest(
                 lessThan(template, Keyless::getDecimalColumn),
-                where("decimal_column", Operator.LESS_THAN, template.getDecimalColumn()));
+                where("fractional_column", Operator.LESS_THAN, template.getDecimalColumn()));
 
         predicateTest(
                 lessThanOrEqual(template, Keyless::getDecimalColumn),
-                where("decimal_column", Operator.LESS_THAN_OR_EQUALS, template.getDecimalColumn()));
+                where("fractional_column", Operator.LESS_THAN_OR_EQUALS, template.getDecimalColumn()));
 
         predicateTest(
                 greaterThan(template, Keyless::getDecimalColumn),
-                where("decimal_column", Operator.GREATER_THAN, template.getDecimalColumn()));
+                where("fractional_column", Operator.GREATER_THAN, template.getDecimalColumn()));
 
         predicateTest(
                 greaterThanOrEqual(template, Keyless::getDecimalColumn),
-                where("decimal_column", Operator.GREATER_THAN_OR_EQUALS, template.getDecimalColumn()));
+                where("fractional_column", Operator.GREATER_THAN_OR_EQUALS, template.getDecimalColumn()));
     }
 
     @Test
@@ -365,7 +365,7 @@ public class KeylessTest {
 
             Keyless keyless = dao.selectOne(where("integer_column", EQUALS, integerValue)
                                 .and("string_column", EQUALS, stringValue)
-                                .and("decimal_column", EQUALS, bigDecimalValue));
+                                .and("fractional_column", EQUALS, bigDecimalValue));
 
             Assert.assertNotNull(keyless);
             connection.close();

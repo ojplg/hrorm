@@ -14,7 +14,7 @@ public class Keyless {
             new IndirectKeylessDaoBuilder<>("keyless_table", Keyless::new, x->x)
                     .withStringColumn("string_column", Keyless::getStringColumn, Keyless::setStringColumn)
                     .withLongColumn("integer_column", Keyless::getIntegerColumn, Keyless::setIntegerColumn)
-                    .withBigDecimalColumn("decimal_column", Keyless::getDecimalColumn, Keyless::setDecimalColumn)
+                    .withBigDecimalColumn("fractional_column", Keyless::getDecimalColumn, Keyless::setDecimalColumn)
                     .withBooleanColumn("boolean_column", Keyless::getBooleanColumn, Keyless::setBooleanColumn)
                     .withInstantColumn("timestamp_column", Keyless::getTimeStampColumn, Keyless::setTimeStampColumn);
 

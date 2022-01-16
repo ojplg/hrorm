@@ -113,7 +113,7 @@ public class SqlFunctionTest {
                 SqlFunction.SUM,
                 "integer_column",
                 Where.where("boolean_column", Operator.EQUALS, true)
-                        .and("decimal_column", Operator.LESS_THAN, new BigDecimal("50.7")) );
+                        .and("fractional_column", Operator.LESS_THAN, new BigDecimal("50.7")) );
 
         Assert.assertEquals(650, sum);
         connection.close();
@@ -130,12 +130,12 @@ public class SqlFunctionTest {
 
         Map<String, Operator> whereMap = new HashMap<>();
         whereMap.put("boolean_column", Operator.EQUALS);
-        whereMap.put("decimal_column", Operator.LESS_THAN);
+        whereMap.put("fractional_column", Operator.LESS_THAN);
 
         BigDecimal sum = dao.runBigDecimalFunction(
-                SqlFunction.SUM, "decimal_column",
+                SqlFunction.SUM, "fractional_column",
                 Where.where("boolean_column", Operator.EQUALS, true)
-                        .and("decimal_column", Operator.LESS_THAN, new BigDecimal("50.7")));
+                        .and("fractional_column", Operator.LESS_THAN, new BigDecimal("50.7")));
 
         Assert.assertEquals(new BigDecimal("658.30"), sum);
         connection.close();
@@ -146,7 +146,7 @@ public class SqlFunctionTest {
         Connection connection = helper.connect();
         Dao<Columns> dao = daoBuilder().buildDao(connection);
         BigDecimal avg = dao.runBigDecimalFunction(
-                SqlFunction.AVG, "decimal_column", Where.where());
+                SqlFunction.AVG, "fractional_column", Where.where());
         connection.close();
 
         Assert.assertEquals(0, new BigDecimal("50.0355").compareTo(avg));
