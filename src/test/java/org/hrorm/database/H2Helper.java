@@ -83,7 +83,10 @@ public class H2Helper extends AbstractHelper {
     }
 
     public static String substituteDecFloatForDecimal(String line){
-        return line.replaceAll("decimal", "decfloat");
+        return line.replaceAll("(?i)decimal", "decfloat");
+
+
+
     }
 
     @Override

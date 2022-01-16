@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Data;
 import org.hrorm.database.Helper;
 import org.hrorm.database.HelperFactory;
+import org.hrorm.util.AssertHelp;
 import org.hrorm.util.TestLogConfig;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -79,8 +80,8 @@ public class MixedMutabilityTest {
 
             Assert.assertNotNull(mover);
 
-            Assert.assertEquals(new BigDecimal("234.234"), mover.getFork().getMeasure());
             Assert.assertEquals("FooBar", mover.getStucks().get(0).getName());
+            AssertHelp.sameBigDecimal(new BigDecimal("234.234"), mover.getFork().getMeasure());
             connection.close();
         }
 
