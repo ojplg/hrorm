@@ -78,7 +78,7 @@ public class ComparatorSelectTest {
 
         Columns dbInstance = dao.selectOne(id);
 
-        Assert.assertEquals(columns, dbInstance);
+        Assert.assertEquals(columns.getStringThing(), dbInstance.getStringThing());
         Assert.assertNotNull(columns.getId());
         Assert.assertEquals(id, columns.getId());
 

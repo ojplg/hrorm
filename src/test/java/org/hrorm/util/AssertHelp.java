@@ -2,6 +2,8 @@ package org.hrorm.util;
 
 import org.junit.Assert;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -35,4 +37,12 @@ public class AssertHelp {
         sameContents(expected, mapped);
     }
 
+    public static final void sameInstantToMillis(Instant expected, Instant found) {
+        Duration difference = expected.isBefore(found) ?
+                Duration.between(expected, found) : Duration.between(found, expected);
+
+        if (difference.toMillis() > 1) {
+            Assert.fail("Time mismatched. Expected " + expected + " . Found: " + found + ".");
+        }
+    }
 }

@@ -6,6 +6,7 @@ import org.hrorm.examples.immutables.DaoBuilders;
 import org.hrorm.examples.immutables.ImmutableChild;
 import org.hrorm.examples.immutables.ImmutableSibling;
 import org.hrorm.examples.immutables.ImmutableThing;
+import org.hrorm.util.AssertHelp;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -124,7 +125,7 @@ public class ImmutableThingTest {
             Assert.assertEquals(1, it.getChildren().size());
             ImmutableChild child = it.getChildren().get(0);
             Assert.assertNotNull(it.getId());
-            Assert.assertEquals(bday, child.getBirthday());
+            AssertHelp.sameInstantToMillis(bday, child.getBirthday());
             Assert.assertTrue(child.getFlag());
 
             connection.close();
@@ -187,7 +188,7 @@ public class ImmutableThingTest {
 
             ImmutableChild child = it.getChildren().get(0);
             Assert.assertNotNull(it.getId());
-            Assert.assertEquals(bday, child.getBirthday());
+            AssertHelp.sameInstantToMillis(bday, child.getBirthday());
             Assert.assertTrue(child.getFlag());
 
             ImmutableSibling sibling = child.getImmutableSibling();

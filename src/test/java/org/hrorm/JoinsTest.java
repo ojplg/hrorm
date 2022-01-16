@@ -8,6 +8,7 @@ import org.hrorm.examples.EnumeratedColorConverter;
 import org.hrorm.examples.siblings.SecondCousin;
 import org.hrorm.examples.siblings.Sibling;
 import org.hrorm.examples.siblings.Thing;
+import org.hrorm.util.AssertHelp;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -97,7 +98,7 @@ public class JoinsTest {
 
         Assert.assertEquals(44L, (long) readFromDb.getSibling().getNumber());
         Assert.assertEquals(EnumeratedColor.Green, readFromDb.getSibling().getCousin().getColor());
-        Assert.assertEquals(now, readFromDb.getSibling().getCousin().getSecondCousin().getDateTime());
+        AssertHelp.sameInstantToMillis(now, readFromDb.getSibling().getCousin().getSecondCousin().getDateTime());
 
         Assert.assertNotNull(readFromDb.getId());
         Assert.assertNotNull(readFromDb.getSibling().getId());
@@ -152,7 +153,7 @@ public class JoinsTest {
         Thing secondReadFromDb = thingDao.selectOne(thingId);
 
         Assert.assertEquals(58L, (long) secondReadFromDb.getSibling().getNumber());
-        Assert.assertEquals(now, secondReadFromDb.getSibling().getCousin().getSecondCousin().getDateTime());
+        AssertHelp.sameInstantToMillis(now, secondReadFromDb.getSibling().getCousin().getSecondCousin().getDateTime());
 
         connection.commit();
         connection.close();

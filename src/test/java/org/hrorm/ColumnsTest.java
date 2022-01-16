@@ -5,6 +5,7 @@ import org.hrorm.database.HelperFactory;
 import org.hrorm.examples.Columns;
 import org.hrorm.examples.ColumnsDaoBuilder;
 import org.hrorm.examples.EnumeratedColor;
+import org.hrorm.util.AssertHelp;
 import org.hrorm.util.RandomUtils;
 import org.hrorm.util.TestLogConfig;
 import org.junit.AfterClass;
@@ -60,11 +61,11 @@ public class ColumnsTest {
 
         Columns dbInstance = dao.selectOne(id);
 
-        Assert.assertEquals(columns, dbInstance);
+        Assert.assertEquals(columns.getStringThing(), dbInstance.getStringThing());
         Assert.assertNotNull(columns.getId());
         Assert.assertEquals(id, columns.getId());
 
-        Assert.assertEquals(time, dbInstance.getTimeStampThing());
+        AssertHelp.sameInstantToMillis(time, dbInstance.getTimeStampThing());
 
         connection.close();
     }
