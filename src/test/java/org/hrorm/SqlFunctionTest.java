@@ -137,7 +137,7 @@ public class SqlFunctionTest {
                 Where.where("boolean_column", Operator.EQUALS, true)
                         .and("fractional_column", Operator.LESS_THAN, new BigDecimal("50.7")));
 
-        Assert.assertEquals(new BigDecimal("658.30"), sum);
+        AssertHelp.sameBigDecimal(new BigDecimal("658.30"), sum);
         connection.close();
     }
 
